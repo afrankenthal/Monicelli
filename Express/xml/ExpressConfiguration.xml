@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='iso-8859-1'?>
+<!DOCTYPE MonicelliExpressConfiguration SYSTEM "./dtd/ExpressConfiguration.dtd">
+<MonicelliExpressConfiguration>
+  <Defaults FilesPath="/data/TestBeam/2013_10_October_T1037/Merged/" 
+           GeometriesPath="/data/TestBeam/2013_10_October_T1037/Geometries/" 
+           TrackFindingAlgorithm="FirstAndLast" 
+	   NumberOfEvents="-1" 
+	   TrackPoints="6" 
+	   MaxPlanePoints="5" 
+	   Chi2Cut="-1" 
+	   XTolerance="250" 
+	   YTolerance="250"
+	   FindDut="false"
+	   UseEtaFunction="false"/>
+<<<<<<< ExpressConfiguration.xml
+ <!--File Name="Run888_Merged.dat" Geometry="Run888.geo" />
+ <File Name="Run889_Merged.dat" Geometry="Run888.geo" />
+ <File Name="Run890_Merged.dat" Geometry="Run888.geo" />
+ <File Name="Run891_Merged.dat" Geometry="Run888.geo" />
+ <File Name="Run892_Merged.dat" Geometry="Run888.geo" />
+ <File Name="Run893_Merged.dat" Geometry="Run888.geo" />
+ <File Name="Run894_Merged.dat" Geometry="Run888.geo" />
+ <File Name="Run895_Merged.dat" Geometry="Run888.geo" />
+ <File Name="Run896_Merged.dat" Geometry="Run888.geo" />
+ <File Name="Run910_Merged.dat" Geometry="Run910.geo" />
+ <File Name="Run915_Merged.dat" Geometry="Run916.geo" />
+ <File Name="Run916_Merged.dat" Geometry="Run916.geo" />
+ <File Name="Run919_Merged.dat" Geometry="Run916.geo" />
+ <File Name="Run920_Merged.dat" Geometry="Run916.geo" />
+ <File Name="Run921_Merged.dat" Geometry="Run916.geo" /-->
+ <File Name="Run272_Merged.dat" Geometry="Run272_checked.geo" />
+ <File Name="Run273_Merged.dat" Geometry="Run272_checked.geo" />
+ <File Name="Run274_Merged.dat" Geometry="Run272_checked.geo" />
+ <File Name="Run275_Merged.dat" Geometry="Run272_checked.geo" />
+ <File Name="Run276_Merged.dat" Geometry="Run272_checked.geo" />
+ <File Name="Run277_Merged.dat" Geometry="Run272_checked.geo" />
+ <File Name="Run278_Merged.dat" Geometry="Run272_checked.geo" />
+ <File Name="Run279_Merged.dat" Geometry="Run272_checked.geo" />
+ <File Name="Run280_Merged.dat" Geometry="Run272_checked.geo" />
+ <File Name="Run281_Merged.dat" Geometry="Run272_checked.geo" />
+ <File Name="Run282_Merged.dat" Geometry="Run272_checked.geo" />
+ <File Name="Run283_Merged.dat" Geometry="Run272_checked.geo" />
+=======
+  <!--File Name="Run1.dat" Geometry="Run1.geo" /-->
+<!--File Name="Run242_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run244_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run245_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run247_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run248_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run242_320.dat" Geometry="Run242_320.geo" />
+<File Name="Run251_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run252_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run253_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run254_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run255_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run256_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run258_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run259_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run260_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run261_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run262_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run263_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run264_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run265_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run266_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run267_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run270_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run271_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run272_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run273_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run274_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run275_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run276_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run277_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run278_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run279_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run280_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run281_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run282_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run283_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run284_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run285_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run294_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run295_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run296_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run297_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run298_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run299_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run308_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run309_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run313_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run314_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run315_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run316_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run317_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run318_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run319_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run320_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run320_Merged.dat" Geometry="Run242_320.geo" />
+<File Name="Run348_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run349_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run350_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run351_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run358_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run359_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run360_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run361_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run362_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run363_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run364_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run365_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run366_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run367_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run368_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run369_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run370_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run371_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run372_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run373_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run374_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run375_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run384_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run385_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run386_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run387_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run388_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run389_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run390_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run391_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run392_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run393_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run394_Merged.dat" Geometry="Run348_406.geo" /-->
+<File Name="Run395_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run399_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run400_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run401_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run402_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run403_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run405_Merged.dat" Geometry="Run348_406.geo" />
+<File Name="Run406_Merged.dat" Geometry="Run348_406.geo" />
+>>>>>>> 1.14
+</MonicelliExpressConfiguration>
+

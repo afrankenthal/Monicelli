@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/copy.png</file>
+        <file>images/cut.png</file>
+        <file>images/new.png</file>
+        <file>images/open.png</file>
+        <file>images/paste.png</file>
+        <file>images/save.png</file>
+        <file alias="New Canvas button icon">images/newCanvas.png</file>
+        <file alias="Main Tabs Icon">images/mainTabs.png</file>
+        <file alias="(image for XML editor)">images/posNumber.png</file>
+        <file alias="(XML Editor icon)">images/editXML.png</file>
+        <file alias="Geometry description">images/GeometryAxis.png</file>
+        <file alias="Description of the meaning of a ROC back-flip">images/BackFlip.png</file>
+        <file alias="Meaning of a detector back-flip operation">images/DetectorBackFlip.png</file>
+        <file alias="Description of a ROC orientation within a plaquette">images/Orientation.png</file>
+        <file alias="Describes the relative position of ROCs whitn a plaquette">images/Position.png</file>
+        <file alias="Description of what a standard pitch is with respect to a non-standard one">images/StandardPitch.png</file>
+        <file alias="Description of cluster sizes">images/ClusterSize.png</file>
+        <file alias="Example of good chi2 distribution">images/chi2.png</file>
+        <file alias="Example of expected resolution on DUT(s)">images/resolution.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="customComboBox" name="comboBox">
+    <property name="geometry">
+     <rect>
+      <x>68</x>
+      <y>10</y>
+      <width>237</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="customComboBox" name="comboBox_2">
+    <property name="geometry">
+     <rect>
+      <x>34</x>
+      <y>42</y>
+      <width>329</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="customLineEdit" name="lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>6</x>
+      <y>82</y>
+      <width>385</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>400</width>
+     <height>24</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>customComboBox</class>
+   <extends>QComboBox</extends>
+   <header>customComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>customLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>customLineEdit.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

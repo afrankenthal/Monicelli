@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>571</width>
+    <height>405</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>6</x>
+      <y>26</y>
+      <width>559</width>
+      <height>57</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Task control</string>
+    </property>
+    <widget class="QPushButton" name="parsePB">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>12</y>
+       <width>100</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Parse Raw Data</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="buildPB">
+     <property name="geometry">
+      <rect>
+       <x>114</x>
+       <y>12</y>
+       <width>100</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Build Events</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="alignPB">
+     <property name="geometry">
+      <rect>
+       <x>218</x>
+       <y>12</y>
+       <width>100</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Align Detector</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="parseRunningCB">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>34</y>
+       <width>90</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Parsing...</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="buildRunningCB">
+     <property name="geometry">
+      <rect>
+       <x>116</x>
+       <y>34</y>
+       <width>90</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Building...</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="alignRunningCB">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>34</y>
+       <width>90</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Aligning...</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="fileLoaderPB">
+    <property name="geometry">
+     <rect>
+      <x>209</x>
+      <y>4</y>
+      <width>80</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Load files</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>571</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

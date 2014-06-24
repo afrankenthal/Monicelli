@@ -1,0 +1,42 @@
+Dear Umesh, 
+  since I will be unable to go to CERN to work on the DB, we will try to fix the requested additions 
+with me working in Milano, you at FNAL and Marco at CERN.
+
+These are the variables we would like you to add to the DB:
+
+   Quantity        Default   Variable/Column Name
+
+Trigger holdoff      0      "TriggerHoldoff"
+"busyWhenBehind"     4      "BusyWhenBehind"
+auto-clear-busy      1      "FeatureRegister"
+
+FIFO2 almost full  0x1c00   "FIFO2Limit"
+TimoutOROOS limit     -     "TimeoutOROOSLimit"
+
+SPARE1		            "SPARE1"
+SPARE2                      "SPARE2" 
+SPARE3                      "SPARE3" 
+SPARE4                      "SPARE4" 
+SPARE5                      "SPARE5" 
+SPARE6                      "SPARE6" 
+SPARE7                      "SPARE7" 
+SPARE8                      "SPARE8" 
+SPARE9                      "SPARE9" 
+SPARE10                     "SPARE10"
+
+The Column Name is what you should add (if you need to, please capitalize all characters in the name). 
+Please be consistent in adding exactly the names we indicate here above.
+
+These columns should be added to the following TABLE (depending upon the DV version, development or production):
+
+For development:  cms_pxl_int2r_lb -> "CMS_PXL_PIXEL_VIEW_OWNER.CONF_KEY_FED_CONFIGURATION_V" 
+
+For production :  cms_omds_nolb    -> "CMS_PXL_PIXEL_VIEW.CONF_KEY_FED_CONFIGURATION_V"
+
+Others         :  cms_omds_lb      -> "CMS_PXL_PIXEL_VIEW.CONF_KEY_FED_CONFIGURATION_V"
+                  cmsdevr_nolb     -> "CMS_PXL_PIXEL_VIEW.CONF_KEY_FED_CONFIGURATION_V" 
+                  
+              
+Let us know when you're done, so that we can proceed to add corrections to the existing DB interface and to the GUI.
+
+Dario & Marco

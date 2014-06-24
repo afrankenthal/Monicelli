@@ -1,0 +1,166 @@
+#****************************************************************************
+#* Authors: Dario Menasce, Stefano Terzo
+#*
+#* I.N.F.N. Milan-Bicocca
+#* Piazza  della Scienza 3, Edificio U2
+#* Milano, 20126
+#*
+#****************************************************************************
+
+
+ACBlack       = [0;30m
+ACBlue        = [0;34m
+ACGreen       = [0;32m
+ACCyan        = [0;36m
+ACRed         = [0;31m
+ACPurple      = [0;35m
+ACBrown       = [0;33m
+ACGray        = [0;37m
+ACDarkGray    = [1;30m
+ACLightBlue   = [1;34m
+ACLightGreen  = [1;32m
+ACLightCyan   = [1;36m
+ACLightRed    = [1;31m
+ACLightPurple = [1;35m
+ACYellow      = [1;33m
+ACWhite       = [1;37m
+
+ACPlain       = [0m
+ACBold        = [1m
+ACUnderline   = [4m
+ACBlink       = [5m
+ACReverse     = [7m
+
+ACClear       = [2J
+ACClearL      = [2K
+
+all: customComboBox customLineEdit customTextEdit customSpinBox customCheckBox customTableView customTableWidget MonicelliProject
+	
+###############################################################
+customCheckBox:
+	@echo 
+	@echo '$(ACYellow)$(ACBold)+============================== Building customCheckBox plugin ======================================<<$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)|$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)v$(ACPlain)'
+	cd plugins/customCheckBox  && qmake && make 
+	@echo '$(ACCyan)$(ACBold)+====== Installing =============<<$(ACPlain)'
+	cd plugins/customCheckBox && make install
+	@echo 
+
+###############################################################
+customComboBox:
+	@echo 
+	@echo '$(ACYellow)$(ACBold)+============================== Building customComboBox plugin ======================================<<$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)|$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)v$(ACPlain)'
+	cd plugins/customComboBox && qmake && make 
+	@echo '$(ACCyan)$(ACBold)+====== Installing =============<<$(ACPlain)'
+	cd plugins/customComboBox && make install
+	@echo 
+        
+###############################################################
+customLineEdit:
+	@echo 
+	@echo '$(ACYellow)$(ACBold)+============================== Building customLineEdit plugin ======================================<<$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)|$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)v$(ACPlain)'
+	cd plugins/customLineEdit && qmake && make 
+	@echo '$(ACCyan)$(ACBold)+====== Installing =============<<$(ACPlain)'
+	cd plugins/customLineEdit && make install
+	@echo 
+        
+###############################################################
+customSpinBox:
+	@echo 
+	@echo '$(ACYellow)$(ACBold)+============================== Building customSpinBox plugin ======================================<<$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)|$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)v$(ACPlain)'
+	cd plugins/customSpinBox  && qmake && make 
+	@echo '$(ACCyan)$(ACBold)+====== Installing =============<<$(ACPlain)'
+	cd plugins/customSpinBox && make install
+	@echo 
+        
+###############################################################
+customTableView:
+	@echo 
+	@echo '$(ACYellow)$(ACBold)+============================== Building customTableView plugin ======================================<<$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)|$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)v$(ACPlain)'
+	cd plugins/customTableView  && qmake && make 
+	@echo '$(ACCyan)$(ACBold)+====== Installing =============<<$(ACPlain)'
+	cd plugins/customTableView && make install
+	@echo 
+
+###############################################################
+customTableWidget:
+	@echo 
+	@echo '$(ACYellow)$(ACBold)+============================== Building customTableWidget plugin ======================================<<$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)|$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)v$(ACPlain)'
+	cd plugins/customTableWidget  && qmake && make 
+	@echo '$(ACCyan)$(ACBold)+====== Installing =============<<$(ACPlain)'
+	cd plugins/customTableWidget && make install
+	@echo 
+
+###############################################################
+customTextEdit:
+	@echo 
+	@echo '$(ACYellow)$(ACBold)+============================== Building customTextEdit plugin ======================================<<$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)|$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)v$(ACPlain)'
+	cd plugins/customTextEdit && qmake && make 
+	@echo '$(ACCyan)$(ACBold)+====== Installing =============<<$(ACPlain)'
+	cd plugins/customTextEdit && make install
+	@echo 
+        
+###############################################################
+MonicelliProject:
+	@echo 
+	@echo '$(ACYellow)$(ACBold)+=================================== Building Monicelli ============================================<<$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)|$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)v$(ACPlain)'
+	qmake && make
+	@echo 
+
+###############################################################
+clean:
+	@echo 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning Monicelli ============================================<<$(ACPlain)'
+	make clean
+	@echo 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customCheckBox  =======================================<<$(ACPlain)'
+	cd plugins/customCheckBox  && make clean && cd ../ 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customComboBox =======================================<<$(ACPlain)'
+	cd plugins/customComboBox && make clean && cd ../ 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customLineEdit =======================================<<$(ACPlain)'
+	cd plugins/customLineEdit && make clean && cd ../ 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customSpinBox  =======================================<<$(ACPlain)'
+	cd plugins/customSpinBox  && make clean && cd ../ 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTableView  =======================================<<$(ACPlain)'
+	cd plugins/customTableView  && make clean && cd ../ 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTextEdit =======================================<<$(ACPlain)'
+	cd plugins/customTextEdit && make clean && cd ../ 
+
+###############################################################
+distclean:
+	@echo 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning Monicelli ============================================<<$(ACPlain)'
+	make distclean && qmake
+	@echo 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customCheckBox  =======================================<<$(ACPlain)'
+	cd plugins/customCheckBox  && make distclean && qmake
+	@echo 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customComboBox =======================================<<$(ACPlain)'
+	cd plugins/customComboBox && make distclean && qmake
+	@echo 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customLineEdit =======================================<<$(ACPlain)'
+	cd plugins/customLineEdit && make distclean && qmake
+	@echo 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customSpinBox  =======================================<<$(ACPlain)'
+	cd plugins/customSpinBox  && make distclean && qmake
+	@echo 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTableView  =======================================<<$(ACPlain)'
+	cd plugins/customTableView  && make distclean && qmake
+	@echo 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTextEdit =======================================<<$(ACPlain)'
+	cd plugins/customTextEdit && make distclean && qmake
