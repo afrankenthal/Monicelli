@@ -79,6 +79,8 @@ bool aligner::align(void)
         Event::trackCandidatesDef &tracks       = theEvent->getTrackCandidates() ;
         Event::chi2VectorDef      &tracksChi2   = theEvent->getFittedTracksChi2();
 
+        //std::cout << __PRETTY_FUNCTION__ << "C Size: " << clusters.size() << " CH Size: " << clustersHits.size() << " T Size: " << tracks.size() << " TC Size: " << tracksChi2.size() << std::endl;
+
         if(maxTracks_ > 0 && (int)tracks.size() > maxTracks_)
             continue;
 
@@ -309,7 +311,6 @@ bool aligner::align(void)
                             predSigmas.second += sigy[j][exl->first]*sigy[j][exl->first];
 
                             sumchi2   += resxprime*resxprime/predSigmas.first+resyprime*resyprime/predSigmas.second;
-
 
                             theHManager_->fillAlignmentResults(exl->first,
                                                                xsizemeas[j][exl->first], ysizemeas[j][exl->first],

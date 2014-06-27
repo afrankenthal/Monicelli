@@ -252,7 +252,8 @@ private slots:
                                                                    unsigned int      event           ,
                                                                    TCanvas	   *                     );
     void setCBslopeLimits                                         (TObject         * obj             ,
-                                                                   unsigned int      event           ,                                                                   TCanvas         *                 );
+                                                                   unsigned int      event           ,
+                                                                   TCanvas         *                 );
     void comboBoxPlaqSelectedConnection                           (int               tabIndex        );
     void enableLimitZ                                             (int               state           );
     void updateFixParMap                                          (bool              fix             );
@@ -270,4 +271,3 @@ private slots:
 };
 
 #endif // MAINTABS_H
-

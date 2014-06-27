@@ -490,7 +490,7 @@ bool fileEater::parseBinary3(TTree* tree)
     int          module      = 0;
     int          trig        = 0;
     int          station     = 0;
-    //int          dataType    = 0;
+    int          dataType    = 0;
     Event::aHitDef aHit;
 
     while( inputFile_->good() )
@@ -513,7 +513,7 @@ bool fileEater::parseBinary3(TTree* tree)
 
             if( !plaqMap_.empty() )
             {
-                if( counts++ )//% 1000 == 0 )
+                if( counts++ % 1000 == 0 )
                 {
                     ss_.str("");
                     ss_ << "trigger number " << trig << " (event " << counts - 1 << ")";
@@ -523,7 +523,7 @@ bool fileEater::parseBinary3(TTree* tree)
 
                 theEvent_->setRawData(trig, plaqMap_);
                 //theEvent_->setRawData(counts, plaqMap_);
-                std::cout << __PRETTY_FUNCTION__ << theEvent_->getTrigger() << std::endl;
+                //std::cout << __PRETTY_FUNCTION__ << theEvent_->getTrigger() << std::endl;
                 tree->Fill();
                 plaqMap_.clear();
 
@@ -546,9 +546,17 @@ bool fileEater::parseBinary3(TTree* tree)
                 tmpData = ((data >> ((dataSize-byte-1)*8))& 0xff) << (byte*8);
                 orderedData += tmpData;
             }
-            station      =  (orderedData >> 56) & 0xf    ;
 
-            if(station == 0 || station == 2 || station == 4)
+            dataType     =  (orderedData >> 60) & 0xf;
+            station      =  (orderedData >> 56) & 0xf;
+
+            //if( dataTypeMap_.find( station ) == dataTypeMap_.end() )
+            {
+                //Geometry::setDataType(station, dataType);
+            }
+
+            if(dataType==0) //pixels or DUTs
+            //if(station == 0 || station == 2 || station == 4)
             {
                 dataDebug    =  (orderedData >> 28) & 0x1    ;
                 module       =  (orderedData >> 29) & 0x7    ;
@@ -581,7 +589,8 @@ bool fileEater::parseBinary3(TTree* tree)
                 //continue;//THIS ONE MUST BE REMOVED FOR REGULAR OPERATIONS
                 //}
             }
-            else if(station == 5 || station == 6 || station == 7)//Strip data
+            else if (dataType==1) //strips
+            //else if(station == 5 || station == 6 || station == 7)//Strip data
             {
                 dataDebug    = 0;
                 trig         = (orderedData >> 32) & 0xfffff;
@@ -600,7 +609,8 @@ bool fileEater::parseBinary3(TTree* tree)
             {
                 std::stringstream ss;
                 ss.str("");
-                ss << "Unrecognized station number:  " << station;
+                ss << "Unrecognized data type:  " << dataType;
+                //ss << "Unrecognized station number:  " << station;
                 STDLINE(ss.str(), ACRed);
             }
 
@@ -619,6 +629,7 @@ bool fileEater::parseBinary3(TTree* tree)
                             << std::setw(8) << std::setfill('0')
                             << (orderedData & 0xffffffff);
                 outputFile_ <<  std::dec
+                             << " data type: " << dataType
                              << " trig: "   << trig
                              << " row: "	   << row
                              << " col: "	   << col

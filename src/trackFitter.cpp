@@ -49,7 +49,6 @@ Event::fittedTracksDef trackFitter::fitTracks(const Event::trackCandidatesDef&  
     return fittedTracks_;
 }
 
-int myCounter=0;
 //===============================================================================
 trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHitsCandidateMapDef& alignedHits, Geometry* theGeometry, std::string excludedDetector )
 {
@@ -203,9 +202,6 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
     }
 
     //cout << __PRETTY_FUNCTION__ << "Final: x int = " << pars[1] << " y int = " << pars[3] << " x slope = " << pars[0] << " y slope = " << pars[2] << endl;
-    //if (myCounter==1)
-        //exit(0);
-    ++myCounter;
 
     trackFitter::aFittedTrackDef aFittedTrack;
     aFittedTrack.first.first = pars          ;
@@ -319,6 +315,7 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
               (rightVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
                upVector[0]*(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
+        trackCov[0][0] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
         trackCov[0][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
         trackCov[1][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
         trackCov[1][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
@@ -386,7 +383,8 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
     trackFitter::aFittedTrackDef aKalmanFittedTrack                  ;
     aKalmanFittedTrack.first.first = track                           ;
     aKalmanFittedTrack.first.second= cov                             ;
-    aKalmanFittedTrack.second      = chi2                            ; //pixels
+    //aKalmanFittedTrack.second      = chi2                            ; //pixels
+    aKalmanFittedTrack.second      = chi2/(trackCandidate.size()*2 - 4) ; //pixels
     //aFittedTrack.second            = chi2/(alignedHits.size() - 2)   ; //strips
 
     return aKalmanFittedTrack;

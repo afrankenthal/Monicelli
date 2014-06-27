@@ -39,6 +39,8 @@ class Geometry : public TObject
                                                      int          plaq              );
   int                         getDetectorStation    (std::string  plaqID            );
   int                         getDetectorModule     (std::string  plaqID            );
+  int                         getDetectorDataType   (std::string plaqID             );
+  int                         getDetectorDataType   (int station                    );
 
   std::vector<Detector*>      getDUTs               (void                           );
   std::string                 getDetectorID         (int          Station, int Plaq );
@@ -52,6 +54,8 @@ class Geometry : public TObject
   void                        setDUTnumbers         (unsigned int dutNumbers        ) {dutNumbers_ = dutNumbers    ;}
   void                        setGeometryFileName   (std::string  fileName          ) ;
   void                        setCalibrationDone    (bool done                      ) {calibrationDone_ = done     ;}
+  void                        setDataType           (int station,
+                                                     int dataType                   ) {dataTypeMap_[station] = dataType;}
 
   void                        dump                  (void                           );
 
@@ -62,10 +66,12 @@ class Geometry : public TObject
  private:
 
   typedef std::map< std::string , Detector* >   detectorsMapDef;
+  typedef std::map< int , int >                 dataTypeMapDef;
 
   bool compare_zPosition (std::string first, std::string second);
 
   detectorsMapDef                 detectorsMap_              ;
+  dataTypeMapDef                  dataTypeMap_               ;
   std::vector<int>                runNumbers_                ;
   unsigned int                    dutNumbers_                ;
   std::string                     geometryFileName_          ;

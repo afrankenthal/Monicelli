@@ -673,7 +673,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                     bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"]);
 
                     if(isCalibrated)
-                        charge += (*hit)["charge"];  //Should be abs? Real charge. Should be find since clusters of 3+ are used just for efficiencies
+                        charge += (*hit)["charge"];  //Should be abs? Real charge. Should be fine since clusters of 3+ are used just for efficiencies
                         //charge += abs((*hit)["charge"]);
                     else
                         //calibratePixel returns -999999 in case the pixel is not calibrated so I arbitrarily

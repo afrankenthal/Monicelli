@@ -139,8 +139,6 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
              this                                , SLOT  (on_saveXMLResultsPB_clicked    (void                                    ) ) );
     connect( ui->saveXMLResultsPB3               , SIGNAL(clicked                        (void                                    ) ),
              this                                , SLOT  (on_saveXMLResultsPB_clicked    (void                                    ) ) );
-    connect( ui->findTrackFirstAndLastPB2        , SIGNAL(clicked                        (void                                    ) ),
-             this                                , SLOT  (on_findTrackFirstAndLastPB_clicked(void                                 ) ) );
     connect( ui->xRoadToleranceSB                , SIGNAL(valueChanged                   (int                                     ) ),
              ui->xRoadToleranceSB2               , SLOT  (setValue                       (int                                     ) ) );
     connect( ui->xRoadToleranceSB2               , SIGNAL(valueChanged                   (int                                     ) ),
@@ -1842,6 +1840,9 @@ void mainTabs::fitTrack(std::string fitMethod)
 
     ui->parsingActivityLB->setText(tr("Fitting tracks...")) ;
 
+    //int candidateTracksFound = ;
+    //ui->candidateTracksFoundLE->setText(QString("%1").arg(candidateTracksFound));
+
     theFileEater_->setOperation(&fileEater::updateEvents2,theTrackFinder_);
 
     if(fitMethod == "Simple")
@@ -2210,8 +2211,6 @@ void mainTabs::swapSlopeFitCBs (bool checked )
 //==============================================================================
 //------------------------------------------RESIDUALS TAB---------------------------------------------
 //==============================================================================
-/*
-*/
 void mainTabs::showResiduals()
 {
     std::string type;
@@ -2249,6 +2248,8 @@ void mainTabs::showResiduals()
     theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
     this->launchThread2(theHManager_);
 }
+
+//==============================================================================
 void mainTabs::showResiduals2()
 {
     theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
@@ -2670,7 +2671,7 @@ void mainTabs::signalNewAction(std::string newAction)
 //=============================================================================
 void mainTabs::on_unconstrainedResidualsPB_clicked()
 {
-    cout << __PRETTY_FUNCTION__ << "Button Clicked" << endl;
+    //cout << __PRETTY_FUNCTION__ << "Button Clicked" << endl;
     this->ui->residualsMonitorTW->setCurrentIndex(0) ;
 
     if(ui->onlyDetectorsToBeAlignedCB->isChecked())
@@ -3080,7 +3081,7 @@ void mainTabs::on_fineAlignmentPB_clicked()
 
     theAligner_->setAlignmentPreferences(ui->maxTrialSB->value(),
                                          ui->fineAlignmentStrategySB->value(),
-                                         chi2cut                             ,
+                                         chi2cut,
                                          clusterSel,
                                          minPoints,
                                          maxTracks,
