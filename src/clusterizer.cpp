@@ -47,6 +47,7 @@ struct pixelInfos
     double xPitch;
     double yPitch;
     double charge;
+    int dataType;
 };
 
 //===================================================================================
@@ -80,6 +81,9 @@ Event::clustersHitsMapDef clusterizer::findClusters(Event *theEvent)
                 {
                     int& cRow = clusterHits[c]["row"];
                     int& cCol = clusterHits[c]["col"];
+                    //std::cout << __PRETTY_FUNCTION__ << "Data Type: " << clusterHits[c]["dataType"] << std::endl;
+                    //std::cout << __PRETTY_FUNCTION__ << clusterHits[c].find("row")->second << "  " << clusterHits[c].find("col")->second << "  " << clusterHits[c].find("adc")->second <<"  " <<  clusterHits[c].find("dataType")->second <<"  " <<  clusterHits[c].find("charge")->second << "  " << clusterHits[c].find("size")->second << std::endl;
+                    //std::cout << __PRETTY_FUNCTION__ << "clusterHits Size: " << clusterHits[c].size() << std::endl;
                     for(unsigned  int h=0; h < hits->second.size(); h++ )
                     {
                         if ( ( abs(cCol - hits->second[h]["col"]) <= 1 ) && ( abs(cRow - hits->second[h]["row"]) <= 1 ))
@@ -97,7 +101,7 @@ Event::clustersHitsMapDef clusterizer::findClusters(Event *theEvent)
                                 shs << hits->first << ": got a cluster along rows " << cRow << " and " << hits->second[h]["row"] << " on column " << cCol;
                                 STDLINE(shs.str(), ACWhite);
                             }
-*/                            hits->second.erase( hits->second.begin()+h );
+*/                          hits->second.erase( hits->second.begin()+h );
                             h--;
                         }
                     }
@@ -212,10 +216,11 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
             double& xErr   = clustersMap_[det->first][cluster->first]["xErr"];
             double& yErr   = clustersMap_[det->first][cluster->first]["yErr"];
             double& charge = clustersMap_[det->first][cluster->first]["charge"];
+            double& dataType  = clustersMap_[det->first][cluster->first]["dataType"];
             unsigned int row = 0;
             unsigned int col = 0;
             charge = 0;
-            double& size   = clustersMap_[det->first][cluster->first]["size"];
+            double& size = clustersMap_[det->first][cluster->first]["size"];
             size = cluster->second.size();
 
             std::vector<pixelInfos> pixels(cluster->second.size());
@@ -227,6 +232,9 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                 pixels[p].y         = detector->getPixelCenterLocalY( (*hit)["row"] );
                 pixels[p].xPitch    = detector->getPixelPitchLocalX ( (*hit)["col"] );
                 pixels[p].yPitch    = detector->getPixelPitchLocalY ( (*hit)["row"] );
+                pixels[p].dataType  = (*hit)["dataType"];
+                //std::cout << __PRETTY_FUNCTION__ << "data type: " << (*hit)["dataType"] << std::endl;
+
                 //insert calibration
                 row = (*hit)["row"];
                 col = (*hit)["col"];
@@ -243,7 +251,10 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                     pixels[p].charge = abs( (*hit)["charge"] );
 
                 charge += pixels[p].charge;
+                dataType = pixels[p].dataType;
+                //std::cout << __PRETTY_FUNCTION__ << "data type: " << dataType << std::endl;
             }
+
             double chargeSharing  = 2;//20um charge sharing at 90 deg
             double xChargeSharing = 5*tan(fabs(detector->getYRotation(false))*pi/180);//7*sin(fabs(detector->getYRotation(false))*pi/180);//at 25 deg it gives ~+-20+30um charge sharing region which is all pixel
             double yChargeSharing = 5*tan(fabs(detector->getXRotation(false))*pi/180);//7*sin(fabs(detector->getXRotation(false))*pi/180);
@@ -696,6 +707,8 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
             //            ss << "x: " << x << " y: " << y << " row: " << row << " col: " << col << " xErr: " << xErr << " yErr: " << yErr << " charge: " << charge << " size: " << size;
             //            STDLINE(ss.str(), ACRed);
             //detector->flipPositionLocal(&x, &y, &xErr, &yErr);
+            //std::cout << __PRETTY_FUNCTION__ << "clusters size: " << clustersMap_[det->first][cluster->first].size() << endl;
+            //std::cout << __PRETTY_FUNCTION__ << "Data type: " << clustersMap_[det->first][cluster->first]["dataType"] << endl;
         }
     }
 

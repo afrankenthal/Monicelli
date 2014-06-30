@@ -70,6 +70,10 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
             alignedCluster["size"]   = cluster->second["size"]  ;
             alignedCluster["charge"] = cluster->second["charge"];
             alignedCluster["num"]    = cluster->first  ;
+            alignedCluster["dataType"] = cluster->second["dataType"];
+
+            //std::cout << __PRETTY_FUNCTION__ << "data type: " << alignedCluster["dataType"] << endl;
+            //std::cout << __PRETTY_FUNCTION__ << "clusters size: " << alignedCluster.size() << endl;
 
             //std::stringstream ssk;
             //ssk << dIt->first << ": hit in (" << alignedCluster["x"] << ", " << alignedCluster["y"] << ")";
@@ -78,17 +82,21 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
             alignedCluster["xyErr"]  = theGeometry->getDetector( dIt->first )->fromLocalToGlobal( &alignedCluster["x"], &alignedCluster["y"], &alignedCluster["z"], &alignedCluster["xErr"], &alignedCluster["yErr"], &alignedCluster["zErr"] ) ;
         }
     }
-
-    for(Geometry::iterator det=theGeometry->begin(); det!=theGeometry->end(); det++)
+    //cout << __PRETTY_FUNCTION__ << "Number of clusters: " << alignedClusters.size() << endl;
+    //std::cout << __PRETTY_FUNCTION__ << "Aligned clusters size1: " << alignedClusters.size()  << "<" << minPoints_ << endl;
+    for (Event::clustersMapDef::iterator alignedClustersIt=alignedClusters.begin(); alignedClustersIt!=alignedClusters.end(); alignedClustersIt++)
     {
-        int station = theGeometry->getDetectorStation(det->first);
-        int module  = theGeometry->getDetectorModule(det->first);
-        //int dataType = theGeometry->getDetectorDataType(det->first);
+        int station = theGeometry->getDetectorStation(alignedClustersIt->first);
+        int module  = theGeometry->getDetectorModule(alignedClustersIt->first);
 
-        //if(dataType == 1) //strip data
-        if(station == 5 || station == 6 || station == 7)
+        //if(station == 5 || station == 6 || station == 7)
+        //{
+        for (Event::aClusterMapDef::iterator cluster=alignedClustersIt->second.begin(); cluster!=alignedClustersIt->second.end(); cluster++)
         {
-            for (Event::aClusterMapDef::iterator cluster=alignedClusters[getPlaneID(station, module)].begin(); cluster!=alignedClusters[getPlaneID(station, module)].end(); cluster++)
+            int dataType = cluster->second["dataType"];
+            //std::cout << __PRETTY_FUNCTION__ << "Data type: " << dataType << endl;
+            //cout << __PRETTY_FUNCTION__ << "Station: " << station << " Module: " << module << endl;
+            if (dataType==1) //Strip data
             {
                 if (module%2 == 0) //first plaquette of the pair
                 {
@@ -185,31 +193,35 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
                 }
             }
         }
+        //}
         //            if (clustersMap_[getPlaneID(station, module)].size() > 1) clustersMap_[getPlaneID(station, module)].erase(clustersMap_[getPlaneID(station, module)].begin(), clustersMap_[getPlaneID(station, module)].end());
     }
 
+    //std::cout << __PRETTY_FUNCTION__ << "Aligned clusters size2: " << alignedClusters.size()  << "<" << minPoints_ << endl;
     //STDLINE("New track", ACYellow);
     double xLoc, yLoc, zLoc;
-    for(Geometry::iterator det=theGeometry->begin(); det!=theGeometry->end(); det++)
+    for (Event::clustersMapDef::iterator alignedClustersIt=alignedClusters.begin(); alignedClustersIt!=alignedClusters.end(); alignedClustersIt++)
     {
-        int station = theGeometry->getDetectorStation(det->first);
-        int module  = theGeometry->getDetectorModule(det->first);
-        //int dataType = theGeometry->getDetectorDataType(det->first);
+        int station = theGeometry->getDetectorStation(alignedClustersIt->first);
+        int module  = theGeometry->getDetectorModule(alignedClustersIt->first);
 
-        //if (dataType == 1) //strip data
-        if(station == 5 || station == 6 || station == 7)
+        //if(station == 5 || station == 6 || station == 7)
+        //{
+        for (Event::aClusterMapDef::iterator cluster=alignedClustersIt->second.begin(); cluster!=alignedClustersIt->second.end(); cluster++)
         {
-            for (Event::aClusterMapDef::iterator clusterLocal = clusters[getPlaneID(station, module)].begin(); clusterLocal != clusters[getPlaneID(station, module)].end(); ++clusterLocal)
-            {
+            int dataType = cluster->second["dataType"];
+                //std::cout << __PRETTY_FUNCTION__ << "Data type: " << dataType << endl;
+                if (dataType==1) //strip data
+                {
 //                std::stringstream ssl;
 //                ssl << "Station: " << station << " module: " << module << " hit: " << clusterLocal->first <<  " in (" << clusters[getPlaneID(station, module)][clusterLocal->first]["x"] << ", " << clusters[getPlaneID(station, module)][clusterLocal->first]["y"] << ")";
 //                STDLINE("Before returning to local: " + ssl.str(), ACRed);
-                xLoc = alignedClusters[getPlaneID(station, module)][clusterLocal->first]["x"];
-                yLoc = alignedClusters[getPlaneID(station, module)][clusterLocal->first]["y"];
-                zLoc = alignedClusters[getPlaneID(station, module)][clusterLocal->first]["z"];
+                xLoc = cluster->second["x"];
+                yLoc = cluster->second["y"];
+                zLoc = cluster->second["z"];
                 theGeometry->getDetector(station, module)->fromGlobalToLocal(&xLoc, &yLoc, &zLoc);
-                clusters[getPlaneID(station, module)][clusterLocal->first]["x"] = xLoc;
-                clusters[getPlaneID(station, module)][clusterLocal->first]["y"] = yLoc;
+                clusters[getPlaneID(station, module)][cluster->first]["x"] = xLoc;
+                clusters[getPlaneID(station, module)][cluster->first]["y"] = yLoc;
 /*
                 if (module%2 == 0)
                 {
@@ -223,11 +235,14 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
 //                ssl.str("");
 //                ssl << "Station: " << station << " module: " << module << " hit: " << clusterLocal->first <<  " in (" << clusters[getPlaneID(station, module)][clusterLocal->first]["x"] << ", " << clusters[getPlaneID(station, module)][clusterLocal->first]["y"] << ")";
 //                STDLINE("After  returning to local: " + ssl.str(), ACGreen);
+                }
             }
-        }
+        //}
     }
 
+    //std::cout << __PRETTY_FUNCTION__ << "Aligned clusters size3: " << alignedClusters.size()  << "<" << minPoints_ << endl;
     if ( alignedClusters.size() < minPoints_ ) return;
+    //std::cout << __PRETTY_FUNCTION__ << "Aligned clusters size4: " << alignedClusters.size()  << "<" << minPoints_ << endl;
 
     Event::alignedHitsCandidateMapDef  alignedHitsCandidate ;
     //find first and last detector in space
@@ -290,6 +305,7 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
                             //if (hitFound) STDLINE("got a new point!!",ACGreen)
                             alignedHitsCandidate[ dIt->first ] = cluster->second;
                             bestDist2 = dist2;
+                            //std::cout << __PRETTY_FUNCTION__ << "Aligned hits size 1: " << alignedHitsCandidate.size() << endl;
                             //ss_.str("");
                             //ss_ << "detector: " << dIt->first << " x: " << x << " y: " << y;
                             //STDLINE(ss_.str(),ACRed)
@@ -299,6 +315,7 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
                     }
                 }
                 if ( !hitFound ) hitsLost++;
+                //cout << __PRETTY_FUNCTION__ << "break condition: " << theGeometry->getDetectorsNumber(true) - hitsLost << endl;
                 if ( (theGeometry->getDetectorsNumber(true) - hitsLost ) < minPoints_ )
                 {
                     //STDLINE("not enought points to make a track",ACRed)
@@ -311,6 +328,8 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
             //    << " hits found: "              << (theGeometry->getDetectorsNumber(true) - hitsLost)
             //    << " >= MINIMUM_TRACK_POINTS: " << minPoints_;
             //STDLINE(ss_.str(),ACGreen)
+            //std::cout << __PRETTY_FUNCTION__ << "Aligned hits size: " << alignedHitsCandidate.size() << endl;
+            //std::cout << __PRETTY_FUNCTION__ << "Min points: " << minPoints_ << endl;
 
             if ( alignedHitsCandidate.size() >= (minPoints_-2) )
             {
@@ -352,6 +371,7 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
                             {
                                 //if (hitFound) STDLINE("got a new point!!",ACGreen)
                                 alignedHitsCandidate[ dIt->first ] = cluster->second;
+                                //std::cout << __PRETTY_FUNCTION__ << "Aligned hits size 2: " << alignedHitsCandidate.size() << endl;
                                 bestDist2 = dist2;
                                 //ss_.str("");
                                 //ss_ << "Found 1 more -> detector: " << dIt->first << " resX: " << resX << " resY: " << resY << " already have 1? " << hitFound;
@@ -436,6 +456,7 @@ void trackFinder::findRoadSearchTrackCandidates(Event* theEvent, Geometry* theGe
             alignedCluster["size"]   = cluster->second["size"]  ;
             alignedCluster["charge"] = cluster->second["charge"];
             alignedCluster["num"]    = cluster->first  ;
+            alignedCluster["dataType"] = cluster->second["dataType"];
             alignedCluster["xyErr"]  = theGeometry->getDetector( dIt->first )->fromLocalToGlobal( &alignedCluster["x"], &alignedCluster["y"], &alignedCluster["z"], &alignedCluster["xErr"], &alignedCluster["yErr"], &alignedCluster["zErr"] ) ;
             zSortedDetectorNames[theGeometry->getDetector( dIt->first )->getZPositionTotal()] = dIt->first;
             //std::cout << __PRETTY_FUNCTION__ << "Cluster " <<  alignedCluster["num"] << " on station " << dIt->first << std::endl;
@@ -544,18 +565,18 @@ void trackFinder::fitKalmanTrackCandidates(Event* theEvent, Geometry* theGeometr
 //============================================================================
 void trackFinder::fitSimpleTrackCandidates(Event* theEvent, Geometry* theGeometry)
 {
-    Event::trackCandidatesDef                      &trackCandidates_      = theEvent->getTrackCandidates()       ;
-    Event::fittedTracksDef                         &tracksFitted_         = theEvent->getFittedTracks()          ;
-    Event::fittedTracksCovarianceDef               &covMat_               = theEvent->getFittedTracksCovariance();
-    Event::chi2VectorDef                           &chi2_                 = theEvent->getFittedTracksChi2()      ;
+    Event::trackCandidatesDef                      &trackCandidates      = theEvent->getTrackCandidates()       ;
+    Event::fittedTracksDef                         &tracksFitted         = theEvent->getFittedTracks()          ;
+    Event::fittedTracksCovarianceDef               &covMat               = theEvent->getFittedTracksCovariance();
+    Event::chi2VectorDef                           &chi2                 = theEvent->getFittedTracksChi2()      ;
 
     std::vector<Event::alignedHitsCandidateMapDef>  &alignedHitsCandidates = theEvent->getAlignedHitsCandidates();
     Event::clustersMapDef                           &alignedClusters       = theEvent->getAlignedClusters();
 
-    trackCandidates_.clear();
-    tracksFitted_   .clear();
-    covMat_         .clear();
-    chi2_           .clear();
+    trackCandidates.clear();
+    tracksFitted   .clear();
+    covMat         .clear();
+    chi2           .clear();
 
     //cout << __PRETTY_FUNCTION__ << "Simple Track Fit All" << endl;
 
@@ -668,10 +689,10 @@ void trackFinder::cleanUpTracks(std::vector<Event::alignedHitsCandidateMapDef>& 
                                 Event* theEvent,
                                 Geometry* theGeometry)
 {
-    Event::trackCandidatesDef        &trackCandidates_ = theEvent->getTrackCandidates()       ;
-    Event::fittedTracksDef           &tracksFitted_    = theEvent->getFittedTracks()          ;
-    Event::fittedTracksCovarianceDef &covMat_          = theEvent->getFittedTracksCovariance();
-    Event::chi2VectorDef             &chi2_            = theEvent->getFittedTracksChi2()      ;
+    Event::trackCandidatesDef        &trackCandidates = theEvent->getTrackCandidates()       ;
+    Event::fittedTracksDef           &tracksFitted    = theEvent->getFittedTracks()          ;
+    Event::fittedTracksCovarianceDef &covMat          = theEvent->getFittedTracksCovariance();
+    Event::chi2VectorDef             &chi2            = theEvent->getFittedTracksChi2()      ;
 
     std::vector<Event::alignedHitsCandidateMapDef> alignedHitsCandidatesCopy = alignedHitsCandidates;
     Event::clustersMapDef alignedClustersCopy = alignedClusters;
@@ -715,25 +736,25 @@ void trackFinder::cleanUpTracks(std::vector<Event::alignedHitsCandidateMapDef>& 
                 {
                     //cout << "Event number: " << theEvent->getTrigger() << endl;
                     trackFitter::aFittedTrackDef aFittedTrack = theTrackFitter_->fitSingleTrack(*tracksIt, theGeometry);
-                    trackCandidates_.push_back(*tracksIt);
-                    tracksFitted_   .push_back(aFittedTrack.first.first);
-                    covMat_         .push_back(aFittedTrack.first.second);
-                    chi2_           .push_back(aFittedTrack.second);
-                    position = trackCandidates_.size()-1;
-                    if(maxHitsCandidates.find(chi2_[position]) == maxHitsCandidates.end())
+                    trackCandidates.push_back(*tracksIt);
+                    tracksFitted   .push_back(aFittedTrack.first.first);
+                    covMat         .push_back(aFittedTrack.first.second);
+                    chi2           .push_back(aFittedTrack.second);
+                    position = trackCandidates.size()-1;
+                    if(maxHitsCandidates.find(chi2[position]) == maxHitsCandidates.end())
                     {
-                        maxHitsCandidates[chi2_[position]] = position;
+                        maxHitsCandidates[chi2[position]] = position;
                         //std::cout << __PRETTY_FUNCTION__ << "Hits: " << maxHits << "Chi2: " << chi2_[position] << " position # " << position << std::endl;
                     }
                     tracksIt = alignedHitsCandidatesCopy.erase(tracksIt)-1;
                 }
             }
             unsigned int numberOfErasedHits;
-            std::vector<bool> trackEraser(trackCandidates_.size(),false);
+            std::vector<bool> trackEraser(trackCandidates.size(),false);
             for(std::map<double, unsigned int>::iterator tracksIt=maxHitsCandidates.begin(); tracksIt!=maxHitsCandidates.end(); tracksIt++)
             {
                 numberOfErasedHits = 0;
-                for(Event::alignedHitsCandidateMapDef::iterator it=trackCandidates_[tracksIt->second].begin(); it!=trackCandidates_[tracksIt->second].end();)
+                for(Event::alignedHitsCandidateMapDef::iterator it=trackCandidates[tracksIt->second].begin(); it!=trackCandidates[tracksIt->second].end();)
                 {
                     Event::aClusterMapDef::iterator cluster;
                     if(alignedClustersCopy.find(it->first) != alignedClustersCopy.end() &&
@@ -756,7 +777,7 @@ void trackFinder::cleanUpTracks(std::vector<Event::alignedHitsCandidateMapDef>& 
                         //                                   << " cluster # " << it->second["num"]
                         //                                   << " .Number of hits left = " << trackCandidates_[tracksIt->second].size()-1
                         //                                   << std::endl;
-                        trackCandidates_[tracksIt->second].erase(it++);
+                        trackCandidates[tracksIt->second].erase(it++);
                         ++numberOfErasedHits;
                     }
                 }
@@ -771,16 +792,16 @@ void trackFinder::cleanUpTracks(std::vector<Event::alignedHitsCandidateMapDef>& 
                 if(trackEraser[pos] == true)
                 {
                     trackEraser     .erase(trackEraser.begin()+pos);
-                    if ( trackCandidates_[pos].size() >= minPoints_ )
+                    if ( trackCandidates[pos].size() >= minPoints_ )
                     {
                         //                          std::cout << "reusing track with n hits: " << trackCandidates_[pos].size() << std::endl;
-                        alignedHitsCandidatesCopy.push_back(*(trackCandidates_.begin()+pos));
+                        alignedHitsCandidatesCopy.push_back(*(trackCandidates.begin()+pos));
                     }
                     //                      std::cout << __PRETTY_FUNCTION__ << "Erasing track" << std::endl;
-                    trackCandidates_.erase(trackCandidates_.begin()+pos);
-                    tracksFitted_   .erase(tracksFitted_.begin()+pos);
-                    covMat_         .erase(covMat_.begin()+pos);
-                    chi2_           .erase(chi2_.begin()+pos);
+                    trackCandidates.erase(trackCandidates.begin()+pos);
+                    tracksFitted   .erase(tracksFitted.begin()+pos);
+                    covMat         .erase(covMat.begin()+pos);
+                    chi2           .erase(chi2.begin()+pos);
                     pos--;
                 }
             }
@@ -814,14 +835,14 @@ void trackFinder::cleanUpTracks(std::vector<Event::alignedHitsCandidateMapDef>& 
 
     //    for(Event::trackCandidatesDef::iterator trackIt = trackCandidates_.begin(); trackIt != trackCandidates_.end(); trackIt++)
     //erasing tracks that don't pass the chisqr cut
-    for(unsigned int pos=0; pos<trackCandidates_.size(); pos++)
+    for(unsigned int pos=0; pos<trackCandidates.size(); pos++)
     {
-        if( (chi2cut_ < 0 && chi2_[pos] > CHI2DOF_CUT) || ( chi2cut_ >= 0 && chi2_[pos] > chi2cut_))
+        if( (chi2cut_ < 0 && chi2[pos] > CHI2DOF_CUT) || ( chi2cut_ >= 0 && chi2[pos] > chi2cut_))
         {
-            trackCandidates_.erase(trackCandidates_.begin()+pos);
-            tracksFitted_   .erase(tracksFitted_.begin()+pos);
-            covMat_         .erase(covMat_.begin()+pos);
-            chi2_           .erase(chi2_.begin()+pos);
+            trackCandidates.erase(trackCandidates.begin()+pos);
+            tracksFitted   .erase(tracksFitted.begin()+pos);
+            covMat         .erase(covMat.begin()+pos);
+            chi2           .erase(chi2.begin()+pos);
             pos--;
         }
     }

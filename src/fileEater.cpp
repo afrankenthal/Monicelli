@@ -550,11 +550,6 @@ bool fileEater::parseBinary3(TTree* tree)
             dataType     =  (orderedData >> 60) & 0xf;
             station      =  (orderedData >> 56) & 0xf;
 
-            //if( dataTypeMap_.find( station ) == dataTypeMap_.end() )
-            {
-                //Geometry::setDataType(station, dataType);
-            }
-
             if(dataType==0) //pixels or DUTs
             //if(station == 0 || station == 2 || station == 4)
             {
@@ -668,6 +663,8 @@ bool fileEater::parseBinary3(TTree* tree)
             aHit["row"] = row  ;
             aHit["col"] = col  ;
             aHit["adc"] = adc  ;
+            aHit["dataType"] = dataType;
+            //std::cout << __PRETTY_FUNCTION__ << "Data Type: " << dataType << " Size: " << aHit.size() << std::endl;
             plaqMap_[ss_.str()].push_back( aHit ) ;
 
             this->fillMagicPlaqComposition(station, module, row, col);

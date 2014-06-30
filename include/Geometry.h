@@ -39,8 +39,6 @@ class Geometry : public TObject
                                                      int          plaq              );
   int                         getDetectorStation    (std::string  plaqID            );
   int                         getDetectorModule     (std::string  plaqID            );
-  int                         getDetectorDataType   (std::string plaqID             );
-  int                         getDetectorDataType   (int station                    );
 
   std::vector<Detector*>      getDUTs               (void                           );
   std::string                 getDetectorID         (int          Station, int Plaq );

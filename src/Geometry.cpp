@@ -76,26 +76,6 @@ Detector * Geometry::getDetector(int station , int plaq)
 }
 
 //===============================================================================
-int Geometry::getDetectorDataType (std::string plaqID)
-{
-    std::stringstream ss_;
-    ss_.str("");
-    ss_ << atoi(plaqID.substr(9,plaqID.find('-')-10).c_str());
-    return this->getDetectorDataType(ss_.str());
-}
-
-//===============================================================================
-int Geometry::getDetectorDataType (int station)
-{
-    if( dataTypeMap_.find( station ) == dataTypeMap_.end() )
-    {
-      //STDLINE("Warning: No station: " + station + " found",ACRed);
-      return  NULL;
-    }
-    else return dataTypeMap_[station];
-}
-
-//===============================================================================
 int Geometry::getDetectorStation(std::string  plaqID)
 {
     return atoi(plaqID.substr(9,plaqID.find('-')-10).c_str());

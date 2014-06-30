@@ -26,7 +26,7 @@
 **  map<string, vector<map<string , int> > >                              theRawData_ 
 **         |      |           |      |
 **         |      |           |      +--------------> value
-**         |      |           +---------------------> row | col | adc
+**         |      |           +---------------------> row | col | adc | dataType
 **         |      +---------------------------------> vector of hits
 **         +----------------------------------------> plaquette ID
 **        
@@ -37,7 +37,7 @@
 **  map<string, map<int, map<string, double> > >                          clusters_  
 **         |         |         |       |
 **         |         |         |       +------------> value
-**         |         |         +--------------------> x | y | xErr | yErr | charge
+**         |         |         +--------------------> x | y | xErr | yErr | charge | dataType     //Cluster size is included here too.
 **         |         +------------------------------> cluster ID number
 **         +----------------------------------------> plaquette ID
 **  
@@ -49,7 +49,7 @@
 **  map<string, map<int, vector<map<string, int > > > >                   clustersHits_
 **         |         |     |           |     |
 **         |         |     |           |     +------> value
-**         |         |     |           +------------> row | col | adc | charge | size
+**         |         |     |           +------------> row | col | adc | charge | size | dataType  //Size and charge are not actually present. Size is present in clusters, above.
 **         |         |     +------------------------> vector of row/column hits
 **         |         +------------------------------> cluster ID number
 **         +----------------------------------------> plaquette ID
@@ -69,7 +69,7 @@
 **  vector<map<string, map<string, double> > >                            trackCandidates_
 **    |          |           |       |
 **    |          |           |       +--------------> value
-**    |          |           +----------------------> x | y | z | xErr | yErr | errZ | size | cluster ID
+**    |          |           +----------------------> x | y | z | xErr | yErr | errZ | size | cluster ID | dataType
 **    |          +----------------------------------> plaquette  ID
 **    +---------------------------------------------> vector of track candidates
 **    
