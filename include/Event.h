@@ -69,7 +69,7 @@
 **  vector<map<string, map<string, double> > >                            trackCandidates_
 **    |          |           |       |
 **    |          |           |       +--------------> value
-**    |          |           +----------------------> x | y | z | xErr | yErr | errZ | size | cluster ID | dataType
+**    |          |           +----------------------> x | y | z | xErr | yErr | errZ | xyErr | size | cluster ID | dataType | charge | num
 **    |          +----------------------------------> plaquette  ID
 **    +---------------------------------------------> vector of track candidates
 **    
