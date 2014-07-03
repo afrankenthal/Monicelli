@@ -1,0 +1,24 @@
+PROJECT1 = Merger
+PROJECT2 = Reader
+CLASS1 = FilesMerger
+CLASS2 = Hit
+CLASS3 = Event
+CLASS4 = DataDecoder
+CLASS5 = Run
+CLASS6 = PxEvent
+SRCEXT = cpp
+CPP_FLAGS = -O3 -Wall
+#CPP_FLAGS = -O3
+#CPP_FLAGS = -g
+
+#all: $(PROJECT1) $(PROJECT2)
+all: $(PROJECT1)
+
+$(PROJECT1): $(PROJECT1).$(SRCEXT) $(CLASS1).$(SRCEXT) $(CLASS1).h $(CLASS2).$(SRCEXT) $(CLASS2).h $(CLASS3).$(SRCEXT) $(CLASS3).h $(CLASS4).$(SRCEXT) $(CLASS4).h  $(CLASS5).$(SRCEXT) $(CLASS5).h $(CLASS6).$(SRCEXT) $(CLASS6).h  
+	g++ $(CPP_FLAGS) -o $(PROJECT1) $(PROJECT1).cpp $(CLASS1).$(SRCEXT) $(CLASS2).$(SRCEXT) $(CLASS3).$(SRCEXT) $(CLASS4).$(SRCEXT) $(CLASS5).$(SRCEXT) $(CLASS6).$(SRCEXT) -I. `root-config --cflags --libs`
+
+$(PROJECT2): $(PROJECT2).$(SRCEXT) $(CLASS1).$(SRCEXT) $(CLASS1).h $(CLASS2).$(SRCEXT) $(CLASS2).h $(CLASS3).$(SRCEXT) $(CLASS3).h $(CLASS4).$(SRCEXT) $(CLASS4).h $(CLASS5).$(SRCEXT) $(CLASS5).h $(CLASS6).$(SRCEXT) $(CLASS6).h 
+	g++ $(CPP_FLAGS) -o $(PROJECT2) $(PROJECT2).cpp $(CLASS1).$(SRCEXT) $(CLASS2).$(SRCEXT) $(CLASS3).$(SRCEXT) $(CLASS4).$(SRCEXT) $(CLASS5).$(SRCEXT) $(CLASS6).$(SRCEXT) -I. `root-config --cflags --libs`
+
+clean:
+	rm -rf $(PROJECT1) $(PROJECT2) *~
