@@ -19,7 +19,7 @@ if(${HOSTNAME} == "rulinux03.dhcp.fnal.gov") then
   setenv Monicelli_RawData_Dir     ${MonicelliDir}/../Merged
   setenv Monicelli_DataSample_Dir  ${MonicelliDir}/../Merged
   setenv Monicelli_CalSample_Dir   ${BASEDATADIR}/Calibrations
-  setenv MonicelliOutputDir	   ${MonicelliDir}/../MonicelliStripOutput
+  setenv MonicelliOutputDir	   ${MonicelliDir}/../MonicelliOutput
   setenv Monicelli_XML_Dir         ${MonicelliDir}/xml
   
   #===== Location of the ROOT components
@@ -46,7 +46,7 @@ else if(${HOSTNAME} == "ftbftracker01.fnal.gov" || ${HOSTNAME} == "ftbftracker01
   setenv Monicelli_RawData_Dir     ${BASEDATADIR}/Merged
   setenv Monicelli_DataSample_Dir  ${BASEDATADIR}/Merged
   setenv Monicelli_CalSample_Dir   ${BASEDATADIR}/Calibrations
-  setenv MonicelliOutputDir	   ${BASEDATADIR}/MonicelliStripOutput
+  setenv MonicelliOutputDir	   ${BASEDATADIR}/MonicelliOutput
   setenv Monicelli_XML_Dir         ${MonicelliDir}/xml
   
   #===== Location of the ROOT components
