@@ -11,15 +11,15 @@
 alias do 'make -f MakefileAll '
 setenv BASEDATADIR /data/TestBeam/2014_04_April
 
-#===============   rulinux01.dhcp.fnal.gov   ==============================================
-if(${HOSTNAME} == "ftbftracker01.fnal.gov") then
+#===============   Personalized configuration on this computer   ==============================================
+if(${HOSTNAME} == "rulinux03.dhcp.fnal.gov") then
 
   #===== Local directories
   setenv MonicelliDir		   `pwd`
-  setenv Monicelli_RawData_Dir     ${BASEDATADIR}/Merged
-  setenv Monicelli_DataSample_Dir  ${BASEDATADIR}/Merged
+  setenv Monicelli_RawData_Dir     ${MonicelliDir}/../Merged
+  setenv Monicelli_DataSample_Dir  ${MonicelliDir}/../Merged
   setenv Monicelli_CalSample_Dir   ${BASEDATADIR}/Calibrations
-  setenv MonicelliOutputDir	   ${BASEDATADIR}/MonicelliStripOutput
+  setenv MonicelliOutputDir	   ${MonicelliDir}/../MonicelliStripOutput
   setenv Monicelli_XML_Dir         ${MonicelliDir}/xml
   
   #===== Location of the ROOT components
@@ -39,16 +39,14 @@ if(${HOSTNAME} == "ftbftracker01.fnal.gov") then
   
   setenv LD_LIBRARY_PATH           /usr/lib64
   
-endif
-
-if(${HOSTNAME} == "rulinux03.dhcp.fnal.gov" ) then
+else if(${HOSTNAME} == "ftbftracker01.fnal.gov" || ${HOSTNAME} == "ftbftracker01.fnal.gov" || ${HOSTNAME} == "rulinux01.dhcp.fnal.gov" || ${HOSTNAME} == "rulinux02.dhcp.fnal.gov" || ${HOSTNAME} == "rulinux03.dhcp.fnal.gov") then
 
   #===== Local directories
   setenv MonicelliDir		   `pwd`
-  setenv Monicelli_RawData_Dir     ${MonicelliDir}/../Merged
-  setenv Monicelli_DataSample_Dir  ${MonicelliDir}/../Merged
+  setenv Monicelli_RawData_Dir     ${BASEDATADIR}/Merged
+  setenv Monicelli_DataSample_Dir  ${BASEDATADIR}/Merged
   setenv Monicelli_CalSample_Dir   ${BASEDATADIR}/Calibrations
-  setenv MonicelliOutputDir	   ${MonicelliDir}/../MonicelliStripOutput
+  setenv MonicelliOutputDir	   ${BASEDATADIR}/MonicelliStripOutput
   setenv Monicelli_XML_Dir         ${MonicelliDir}/xml
   
   #===== Location of the ROOT components
