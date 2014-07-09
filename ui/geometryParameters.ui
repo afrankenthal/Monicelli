@@ -780,7 +780,7 @@
       </font>
      </property>
      <property name="text">
-      <string>deg</string>
+      <string>dg</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="totalPar0LE">
@@ -862,9 +862,6 @@
      </property>
     </widget>
    </widget>
-   <zorder>label_7</zorder>
-   <zorder>detectorNameCB</zorder>
-   <zorder>parametersGB</zorder>
   </widget>
  </widget>
  <resources/>

@@ -37,7 +37,7 @@
 **  map<string, map<int, map<string, double> > >                          clusters_  
 **         |         |         |       |
 **         |         |         |       +------------> value
-**         |         |         +--------------------> x | y | xErr | yErr | charge | dataType     //Cluster size is included here too.
+**         |         |         +--------------------> x | y | xErr | yErr | charge | dataType | size
 **         |         +------------------------------> cluster ID number
 **         +----------------------------------------> plaquette ID
 **  
@@ -49,7 +49,7 @@
 **  map<string, map<int, vector<map<string, int > > > >                   clustersHits_
 **         |         |     |           |     |
 **         |         |     |           |     +------> value
-**         |         |     |           +------------> row | col | adc | charge | size | dataType  //Size and charge are not actually present. Size is present in clusters, above.
+**         |         |     |           +------------> row | col | adc | dataType
 **         |         |     +------------------------> vector of row/column hits
 **         |         +------------------------------> cluster ID number
 **         +----------------------------------------> plaquette ID
@@ -69,7 +69,7 @@
 **  vector<map<string, map<string, double> > >                            trackCandidates_
 **    |          |           |       |
 **    |          |           |       +--------------> value
-**    |          |           +----------------------> x | y | z | xErr | yErr | errZ | xyErr | size | cluster ID | dataType | charge | num
+**    |          |           +----------------------> x | y | z | xErr | yErr | errZ | xyErr | size | cluster ID | dataType | charge
 **    |          +----------------------------------> plaquette  ID
 **    +---------------------------------------------> vector of track candidates
 **    

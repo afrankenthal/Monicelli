@@ -993,8 +993,8 @@ HManager::stringVDef HManager::makeTrackEvent( Event *theEvent )
             int biny = vetY->Fill(theGeometry_->getDetector( (*it).first )->getZPositionTotal(), (*it).second["y"]);
             vetY->SetBinError(biny,(*it).second["yErr"]);
 
-            //           double xtry = clusters[(*it).first][(int)(*it).second["num"]]["x"];
-            //           double ytry = clusters[(*it).first][(int)(*it).second["num"]]["y"];
+            //           double xtry = clusters[(*it).first][(int)(*it).second["cluster ID"]]["x"];
+            //           double ytry = clusters[(*it).first][(int)(*it).second["cluster ID"]]["y"];
             //           double ztry = 0;
             //           double tmp = 0;
 
@@ -1007,8 +1007,8 @@ HManager::stringVDef HManager::makeTrackEvent( Event *theEvent )
             //STDLINE(ss_.str(),ACCyan);
 
             ss_.str("");
-            ss_ << "x prime: "  << clusters[(*it).first][(int)(*it).second["num"]]["x"] - theGeometry_->getDetector( (*it).first )->getXPosition()
-                << " y prime: " << clusters[(*it).first][(int)(*it).second["num"]]["y"] - theGeometry_->getDetector( (*it).first )->getYPosition()
+            ss_ << "x prime: "  << clusters[(*it).first][(int)(*it).second["cluster ID"]]["x"] - theGeometry_->getDetector( (*it).first )->getXPosition()
+                << " y prime: " << clusters[(*it).first][(int)(*it).second["cluster ID"]]["y"] - theGeometry_->getDetector( (*it).first )->getYPosition()
                 << " z center: " << theGeometry_->getDetector( (*it).first )->getZPositionTotal()
                 << " x: "  << /*xtry*/(*it).second["x"]
                 << " y: "  << /*ytry*/(*it).second["y"]
@@ -1222,15 +1222,15 @@ HManager::stringVDef HManager::makeElectronDistribution(std::vector<int> selecte
 
                 double totADC = 0;
                 if (clusterSize < 0 ||
-                        (unsigned int)clusterSize == clusterHits[(*det).first][(int)det->second["num"]].size() )
+                        (unsigned int)clusterSize == clusterHits[(*det).first][(int)det->second["cluster ID"]].size() )
                 {
-                    for(unsigned int i=0; i < clusterHits[(*det).first][(int)det->second["num"]].size(); i++)
+                    for(unsigned int i=0; i < clusterHits[(*det).first][(int)det->second["cluster ID"]].size(); i++)
                     {
-                        unsigned int row = clusterHits[(*det).first][(int)det->second["num"]][i]["row"];
-                        unsigned int col = clusterHits[(*det).first][(int)det->second["num"]][i]["col"];
+                        unsigned int row = clusterHits[(*det).first][(int)det->second["cluster ID"]][i]["row"];
+                        unsigned int col = clusterHits[(*det).first][(int)det->second["cluster ID"]][i]["col"];
                         ROC *roc = theGeometry_->getDetector((*det).first)->convertPixelToROC(&row, &col);
                         int charge;
-                        bool isCalibrated = roc->calibratePixel(row, col, clusterHits[(*det).first][(int)det->second["num"]][i]["adc"], charge);
+                        bool isCalibrated = roc->calibratePixel(row, col, clusterHits[(*det).first][(int)det->second["cluster ID"]][i]["adc"], charge);
                         if(isCalibrated)
                             totADC+=charge;
                     }

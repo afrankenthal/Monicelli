@@ -10,6 +10,7 @@
 #include "maintabs.h"
 #include "ui_maintabs.h"
 #include "qmessagebox.h"
+#include <QTableWidget>
 
 #include <iterator>
 
@@ -64,7 +65,7 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
     qRegisterMetaType<HManager::stringVDef>("HManager::stringVDef");
 
     //widgets connections
-//    connect(this                                 , SIGNAL(makeHistos                     (threadEnd_Function, HManager::stringVDef) ),
+    //    connect(this                                 , SIGNAL(makeHistos                     (threadEnd_Function, HManager::stringVDef) ),
     connect(this                                 , SIGNAL(processFinished                (threadEnd_Function, HManager::stringVDef) ),
             this                                 , SLOT  (endThreadSettings              (threadEnd_Function, HManager::stringVDef) ) );
     connect(theThreader_                         , SIGNAL(processFinished                (process *,          bool                ) ),
@@ -400,7 +401,7 @@ void mainTabs::openRootFile(QString fileName)
         //        ui->showAllPlaqPB                      ->setEnabled(true) ;
         //        ui->showHitsFreqPB                     ->setEnabled(true) ;
 
-        //fill combo boxes with detectors from gemotry
+        //fill combo boxes with detectors from geometry
         ui->detectorsTableView                 ->clearTable() ;
         ui->detectorsToBeAlignedLW             ->clear();
         ui->dutAlignmentDutSelectCB            ->clear();
@@ -810,15 +811,15 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
 
                 if( currentSubProcess[i] == theTrackFinder_ )
                 {
-                    if(theTrackFinder_->getOperation() == &trackFinder::findFirstAndLastTrackCandidates        ||
-                            theTrackFinder_->getOperation() == &trackFinder::findAllFirstAndLast               ||
-                            theTrackFinder_->getOperation() == &trackFinder::findRoadSearchTrackCandidates     ||
-                            theTrackFinder_->getOperation() == &trackFinder::findAllRoadSearch                 ||
+                    if(//theTrackFinder_->getOperation() == &trackFinder::findFirstAndLastTrackCandidates        ||
+                            //theTrackFinder_->getOperation() == &trackFinder::findAllFirstAndLast               ||
+                            //theTrackFinder_->getOperation() == &trackFinder::findRoadSearchTrackCandidates     ||
+                            //theTrackFinder_->getOperation() == &trackFinder::findAllRoadSearch                 ||
                             theTrackFinder_->getOperation() == &trackFinder::fitKalmanTrackCandidates          ||
                             theTrackFinder_->getOperation() == &trackFinder::fitAllKalman                      ||
                             theTrackFinder_->getOperation() == &trackFinder::fitSimpleTrackCandidates          ||
                             theTrackFinder_->getOperation() == &trackFinder::fitAllSimple                     )
-                            //)
+                        //)
                     {
                         ui->tracksFoundCB         ->setChecked(true) ;
 
@@ -874,90 +875,96 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
 
         int tPad = 1;
         int numberOfTelescopeDetectors = theGeometry_->getDetectorsNumber(true);
+        int numberOfDUTs = theGeometry_->getDetectorsNumber(false) - theGeometry_->getDetectorsNumber(true);
+        //cout << __PRETTY_FUNCTION__ << "# of DUTs: " << numberOfDUTs << endl;
         float nSqrt = sqrt(numberOfTelescopeDetectors);
+        float dutSqrt = sqrt(numberOfDUTs);
         int xPlots = ceil(nSqrt) ;
         int yPlots = ceil(nSqrt);
+        int dutPlots = ceil(dutSqrt);
         for(Geometry::iterator geo=theGeometry_->begin(); geo!=theGeometry_->end(); geo++)
         {
             if(theAligner_->getOperation() == &aligner::align && !geo->second->isDUT())
             {
                 this->drawAll(ui->fineAlignmentResidualsCanvasLeft      , histoTypeV[0] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
-                this->drawAll(ui->fineAlignmentResidualsCanvasRight     , histoTypeV[3] , geo->first, "", 0, 0, 2, 4, tPad);
+                this->drawAll(ui->fineAlignmentResidualsCanvasRight     , histoTypeV[3] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(ui->fineAlignmentResidualsSize1CanvasLeft , histoTypeV[1] , geo->first, "", 0, 0, 2, 4, tPad);
-                this->drawAll(ui->fineAlignmentResidualsSize1CanvasRight, histoTypeV[4] , geo->first, "", 0, 0, 2, 4, tPad);
+                this->drawAll(ui->fineAlignmentResidualsSize1CanvasLeft , histoTypeV[1] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(ui->fineAlignmentResidualsSize1CanvasRight, histoTypeV[4] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(ui->fineAlignmentResidualsSize2CanvasLeft , histoTypeV[2] , geo->first, "", 0, 0, 2, 4, tPad);
-                this->drawAll(ui->fineAlignmentResidualsSize2CanvasRight, histoTypeV[5] , geo->first, "", 0, 0, 2, 4, tPad);
+                this->drawAll(ui->fineAlignmentResidualsSize2CanvasLeft , histoTypeV[2] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(ui->fineAlignmentResidualsSize2CanvasRight, histoTypeV[5] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(ui->fineAlignmentPullsCanvasLeft          , histoTypeV[6] , geo->first, "", 0, 0, 2, 4, tPad );
-                this->drawAll(ui->fineAlignmentPullsCanvasRight         , histoTypeV[9] , geo->first, "", 0, 0, 2, 4, tPad );
+                this->drawAll(ui->fineAlignmentPullsCanvasLeft          , histoTypeV[6] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(ui->fineAlignmentPullsCanvasRight         , histoTypeV[9] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(ui->fineAlignmentPullsSize1CanvasLeft     , histoTypeV[7] , geo->first, "", 0, 0, 2, 4, tPad );
-                this->drawAll(ui->fineAlignmentPullsSize1CanvasRight    , histoTypeV[10], geo->first, "", 0, 0, 2, 4, tPad);
+                this->drawAll(ui->fineAlignmentPullsSize1CanvasLeft     , histoTypeV[7] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(ui->fineAlignmentPullsSize1CanvasRight    , histoTypeV[10], geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(ui->fineAlignmentPullsSize2CanvasLeft     , histoTypeV[8] , geo->first, "", 0, 0, 2, 4, tPad );
-                this->drawAll(ui->fineAlignmentPullsSize2CanvasRight    , histoTypeV[11], geo->first, "", 0, 0, 2, 4, tPad);
+                this->drawAll(ui->fineAlignmentPullsSize2CanvasLeft     , histoTypeV[8] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(ui->fineAlignmentPullsSize2CanvasRight    , histoTypeV[11], geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                /*
-                this->drawAll(ui->fineAlignmentResXYvsYXCanvasLeft      , histoTypeV[12], geo->first, "", 0, 0, 2, 4, tPad);
-                this->drawAll(ui->fineAlignmentResXYvsYXCanvasRight     , histoTypeV[15], geo->first, "", 0, 0, 2, 4, tPad);
+                if (ui->fillAllAlignmentPlotsCB->isChecked())
+                {
+                    this->drawAll(ui->fineAlignmentResXYvsYXCanvasLeft      , histoTypeV[12], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(ui->fineAlignmentResXYvsYXCanvasRight     , histoTypeV[15], geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(ui->fineAlignmentResXYvsYXSize1CanvasLeft , histoTypeV[13], geo->first, "", 0, 0, 2, 4, tPad);
-                this->drawAll(ui->fineAlignmentResXYvsYXSize1CanvasRight, histoTypeV[16], geo->first, "", 0, 0, 2, 4, tPad);
+                    this->drawAll(ui->fineAlignmentResXYvsYXSize1CanvasLeft , histoTypeV[13], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(ui->fineAlignmentResXYvsYXSize1CanvasRight, histoTypeV[16], geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(ui->fineAlignmentResXYvsYXSize2CanvasLeft , histoTypeV[14], geo->first, "", 0, 0, 2, 4, tPad);
-                this->drawAll(ui->fineAlignmentResXYvsYXSize2CanvasRight, histoTypeV[17], geo->first, "", 0, 0, 2, 4, tPad);
+                    this->drawAll(ui->fineAlignmentResXYvsYXSize2CanvasLeft , histoTypeV[14], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(ui->fineAlignmentResXYvsYXSize2CanvasRight, histoTypeV[17], geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(ui->fineAlignmentResXYvsXYCanvasLeft      , histoTypeV[18], geo->first, "", 0, 0, 2, 4, tPad);
-                this->drawAll(ui->fineAlignmentResXYvsXYCanvasRight     , histoTypeV[21], geo->first, "", 0, 0, 2, 4, tPad);
+                    this->drawAll(ui->fineAlignmentResXYvsXYCanvasLeft      , histoTypeV[18], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(ui->fineAlignmentResXYvsXYCanvasRight     , histoTypeV[21], geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(ui->fineAlignmentResXYvsXYSize1CanvasLeft , histoTypeV[19], geo->first, "", 0, 0, 2, 4, tPad);
-                this->drawAll(ui->fineAlignmentResXYvsXYSize1CanvasRight, histoTypeV[22], geo->first, "", 0, 0, 2, 4, tPad);
+                    this->drawAll(ui->fineAlignmentResXYvsXYSize1CanvasLeft , histoTypeV[19], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(ui->fineAlignmentResXYvsXYSize1CanvasRight, histoTypeV[22], geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(ui->fineAlignmentResXYvsXYSize2CanvasLeft , histoTypeV[20], geo->first, "", 0, 0, 2, 4, tPad);
-                this->drawAll(ui->fineAlignmentResXYvsXYSize2CanvasRight, histoTypeV[23], geo->first, "", 0, 0, 2, 4, tPad);
-                */
+                    this->drawAll(ui->fineAlignmentResXYvsXYSize2CanvasLeft , histoTypeV[20], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(ui->fineAlignmentResXYvsXYSize2CanvasRight, histoTypeV[23], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                }
             }
             else if(theAligner_->getOperation() == &aligner::alignDUT && geo->second->isDUT())
             {
-                this->drawAll(ui->dutAlignmentResidualsCanvasLeft      , histoTypeV[0], geo->first, "", 0, 0, 1, 2, tPad);
-                this->drawAll(ui->dutAlignmentResidualsCanvasRight     , histoTypeV[3], geo->first, "", 0, 0, 1, 2, tPad);
+                this->drawAll(ui->dutAlignmentResidualsCanvasLeft      , histoTypeV[0], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(ui->dutAlignmentResidualsCanvasRight     , histoTypeV[3], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                this->drawAll(ui->dutAlignmentResidualsSize1CanvasLeft , histoTypeV[1], geo->first, "", 0, 0, 1, 2, tPad);
-                this->drawAll(ui->dutAlignmentResidualsSize1CanvasRight, histoTypeV[4], geo->first, "", 0, 0, 1, 2, tPad);
+                this->drawAll(ui->dutAlignmentResidualsSize1CanvasLeft , histoTypeV[1], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(ui->dutAlignmentResidualsSize1CanvasRight, histoTypeV[4], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                this->drawAll(ui->dutAlignmentResidualsSize2CanvasLeft , histoTypeV[2], geo->first, "", 0, 0, 1, 2, tPad);
-                this->drawAll(ui->dutAlignmentResidualsSize2CanvasRight, histoTypeV[5], geo->first, "", 0, 0, 1, 2, tPad);
+                this->drawAll(ui->dutAlignmentResidualsSize2CanvasLeft , histoTypeV[2], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(ui->dutAlignmentResidualsSize2CanvasRight, histoTypeV[5], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                this->drawAll(ui->dutAlignmentPullsCanvasLeft          , histoTypeV[6] , geo->first, "", 0, 0, 1, 2, tPad);
-                this->drawAll(ui->dutAlignmentPullsCanvasRight         , histoTypeV[9] , geo->first, "", 0, 0, 1, 2, tPad);
+                this->drawAll(ui->dutAlignmentPullsCanvasLeft          , histoTypeV[6] , geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(ui->dutAlignmentPullsCanvasRight         , histoTypeV[9] , geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                this->drawAll(ui->dutAlignmentPullsSize1CanvasLeft     , histoTypeV[7] , geo->first, "", 0, 0, 1, 2, tPad);
-                this->drawAll(ui->dutAlignmentPullsSize1CanvasRight    , histoTypeV[10], geo->first, "", 0, 0, 1, 2, tPad);
+                this->drawAll(ui->dutAlignmentPullsSize1CanvasLeft     , histoTypeV[7] , geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(ui->dutAlignmentPullsSize1CanvasRight    , histoTypeV[10], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                this->drawAll(ui->dutAlignmentPullsSize2CanvasLeft     , histoTypeV[8] , geo->first, "", 0, 0, 1, 2, tPad);
-                this->drawAll(ui->dutAlignmentPullsSize2CanvasRight    , histoTypeV[11], geo->first, "", 0, 0, 1, 2, tPad);
+                this->drawAll(ui->dutAlignmentPullsSize2CanvasLeft     , histoTypeV[8] , geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(ui->dutAlignmentPullsSize2CanvasRight    , histoTypeV[11], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                /*
-                this->drawAll(ui->dutAlignmentResXYvsYXCanvasLeft      , histoTypeV[12], geo->first, "", 0, 0, 1, 2, tPad);
-                this->drawAll(ui->dutAlignmentResXYvsYXCanvasRight     , histoTypeV[15], geo->first, "", 0, 0, 1, 2, tPad);
+                if (ui->fillAllDUTAlignmentPlotsCB->isChecked())
+                {
+                    this->drawAll(ui->dutAlignmentResXYvsYXCanvasLeft      , histoTypeV[12], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(ui->dutAlignmentResXYvsYXCanvasRight     , histoTypeV[15], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                this->drawAll(ui->dutAlignmentResXYvsYXSize1CanvasLeft , histoTypeV[13], geo->first, "", 0, 0, 1, 2, tPad);
-                this->drawAll(ui->dutAlignmentResXYvsYXSize1CanvasRight, histoTypeV[16], geo->first, "", 0, 0, 1, 2, tPad);
+                    this->drawAll(ui->dutAlignmentResXYvsYXSize1CanvasLeft , histoTypeV[13], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(ui->dutAlignmentResXYvsYXSize1CanvasRight, histoTypeV[16], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                this->drawAll(ui->dutAlignmentResXYvsYXSize2CanvasLeft , histoTypeV[14], geo->first, "", 0, 0, 1, 2, tPad);
-                this->drawAll(ui->dutAlignmentResXYvsYXSize2CanvasRight, histoTypeV[17], geo->first, "", 0, 0, 1, 2, tPad);
+                    this->drawAll(ui->dutAlignmentResXYvsYXSize2CanvasLeft , histoTypeV[14], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(ui->dutAlignmentResXYvsYXSize2CanvasRight, histoTypeV[17], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                this->drawAll(ui->dutAlignmentResXYvsXYCanvasLeft      , histoTypeV[18], geo->first, "", 0, 0, 1, 2, tPad);
-                this->drawAll(ui->dutAlignmentResXYvsXYCanvasRight     , histoTypeV[21], geo->first, "", 0, 0, 1, 2, tPad);
+                    this->drawAll(ui->dutAlignmentResXYvsXYCanvasLeft      , histoTypeV[18], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(ui->dutAlignmentResXYvsXYCanvasRight     , histoTypeV[21], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                this->drawAll(ui->dutAlignmentResXYvsXYSize1CanvasLeft , histoTypeV[19], geo->first, "", 0, 0, 1, 2, tPad);
-                this->drawAll(ui->dutAlignmentResXYvsXYSize1CanvasRight, histoTypeV[22], geo->first, "", 0, 0, 1, 2, tPad);
+                    this->drawAll(ui->dutAlignmentResXYvsXYSize1CanvasLeft , histoTypeV[19], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(ui->dutAlignmentResXYvsXYSize1CanvasRight, histoTypeV[22], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                this->drawAll(ui->dutAlignmentResXYvsXYSize2CanvasLeft , histoTypeV[20], geo->first, "", 0, 0, 1, 2, tPad);
-                this->drawAll(ui->dutAlignmentResXYvsXYSize2CanvasRight, histoTypeV[23], geo->first, "", 0, 0, 1, 2, tPad);
-                */
+                    this->drawAll(ui->dutAlignmentResXYvsXYSize2CanvasLeft , histoTypeV[20], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(ui->dutAlignmentResXYvsXYSize2CanvasRight, histoTypeV[23], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                }
             }
             else
                 continue;
@@ -1251,7 +1258,7 @@ bool mainTabs::loadGeometry(QString type)
         ui->geometryLoadedGeoFileLE  ->setText(fileName) ;
     else
         ui->geometryLoadedGeoFileLE  ->setText("No file loaded") ;
-/*
+    /*
     //divide canvas from geometry
     double intPart, fracPart;
     fracPart = modf( sqrt(theGeometry_->getDetectorsNumber()), &intPart );
@@ -1410,17 +1417,17 @@ void mainTabs::showBeamProfiles_end(HManager::stringVDef histoType)
                 theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[1], plaqSelected_ ) );
             else
                 theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[1], plaqSelected_ ),
-                                      Utils::toDouble( ui->xProfileMeanLE ->text().toStdString() ),
-                                      Utils::toDouble( ui->xProfileSigmaLE->text().toStdString() ),
-                                      ui->xProfileNsigmaSB->value()                                 );
+                        Utils::toDouble( ui->xProfileMeanLE ->text().toStdString() ),
+                        Utils::toDouble( ui->xProfileSigmaLE->text().toStdString() ),
+                        ui->xProfileNsigmaSB->value()                                 );
 
             if( !ui->rawAlignmentMyFitParYCB->isChecked() )
                 theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[2], plaqSelected_ ) );
             else
                 theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[2], plaqSelected_ ),
-                                      Utils::toDouble( ui->yProfileMeanLE ->text().toStdString()  ),
-                                      Utils::toDouble( ui->yProfileSigmaLE->text().toStdString()  ),
-                                      ui->xProfileNsigmaSB->value()                                  );
+                        Utils::toDouble( ui->yProfileMeanLE ->text().toStdString()  ),
+                        Utils::toDouble( ui->yProfileSigmaLE->text().toStdString()  ),
+                        ui->xProfileNsigmaSB->value()                                  );
         }
         ui->writeAlignmentPB        ->setEnabled(true);
         ui->rawAlignmentFitComparePB->setEnabled(true);
@@ -1680,7 +1687,7 @@ void mainTabs::writeAlignment_end(HManager::stringVDef histoType)
     {
         double xPosition=0, xPositionErr=0, yPosition=0, yPositionErr=0;
         //xProfile
-//        STDLINE((*it).first, ACGreen);
+        //        STDLINE((*it).first, ACGreen);
         histo = (TH1*)theHManager_->getHistogram( histoType[1], (*it).first );
         if ( histo->FindObject("gausFitFunc") )
         {
@@ -1840,8 +1847,17 @@ void mainTabs::fitTrack(std::string fitMethod)
 
     ui->parsingActivityLB->setText(tr("Fitting tracks...")) ;
 
-    //int candidateTracksFound = ;
-    //ui->candidateTracksFoundLE->setText(QString("%1").arg(candidateTracksFound));
+/*    int processedEvents = theFileEater_->getEventsNumber();
+    int candidateTracksFound = 0;
+    for( int ev = 0; ev < processedEvents; ev++ )
+    {
+        Event * theEvent = theFileEater_->getEvent(ev);
+        for(unsigned int tr=0; tr < theEvent->getAlignedHitsCandidates().size(); tr++)
+        {
+            candidateTracksFound++;
+        }
+    }
+    ui->candidateTracksFoundLE->setText(QString("%1").arg(candidateTracksFound));*/
 
     theFileEater_->setOperation(&fileEater::updateEvents2,theTrackFinder_);
 
@@ -2135,14 +2151,14 @@ void mainTabs::trackFinderFitSlope_end(HManager::stringVDef xyStringVec)
     {
         if (ui->trackFinderMyFitParXCB->isChecked())
             theFitter_->gaussFit( (TH1*)theHManager_->getHistogram(xyStringVec[1])            ,
-                                  ui->trackFinderXslopeSB->value()                                ,
-                                  Utils::toDouble( ui->xSlopeSigmaLE->text().toStdString() )      ,
-                                  ui->xSlopeNsigmaSB->value()                                      );
+                    ui->trackFinderXslopeSB->value()                                ,
+                    Utils::toDouble( ui->xSlopeSigmaLE->text().toStdString() )      ,
+                    ui->xSlopeNsigmaSB->value()                                      );
         if (ui->trackFinderMyFitParYCB->isChecked())
             theFitter_->gaussFit( (TH1*)theHManager_->getHistogram(xyStringVec[2])           ,
-                                  ui->trackFinderYslopeSB->value()                                ,
-                                  Utils::toDouble( ui->ySlopeSigmaLE->text().toStdString() )      ,
-                                  ui->ySlopeNsigmaSB->value()                                      );
+                    ui->trackFinderYslopeSB->value()                                ,
+                    Utils::toDouble( ui->ySlopeSigmaLE->text().toStdString() )      ,
+                    ui->ySlopeNsigmaSB->value()                                      );
     }
 
     TF1 *fitFunc;
@@ -2554,16 +2570,16 @@ void mainTabs::on_trackFitterFitPB_clicked()
     {
         if( ui->trackFitterMyFitParXCB->isChecked() )
             theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(residualsType_[0], plaqSelected_),
-                                  Utils::toDouble( ui->xResidualMeanLE ->text().toStdString() ) ,
-                                  Utils::toDouble( ui->xResidualSigmaLE->text().toStdString() ) ,
-                                  ui->xResidualNsigmaSB->value()                                  );
+                    Utils::toDouble( ui->xResidualMeanLE ->text().toStdString() ) ,
+                    Utils::toDouble( ui->xResidualSigmaLE->text().toStdString() ) ,
+                    ui->xResidualNsigmaSB->value()                                  );
         //        this->drawAll(ui->residualsSynopticViewLeftCanvas , residualsType_.first, "", lowRange, higRange);
 
         if( ui->trackFitterMyFitParYCB->isChecked() )
             theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(residualsType_[1], plaqSelected_),
-                                  Utils::toDouble( ui->yResidualMeanLE ->text().toStdString() ) ,
-                                  Utils::toDouble( ui->yResidualSigmaLE->text().toStdString() ) ,
-                                  ui->yResidualNsigmaSB->value()                                  );
+                    Utils::toDouble( ui->yResidualMeanLE ->text().toStdString() ) ,
+                    Utils::toDouble( ui->yResidualSigmaLE->text().toStdString() ) ,
+                    ui->yResidualNsigmaSB->value()                                  );
         //        this->drawAll(ui->residualsSynopticViewRightCanvas, residualsType_.second, "", lowRange, higRange);
     }
 
@@ -3848,22 +3864,36 @@ void mainTabs::copyGeoFileTo(QString fileName)
 //===================================================================================================
 void mainTabs::showGeometry()
 {
+
     if(theGeometry_ == NULL) return;
     int yPos = 21;
+    int row = 0;
     GeometryParameters* tmpGeoPars;
     for(Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); it++)
     {
         if(geometryParameters_.find(it->first) == geometryParameters_.end())
         {
-            geometryParameters_[it->first] = tmpGeoPars = new GeometryParameters(ui->geometryParametersF);
+            geometryParameters_[it->first] = new GeometryParameters();
+            tmpGeoPars = new GeometryParameters();
             tmpGeoPars->setGeometry(0,yPos,tmpGeoPars->width(),tmpGeoPars->height());
+
             yPos += tmpGeoPars->height();
-            tmpGeoPars->show();
+            //tmpGeoPars->show();
         }
         else
             tmpGeoPars = geometryParameters_[it->first];
 
+        ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+        ui->tableWidget->setCellWidget(row, 0, tmpGeoPars);
         tmpGeoPars->showDetectorPars(it->second);
+        tmpGeoPars->show();
+        ui->tableWidget->setColumnWidth(0, tmpGeoPars->width()+4);
+        ui->tableWidget->setRowHeight(row, tmpGeoPars->height());
+
+        //std::cout << row << std::endl;
+        ui->tableWidget->show();
+        row++;
+
     }
 
 }

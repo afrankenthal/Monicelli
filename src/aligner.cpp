@@ -108,7 +108,7 @@ bool aligner::align(void)
                 {
                     std::list<unsigned int>  nRow;
                     std::list<unsigned int>  nCol;
-                    for(Event::hitsDef::iterator hIt=clustersHits[det->first][(int)det->second["num"]].begin(); hIt!=clustersHits[det->first][(int)det->second["num"]].end();hIt++)
+                    for(Event::hitsDef::iterator hIt=clustersHits[det->first][(int)det->second["cluster ID"]].begin(); hIt!=clustersHits[det->first][(int)det->second["cluster ID"]].end();hIt++)
                     {
                         nRow.push_back((*hIt)["row"]);
                         nCol.push_back((*hIt)["col"]);
@@ -130,8 +130,8 @@ bool aligner::align(void)
             {
                 if( theGeometry->getDetector(det->first)->isDUT() ) continue;
 
-                xmeas[goodTracks][det->first]    = clusters[det->first][(int)det->second["num"]]["x"];
-                ymeas[goodTracks][det->first]    = clusters[det->first][(int)det->second["num"]]["y"];
+                xmeas[goodTracks][det->first]    = clusters[det->first][(int)det->second["cluster ID"]]["x"];
+                ymeas[goodTracks][det->first]    = clusters[det->first][(int)det->second["cluster ID"]]["y"];
                 if(det->second["size"] == 1)
                 {
                     xsizemeas[goodTracks][det->first] = 1;
@@ -141,7 +141,7 @@ bool aligner::align(void)
                 {
                     std::list<unsigned int>  nRow;
                     std::list<unsigned int>  nCol;
-                    for(Event::hitsDef::iterator hIt=clustersHits[det->first][(int)det->second["num"]].begin(); hIt!=clustersHits[det->first][(int)det->second["num"]].end();hIt++)
+                    for(Event::hitsDef::iterator hIt=clustersHits[det->first][(int)det->second["cluster ID"]].begin(); hIt!=clustersHits[det->first][(int)det->second["cluster ID"]].end();hIt++)
                     {
                         nRow.push_back((*hIt)["row"]);
                         nCol.push_back((*hIt)["col"]);
@@ -161,8 +161,8 @@ bool aligner::align(void)
                         ysizemeas[goodTracks][det->first] = nRow.size();
                     }
                 }
-                sigx[goodTracks][det->first] = clusters[det->first][(int)det->second["num"]]["xErr"];
-                sigy[goodTracks][det->first] = clusters[det->first][(int)det->second["num"]]["yErr"];
+                sigx[goodTracks][det->first] = clusters[det->first][(int)det->second["cluster ID"]]["xErr"];
+                sigy[goodTracks][det->first] = clusters[det->first][(int)det->second["cluster ID"]]["yErr"];
                 theGeometry->getDetector(det->first)->fromLocalToGlobalNoRotation(&xmeas[goodTracks][det->first],&ymeas[goodTracks][det->first],
                                                                                   &sigx [goodTracks][det->first],&sigy [goodTracks][det->first]);
 
@@ -244,10 +244,10 @@ bool aligner::align(void)
                     ROOT::Math::SMatrix<double,2,2> sigmaXY  ;
                     ROOT::Math::SMatrix<double,2,2> sigmaXYInv;
                     ROOT::Math::SVector<double,4>   AtVxy  ;
-                    ROOT::Math::SMatrix<double,4,4> AtVAInv;
-                    ROOT::Math::SVector<double,4>   fitpar ;
+                    ROOT::Math::SMatrix<double,4,4> AtVAInv;//covMat
+                    ROOT::Math::SVector<double,4>   fitpar ;//track parameters
 
-                    // Loop on all planes but ii for each random track
+                    // Loop on all planes but ii for each random track, simple
                     for( std::map<std::string, double>::iterator det=xmeas[j].begin(); det!=xmeas[j].end(); det++ )
                     {
                         rxprime[det->first] = xmeas[j][det->first] - deltaTx[det->first];
@@ -280,10 +280,20 @@ bool aligner::align(void)
 
                     }// End Loop on all planes but ii for each random track
 
-                    // Fit Results
+                    // Simple Fit Results
                     int ifail;
-                    AtVAInv = AtVA.Inverse(ifail) ;
+                    AtVAInv = AtVA.Inverse(ifail);
                     fitpar  = AtVAInv*AtVxy;
+
+                    // Loop on all planes but ii for each random track, kalman
+                    /*for( std::map<std::string, double>::iterator det=xmeas[j].begin(); det!=xmeas[j].end(); det++ )
+                    {
+
+                    }
+
+                    // Kalman Fit Results
+                    AtVAInv = ;//covMat
+                    fitpar  = ;//trackPar*/
 
                     // !!!!!!!!!!ALIGNMENT !!!!!!!!!
                     // Prepare plane ii alignment matrices for each random track
@@ -320,6 +330,7 @@ bool aligner::align(void)
                         }
                         else
                             makeAlignMatrices(AtVAAll[exl->first],AtVInvRAll[exl->first],fitpar,fRInv[exl->first],fTz[exl->first],predX,predY,den,sigx[j][exl->first],sigy[j][exl->first],resxprime,resyprime);
+                            //set one of two res to zero, fix it for dataType==1
                     }
                 }   // End Loop to exclude plane from the track fit
             }  // End Loop on random Tracks
@@ -489,7 +500,7 @@ bool aligner::alignDUT()
             std::list<unsigned int>  nRow;
             std::list<unsigned int>  nCol;
 //            bool inWindow = false;
-            for(Event::hitsDef::iterator hIt=clustersHits[DUT_][(int)tracks[tr][DUT_]["num"]].begin(); hIt!=clustersHits[DUT_][(int)tracks[tr][DUT_]["num"]].end();hIt++)
+            for(Event::hitsDef::iterator hIt=clustersHits[DUT_][(int)tracks[tr][DUT_]["cluster ID"]].begin(); hIt!=clustersHits[DUT_][(int)tracks[tr][DUT_]["cluster ID"]].end();hIt++)
             {
                 nRow.push_back((*hIt)["row"]);
                 nCol.push_back((*hIt)["col"]);
@@ -514,11 +525,11 @@ bool aligner::alignDUT()
                 yClusterSize.push_back(nRow.size());
             }
 
-            rxprime.push_back( clusters[DUT_][(int)tracks[tr][DUT_]["num"]]["x"] );
-            ryprime.push_back( clusters[DUT_][(int)tracks[tr][DUT_]["num"]]["y"] );
+            rxprime.push_back( clusters[DUT_][(int)tracks[tr][DUT_]["cluster ID"]]["x"] );
+            ryprime.push_back( clusters[DUT_][(int)tracks[tr][DUT_]["cluster ID"]]["y"] );
 
-            sigx.push_back( clusters[ DUT_ ][ (int)tracks[tr][DUT_]["num"] ]["xErr"] );
-            sigy.push_back( clusters[ DUT_ ][ (int)tracks[tr][DUT_]["num"] ]["yErr"] );
+            sigx.push_back( clusters[ DUT_ ][ (int)tracks[tr][DUT_]["cluster ID"] ]["xErr"] );
+            sigy.push_back( clusters[ DUT_ ][ (int)tracks[tr][DUT_]["cluster ID"] ]["yErr"] );
 
             dut->fromLocalToGlobalNoRotation(&rxprime[nPoints],&ryprime[nPoints],&sigx[nPoints],&sigy[nPoints]);
             ++nPoints;
@@ -639,6 +650,7 @@ void aligner::makeAlignMatrices   (ROOT::Math::SMatrix<double,nAlignPars,nAlignP
     C(0,3) = 1;
     C(0,4) = 0;
     C(0,5) = 1/den*((fRInv[0][2]-trackPars[0]*fRInv[2][2])*(fRInv[1][1]-trackPars[2]*fRInv[2][1])-(fRInv[1][2]-trackPars[2]*fRInv[2][2])*(fRInv[0][1]-trackPars[0]*fRInv[2][1]));
+
     C(1,0) =-1/den*predY*((fRInv[1][2]-trackPars[2]*fRInv[2][2])*(fRInv[0][0]-trackPars[0]*fRInv[2][0])-(fRInv[0][2]-trackPars[0]*fRInv[2][2])*(fRInv[1][0]-trackPars[2]*fRInv[2][0]));
     C(1,1) = 1/den*(((fRInv[1][2]-trackPars[2]*fRInv[2][2])*(trackPars[0]*z+trackPars[1])-(fRInv[0][2]-trackPars[0]*fRInv[2][2])*(trackPars[2]*z+trackPars[3]))
                     +predY*((fRInv[0][2]-trackPars[0]*fRInv[2][2])*(fRInv[1][1]-trackPars[2]*fRInv[2][1])-(fRInv[1][2]-trackPars[2]*fRInv[2][2])*(fRInv[0][1]-trackPars[0]*fRInv[2][1])));
