@@ -71,71 +71,246 @@ void customTableView::addDetector(std::string detector, double zPosition)
 //================================================================================
 void customTableView::fixAll(int state)
 {
-  for(int r=0; r<model_->rowCount(); ++r )
-  {
-    for( int c=1; c<model_->columnCount()-1; ++c )
+    for(int r=0; r<model_->rowCount(); ++r )
     {
-      QStandardItem * item = model_->item(r, c) ;
-      if( state == 0 )
-        item->setCheckState(Qt::Unchecked);
-      else
-        item->setCheckState(Qt::Checked);
+        for( int c=1; c<model_->columnCount()-1; ++c )
+        {
+            QStandardItem * item = model_->item(r, c) ;
+            if (item->isEnabled())
+            {
+                if( state == 0 )
+                    item->setCheckState(Qt::Unchecked);
+                else
+                    item->setCheckState(Qt::Checked);
+            }
+        }
     }
-  }
-//  this->dump() ;
+    //  this->dump() ;
 }
 
 //================================================================================
 void customTableView::fixExtremes(int state)
 {
-  for(int c=1; c<model_->columnCount()-1; ++c )
-  {
-    QStandardItem * first = model_->item(0,                    c) ;
-    QStandardItem * last  = model_->item(model_->rowCount()-1, c) ;
-    if( state == 0 )
+    for(int c=1; c<model_->columnCount()-1; ++c )
     {
-      first->setCheckState(Qt::Unchecked);
-      last ->setCheckState(Qt::Unchecked);
+        QStandardItem * first = model_->item(0,                    c) ;
+        QStandardItem * last  = model_->item(model_->rowCount()-1, c) ;
+        if( state == 0 )
+        {
+            if (first->isEnabled())
+                first->setCheckState(Qt::Unchecked);
+            if (last->isEnabled())
+                last ->setCheckState(Qt::Unchecked);
+        }
+        else
+        {
+            if (first->isEnabled())
+                first->setCheckState(Qt::Checked);
+            if (last->isEnabled())
+                last ->setCheckState(Qt::Checked);
+        }
     }
-    else
-    {
-      first->setCheckState(Qt::Checked);
-      last ->setCheckState(Qt::Checked);
-    }
-  }
 
-//  this->dump() ;
- }
+    //  this->dump() ;
+}
+
+//================================================================================
+void customTableView::fixAllX(int state)
+{
+    for(int r=0; r<model_->rowCount(); r++ )
+    {
+        QStandardItem * item = model_->item(r, 4) ;
+        if (item->isEnabled())
+        { if( state == 0 )
+                item->setCheckState(Qt::Unchecked);
+            else
+                item->setCheckState(Qt::Checked);
+        }
+    }
+    //  this->dump() ;
+}
+
+//================================================================================
+void customTableView::fixAllY(int state)
+{
+    for(int r=0; r<model_->rowCount(); r++ )
+    {
+        QStandardItem * item = model_->item(r, 5) ;
+        if (item->isEnabled())
+        { if( state == 0 )
+                item->setCheckState(Qt::Unchecked);
+            else
+                item->setCheckState(Qt::Checked);
+        }
+    }
+    //  this->dump() ;
+}
 
 //================================================================================
 void customTableView::fixAllZ(int state)
 {
-  for(int r=0; r<model_->rowCount(); r++ )
-  {
-      QStandardItem * item = model_->item(r, 6) ;
-      if( state == 0 )
-        item->setCheckState(Qt::Unchecked);
-      else
-        item->setCheckState(Qt::Checked);
-  }
-//  this->dump() ;
+    for(int r=0; r<model_->rowCount(); r++ )
+    {
+        QStandardItem * item = model_->item(r, 6) ;
+        if (item->isEnabled())
+        { if( state == 0 )
+                item->setCheckState(Qt::Unchecked);
+            else
+                item->setCheckState(Qt::Checked);
+        }
+    }
+    //  this->dump() ;
+}
+
+//================================================================================
+void customTableView::fixAllTrans(int state)
+{
+    for(int r=0; r<model_->rowCount(); ++r )
+    {
+        for( int c=4; c<=6; c++ )
+        {
+            QStandardItem * item = model_->item(r, c) ;
+            if (item->isEnabled())
+            { if( state == 0 )
+                    item->setCheckState(Qt::Unchecked);
+                else
+                    item->setCheckState(Qt::Checked);
+            }
+        }
+    }
+    //  this->dump() ;
 }
 
 //================================================================================
 void customTableView::fixAllAngles(int state)
 {
-  for(int r=0; r<model_->rowCount(); ++r )
-  {
-      for( int c=1; c<=3; c++ )
-      {
-          QStandardItem * item = model_->item(r, c) ;
-          if( state == 0 )
-              item->setCheckState(Qt::Unchecked);
-          else
-              item->setCheckState(Qt::Checked);
-      }
-  }
-//  this->dump() ;
+    for(int r=0; r<model_->rowCount(); ++r )
+    {
+        for( int c=1; c<=3; c++ )
+        {
+            QStandardItem * item = model_->item(r, c) ;
+            if (item->isEnabled())
+            {
+                if( state == 0 )
+                    item->setCheckState(Qt::Unchecked);
+                else
+                    item->setCheckState(Qt::Checked);
+            }
+        }
+    }
+    //  this->dump() ;
+}
+
+//================================================================================
+void customTableView::fixAllAlpha(int state)
+{
+    for(int r=0; r<model_->rowCount(); ++r )
+    {
+        QStandardItem * item = model_->item(r, 1) ;
+        if (item->isEnabled())
+        {
+            if( state == 0 )
+                item->setCheckState(Qt::Unchecked);
+            else
+                item->setCheckState(Qt::Checked);
+        }
+    }
+    //  this->dump() ;
+}
+
+//================================================================================
+void customTableView::fixAllBeta(int state)
+{
+    for(int r=0; r<model_->rowCount(); ++r )
+    {
+        QStandardItem * item = model_->item(r, 2) ;
+        if (item->isEnabled())
+        {
+            if( state == 0 )
+                item->setCheckState(Qt::Unchecked);
+            else
+                item->setCheckState(Qt::Checked);
+        }
+    }
+    //  this->dump() ;
+}
+//================================================================================
+void customTableView::fixAllGamma(int state)
+{
+    for(int r=0; r<model_->rowCount(); ++r )
+    {
+        QStandardItem * item = model_->item(r, 3) ;
+        if (item->isEnabled())
+        {
+            if( state == 0 )
+                item->setCheckState(Qt::Unchecked);
+            else
+                item->setCheckState(Qt::Checked);
+        }
+    }
+    //  this->dump() ;
+}
+
+//================================================================================
+void customTableView::enableAll(int state)
+{
+    for(int r=0; r<model_->rowCount(); ++r )
+    {
+        for( int c=1; c<=3; c++ )
+        {
+            QStandardItem * item = model_->item(r, c) ;
+            if (!item->isEnabled())
+            {
+                if( state == 0 );
+                else item->setEnabled(true);
+            }
+        }
+    }
+}
+
+//================================================================================
+void customTableView::fixXStrip(int state, int row)
+{
+    QStandardItem * trans = model_->item(row, 5) ;//set checked alt Y
+    QStandardItem * angle = model_->item(row, 1) ;//set checked alt alpha
+    //std::cout << "Found!!" << endl;
+
+    if ( state == 0 )
+    {
+        trans->setCheckState(Qt::Unchecked);
+        trans->setEnabled(true);
+        angle->setCheckState(Qt::Unchecked);
+        angle->setEnabled(true);
+    }
+    else
+    {
+        trans->setCheckState(Qt::Checked);
+        trans->setEnabled(false);//set above enabled=false
+        angle->setCheckState(Qt::Checked);
+        angle->setEnabled(false);//set above enabled=false
+    }
+}
+
+//================================================================================
+void customTableView::fixYStrip(int state, int row)
+{
+    QStandardItem * trans = model_->item(row, 4) ;//set checked alt X
+    QStandardItem * angle = model_->item(row, 2) ;//set checked alt beta
+
+    if (state == 0)
+    {
+        trans->setCheckState(Qt::Unchecked);
+        trans->setEnabled(true);
+        angle->setCheckState(Qt::Unchecked);
+        angle->setEnabled(true);
+    }
+    else
+    {
+        trans->setCheckState(Qt::Checked);
+        trans->setEnabled(false);//set above enabled=false
+        angle->setCheckState(Qt::Checked);
+        angle->setEnabled(false);//set above enabled=false
+    }
 }
 
 //================================================================================

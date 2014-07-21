@@ -18,10 +18,10 @@
 //#include <TVectorT.h>
 //#include <TMatrixTSym.h>
 
-#include "Event.h"
-#include "Geometry.h"
-#include "subMultiProcess.h"
+//#include "Event.h"
+//#include "Geometry.h"
 #include "trackFitter.h"
+//#include "subMultiProcess.h"
 #include "MessageTools.h"
 
 
@@ -38,6 +38,8 @@ public:
 
     void                                execute                        (Event       * theEvent,
                                                                         Geometry    * theGeometry );
+    void                                findAndFitTracks               (Event       * theEvent,
+                                                                        Geometry    * theGeometry );
     void                                findFirstAndLastTrackCandidates(Event       * theEvent,
                                                                         Geometry    * theGeometry );
     void                                findRoadSearchTrackCandidates  (Event       * theEvent,
@@ -46,6 +48,9 @@ public:
                                                                         Geometry    * theGeometry );
     void                                fitSimpleTrackCandidates       (Event       * theEvent,
                                                                         Geometry    * theGeometry );
+    void                                setTrackingOperationParameters (std::string searchMethod,
+                                                                        std::string fitMethod,
+                                                                        bool        findDUT);
     void                                setTrackSearchParameters (double        xTol,
                                                                   double        yTol,
                                                                   double        chi2cut        = -1,
@@ -62,6 +67,8 @@ public:
     void                                fitAllSimple             (Event *theEvent,
                                                                   Geometry *theGeometry       );
 
+    std::string                         getFindMethod            (void                           ){return findMethod_             ;}
+    std::string                         getFitMethod             (void                           ){return fitMethod_              ;}
     std::string                         getLabel                 (void                           );
     std::string                         getName                  (void                           ){return "trackFinder"           ;}
     void                                setHeader                (EventHeader *theHeader         ){theHeader->setTracksFound(true);}
@@ -86,13 +93,16 @@ private:
     Event::clustersMapDef               theClustersMap_        ;
     trackFitter                       * theTrackFitter_        ;
 
-    double xTol_           ;
-    double yTol_           ;
-    double chi2cut_        ;
-    double minPoints_      ;
-    double maxPlanePoints_ ;
+    double      xTol_           ;
+    double      yTol_           ;
+    double      chi2cut_        ;
+    double      minPoints_      ;
+    double      maxPlanePoints_ ;
+    std::string findMethod_   ;
+    std::string fitMethod_      ;
+    bool        findDUT_        ;
 
-    std::stringstream                   ss_                   ;
+    std::stringstream ss_;
 };
 
 #endif // TRACKFINDER_H

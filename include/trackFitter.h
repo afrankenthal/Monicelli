@@ -21,6 +21,7 @@ using namespace std;
 
 #include "Event.h"
 #include "Geometry.h"
+//#include "maintabs.h"
 
 #include "subMultiProcess.h"
 
@@ -73,6 +74,7 @@ public:
    bool                             tracksFitted                    (void                                                            ){return tracksFitted_                ;}
 
    void                             setFitMethodName                (std::string fitMethodName                                       ){fitMethodName_=fitMethodName        ;}
+   //std::string                      getFitMethodName                (void                                                            ){return fitMethodName_               ;}
 
 private:
 

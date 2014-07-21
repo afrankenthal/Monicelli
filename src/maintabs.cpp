@@ -43,6 +43,7 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
     //timer_               = NULL;
     timer2_              = NULL;
     redoChi2_            = true;
+    geometryDisplayShrinkFix_= 0;
     /*
     theClusterCanvas_[0] = ui->beamSpotProjXCanvas ;
     theClusterCanvas_[1] = ui->beamSpotProjYCanvas ;
@@ -124,14 +125,32 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
              this                                , SLOT  ( showResiduals                 (                                        ) ) );
     connect( ui->showPullsPB                     , SIGNAL( clicked                       (                                        ) ),
              this                                , SLOT  ( showResiduals                 (                                        ) ) );
+    connect(ui->alignmentTypeCB                  , SIGNAL(currentIndexChanged            (const QString                           ) ),
+             this                                , SLOT  (setAlignmentBoxes              (const QString                          ) ) );
     connect(ui->fixAllCB                         , SIGNAL(stateChanged                   (int                                     ) ),
             ui->detectorsTableView               , SLOT  (fixAll                         (int                                     ) ) );
     connect(ui->fixExtremesCB                    , SIGNAL(stateChanged                   (int                                     ) ),
             ui->detectorsTableView               , SLOT  (fixExtremes                    (int                                     ) ) );
+    connect(ui->fixAllXCB                        , SIGNAL(stateChanged                   (int                                     ) ),
+            ui->detectorsTableView               , SLOT  (fixAllX                        (int                                     ) ) );
+    connect(ui->fixAllYCB                        , SIGNAL(stateChanged                   (int                                     ) ),
+            ui->detectorsTableView               , SLOT  (fixAllY                        (int                                     ) ) );
     connect(ui->fixAllZCB                        , SIGNAL(stateChanged                   (int                                     ) ),
             ui->detectorsTableView               , SLOT  (fixAllZ                        (int                                     ) ) );
+    connect(ui->fixAllTransCB                    , SIGNAL(stateChanged                   (int                                     ) ),
+            ui->detectorsTableView               , SLOT  (fixAllTrans                    (int                                     ) ) );
     connect(ui->fixAllAnglesCB                   , SIGNAL(stateChanged                   (int                                     ) ),
             ui->detectorsTableView               , SLOT  (fixAllAngles                   (int                                     ) ) );
+    connect(ui->fixAllAlphaCB                    , SIGNAL(stateChanged                   (int                                     ) ),
+            ui->detectorsTableView               , SLOT  (fixAllAlpha                    (int                                     ) ) );
+    connect(ui->fixAllBetaCB                     , SIGNAL(stateChanged                   (int                                     ) ),
+            ui->detectorsTableView               , SLOT  (fixAllBeta                     (int                                     ) ) );
+    connect(ui->fixAllGammaCB                    , SIGNAL(stateChanged                   (int                                     ) ),
+            ui->detectorsTableView               , SLOT  (fixAllGamma                    (int                                     ) ) );
+    connect(ui->enableAllCB                      , SIGNAL(stateChanged                   (int                                     ) ),
+            ui->detectorsTableView               , SLOT  (enableAll                      (int                                     ) ) );
+    connect(ui->fixStripsCB                      , SIGNAL(stateChanged                   (int                                     ) ),
+             this                                , SLOT  (fixStrips                      (int                                     ) ) );
     connect( ui->trackFinderLeftCanvas           , SIGNAL(RootEventProcessed             (TObject *, unsigned int, TCanvas *      ) ),
              this                                , SLOT  (setCBslopeLimits               (TObject *, unsigned int, TCanvas *      ) ) );
     connect( ui->trackFinderRightCanvas          , SIGNAL(RootEventProcessed             (TObject *, unsigned int, TCanvas *      ) ),
@@ -370,13 +389,13 @@ void mainTabs::openRootFile(QString fileName)
             ui->rawAlignmentClusterProfilesRB->setEnabled(theHeader->clustersDone()) ;
             //Track Finder tab
             ui->findTracksGB          ->setEnabled(theHeader->clustersDone()) ;
+            ui->fineAlignmentTrackFinderGB->setEnabled(theHeader->tracksFound());
             ui->slopeDisplayGB        ->setEnabled(theHeader->tracksFound()) ;
             ui->trackFitEstimatorsGB  ->setEnabled(theHeader->tracksFound()) ;
             //Residuals tab
             ui->residualsGB           ->setEnabled(theHeader->tracksFound()) ;
             ui->residualPlotsGB       ->setEnabled(theHeader->tracksFound()) ;
             //Fine Alignment tab
-            ui->fineAlignmentTrackFinderGB       ->setEnabled(theHeader->tracksFound());
             ui->fineAlignmentAlignmentControlsGB ->setEnabled(theHeader->tracksFound());
             ui->fineAlignmentCutsGB              ->setEnabled(theHeader->tracksFound());
             ui->fineAlignmentMinPointsSelectionCB->setEnabled(theHeader->tracksFound());
@@ -431,7 +450,9 @@ void mainTabs::openRootFile(QString fileName)
             }
         }
         // Post the table
-        ui->detectorsTableView->post() ;
+        ui->detectorsTableView->post();
+        ui->fixAllZCB->setChecked(true);
+        //fixStrips(1);
 
         // set geometry dependent widgets
         ui->residualsMinPointsSB->setMaximum( theGeometry_->getDetectorsNumber() );
@@ -803,6 +824,7 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
                     ui->clustersBuiltCB              ->setChecked(true) ;
                     ui->rawAlignmentClusterProfilesRB->setEnabled(true) ;
                     ui->findTracksGB                 ->setEnabled(true) ;
+                    ui->fineAlignmentTrackFinderGB   ->setEnabled(true) ;
                     ui->buildPlotsPB                 ->setEnabled(true) ;
                     ui->showAdcDistributionsPB       ->setEnabled(true) ;
                     //this->on_eventSelectedSpinBox_valueChanged(ui->eventSelectedSpinBox->value());
@@ -815,10 +837,11 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
                             //theTrackFinder_->getOperation() == &trackFinder::findAllFirstAndLast               ||
                             //theTrackFinder_->getOperation() == &trackFinder::findRoadSearchTrackCandidates     ||
                             //theTrackFinder_->getOperation() == &trackFinder::findAllRoadSearch                 ||
-                            theTrackFinder_->getOperation() == &trackFinder::fitKalmanTrackCandidates          ||
-                            theTrackFinder_->getOperation() == &trackFinder::fitAllKalman                      ||
-                            theTrackFinder_->getOperation() == &trackFinder::fitSimpleTrackCandidates          ||
-                            theTrackFinder_->getOperation() == &trackFinder::fitAllSimple                     )
+                            //theTrackFinder_->getOperation() == &trackFinder::fitKalmanTrackCandidates          ||
+                            //theTrackFinder_->getOperation() == &trackFinder::fitAllKalman                      ||
+                            //theTrackFinder_->getOperation() == &trackFinder::fitSimpleTrackCandidates          ||
+                            //theTrackFinder_->getOperation() == &trackFinder::fitAllSimple                      ||
+                            theTrackFinder_->getOperation() == &trackFinder::findAndFitTracks)
                         //)
                     {
                         ui->tracksFoundCB         ->setChecked(true) ;
@@ -1759,44 +1782,53 @@ void mainTabs::swapBeamProfilesHistograms(bool toggled)
 //=============================================================================
 //------------------------------------------TRACK FINDER TAB-------------------
 //=============================================================================
-/*void mainTabs::on_findTrackFirstAndLastPB_clicked()
+void mainTabs::on_trackFindAndFitPB_clicked()
 {
-    findTrack("First/Last");
+    std::string fitMethod    = ui->trackFitNameCB   ->currentText().toStdString();
+    std::string findMethod = ui->trackFindNameCB->currentText().toStdString();
+    theTrackFitter_->setFitMethodName(fitMethod);
+    findAndFitTrack(findMethod, fitMethod);
 }
 
-//=============================================================================
-void mainTabs::on_findTrackRoadSearchPB_clicked()
-{
-    findTrack("Road");
-}
-*/
 //===================================================================================================
 void mainTabs::on_trackFitPB_clicked()
 {
-    std::string fitMethod    = ui->trackFitNameCB   ->currentText().toStdString();
+    std::string fitMethod = ui->trackFitNameCB->currentText().toStdString();
 
     theTrackFitter_->setFitMethodName(fitMethod);
 
     //cout << __PRETTY_FUNCTION__ << "Fit Method begin:    " << fitMethod << endl;
-    fitTrack(fitMethod);
+    findAndFitTrack("", fitMethod);
 }
 
 //===================================================================================================
-void mainTabs::on_trackSearchPB_clicked()
+void mainTabs::on_trackFindPB_clicked()
 {
-    std::string searchMethod = ui->trackSearchNameCB->currentText().toStdString();
+    std::string findMethod = ui->trackFindNameCB->currentText().toStdString();
 
     //cout << __PRETTY_FUNCTION__ << "Search Method begin: " << searchMethod << endl;
 
-    findTrack(searchMethod);
+    findAndFitTrack(findMethod,"");
 }
 
 //=============================================================================
-void mainTabs::findTrack(std::string searchMethod)
+void mainTabs::findAndFitTrack(std::string findMethod, std::string fitMethod)
 {
-    ss_.str(""); ss_ << "Track finding procedure started"; STDLINE(ss_.str(),ACPurple) ;
-
-    ui->parsingActivityLB->setText(tr("Finding tracks...")) ;
+    if(fitMethod == "")//it is just a search
+    {
+        ss_.str(""); ss_ << "Track finding procedure started"; STDLINE(ss_.str(),ACPurple) ;
+        ui->parsingActivityLB->setText(tr("Finding tracks...")) ;
+    }
+    else if(findMethod == "")//it is just a fit
+    {
+        ss_.str(""); ss_ << "Track fitting procedure started"; STDLINE(ss_.str(),ACPurple) ;
+        ui->parsingActivityLB->setText(tr("Fitting tracks...")) ;
+    }
+    else
+    {
+        ss_.str(""); ss_ << "Track finding and fitting procedure started"; STDLINE(ss_.str(),ACPurple) ;
+        ui->parsingActivityLB->setText(tr("Finding and fitting tracks...")) ;
+    }
 
     double chi2Cut = -1 ;
     if( ui->trackFinderChi2cutCB->isChecked() ) chi2Cut = ui->trackFinderChi2cutSB->value() ;
@@ -1820,64 +1852,12 @@ void mainTabs::findTrack(std::string searchMethod)
                                               trackPoints                               ,
                                               maxPlanePoints                            );
 
-    theFileEater_->setOperation(&fileEater::updateEvents2,theTrackFinder_);
-
-    if(searchMethod == "First/Last")
-    {
-        if(ui->includeDUTfindCB->isChecked()) theTrackFinder_->setOperation(&trackFinder::findAllFirstAndLast);
-        else                                  theTrackFinder_->setOperation(&trackFinder::findFirstAndLastTrackCandidates);
-    }
-    else if(searchMethod=="Road")
-    {
-        if(ui->includeDUTfindCB->isChecked()) theTrackFinder_->setOperation(&trackFinder::findAllRoadSearch);
-        else                                  theTrackFinder_->setOperation(&trackFinder::findRoadSearchTrackCandidates);
-    }
-    else
-    {
-        STDLINE("ERROR: Unrecognized search method "+ searchMethod,ACRed);
-        return;
-    }
+    theTrackFinder_->setTrackingOperationParameters(findMethod,fitMethod,ui->includeDUTfindCB->isChecked());
+    theFileEater_  ->setOperation(&fileEater::updateEvents2,theTrackFinder_);
+    theTrackFinder_->setOperation(&trackFinder::findAndFitTracks);
     this->launchThread2(theFileEater_);
 }
 
-//=============================================================================
-void mainTabs::fitTrack(std::string fitMethod)
-{
-    ss_.str(""); ss_ << "Track fitting procedure started"; STDLINE(ss_.str(),ACPurple) ;
-
-    ui->parsingActivityLB->setText(tr("Fitting tracks...")) ;
-
-/*    int processedEvents = theFileEater_->getEventsNumber();
-    int candidateTracksFound = 0;
-    for( int ev = 0; ev < processedEvents; ev++ )
-    {
-        Event * theEvent = theFileEater_->getEvent(ev);
-        for(unsigned int tr=0; tr < theEvent->getAlignedHitsCandidates().size(); tr++)
-        {
-            candidateTracksFound++;
-        }
-    }
-    ui->candidateTracksFoundLE->setText(QString("%1").arg(candidateTracksFound));*/
-
-    theFileEater_->setOperation(&fileEater::updateEvents2,theTrackFinder_);
-
-    if(fitMethod == "Simple")
-    {
-        if(ui->includeDUTfindCB->isChecked()) theTrackFinder_->setOperation(&trackFinder::fitAllSimple);
-        else                                  theTrackFinder_->setOperation(&trackFinder::fitSimpleTrackCandidates);
-    }
-    else if (fitMethod=="Kalman")
-    {
-        if(ui->includeDUTfindCB->isChecked()) theTrackFinder_->setOperation(&trackFinder::fitAllKalman);
-        else                                  theTrackFinder_->setOperation(&trackFinder::fitKalmanTrackCandidates);
-    }
-    else
-    {
-        STDLINE("ERROR: Unrecognized fit method "+ fitMethod,ACRed);
-        return;
-    }
-    this->launchThread2(theFileEater_);
-}
 //=============================================================================
 void mainTabs::launchThread2(process * theProcess)
 {
@@ -2129,6 +2109,12 @@ void mainTabs::on_trackFinderSlopeAlignPB_clicked()
 void mainTabs::on_trackFinderFitSlopePB_clicked()
 {
     this->launchThread3(theHManager_,this,&mainTabs::trackFinderFitSlope);
+}
+
+//==============================================================================
+void mainTabs::on_trackFinderFitChi2PB_clicked()
+{
+
 }
 //==============================================================================
 void mainTabs::trackFinderFitSlope()
@@ -3068,6 +3054,9 @@ void mainTabs::on_fineAlignmentPB_clicked()
     if(!theGeometry_) return;
     theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
 
+    std::string alignmentFitMethod = ui->alignmentTypeCB ->currentText().toStdString();
+    theAligner_->setAlignmentFitMethodName(alignmentFitMethod);
+
     //theAligner_->clearFixParMap();
     for(Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it)
     {
@@ -3141,6 +3130,14 @@ void mainTabs::on_writeFineAlignmentResultsPB_clicked()
     theGeometry_ = theFileEater_->getGeometry();
     showGeometry();
     theGeometry_->dump();
+}
+
+//==============================================================================
+void mainTabs::on_trackFindAndFitAlignmentPB_clicked()
+{
+    std::string fitMethod  = ui->trackFitAlignmentNameCB ->currentText().toStdString();
+    std::string findMethod = ui->trackFindAlignmentNameCB->currentText().toStdString();
+    findAndFitTrack(findMethod, fitMethod);
 }
 
 //==============================================================================
@@ -3717,7 +3714,7 @@ void mainTabs::on_reconstructEventsPB_clicked()
     else   theFileEater_->setEventsLimit( -1 );
 
     theFileEater_->setOperation(&fileEater::fullReconstruction,theClusterizer_);
-    theTrackFinder_->setOperation(&trackFinder::findAllRoadSearch);
+    theTrackFinder_->setOperation(&trackFinder::findAndFitTracks);//Might not work, used to be road search, but road search no longer fits
     theFileEater_->addSubProcess(theTrackFinder_);
     theTrackFitter_->setOperation(&trackFitter::makeFittedTracksResiduals);
     theFileEater_->addSubProcess(theTrackFitter_);
@@ -3864,8 +3861,13 @@ void mainTabs::copyGeoFileTo(QString fileName)
 //===================================================================================================
 void mainTabs::showGeometry()
 {
-
-    if(theGeometry_ == NULL) return;
+ /*   for(unsigned int pos = 0; pos < ui->geometryDisplayTable->rowCount(); pos ++)
+    {
+        ui->geometryDisplayTable->removeRow(pos);
+        --pos;
+    }
+ */
+ if(theGeometry_ == NULL) return;
     int yPos = 21;
     int row = 0;
     GeometryParameters* tmpGeoPars;
@@ -3876,29 +3878,30 @@ void mainTabs::showGeometry()
             geometryParameters_[it->first] = new GeometryParameters();
             tmpGeoPars = new GeometryParameters();
             tmpGeoPars->setGeometry(0,yPos,tmpGeoPars->width(),tmpGeoPars->height());
-
             yPos += tmpGeoPars->height();
-            //tmpGeoPars->show();
         }
-        else
-            tmpGeoPars = geometryParameters_[it->first];
+        else tmpGeoPars = geometryParameters_[it->first];
+        //std::cout << "Row: " << row << "\nRowCount:" << ui->geometryDisplayTable->rowCount() << std::endl;
 
-        ui->tableWidget->insertRow(ui->tableWidget->rowCount());
-        ui->tableWidget->setCellWidget(row, 0, tmpGeoPars);
+        if(row < ui->geometryDisplayTable->rowCount()){
+            ui->geometryDisplayTable->setCellWidget(row, 0, tmpGeoPars);
+        }else
+        {
+            ui->geometryDisplayTable->insertRow(ui->geometryDisplayTable->rowCount());
+            ui->geometryDisplayTable->setCellWidget(row, 0, tmpGeoPars);
+            ui->geometryDisplayTable->setRowHeight(row, tmpGeoPars->height());
+            ui->geometryDisplayTable->setColumnWidth(0, tmpGeoPars->width()+4);
+        }
+
         tmpGeoPars->showDetectorPars(it->second);
-        tmpGeoPars->show();
-        ui->tableWidget->setColumnWidth(0, tmpGeoPars->width()+4);
-        ui->tableWidget->setRowHeight(row, tmpGeoPars->height());
-
-        //std::cout << row << std::endl;
-        ui->tableWidget->show();
+        //tmpGeoPars->show();
+        //std::cout << "Height: " <<  tmpGeoPars->width() << " | yPos:" << ui->geometryDisplayTable->cellWidget(row, 0)->y() << std::endl;
+        ui->geometryDisplayTable->show();
         row++;
 
     }
-
+    geometryDisplayShrinkFix_++;
 }
-
-
 //===================================================================================================
 void mainTabs::on_geometryDisableEnableAllPB_clicked()
 {
@@ -4026,4 +4029,33 @@ std::string mainTabs::getPlaneID (int station, int plaquette)
     std::stringstream ss;
     ss << "Station: " << station << " - Plaq: " << plaquette;
     return ss.str();
+}
+
+//===================================================================================================
+void mainTabs::fixStrips(int state)
+{
+    for(int row = 0; row<=ui->detectorsTableView->rowCount()-1; row++)
+    {
+        std::string plaqID = ui->detectorsTableView->indexAt(QPoint(0,row * ui->detectorsTableView->rowHeight(row))).data().toString().toUtf8().constData();
+        //std::cout << __PRETTY_FUNCTION__ << plaqID << std::endl;
+        Detector * theDetector = theGeometry_->getDetector(plaqID);
+        //std::cout << __PRETTY_FUNCTION__ << theDetector->isStrip() << std::endl;
+        if(theDetector->isStrip())
+        {
+                if (theGeometry_->getDetectorModule(plaqID)%2 == 0) ui->detectorsTableView->fixXStrip(state, row);
+                else ui->detectorsTableView->fixYStrip(state, row);
+        }
+    }
+}
+
+//================================================================================
+void mainTabs::setAlignmentBoxes(const QString alignmentMethod)
+{
+    std::string alignmentMethodString = alignmentMethod.toUtf8().constData();
+    if (alignmentMethodString == "Kalman")
+        fixStrips(1);
+    else if (alignmentMethodString == "Simple")
+        //ui->detectorsTableView->enableAll(1);
+        fixStrips(0);
+
 }

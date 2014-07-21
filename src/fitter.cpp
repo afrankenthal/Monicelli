@@ -126,6 +126,60 @@ void fitter::gaussFit(TH1*  histo, double mean, double userRMS, double nRMS)
    STDLINE(  ss_.str() ,ACGreen ) ;
 }
 
+//===============================================================================
+void fitter::chi2Fit(TH1* histo)
+{
+    double hiEdge  = histo->GetBinLowEdge( histo->FindLastBinAbove(0) );
+    double min     = 0;
+    double max     = 20;
+    double loEdge  = histo->GetBinLowEdge( histo->FindFirstBinAbove(0));
+    double mean    = histo->GetMean()         ;
+    double rms     = histo->GetRMS()          ;
+    double height  = histo->GetMaximum()      ;
+
+    //ss_.str("") ;ss_ << "Setting range user: " << loEdge << " - " << hiEdge << " for " << histo->GetName() ; STDLINE(ss_.str(),ACWhite) ;
+
+    //stringstream functionDefinition;
+    //functionDefinition << "TMath::Power(x,
+
+    TF1* chi2 = new TF1("chi2Func", "[1]*TMath::Power(x,[0]/2-1)*expo(0,-.5)/(TMath::Gamma([0]/2)*TMath::Power(2,[0]/2))", min, max) ;
+    chi2->SetLineColor(4);
+    chi2->SetParNames("DOF", "Amplitude");
+    histo->Fit(chi2, "RLQ");
+ /*
+    for(int i=0; i<4; i++)
+    {
+      if ( (mean - nRMS*rms) > min ) min = mean - nRMS*rms ;
+      if ( (mean + nRMS*rms) < max ) max = mean + nRMS*rms;
+
+      //histo->GetXaxis()->SetRangeUser(loEdge, hiEdge);
+      chi2->SetRange(min, max);
+      chi2->SetParameters(mean, rms, height);
+
+      histo->Fit("chi2Func", "RLQ");
+
+      mean_ = chi2->GetParameter(0);
+      sigma_= fabs( chi2->GetParameter(1) );
+
+      if ( (mean_+sigma_*1.5) < hiEdge  ) hiEdge =  (mean_+sigma_*1.5);
+      if ( (mean_-sigma_*1.5) > loEdge  ) loEdge =  (mean_-sigma_*1.5);
+
+      //histo->GetXaxis()->SetRangeUser(loEdge, hiEdge);
+
+      mean = histo->GetMean();
+      rms  = fabs( histo->GetRMS() );
+
+      chi2->SetRange(loEdge, hiEdge);
+      chi2->SetParameters(mean, rms, height);
+      histo->Fit("chi2Func", "RLQ");
+
+      mean_ = chi2->GetParameter(0);
+      sigma_= fabs( chi2->GetParameter(1) );
+    }
+*/
+    //ss_.str(""); ss_  << "Chi2: " <<  gaus->GetChisquare()/gaus->GetNDF(); STDLINE(  ss_.str() ,ACGreen ) ;
+}
+
 //=================================================================
 void fitter::linearFit(TH1*  histo, double *slope, double *q, double xmin, double xmax)
 {

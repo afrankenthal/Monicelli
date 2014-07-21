@@ -942,11 +942,21 @@ void trackFinder::findDUTCandidates(Event* theEvent, Geometry* theGeometry)
         }
     }
 }
+
 //================================================================================
 void trackFinder::execute(Event * theEvent, Geometry * theGeometry)
 {
     (this->*subProcessOperation_)(theEvent,theGeometry);
 }
+
+//================================================================================
+void trackFinder::setTrackingOperationParameters (std::string findMethod, std::string fitMethod, bool findDUT)
+{
+    findMethod_   = findMethod;
+    fitMethod_    = fitMethod;
+    findDUT_      = findDUT;
+}
+
 //========================================================================================
 void trackFinder::setTrackSearchParameters (double  xTol, double yTol, double chi2cut, double minPoints, double maxPlanePoints)
 {
@@ -964,6 +974,44 @@ std::string  trackFinder::getLabel (void )
 }
 
 //========================================================================================
+void trackFinder::findAndFitTracks(Event* theEvent, Geometry* theGeometry )
+{
+    if(findMethod_ == "First/Last")
+    {
+        //if(findDUT_) findAllFirstAndLast            (theEvent, theGeometry);
+        //else
+            findFirstAndLastTrackCandidates(theEvent, theGeometry);
+    }
+    else if(findMethod_ == "Road")
+    {
+        //if(findDUT_) findAllRoadSearch            (theEvent, theGeometry);
+        //else
+            findRoadSearchTrackCandidates(theEvent, theGeometry);
+    }
+    else if(findMethod_ != "")
+    {
+        STDLINE("ERROR: Unrecognized search method "+ findMethod_,ACRed);
+        return;
+    }
+    if(fitMethod_ == "Simple")
+    {
+        if(findDUT_) fitAllSimple            (theEvent, theGeometry);
+        else         fitSimpleTrackCandidates(theEvent, theGeometry);
+    }
+    else if (fitMethod_ == "Kalman")
+    {
+        if(findDUT_) fitAllKalman            (theEvent, theGeometry);
+        else         fitKalmanTrackCandidates(theEvent, theGeometry);
+    }
+    else if(fitMethod_ != "")
+    {
+        STDLINE("ERROR: Unrecognized fit method "+ fitMethod_,ACRed);
+        return;
+    }
+
+}
+
+/*//========================================================================================
 void trackFinder::findAllFirstAndLast(Event* theEvent, Geometry* theGeometry)
 {
     this->findFirstAndLastTrackCandidates(theEvent,theGeometry);
@@ -976,19 +1024,19 @@ void trackFinder::findAllRoadSearch(Event* theEvent, Geometry* theGeometry)
     this->findRoadSearchTrackCandidates(theEvent,theGeometry);
     //this->findDUTCandidates            (theEvent,theGeometry);
 }
-
+*/
 //========================================================================================
 void trackFinder::fitAllKalman(Event* theEvent, Geometry* theGeometry)
 {
     this->fitKalmanTrackCandidates    (theEvent,theGeometry);
-    this->findDUTCandidates            (theEvent,theGeometry);
+    this->findDUTCandidates           (theEvent,theGeometry);
 }
 
 //========================================================================================
 void trackFinder::fitAllSimple(Event* theEvent, Geometry* theGeometry)
 {
     this->fitSimpleTrackCandidates    (theEvent,theGeometry);
-    this->findDUTCandidates            (theEvent,theGeometry);
+    this->findDUTCandidates           (theEvent,theGeometry);
 }
 
 //========================================================================================

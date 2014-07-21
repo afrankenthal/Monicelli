@@ -15,9 +15,11 @@
 ClassImp(Detector)
 
 //===============================================================================
-Detector::Detector (std::string ID, bool isDUT) :
+Detector::Detector (std::string ID, bool isDUT, bool isStrip) :
     ID_                      (ID)
   , isDUT_                   (isDUT)
+  , name_                    ("")
+  , isStrip_                 (isStrip)
   , xPosition_     	         (0)
   , xPositionCorrection_     (0)
   , xPositionError_     	 (0)

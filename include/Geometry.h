@@ -29,7 +29,8 @@ class Geometry : public TObject
  ~Geometry(void);
 
   Detector                  * addDetector           (std::string  plaqID,
-                                                     bool         isDUT = false     );
+                                                     bool         isDUT = false,
+                                                     bool         isStrip = false);
 
   void                        clear                 (void                           ) {detectorsMap_.clear()       ;}
   bool                        empty                 (void                           ) {return detectorsMap_.empty();}

@@ -229,6 +229,12 @@ void geometryLoader::acquireInfo(DOMElement * element)
 
                 STDLINE(keyValue["name"] + " detector id: " + currentPlaqID_,ACYellow) ;
 
+                theGeometry_->getDetector( currentPlaqID_ )->setName(keyValue["name"]);
+                if(keyValue["name"] == "FSSR2")
+                    theGeometry_->getDetector( currentPlaqID_ )->setIsStrip(true);
+
+                //std::cout << __PRETTY_FUNCTION__ << theGeometry_->getDetector( currentPlaqID_ )->isStrip() << std::endl;
+
                 if( this->toLower(keyValue["isDUT"]) == "yes" )
                 {
                     theGeometry_->getDetector( currentPlaqID_ )->setDUT();

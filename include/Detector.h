@@ -23,7 +23,7 @@
 class Detector: public TObject
 {
 public:
-    Detector(std::string ID = "", bool isDUT = false);
+    Detector(std::string ID = "", bool isDUT = false, bool isStrip = false);
     ~Detector(void);
 
     ROC* addROC(unsigned int ROCPosition, int ROCID , unsigned int rotationDegrees = 0);
@@ -72,11 +72,11 @@ public:
 
     unsigned int   getNumberOfCols               (bool global = false                     )                                  ;
     unsigned int   getNumberOfRows               (bool global = false                     )                                  ;
-    unsigned int   getLastCol                    (void                                    ) {return (this->getNumberOfCols()-1)   ;}
-    unsigned int   getLastRow                    (void                                    ) {return (this->getNumberOfRows()-1)   ;}
+    unsigned int   getLastCol                    (void                                    ) {return (this->getNumberOfCols()-1);}
+    unsigned int   getLastRow                    (void                                    ) {return (this->getNumberOfRows()-1);}
     ROC          * getROC                        (int chipID                              )                                  ;
     ROC          * getROCByPosition              (unsigned int chipPosition)                                                 ;
-    ROC          * findROC                       (unsigned int row, unsigned int col      )                      ;
+    ROC          * findROC                       (unsigned int row, unsigned int col      ) ;
     unsigned int   getNumberOfROCs               ( void                                   ) {return numberOfROCs_            ;}
     unsigned int   getROCPositionLocalX          (int chipID                              ) ;
     unsigned int   getROCPositionLocalY          (int chipID                              ) ;
@@ -101,6 +101,7 @@ public:
     xyPair         getTrackErrorsOnPlane         (ROOT::Math::SVector<double,4>& trackPars, matrix44Def& AtVAInv) ;
     xyPair         propagateTrackErrors          (ROOT::Math::SVector<double,4>& trackPars, matrix44Def& AtVAInv, Detector::matrix33Def& RInv, double z);
     std::string    getID                         (void                                    ) {return ID_;}
+    std::string    getName                       (void                                    ) {return name_                    ;}
     double         getDetectorLengthX            (bool global = false                     ) ;
     double         getDetectorLengthY            (bool global = false                     ) ;
 
@@ -127,36 +128,40 @@ public:
     double         getZRotationCorrectionError   (void                                    ) {return zRotationCorrectionError_;}
 
     bool           isDUT                         (void                                    ) {return isDUT_                 ;}
+    bool           isStrip                       (void                                    ) {return isStrip_               ;}
+
     bool           isXBackFlipped                (void                                    ) {return xBackFlipped_          ;}
     bool           isYBackFlipped                (void                                    ) {return yBackFlipped_          ;}
 
     static matrix33Def rotationMatrix            (double alpha, double beta, double gamma );
 
-    void           setDUT                        (bool isDUT = true                       ) {isDUT_=isDUT                  ;}
+    void           setDUT                        (bool isDUT = true                       ) {isDUT_   = isDUT              ;}
+    void           setName                       (std::string name                        ) {name_    = name               ;}
+    void           setIsStrip                    (bool isStrip                            ) {isStrip_ = isStrip            ;}
 
     void           setXBackFlipped               ( bool isIt                              ) {xBackFlipped_ = isIt          ;}
     void           setYBackFlipped               ( bool isIt                              ) {yBackFlipped_ = isIt          ;}
     void           setPosition                   (double x, double y, double z)             {xPosition_ = x; yPosition_ = y; zPosition_ = z;}
-    void           setNumberOfROCs               (unsigned int xNumberOfROCs, unsigned int yNumberOfROCs               )                                                ;
-    void           setXNumberOfROCs              (unsigned int xNumberOfROCs)                {xNumberOfROCs_=xNumberOfROCs; this->updateNumberOfROCs() ;}
-    void           setYNumberOfROCs              (unsigned int yNumberOfROCs)                {yNumberOfROCs_=yNumberOfROCs; this->updateNumberOfROCs() ;}
+    void           setNumberOfROCs               (unsigned int xNumberOfROCs, unsigned int yNumberOfROCs               );
+    void           setXNumberOfROCs              (unsigned int xNumberOfROCs)               {xNumberOfROCs_=xNumberOfROCs; this->updateNumberOfROCs() ;}
+    void           setYNumberOfROCs              (unsigned int yNumberOfROCs)               {yNumberOfROCs_=yNumberOfROCs; this->updateNumberOfROCs() ;}
 
-    void           setXPosition                  (double x)                                 {xPosition_ = x                        ;}
-    void           setXPositionCorrection        (double xCorr)                             {xPositionCorrection_ = xCorr          ;}
-    void           setXPositionError             (double xErr)                              {xPositionError_ = xErr                ;}
-    void           setYPosition                  (double y)                                 {yPosition_ = y                        ;}
-    void           setYPositionCorrection        (double yCorr)                             {yPositionCorrection_ = yCorr          ;}
-    void           setYPositionError             (double yErr)                              {yPositionError_ = yErr                ;}
-    void           setZPosition                  (double z)                                 {zPosition_ = z                        ;}
-    void           setZPositionCorrection        (double zCorr)                             {zPositionCorrection_ = zCorr          ;}
-    void           setZPositionError             (double zErr)                              {zPositionError_ = zErr                ;}
-    void           setXRotation                  (double xRot)                              {xRotation_ = xRot                     ;}
+    void           setXPosition                  (double x)                                 {xPosition_                = x         ;}
+    void           setXPositionCorrection        (double xCorr)                             {xPositionCorrection_      = xCorr     ;}
+    void           setXPositionError             (double xErr)                              {xPositionError_           = xErr      ;}
+    void           setYPosition                  (double y)                                 {yPosition_                = y         ;}
+    void           setYPositionCorrection        (double yCorr)                             {yPositionCorrection_      = yCorr     ;}
+    void           setYPositionError             (double yErr)                              {yPositionError_           = yErr      ;}
+    void           setZPosition                  (double z)                                 {zPosition_                = z         ;}
+    void           setZPositionCorrection        (double zCorr)                             {zPositionCorrection_      = zCorr     ;}
+    void           setZPositionError             (double zErr)                              {zPositionError_           = zErr      ;}
+    void           setXRotation                  (double xRot)                              {xRotation_                = xRot      ;}
     void           setXRotationCorrection        (double xRotCor)                           {xRotationCorrection_      = xRotCor   ;}
     void           setXRotationCorrectionError   (double xRotCorErr)                        {xRotationCorrectionError_ = xRotCorErr;}
-    void           setYRotation                  (double y)                                 {yRotation_ = y                        ;}
+    void           setYRotation                  (double y)                                 {yRotation_                = y         ;}
     void           setYRotationCorrection        (double yRotCor)                           {yRotationCorrection_      = yRotCor   ;}
     void           setYRotationCorrectionError   (double yRotCorErr)                        {yRotationCorrectionError_ = yRotCorErr;}
-    void           setZRotation                  (double z)                                 {zRotation_ = z                        ;}
+    void           setZRotation                  (double z)                                 {zRotation_                = z         ;}
     void           setZRotationCorrection        (double zRotCor)                           {zRotationCorrection_      = zRotCor   ;}
     void           setZRotationCorrectionError   (double zRotCorErr)                        {zRotationCorrectionError_ = zRotCorErr;}
 
@@ -187,6 +192,8 @@ private:
 
     std::string            ID_                                     ;
     bool                   isDUT_                                  ;
+    std::string            name_                                   ;
+    bool                   isStrip_                                ;
 
     double                 xPosition_                              ;
     double                 xPositionCorrection_                    ;

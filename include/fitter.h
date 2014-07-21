@@ -28,6 +28,7 @@ public:
     void            linearFit     (TH1* histo, double* slope, double* q, double xmin=0, double xmax=0 );
     void            gaussFit      (TH1* histo                                                         );
     void            gaussFit      (TH1* histo, double mean, double rms, double nRMS                   );
+    void            chi2Fit       (TH1* histo                                                         );
 
     double          getMean       (void               ){return mean_ ;}
     double          getSigma      (void               ){return sigma_;}

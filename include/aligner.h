@@ -31,12 +31,13 @@
 #include <Math/SMatrix.h>
 #include <Math/SVector.h>
 
-#include "Event.h"
+//#include "Event.h"
 #include "fileEater.h"
-#include "Geometry.h"
-#include "HManager.h"
-#include "MessageTools.h"
-#include "multiProcess.h"
+//#include "Geometry.h"
+//#include "HManager.h"
+//#include "MessageTools.h"
+//#include "multiProcess.h"
+#include "trackFitter.h"
 
 class aligner : public multiProcess<aligner,bool>
 {
@@ -76,6 +77,26 @@ class aligner : public multiProcess<aligner,bool>
                                                   double sigmaY,
                                                   double residualX,
                                                   double residualY                                     );
+    void                      makeAlignMatricesStripsX   (ROOT::Math::SMatrix<double,nAlignPars,nAlignPars>& AtVA,
+                                                        ROOT::Math::SVector<double,nAlignPars>&            AtVAInvR,
+                                                        ROOT::Math::SVector<double,4>&                     trackPars,
+                                                        Detector::matrix33Def&                             fRInv,
+                                                        double z,
+                                                        double predX,
+                                                        double den,
+                                                        double sigmaX,
+                                                        double residualX
+                                                        );
+    void                      makeAlignMatricesStripsY   (ROOT::Math::SMatrix<double,nAlignPars,nAlignPars>& AtVA,
+                                                        ROOT::Math::SVector<double,nAlignPars>&            AtVAInvR,
+                                                        ROOT::Math::SVector<double,4>&                     trackPars,
+                                                        Detector::matrix33Def&                             fRInv,
+                                                        double z,
+                                                        double predY,
+                                                        double den,
+                                                        double sigmaY,
+                                                        double residualY
+                                                        );
     bool                     execute             (void                                                 );
     int                      getMaxIterations    (void                                                 );
     alignmentResultsDef      getAlignmentResults (void                                                 ){return alignmentResults_;}
@@ -95,6 +116,8 @@ class aligner : public multiProcess<aligner,bool>
                                                      int          nEvents            = -1);
     void                     setFixParMap       (std::string detector, int code                       ){parMap_[detector]=code  ;}
     void                     clearFixParMap     (void                                                 ){parMap_.clear()         ;}
+    void                     setAlignmentFitMethodName   (std::string alignmentFitMethod              ){alignmentFitMethod_=alignmentFitMethod    ;}
+    //std::string              getAlignmentFitMethodName   (void                                        ){return fitMethodName_                     ;}
 
   private :
      fileEater                                  * theFileEater_    ;
@@ -112,6 +135,7 @@ class aligner : public multiProcess<aligner,bool>
      int          nEvents_           ;
      bool         noDiagonalClusters_;
      std::string  DUT_               ;
+     std::string  alignmentFitMethod_;
 
      std::stringstream ss_ ;
 } ;

@@ -43,22 +43,24 @@
 #include "aligner.h"
 #include "beamSimulator.h"
 #include "trackFinder.h"
-#include "trackFitter.h"
+//#include "trackFitter.h"
 #include "calibrationLoader.h"
 #include "clusterizer.h"
-#include "Event.h"
-#include "fileEater.h"
-#include "fitter.h"
-#include "Geometry.h"
+//#include "Event.h"
+//#include "fileEater.h"
+//#include "fitter.h"
+//#include "Geometry.h"
 #include "mainwindow.h"
-#include "MessageTools.h"
+//#include "MessageTools.h"
 //#include "parser.h"
-#include "process.h"
+//#include "process.h"
 #include "xmleditor.h"
 #include "threader.h"
-#include "trackFinder.h"
+//#include "trackFinder.h"
 #include "GeometryParameters.h"
+#include "customTableView.h"
 
+//class trackFitter;
 class MainWindow ;
 class HNavigator ;
 class TQtWidget  ;
@@ -111,11 +113,12 @@ private:
     void showGeometry                       (void                                  );
     void copyGeoFileTo                      (QString                fileName       );
 
-
     void showResiduals2                     (void                                  );
     //void showResiduals2_end                 (HManager::stringVDef   histoType      );
+    void findAndFitTrack                    (std::string            searchMethod, std::string fitMethod);
     void findTrack                          (std::string            searchMethod   );
     void fitTrack                           (std::string            fitMethod      );
+
 
     std::string getPlaneID (int station, int plaquette);
 
@@ -147,17 +150,16 @@ private:
     HManager::stringVDef          residualsType_         ;
     bool                          redoChi2_              ;
     std::map<std::string,GeometryParameters*> geometryParameters_;
+    int                           geometryDisplayShrinkFix_;
 
 signals:
     void processFinished (threadEnd_Function function   ,
                           HManager::stringVDef histoType   );
 
 private slots:
-//    void on_findTrackRoadSearchPB_clicked                         (void                              );
-//    void on_findTrackFirstAndLastPB_clicked                       (void                              );
-//    void on_findKalmanFitPB_clicked                               (void                              );
-    void on_trackFitPB_clicked                                    (                                  );
-    void on_trackSearchPB_clicked();
+    void on_trackFindAndFitPB_clicked                           (void                              );
+    void on_trackFitPB_clicked                                    (void                              );
+    void on_trackFindPB_clicked                                 (void                              );
     void on_testButtonPB_clicked                                  (void                              );
     void on_showTrackErrorsOnDut_clicked                          (void                              );
     void on_selectGeometryPB_clicked                              (void                              );
@@ -178,6 +180,8 @@ private slots:
                                                                    bool      success                 );
     void endThreadSettings                                        (threadEnd_Function function    ,
                                                                    HManager::stringVDef histoType    );
+    void setAlignmentBoxes                                        (const     QString alignmentMethod );
+    void fixStrips                                                (int       state                   );
     void on_abortActionPB_clicked                                 (void                              );
     void on_showSelectedEventsElectronDistribuitionPB_clicked     (void                              );
     void on_showAdcDistributionsPB_clicked                        (void                              );
@@ -192,6 +196,7 @@ private slots:
     void on_alignDutCB_clicked                                    (bool              checked         );
     void on_applySlopeLimitsPB_clicked                            (void                              );
     void on_trackFinderFitSlopePB_clicked                         (void                              );
+    void on_trackFinderFitChi2PB_clicked                            (void                              );
     void on_detectorsToBeAlignedLW_itemClicked                    (QListWidgetItem * item            );
     void on_trackFitterExcludeDetectorCB_clicked                  (bool              checked         );
     void on_residualsTabPagePlaqSelectCB_currentIndexChanged      (const QString&    plaqSelected    );
@@ -216,6 +221,7 @@ private slots:
     void on_fileEaterVerbosityCB_activated        	              (int  	     index               );
     void on_findEventsPB_clicked                  	              (void                              );
     void on_fineAlignmentPB_clicked                               (void                              );
+    void on_trackFindAndFitAlignmentPB_clicked                    (void                              );
     void on_writeFineAlignmentResultsPB_clicked                   (void                              );
     void drawAll                                  	              (TQtWidget*  where           ,
                                                                    std::string what            ,

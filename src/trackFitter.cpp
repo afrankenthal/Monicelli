@@ -236,7 +236,13 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
         }
     }
 
-    //cout << __PRETTY_FUNCTION__ << "Initial: x int = " << trackPars[0] << " y int = " << trackPars[1] << " x slope = " << trackPars[2] << " y slope = " << trackPars[3] << endl;
+    //cout << __PRETTY_FUNCTION__ << "Initial: x int = " << trackPars[1] << " y int = " << trackPars[3] << " x slope = " << trackPars[0] << " y slope = " << trackPars[2] << endl;
+    //cout << __PRETTY_FUNCTION__ << "Initial Chi 2: " << chi2 << endl;
+    for ( int i=0; i<4; i++ )
+    {
+        //std::cout << __PRETTY_FUNCTION__ << "Initial Track par " << i << ": " << fitpar[i] << std::endl;
+        //std::cout << __PRETTY_FUNCTION__ << "Initial covMat line " << i << ": " << estCov[i][0] << " "<< estCov[i][1] << " "<<estCov[i][2] << " "<< estCov[i][3] <<std::endl;
+    }
 
   //Change loop so it runs in order of z instead of plaqID
     std::map<double, std::string> plaqByZ;
@@ -276,16 +282,16 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
         TMatrixTSym<double> a(4);
         TMatrixTSym<double> ax(4);
         TMatrixTSym<double> ay(4);
-        double res;
         double multipleScattering = 4.37e-6;
         //double dataType = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("dataType")->second;
         double dataType = trackCandidate.find(plaqID)->second.find("dataType")->second;
 
       //Test residual
-        //double xPred, yPred, zPred;
-        //detector->getPredictedGlobal(track, xPred, yPred, zPred);
+        double xPred, yPred, zPred;
+        detector->getPredictedGlobal(track, xPred, yPred, zPred);
         //detector->fromGlobalToLocal(&xPred, &yPred, &zPred);
-        //double resTest = trackCandidate.find(plaqID)->second.find("x")->second - xPred;
+        //double resxTest = trackCandidate.find(plaqID)->second.find("x")->second - xPred;
+        //double resyTest = trackCandidate.find(plaqID)->second.find("y")->second - yPred;
 
       //Define local coordinates
         sensorOrigin[0] = 0; sensorOrigin[1] = 0; sensorOrigin[2] = 0;
@@ -304,8 +310,9 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
         rightVector[0] -= sensorOrigin[0]; rightVector[1] -= sensorOrigin[1]; rightVector[2] -= sensorOrigin[2];
         beamVector[0]  -= sensorOrigin[0]; beamVector[1]  -= sensorOrigin[1]; beamVector[2]  -= sensorOrigin[2];
 
+
       //"Compute"
-        //Uses 'our' element assignment. Switches use of z in error from intercepts to slopes. Inlcludes xy correlation for pixels.
+        //Uses 'our' element assignment. Inlcludes xy correlation for pixels.
         if ( dataType==1 ) //strip data
         {
             double den = upVector[1]*rightVector[0]-upVector[0]*rightVector[1];
@@ -325,14 +332,14 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                    sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
                   (rightVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
                    upVector[0]*(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
-            trackCov[0][0] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[1][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCov[1][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[2][2] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[3][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCov[3][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCov[0][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[1][1] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCov[2][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[3][3] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
 
             for ( int i=0; i<4; i++ )
             {
@@ -345,15 +352,19 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
           //Residual of prediction
             double dist    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;//distance of the hit from origin of the sensor
             double distErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
-            res = dist - trackPars*h - offset;
+            double res = dist - trackPars*h - offset;
 
           //Calculate gain matrix
             double r = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
             k = (1/r)*(estCov*h);
             estCov -= (1/r)*a.Similarity(estCov);// (1/rrr)*c*a*c^t
+            //cout << __PRETTY_FUNCTION__ << "Strip chi addition:  " << (res*res/r) << endl;
             chi2 += (res*res/r)/(trackCandidate.size() - 2);
+            //cout << __PRETTY_FUNCTION__ << "New Strip chi:  " << chi2 << endl;
 
-            //cout << __PRETTY_FUNCTION__ << "Strip:  " << res - resTest << endl;
+            //cout << __PRETTY_FUNCTION__ << trackCandidate.size() << endl;
+            //cout << __PRETTY_FUNCTION__ << "Strip:  " << res - resxTest << endl;
+            //cout << __PRETTY_FUNCTION__ << "Strip:  " << res << endl;
 
             if( plaqID == excludedDetector )//don't update track parameters for the excluded plaq
             {
@@ -366,7 +377,7 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                 {
                     for ( int j=0; j<4; j++ )
                     {
-                        cov[i][j] = estCov[i][j]+trackCov[i][j];
+                        estCov[i][j] += trackCov[i][j];
                     }
                 }
 
@@ -407,22 +418,26 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                     -sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
                    (upVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
                     rightVector[0]*(upVector[1]*upVector[1]+upVector[2]*upVector[2]))/(den*den);
-            trackCovx[0][0] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[1][3] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+            trackCovx[1][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCovx[1][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[1][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[3][1] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[2][2] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[3][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[3][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCovx[0][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[0][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[1][1] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[0][2] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[2][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+            trackCovx[3][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[3][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCovx[2][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[2][0] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[3][3] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+            trackCovy[3][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[3][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[2][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[2][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+            trackCovy[0][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[1][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[0][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[1][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
 
             //cout << __PRETTY_FUNCTION__ << trackCovy[1][3] << " " <<trackCovy[1][2] << " " <<trackCovy[2][0] << " " << endl;
 
@@ -443,29 +458,15 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
 
           //Residual of prediction
             double x    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;
-            double y    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("y")->second;
             double xErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
-            double yErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("yErr")->second;
-
-            //double dist = sqrt(pow(x,2) + pow(y,2));
-            //double distErr = sqrt(pow(xErr,2) + pow(yErr,2));
-            //double distErr = sqrt((pow(xErr,2)*pow(x,2)+pow(yErr,2)*pow(y,2))/(pow(x,2)+pow(y,2)));
-            //cout << __PRETTY_FUNCTION__ << "distErr1: " << distErr1 << " distErr3: " << distErr3 << endl;
-            //res = sqrt(pow(x - trackPars*hx - offsetx,2) + pow(y - trackPars*hy - offsety,2));
             double resx = x - trackPars*hx - offsetx;
-            double resy = y - trackPars*hy - offsety;
-            //cout << __PRETTY_FUNCTION__ << "Pixel:  " << res - resTest << endl;
 
-          //Calculate gain matrix for x and y separately
+            //Calculate gain matrix for x
             double rx = estCov.Similarity(hx) + xErr*xErr;
             kx = (1/rx)*(estCov*hx);
             estCov -= (1/rx)*ax.Similarity(estCov);
-
-            double ry = estCov.Similarity(hy) + yErr*yErr;
-            ky = (1/ry)*(estCov*hy);
-            estCov -= (1/ry)*ay.Similarity(estCov);
-
-            chi2 += (resx*resx/rx + resy*resy/ry)/(trackCandidate.size()*2 - 4);
+            //cout << __PRETTY_FUNCTION__ << "Pixel chi x addition:  " << (resx*resx/rx) << endl;
+            chi2 += (resx*resx/rx)/(trackCandidate.size()*2 - 4);
 
             if( plaqID == excludedDetector )//don't update track parameters for the excluded plaq
             {
@@ -473,16 +474,48 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
             }
             else
             {
-                trackPars += resx*kx + resy*ky;
+                trackPars += resx*kx;
                 for ( int i=0; i<4; i++ )
                 {
                     for ( int j=0; j<4; j++ )
                     {
-                        cov[i][j] = estCov[i][j] + trackCovx[i][j] + trackCovy[i][j];
+                        estCov[i][j] += trackCovx[i][j];
                     }
                 }
 
             }
+
+            double y    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("y")->second;
+            double yErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("yErr")->second;
+            double resy = y - trackPars*hy - offsety;
+
+            //Calculate gain matrix for y
+            double ry = estCov.Similarity(hy) + yErr*yErr;
+            ky = (1/ry)*(estCov*hy);
+            estCov -= (1/ry)*ay.Similarity(estCov);
+            //cout << __PRETTY_FUNCTION__ << "Pixel chi y addition:  " << (resy*resy/ry) << endl;
+            chi2 += (resy*resy/ry)/(trackCandidate.size()*2 - 4);
+
+            if( plaqID == excludedDetector )//don't update track parameters for the excluded plaq
+            {
+                    excludedDetectorFound_ = true;
+            }
+            else
+            {
+                trackPars += resy*ky;
+                for ( int i=0; i<4; i++ )
+                {
+                    for ( int j=0; j<4; j++ )
+                    {
+                        estCov[i][j] += trackCovy[i][j];
+                    }
+                }
+
+            }
+
+            //cout << __PRETTY_FUNCTION__ << "New Pixel chi2:  " << chi2 << endl;
+            //cout << __PRETTY_FUNCTION__ << "Pixel:  " << resx - resxTest << " | " << resy - resyTest << endl;
+            //cout << __PRETTY_FUNCTION__ << "Pixel:  " << resx << " | " << resy << endl;
         }
 
 /*       //Uses 'our' element assignment. Inlcludes xy correlation for pixels.
@@ -554,41 +587,6 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
             trackCov[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
         }
 */
-/*       //Uses 'our' element assignments
-        double den = upVector[1]*rightVector[0]-upVector[0]*rightVector[1];
-        offset = -sensorOrigin[0]*rightVector[0] - sensorOrigin[1]*rightVector[1]+
-                  rightVector[2]*(-sensorOrigin[2]+(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                  sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                  sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))/den);
-        h[1] = rightVector[0]+rightVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
-        h[3] = rightVector[1]+rightVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
-        h[0] =(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-               sensorOrigin[1]*(upVector[0]*rightVector[2]-rightVector[0]*upVector[2])+
-               sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-              (upVector[1]*(rightVector[0]*rightVector[0]+rightVector[2]*rightVector[2])-
-               rightVector[1]*(upVector[0]*rightVector[0]+upVector[2]*rightVector[2]))/(den*den);
-        h[2] =(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-               sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-               sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-              (rightVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
-               upVector[0]*(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
-        trackCov[1][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-        trackCov[1][3] = 0;
-        trackCov[1][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-        trackCov[1][2] = 0;
-        trackCov[3][1] = 0;
-        trackCov[3][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-        trackCov[3][0] = 0;
-        trackCov[3][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-        trackCov[0][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-        trackCov[0][3] = 0;
-        trackCov[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-        trackCov[0][2] = 0;
-        trackCov[2][1] = 0;
-        trackCov[2][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-        trackCov[2][0] = 0;
-        trackCov[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-*/
 /*        for ( int i=0; i<4; i++ )
         {
             for ( int j=0; j<4; j++ )
@@ -650,7 +648,13 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
   //Switch trackPars back to our array type
     for ( int i=0; i<4; i++ )
     {
+        //std::cout << __PRETTY_FUNCTION__ << "Track par " << i << ": " << trackPars[i] << std::endl;
+        //std::cout << __PRETTY_FUNCTION__ << "Final covMat line " << i << ": " << estCov[i][0] << " "<< estCov[i][1] << " "<< estCov[i][2] << " "<< estCov[i][3] <<std::endl;
         track[i] = trackPars[i];
+        for ( int j=0; j<4; j++ )
+        {
+            cov[i][j] = estCov[i][j];
+        }
     }
 
     //cout << __PRETTY_FUNCTION__ << "Final:   x int = " << track[1] << " y int = " << track[3] << " x slope = " << track[0] << " y slope = " << track[2] << endl;
@@ -659,6 +663,7 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
     aKalmanFittedTrack.first.first  = track                             ;
     aKalmanFittedTrack.first.second = cov                               ;
     aKalmanFittedTrack.second       = chi2                              ;
+    //cout << __PRETTY_FUNCTION__ << "Total chi2:  " << chi2 << endl;
     //aKalmanFittedTrack.second       = chi2/(trackCandidate.size()*2 - 4); //pixels
     //aFittedTrack.second             = chi2/(alignedHits.size() - 2)   ; //strips
 
@@ -821,19 +826,12 @@ void trackFitter::makeFittedTracksResiduals(Event *theEvent, Geometry *theGeomet
     int i = 0;
 
     for (; track!=trackCandidates.end(); track++, cov++, trackFit++, ++i)
-    //for (unsigned int i=0; i < tracks.size(); ++i, cov++, trackFit++)
     {
-        //std::vector<Event::vectorDef>    ::iterator trackFit   = tracksFitted   .begin();
-        //std::vector<Event::matrixDef>    ::iterator cov        = covMat         .begin();
-        //Event::alignedHitsCandidateMapDef::iterator det        = tracks[i]      .begin();
-
         //cout << __PRETTY_FUNCTION__ << "Pars fed to res maker: x int = " << (*trackFit)[0] << " y int = " << (*trackFit)[1] << " x slope = " << (*trackFit)[2] << " y slope = " << (*trackFit)[3] << endl;//good
 
-        Event::alignedHitsCandidateMapDef                     ::iterator det        = (*track)          .begin();
-        //Event::alignedHitsCandidateMapDef::iterator det        = tracks[i]      .begin();
+        Event::alignedHitsCandidateMapDef::iterator det = (*track).begin();
 
         for(; det!=(*track).end(); det++)//det++, cov++, trackFit++)
-        //for(; det!=tracks[i].end(); )//det++, cov++, trackFit++)
         {
             //cout << __PRETTY_FUNCTION__ << "Pars 1: x int = " << (*trackFit)[0] << " y int = " << (*trackFit)[1] << " x slope = " << (*trackFit)[2] << " y slope = " << (*trackFit)[3] << endl;//bad
 
@@ -860,17 +858,14 @@ void trackFitter::makeFittedTracksResiduals(Event *theEvent, Geometry *theGeomet
             //cout << __PRETTY_FUNCTION__ << "Track: " << tracks[i] << " Pars:" << *trackFit << " Cov: " << *cov << " Det: " << det->first << endl;
             //cout << __PRETTY_FUNCTION__ << "Pars fed to track fitter: x int = " << (*trackFit)[0] << " y int = " << (*trackFit)[1] << " x slope = " << (*trackFit)[2] << " y slope = " << (*trackFit)[3] << endl;//bad
 
+            //cout << __PRETTY_FUNCTION__ << fitMethodName_ << std::endl;
             if(fitMethodName_=="Kalman") aFittedTrack = this->kalmanFitSingleTrack(*track, *trackFit, *cov, clusters, theGeometry, det->first);
-            //if(fitMethodName_=="Kalman") aFittedTrack = this->kalmanFitSingleTrack(tracks[i], *trackFit, *cov, clusters, theGeometry, det->first);
             else if (fitMethodName_=="Simple") aFittedTrack = this->fitSingleTrack(*track, theGeometry, det->first);
-            //else if (fitMethodName_=="Simple") aFittedTrack = this->fitSingleTrack(tracks[i], theGeometry, det->first);
             else aFittedTrack = this->fitSingleTrack(*track, theGeometry, det->first);
-            //else aFittedTrack = this->fitSingleTrack(tracks[i], theGeometry, det->first);
 
             //cout << __PRETTY_FUNCTION__ << "Pars after track fitter: x int = " << (*trackFit)[0] << " y int = " << (*trackFit)[1] << " x slope = " << (*trackFit)[2] << " y slope = " << (*trackFit)[3] << endl;//bad
 
             theEvent->addUnconstrainedFittedTrack(i,det->first,aFittedTrack.first.first,aFittedTrack.first.second,aFittedTrack.second);
-            //theEvent->addUnconstrainedFittedTrack(i,det->first,aFittedTrack.first.first,aFittedTrack.first.second,aFittedTrack.second);
 
             //cout << __PRETTY_FUNCTION__ << "Pars after adding: x int = " << (*trackFit)[0] << " y int = " << (*trackFit)[1] << " x slope = " << (*trackFit)[2] << " y slope = " << (*trackFit)[3] << endl;//bad
 
