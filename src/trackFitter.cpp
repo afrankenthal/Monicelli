@@ -235,6 +235,10 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
             estCov[i][j] = cov[i][j];
         }
     }
+    /*estCov[0][0] = 1e-8;
+    estCov[1][1] = 100;
+    estCov[2][2] = 1e-8;
+    estCov[3][3] = 100;*/
 
     //cout << __PRETTY_FUNCTION__ << "Initial: x int = " << trackPars[1] << " y int = " << trackPars[3] << " x slope = " << trackPars[0] << " y slope = " << trackPars[2] << endl;
     //cout << __PRETTY_FUNCTION__ << "Initial Chi 2: " << chi2 << endl;
@@ -243,22 +247,39 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
         //std::cout << __PRETTY_FUNCTION__ << "Initial Track par " << i << ": " << fitpar[i] << std::endl;
         //std::cout << __PRETTY_FUNCTION__ << "Initial covMat line " << i << ": " << estCov[i][0] << " "<< estCov[i][1] << " "<<estCov[i][2] << " "<< estCov[i][3] <<std::endl;
     }
+    //std::cout << __PRETTY_FUNCTION__ << "Initial covMat " << ": " << estCov[0][0] << " "<< estCov[1][1] << " "<<estCov[2][2] << " "<< estCov[3][3] <<std::endl;
 
   //Change loop so it runs in order of z instead of plaqID
     std::map<double, std::string> plaqByZ;
     for (Event::alignedHitsCandidateMapDef::const_iterator itTrackCandidate=trackCandidate.begin(); itTrackCandidate!=trackCandidate.end(); itTrackCandidate++)
     {
         std::string plaqID = itTrackCandidate->first;
+        //double x = itTrackCandidate->second.find("x")->second;
+        //double y = itTrackCandidate->second.find("y")->second;
         double z = itTrackCandidate->second.find("z")->second;
+
+        //Detector* detector = theGeometry->getDetector(plaqID);
+        //detector->fromLocalToGlobal(&x, &y, &z);
 
         plaqByZ[z] = plaqID;
     }
 
+    double firstZ = plaqByZ.begin()->first;
+    //cout << __PRETTY_FUNCTION__ << "firstZ: " << firstZ << endl;
+
   //Now loop over all plaqs
     //std::map<double, string>::iterator itZ=plaqByZ.begin();
+    //for (std::map<double, std::string>::reverse_iterator itZ=plaqByZ.rbegin(); itZ!=plaqByZ.rend(); itZ++)
     for (std::map<double, std::string>::iterator itZ=plaqByZ.begin(); itZ!=plaqByZ.end(); itZ++)
     {
         std::string plaqID = itZ->second;
+        double zValue = itZ->first;
+        //double zValue = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("z")->second;
+        //double xValue = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;
+        //double yValue = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("y")->second;
+        //cout << __PRETTY_FUNCTION__ << " x: " << xValue << endl;
+        //cout << __PRETTY_FUNCTION__ << " y: " << yValue << endl;
+        //cout << __PRETTY_FUNCTION__ << "plaq: " << plaqID << " z: " << itZ->first << endl;
 
         if( theGeometry->getDetector( plaqID )->isDUT() ) continue;
 
@@ -282,13 +303,12 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
         TMatrixTSym<double> a(4);
         TMatrixTSym<double> ax(4);
         TMatrixTSym<double> ay(4);
-        double multipleScattering = 4.37e-6;
-        //double dataType = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("dataType")->second;
+        double multipleScattering = 0;//4.37e-6;
         double dataType = trackCandidate.find(plaqID)->second.find("dataType")->second;
 
       //Test residual
-        double xPred, yPred, zPred;
-        detector->getPredictedGlobal(track, xPred, yPred, zPred);
+        //double xPred, yPred, zPred;
+        //detector->getPredictedGlobal(track, xPred, yPred, zPred);
         //detector->fromGlobalToLocal(&xPred, &yPred, &zPred);
         //double resxTest = trackCandidate.find(plaqID)->second.find("x")->second - xPred;
         //double resyTest = trackCandidate.find(plaqID)->second.find("y")->second - yPred;
@@ -304,6 +324,13 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
         detector->fromLocalToGlobal(&upVector[0],     &upVector[1],     &upVector[2]);
         detector->fromLocalToGlobal(&rightVector[0],  &rightVector[1],  &rightVector[2]);
         detector->fromLocalToGlobal(&beamVector[0],   &beamVector[1],   &beamVector[2]);
+
+      //Get z value of point in global
+        //detector->fromLocalToGlobal(&xValue, &yValue, &zValue);
+        //cout << __PRETTY_FUNCTION__ << "zValue after global: " << zValue << endl;
+        zValue -= firstZ;
+        //cout << __PRETTY_FUNCTION__ << "zValue after subtraction: " << zValue << endl;
+        //cout << __PRETTY_FUNCTION__ << "plaq: " << plaqID << " z: " << zValue << endl;// << " sensorOrigin: " << sensorOrigin[2] << endl;
 
       //Normalize vectors
         upVector[0]    -= sensorOrigin[0]; upVector[1]    -= sensorOrigin[1]; upVector[2]    -= sensorOrigin[2];
@@ -332,14 +359,34 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                    sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
                   (rightVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
                    upVector[0]*(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
-            trackCov[1][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+            /*trackCov[0][0] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                        trackCov[1][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                        trackCov[2][2] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                        trackCov[3][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                        trackCov[0][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                        trackCov[1][1] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                        trackCov[2][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                        trackCov[3][3] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);*/
+
+            trackCov[1][1] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[1][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[3][3] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[3][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[0][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[2][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+
+            /*trackCov[1][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCov[1][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCov[3][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCov[3][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCov[0][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCov[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCov[2][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);*/
 
             for ( int i=0; i<4; i++ )
             {
@@ -382,9 +429,13 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                 }
 
             }
+            //std::cout << __PRETTY_FUNCTION__ << "Strip trackC " << ": " << trackCov[0][0] << " "<< trackCov[1][1] << " "<< trackCov[2][2] << " "<< trackCov[3][3] <<std::endl;
+            //std::cout << __PRETTY_FUNCTION__ << "Strip covMat " << ": " << estCov[0][0] << " "<< estCov[1][1] << " "<<estCov[2][2] << " "<< estCov[3][3] <<std::endl;
         }
         else //not strip data (pixels)
         {
+            continue;
+
             double den = upVector[1]*rightVector[0]-upVector[0]*rightVector[1];
             double offsetx = -sensorOrigin[0]*rightVector[0] - sensorOrigin[1]*rightVector[1]+
                       rightVector[2]*(-sensorOrigin[2]+(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
@@ -419,7 +470,48 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                    (upVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
                     rightVector[0]*(upVector[1]*upVector[1]+upVector[2]*upVector[2]))/(den*den);
 
-            trackCovx[1][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+            /*trackCovx[0][0] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[1][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[0][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[1][1] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+            trackCovx[2][2] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[3][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[2][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[3][3] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+            trackCovy[2][0] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[3][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[2][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[3][1] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+            trackCovy[1][3] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[1][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[0][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[0][2] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);*/
+
+            trackCovx[1][1] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[1][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[0][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+            trackCovx[3][3] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[3][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[2][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+            trackCovy[3][1] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[3][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[2][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[2][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+            trackCovy[0][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[1][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[0][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[1][3] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+            /*trackCovx[1][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCovx[1][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCovx[0][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCovx[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
@@ -437,7 +529,7 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
             trackCovy[0][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCovy[1][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
             trackCovy[0][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[1][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[1][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);*/
 
             //cout << __PRETTY_FUNCTION__ << trackCovy[1][3] << " " <<trackCovy[1][2] << " " <<trackCovy[2][0] << " " << endl;
 
@@ -513,6 +605,8 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
 
             }
 
+            //std::cout << __PRETTY_FUNCTION__ << "Pixel trackC " << ": " << trackCovx[0][0] << " "<< trackCovx[1][1] << " "<< trackCovx[2][2] << " "<< trackCovx[3][3] <<std::endl;
+            //std::cout << __PRETTY_FUNCTION__ << "Pixel covMat " << ": " << estCov[0][0] << " "<< estCov[1][1] << " "<<estCov[2][2] << " "<< estCov[3][3] <<std::endl;
             //cout << __PRETTY_FUNCTION__ << "New Pixel chi2:  " << chi2 << endl;
             //cout << __PRETTY_FUNCTION__ << "Pixel:  " << resx - resxTest << " | " << resy - resyTest << endl;
             //cout << __PRETTY_FUNCTION__ << "Pixel:  " << resx << " | " << resy << endl;

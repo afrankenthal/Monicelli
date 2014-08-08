@@ -87,6 +87,8 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
             //     << " id again: " << alignedCluster["cluster ID"]
             //     << " xyErr: " << alignedCluster["xyErr"]
             //     << endl;
+
+            //cout << __PRETTY_FUNCTION__ << "plaq: " << clustersIt->first << " z: " << alignedCluster["z"] << endl;
         }
     }
     //cout << __PRETTY_FUNCTION__ << "Number of clusters: " << alignedClusters.size() << endl;
@@ -439,7 +441,7 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
 }
 
 //================================================================
-void trackFinder::findRoadSearchTrackCandidates(Event* theEvent, Geometry* theGeometry)
+void trackFinder::findRoadSearchTrackCandidates(Event* theEvent, Geometry* theGeometry) //NOTE: Uses simple fit to find track candidates...
 {
     //Event::trackCandidatesDef         &trackCandidates_ = theEvent->getTrackCandidates()      ;
     //Event::fittedTracksDef            &tracksFitted_    = theEvent->getFittedTracks()         ;

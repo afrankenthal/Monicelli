@@ -3137,6 +3137,7 @@ void mainTabs::on_trackFindAndFitAlignmentPB_clicked()
 {
     std::string fitMethod  = ui->trackFitAlignmentNameCB ->currentText().toStdString();
     std::string findMethod = ui->trackFindAlignmentNameCB->currentText().toStdString();
+    theTrackFitter_->setFitMethodName(fitMethod);
     findAndFitTrack(findMethod, fitMethod);
 }
 

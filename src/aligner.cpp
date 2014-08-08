@@ -325,15 +325,30 @@ bool aligner::align(void)
                         for (std::map<std::string, double>::iterator det=xmeas[j].begin(); det!=xmeas[j].end(); det++ )
                         {
                             std::string plaqID = det->first;
+
+                            //double x = xmeasNoRot[j][det->first];
+                            //double y = ymeasNoRot[j][det->first];
                             double z = zmeas[j][det->first];
+
+                            //Detector* detector = theGeometry->getDetector(plaqID);
+                            //detector->fromLocalToGlobal(&x, &y, &z);
 
                             plaqByZ[z] = plaqID;
                         }
+                        double firstZ = plaqByZ.begin()->first;\
+                        //cout << __PRETTY_FUNCTION__ << "firstZ: " << firstZ << endl;
 
                         for (std::map<double, std::string>::iterator itZ=plaqByZ.begin(); itZ!=plaqByZ.end(); itZ++)
                         {
                             std::string plaqID = itZ->second;
                             //std::cout << "z val: " << itZ->first << " pladID: " << itZ->second << std::endl;
+
+                            double zValue = itZ->first;
+                            //double xValue = xmeasNoRot[j][plaqID];
+                            //double yValue = ymeasNoRot[j][plaqID];
+                            //cout << __PRETTY_FUNCTION__ << " x: " << xValue << endl;
+                            //cout << __PRETTY_FUNCTION__ << " y: " << yValue << endl;
+                            //cout << __PRETTY_FUNCTION__ << "plaq: " << plaqID << " z: " << itZ->first << endl;
 
                             //Define variables
                             Detector* detector = theGeometry->getDetector(plaqID);
@@ -353,7 +368,7 @@ bool aligner::align(void)
                             TMatrixTSym<double> a(4);
                             TMatrixTSym<double> ax(4);
                             TMatrixTSym<double> ay(4);
-                            double multipleScattering = 4.37e-6;
+                            double multipleScattering = 0;//4.37e-6;
                             int dataType = dataTypeMeas[j][plaqID];
                             //std::cout << "dataType: " << dataType << std::endl;
                             //double dataType = clusters[det->first][trackCandidate.find(det->first)->second.find("cluster ID")->second].find("dataType")->second;
@@ -376,6 +391,12 @@ bool aligner::align(void)
                             detector->fromLocalToGlobal(&upVector[0],     &upVector[1],     &upVector[2]);
                             detector->fromLocalToGlobal(&rightVector[0],  &rightVector[1],  &rightVector[2]);
                             detector->fromLocalToGlobal(&beamVector[0],   &beamVector[1],   &beamVector[2]);
+
+                          //Get z value of point in global
+                            //detector->fromLocalToGlobal(&xValue, &yValue, &zValue);
+                            //cout << __PRETTY_FUNCTION__ << "zValue after global: " << zValue << endl;
+                            zValue -= firstZ;
+                            //cout << __PRETTY_FUNCTION__ << "zValue after subtraction: " << zValue << endl;
 
                             //Normalize vectors
                             upVector[0]    -= sensorOrigin[0]; upVector[1]    -= sensorOrigin[1]; upVector[2]    -= sensorOrigin[2];
@@ -402,13 +423,13 @@ bool aligner::align(void)
                                         sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
                                         (rightVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
                                         upVector[0]*(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
-                                trackCov[1][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCov[1][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCov[3][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCov[3][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCov[0][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCov[1][1] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCov[1][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCov[3][3] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCov[3][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCov[0][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
                                 trackCov[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCov[2][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCov[2][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
                                 trackCov[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
 
                                 for ( int i=0; i<4; i++ )
@@ -442,6 +463,8 @@ bool aligner::align(void)
                             }
                             else //not strip data (pixels)
                             {
+                                continue;
+
                                 double den = upVector[1]*rightVector[0]-upVector[0]*rightVector[1];
                                 double offsetx = -sensorOrigin[0]*rightVector[0] - sensorOrigin[1]*rightVector[1]+
                                           rightVector[2]*(-sensorOrigin[2]+(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
@@ -476,22 +499,25 @@ bool aligner::align(void)
                                        (upVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
                                         rightVector[0]*(upVector[1]*upVector[1]+upVector[2]*upVector[2]))/(den*den);
 
-                                trackCovx[1][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCovy[0][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCovx[1][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCovy[1][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCovy[2][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCovx[3][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCovy[3][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCovx[3][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCovx[0][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCovy[0][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCovx[1][1] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCovx[1][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCovx[0][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
                                 trackCovx[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCovy[1][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCovy[2][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCovx[2][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                                trackCovy[3][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+                                trackCovx[3][3] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCovx[3][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCovx[2][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
                                 trackCovx[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+                                trackCovy[3][1] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCovy[3][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCovy[2][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCovy[2][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+                                trackCovy[0][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCovy[1][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCovy[0][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+                                trackCovy[1][3] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
 
                                 //cout << __PRETTY_FUNCTION__ << hx[0] << " " <<hx[1] << " " <<hx[2] << " " <<hx[3] << " " << endl;
                                 //cout << __PRETTY_FUNCTION__ << hy[0] << " " <<hy[1] << " " <<hy[2] << " " <<hy[3] << " " << endl;
