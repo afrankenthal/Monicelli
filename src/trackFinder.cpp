@@ -978,13 +978,13 @@ std::string  trackFinder::getLabel (void )
 //========================================================================================
 void trackFinder::findAndFitTracks(Event* theEvent, Geometry* theGeometry )
 {
-    if(findMethod_ == "First/Last")
+    if(findMethod_ == "FirstAndLast")
     {
         //if(findDUT_) findAllFirstAndLast            (theEvent, theGeometry);
         //else
             findFirstAndLastTrackCandidates(theEvent, theGeometry);
     }
-    else if(findMethod_ == "Road")
+    else if(findMethod_ == "RoadSearch")
     {
         //if(findDUT_) findAllRoadSearch            (theEvent, theGeometry);
         //else

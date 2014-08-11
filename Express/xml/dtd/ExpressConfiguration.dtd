@@ -4,6 +4,7 @@
  <!ATTLIST Defaults FilesPath       	   CDATA #REQUIRED>
  <!ATTLIST Defaults GeometriesPath  	   CDATA #REQUIRED>
  <!ATTLIST Defaults TrackFindingAlgorithm  (FirstAndLast|RoadSearch) #REQUIRED>
+ <!ATTLIST Defaults TrackFittingAlgorithm  (Simple|Kalman) #REQUIRED>
  <!ATTLIST Defaults NumberOfEvents  	   CDATA #REQUIRED>
  <!ATTLIST Defaults Chi2Cut         	   CDATA #REQUIRED>
  <!ATTLIST Defaults TrackPoints     	   CDATA #REQUIRED>

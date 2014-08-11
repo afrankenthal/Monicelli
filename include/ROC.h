@@ -156,7 +156,7 @@ class ROC : public TObject
 
    std::stringstream        ss_                                  ;//! temporary state value
 
-   ClassDef(ROC,5)
+   ClassDef(ROC,1)
 
 } ;
 

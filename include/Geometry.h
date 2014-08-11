@@ -78,7 +78,7 @@ class Geometry : public TObject
 
   //std::stringstream               ss_                        ;//! temporary state value
 
-  ClassDef(Geometry,5)
+  ClassDef(Geometry,1)
 
 } ;
 

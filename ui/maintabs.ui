@@ -482,7 +482,7 @@ p, li { white-space: pre-wrap; }
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>5</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="rawDataProcessingTabPage">
       <attribute name="title">
@@ -4118,12 +4118,12 @@ p, li { white-space: pre-wrap; }
         </property>
         <item>
          <property name="text">
-          <string>First/Last</string>
+          <string>FirstAndLast</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Road</string>
+          <string>RoadSearch</string>
          </property>
         </item>
        </widget>

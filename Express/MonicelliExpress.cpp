@@ -51,6 +51,7 @@ public:
     std::string filesPath_;
     std::string geometriesPath_;
     std::string trackFindingAlgorithm_;
+    std::string trackFittingAlgorithm_;
     int         numberOfEvents_;     
     double      chi2Cut_;	       
     int         trackPoints_;     
@@ -103,6 +104,7 @@ int main(int argc, char** argv)
   const string filesPath            = theXmlParser.getDefaults()->filesPath_     ;
   const string geometriesPath       = theXmlParser.getDefaults()->geometriesPath_;
   std::string trackFindingAlgorithm = theXmlParser.getDefaults()->trackFindingAlgorithm_;
+  std::string trackFittingAlgorithm = theXmlParser.getDefaults()->trackFittingAlgorithm_;
   int    numberOfEvents             = theXmlParser.getDefaults()->numberOfEvents_;
   double chi2Cut                    = theXmlParser.getDefaults()->chi2Cut_       ;
   int    trackPoints                = theXmlParser.getDefaults()->trackPoints_   ;
@@ -168,24 +170,29 @@ int main(int argc, char** argv)
     					    trackPoints,
     					    maxPlanePoints );
 
+
+    theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
+
     theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
-    if(trackFindingAlgorithm == "FirstAndLast")
-      if(findDut) 
-        theTrackFinder.setOperation(&trackFinder::findAllFirstAndLast);
-      else				  
-        theTrackFinder.setOperation(&trackFinder::findFirstAndLastTrackCandidates);
-    else if(trackFindingAlgorithm == "RoadSearch")
-      if(findDut) 
-        theTrackFinder.setOperation(&trackFinder::findAllRoadSearch);
-      else				  
-        theTrackFinder.setOperation(&trackFinder::findRoadSearchTrackCandidates);
-    else
-    {
-      ss.str("");
-      ss << "ERROR: Unknown algorithm name: " << trackFindingAlgorithm << ". Possible values are FirstAndLast or RoadSearch only.";
-      STDLINE(ss.str(),ACRed);
-      exit(EXIT_FAILURE);
-    }
+    theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
+
+//     if(trackFindingAlgorithm == "FirstAndLast")
+//       if(findDut) 
+//         theTrackFinder.setOperation(&trackFinder::findAllFirstAndLast);
+//       else				  
+//         theTrackFinder.setOperation(&trackFinder::findFirstAndLastTrackCandidates);
+//     else if(trackFindingAlgorithm == "RoadSearch")
+//       if(findDut) 
+//         theTrackFinder.setOperation(&trackFinder::findAllRoadSearch);
+//       else				  
+//         theTrackFinder.setOperation(&trackFinder::findRoadSearchTrackCandidates);
+//     else
+//     {
+//       ss.str("");
+//       ss << "ERROR: Unknown algorithm name: " << trackFindingAlgorithm << ". Possible values are FirstAndLast or RoadSearch only.";
+//       STDLINE(ss.str(),ACRed);
+//       exit(EXIT_FAILURE);
+//     }
     theFileEater.updateEvents2();
 
     //////////////////////////////////////////
@@ -270,6 +277,7 @@ XmlDefaults::XmlDefaults(QDomNode& node)
     filesPath_      	   = node.toElement().attribute("FilesPath")		.toStdString();
     geometriesPath_ 	   = node.toElement().attribute("GeometriesPath")	.toStdString();
     trackFindingAlgorithm_ = node.toElement().attribute("TrackFindingAlgorithm").toStdString();
+    trackFittingAlgorithm_ = node.toElement().attribute("TrackFittingAlgorithm").toStdString();
     numberOfEvents_        = node.toElement().attribute("NumberOfEvents") 	.toInt();
     chi2Cut_        	   = node.toElement().attribute("Chi2Cut")	 	.toInt();
     trackPoints_    	   = node.toElement().attribute("TrackPoints")    	.toInt();

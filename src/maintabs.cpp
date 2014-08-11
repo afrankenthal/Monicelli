@@ -1784,7 +1784,7 @@ void mainTabs::swapBeamProfilesHistograms(bool toggled)
 //=============================================================================
 void mainTabs::on_trackFindAndFitPB_clicked()
 {
-    std::string fitMethod    = ui->trackFitNameCB   ->currentText().toStdString();
+    std::string fitMethod  = ui->trackFitNameCB ->currentText().toStdString();
     std::string findMethod = ui->trackFindNameCB->currentText().toStdString();
     theTrackFitter_->setFitMethodName(fitMethod);
     findAndFitTrack(findMethod, fitMethod);

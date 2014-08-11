@@ -259,7 +259,7 @@ private:
     bool                         bubbleAltSignal_          ;
     //std::stringstream             ss_                       ; //! temporary state value
 
-    ClassDef(Event,6);
+    ClassDef(Event,1);
 
 } ;
 

@@ -28,7 +28,7 @@ private:
     bool clustersDone_    ;
     bool tracksFound_     ;
 
-    ClassDef(EventHeader,4);
+    ClassDef(EventHeader,1);
 } ;
 
 #endif // EVENTHEADER_H
