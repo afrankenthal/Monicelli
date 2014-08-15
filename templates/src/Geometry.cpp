@@ -43,11 +43,11 @@ bool Geometry::compare_zPosition(std::string first, std::string second)
 }
 
 //===============================================================================
-Detector * Geometry::addDetector(std::string plaqID, bool isDUT)
+Detector * Geometry::addDetector(std::string plaqID, bool isDUT, bool isStrip)
 {
   if( detectorsMap_.find( plaqID ) == detectorsMap_.end() )
   {
-    detectorsMap_[ plaqID ] = new Detector(plaqID, isDUT);
+    detectorsMap_[ plaqID ] = new Detector(plaqID, isDUT, isStrip);
     if( isDUT ) dutNumbers_++                ;
   }
   else     STDLINE("Warning: Detector: " + plaqID + " was already added!!",ACRed);
@@ -74,7 +74,6 @@ Detector * Geometry::getDetector(int station , int plaq)
   ss_ << "Station: " << station << " - " << "Plaq: " << plaq;
   return this->getDetector(ss_.str());
 }
-
 
 //===============================================================================
 int Geometry::getDetectorStation(std::string  plaqID)

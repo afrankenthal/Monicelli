@@ -595,7 +595,7 @@ bool fileEater::parseBinary3(TTree* tree)
                 int strip    = (orderedData >> 17) & 0x0f;
                 int set      = (orderedData >> 12) & 0x1f;
                 col          = computeSensorStrip(chip, set, strip);
-                adc          =  (orderedData >> 1) & 0x7;
+                adc          = (orderedData >> 1) & 0x7;
                 chip         = 0;
 
                 //std::cout << __PRETTY_FUNCTION__ << "Adc: " << adc << " Set: " << set << " Strip: " << strip << std::endl;
@@ -639,9 +639,9 @@ bool fileEater::parseBinary3(TTree* tree)
             ss_ << "Station: " << station << " - " << "Plaq: " << module;
 
             if( !theGeometry_->getDetector(ss_.str())                                           ||
-                    !theGeometry_->getDetector(ss_.str())->getROC(chip)                             ||
-                    !(row  < theGeometry_->getDetector(ss_.str())->getROC(chip)->getNumberOfRows()) ||
-                    !(col  < theGeometry_->getDetector(ss_.str())->getROC(chip)->getNumberOfCols()) )
+                !theGeometry_->getDetector(ss_.str())->getROC(chip)                             ||
+                !(row  < theGeometry_->getDetector(ss_.str())->getROC(chip)->getNumberOfRows()) ||
+                !(col  < theGeometry_->getDetector(ss_.str())->getROC(chip)->getNumberOfCols()) )
             {
                 ss_.str("");
                 ss_ << ACRed << ACBold

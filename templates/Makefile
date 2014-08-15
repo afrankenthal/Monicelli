@@ -1,5 +1,5 @@
 PROJECT = Utilities
-EXES     = bin/ReaderTemplate bin/Converter bin/GeometryConverter bin/T1037Converter bin/StripTestReader bin/AdamParaConverter
+EXES     = bin/ReaderTemplate bin/Converter bin/GeometryConverter bin/T1037Converter bin/T958Converter bin/StripTestReader bin/AdamParaConverter
 
 PWD         = `pwd`
 ROOTCONFIG := root-config

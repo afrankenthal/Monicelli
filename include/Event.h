@@ -179,54 +179,52 @@ public:
     Event(void) ;
     ~Event(void);
 
-    void                       clear                     (void                                     );
+    void                                    clear                                 (void            );
 
-    unconstrainedFittedTracksDef          & getUnconstrainedFittedTracks          (void            ){return unconstrainedFittedTracks_          ;}
-    unconstrainedFittedTracksCovarianceDef& getUnconstrainedFittedTracksCovariance(void            ){return unconstrainedFittedTracksCovariance_;}
-    unconstrainedChi2VectorDef            & getUnconstrainedFittedTracksChi2      (void            ){return unconstrainedFittedTracksChi2_      ;}
-    clustersMapDef           & getClusters               (void                                     ){return clusters_                           ;}
-    clustersHitsMapDef       & getClustersHits           (void                                     ){return clustersHits_                       ;}
-    plaqMapDef               & getRawData                (void                                     ){return theRawData_                         ;}
-    trackCandidatesDef       & getTrackCandidates        (void                                     ){return trackCandidates_                    ;}
+    //Getters
+    unconstrainedFittedTracksDef&           getUnconstrainedFittedTracks          (void){return unconstrainedFittedTracks_          ;}
+    unconstrainedFittedTracksCovarianceDef& getUnconstrainedFittedTracksCovariance(void){return unconstrainedFittedTracksCovariance_;}
+    unconstrainedChi2VectorDef&             getUnconstrainedFittedTracksChi2      (void){return unconstrainedFittedTracksChi2_      ;}
+    clustersMapDef&                         getClusters                           (void){return clusters_                           ;}
+    clustersHitsMapDef&                     getClustersHits                       (void){return clustersHits_                       ;}
+    plaqMapDef&                             getRawData                            (void){return theRawData_                         ;}
+    trackCandidatesDef&                     getTrackCandidates                    (void){return trackCandidates_                    ;}
+    trackCandidatesDef&                     getAlignedHitsCandidates              (void){return alignedHitsCandidates_              ;}
+    clustersMapDef&                         getAlignedClusters                    (void){return alignedClusters_                    ;}
+    residualsMapDef&                        getFittedTrackDeviations              (void){return fittedTrackDeviations_              ;}
+    residualsMapDef&                        getFittedTrackResiduals               (void){return fittedTrackResiduals_               ;}
+    residualsMapDef&                        getFittedTrackPulls                   (void){return fittedTrackPulls_                   ;}
+    fittedTracksDef&                        getFittedTracks                       (void){return fittedTracks_                       ;}
+    fittedTracksCovarianceDef&              getFittedTracksCovariance             (void){return fittedTracksCovariance_             ;}
+    chi2VectorDef&                          getFittedTracksChi2                   (void){return fittedTracksChi2_                   ;}
+    int                                     getTrigger                            (void){return trig_                               ;}
+    long long                               getUTC                                (void){return utc_                                ;}
+    long long                               getBCO                                (void){return bco_                                ;}
+    unsigned int                            getTimestamp                          (void){return timestamp_                          ;}
+    bool                                    getBubbleSignal                       (void){return bubbleSignal_                       ;}
+    bool                                    getBubbleAltSignal                    (void){return bubbleAltSignal_                    ;}
 
-    trackCandidatesDef       & getAlignedHitsCandidates (void                                      ){return alignedHitsCandidates_              ;}
-    clustersMapDef           & getAlignedClusters       (void                                      ){return alignedClusters_                    ;}
+    //Setters
+    void                                    setRawData                            (int                       trig,
+                                                                                   const plaqMapDef&         theRawData  );
+    void                                    setClustersHits                       (const clustersHitsMapDef& clustersHits);
+    void                                    setClusters                           (const clustersMapDef&     clusters    );
+    void                                    addUnconstrainedFittedTrack           (unsigned int              trackN,
+                                                                                   std::string               detector,
+                                                                                   const vectorDef&          fittedTrack,
+                                                                                   const matrixDef&          covarianceMatrix,
+                                                                                   double                    fittedTrackChi2);
+    void                                    setFittedTrackResiduals              (const residualsMapDef&     residuals       ){fittedTrackResiduals_   = residuals   ;}
+    void                                    setFittedTrackDeviations             (const residualsMapDef&     residuals       ){fittedTrackDeviations_  = residuals   ;}
+    void                                    setFittedTrackPulls                  (const residualsMapDef&     pulls           ){fittedTrackPulls_       = pulls       ;}
+    void                                    setTrigger                           (int                        trigger         ){trig_                   = trigger     ;}
+    void                                    setUTC                               (long long                  utc             ){utc_                    = utc         ;}
+    void                                    setBCO                               (long long                  bco             ){bco_                    = bco         ;}
+    void                                    setTimestamp                         (unsigned int               timestamp       ){timestamp_              = timestamp   ;}
+    void                                    setBubbleSignal                      (bool                       bubbleSignal    ){bubbleSignal_           = bubbleSignal;}
+    void                                    setBubbleAltSignal                   (bool                       bubbleSignal    ){bubbleAltSignal_        = bubbleSignal;}
 
-    residualsMapDef          & getFittedTrackDeviations  (void                                     ){return fittedTrackDeviations_              ;}
-    residualsMapDef          & getFittedTrackResiduals   (void                                     ){return fittedTrackResiduals_               ;}
-    residualsMapDef          & getFittedTrackPulls       (void                                     ){return fittedTrackPulls_                   ;}
-    fittedTracksDef          & getFittedTracks           (void                                     ){return fittedTracks_                       ;}
-    fittedTracksCovarianceDef& getFittedTracksCovariance (void                                     ){return fittedTracksCovariance_             ;}
-    chi2VectorDef            & getFittedTracksChi2       (void                                     ){return fittedTracksChi2_                   ;}
-    int                        getTrigger                (void                                     ){return trig_                               ;}
-    long long                  getUTC                    (void                                     ){return utc_                                ;}
-    unsigned int               getTimestamp              (void                                     ){return timestamp_                          ;}
-    bool                       getBubbleSignal           (void                                     ){return bubbleSignal_                       ;}
-    bool                       getBubbleAltSignal        (void                                     ){return bubbleAltSignal_                    ;}
-
-    void                       setRawData                (int                             trig,
-                                                          const plaqMapDef&               theRawData      );
-    void                       setClustersHits           (const clustersHitsMapDef&       clustersHits    );
-    void                       setClusters               (const clustersMapDef&           clusters        );
-
-    void                       addUnconstrainedFittedTrack(unsigned int     trackN,
-                                                           std::string      detector,
-                                                           const vectorDef& fittedTrack,
-                                                           const matrixDef& covarianceMatrix,
-                                                           double           fittedTrackChi2);
-
-    residualsMapDef            makeFittedTrackDeviations (int                             trackNumber = -1);
-
-    //    void                       setTrackCandidates        (const trackCandidatesDef&       trackCandidates ){trackCandidates_        = trackCandidates  ;}
-    void                       setFittedTrackResiduals   (const residualsMapDef&          residuals       ){fittedTrackResiduals_   = residuals        ;}
-    void                       setFittedTrackDeviations  (const residualsMapDef&          residuals       ){fittedTrackDeviations_  = residuals        ;}
-    void                       setFittedTrackPulls       (const residualsMapDef&          pulls           ){fittedTrackPulls_       = pulls            ;}
-    void                       setTrigger                (int                             trigger         ){trig_                   = trigger          ;}
-    void                       setUTC                    (long long                       utc             ){utc_                    = utc              ;}
-    void                       setTimestamp              (unsigned int                    timestamp       ){timestamp_              = timestamp        ;}
-    void                       setBubbleSignal           (bool                            bubbleSignal    ){bubbleSignal_           = bubbleSignal     ;}
-    void                       setBubbleAltSignal        (bool                            bubbleSignal    ){bubbleAltSignal_        = bubbleSignal     ;}
-
+    residualsMapDef                         makeFittedTrackDeviations            (int                        trackNumber = -1);
 
     //plaqMapDef & getTelescopeHits(void)            ;
     //hitsDef    & getPlaquetteHits(std::string)     ;
@@ -235,28 +233,29 @@ private:
 
     void makeSingleTrackDeviations ( int trackNum );
 
-    int                          trig_                     ;
-    plaqMapDef                   theRawData_               ;
-    clustersMapDef               clusters_                 ;
-    clustersHitsMapDef           clustersHits_             ;
-    trackCandidatesDef           trackCandidates_          ;
+    int                                    trig_                               ;
+    plaqMapDef                             theRawData_                         ;
+    clustersMapDef                         clusters_                           ;
+    clustersHitsMapDef                     clustersHits_                       ;
+    trackCandidatesDef                     trackCandidates_                    ;
 
-    trackCandidatesDef           alignedHitsCandidates_    ;
-    clustersMapDef               alignedClusters_          ;
+    trackCandidatesDef                     alignedHitsCandidates_              ;
+    clustersMapDef                         alignedClusters_                    ;
 
-    residualsMapDef              fittedTrackResiduals_     ;
-    residualsMapDef              fittedTrackDeviations_    ;
-    residualsMapDef              fittedTrackPulls_         ;
-    fittedTracksDef              fittedTracks_             ;
-    fittedTracksCovarianceDef    fittedTracksCovariance_   ;
-    chi2VectorDef                fittedTracksChi2_         ;
+    residualsMapDef                        fittedTrackResiduals_               ;
+    residualsMapDef                        fittedTrackDeviations_              ;
+    residualsMapDef                        fittedTrackPulls_                   ;
+    fittedTracksDef                        fittedTracks_                       ;
+    fittedTracksCovarianceDef              fittedTracksCovariance_             ;
+    chi2VectorDef                          fittedTracksChi2_                   ;
     unconstrainedFittedTracksDef           unconstrainedFittedTracks_          ;
     unconstrainedFittedTracksCovarianceDef unconstrainedFittedTracksCovariance_;
     unconstrainedChi2VectorDef             unconstrainedFittedTracksChi2_      ;
-    long long                    utc_                      ;
-    unsigned int                 timestamp_                ;
-    bool                         bubbleSignal_             ;
-    bool                         bubbleAltSignal_          ;
+    long long                              utc_                                ;
+    long long                              bco_                                ;
+    unsigned int                           timestamp_                          ;
+    bool                                   bubbleSignal_                       ;
+    bool                                   bubbleAltSignal_                    ;
     //std::stringstream             ss_                       ; //! temporary state value
 
     ClassDef(Event,1);
