@@ -33,6 +33,7 @@
 **  ----------------------------------------------------------------------------------------------
 **  The cluster hit coordinates/errors computed for each plaquette by using the charge sharing
 **  wheighting. The x/y coordinates are computed in the local plaquette reference frame.
+**  dataType is 0 for pixels and 1 for strips.
 **
 **  map<string, map<int, map<string, double> > >                          clusters_  
 **         |         |         |       |
