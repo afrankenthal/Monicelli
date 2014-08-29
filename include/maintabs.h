@@ -274,6 +274,7 @@ private slots:
     bool on_loadXMLGeometryPB_clicked();
     bool on_loadGeoGeometryPB_clicked();
     void on_geometryClearAllCorrectionsPB_clicked();
+    void on_trackFitNameCB_currentIndexChanged(const QString &arg1);
 };
 
 #endif // MAINTABS_H

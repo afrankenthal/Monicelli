@@ -75,6 +75,9 @@ public:
 
    void                             setFitMethodName                (std::string fitMethodName                                       ){fitMethodName_=fitMethodName        ;}
    //std::string                      getFitMethodName                (void                                                            ){return fitMethodName_               ;}
+   void                             setNumberOfIterations           (int                                       iterations            ){nIterations_ = iterations           ;}
+
+   static ROOT::Math::SVector<double,4> calculateParCorrections (ROOT::Math::SVector<double,4> pars, Geometry * geo, std::map<std::string, std::pair<double, double> > res);
 
 private:
 
@@ -96,6 +99,7 @@ private:
     Event::clustersMapDef            clusters_             ;
 
     std::string                      fitMethodName_        ;
+    int                              nIterations_          ;
 
 };
 

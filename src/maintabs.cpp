@@ -1782,11 +1782,24 @@ void mainTabs::swapBeamProfilesHistograms(bool toggled)
 //=============================================================================
 //------------------------------------------TRACK FINDER TAB-------------------
 //=============================================================================
+void mainTabs::on_trackFitNameCB_currentIndexChanged(const QString &arg1)
+{
+    if (arg1 == "Simple")
+        ui->trackFitterIterationsSB->setEnabled(true);
+    else
+        ui->trackFitterIterationsSB->setEnabled(false);
+
+}
+
 void mainTabs::on_trackFindAndFitPB_clicked()
 {
     std::string fitMethod  = ui->trackFitNameCB ->currentText().toStdString();
     std::string findMethod = ui->trackFindNameCB->currentText().toStdString();
     theTrackFitter_->setFitMethodName(fitMethod);
+    if (fitMethod == "Simple")
+        theTrackFitter_->setNumberOfIterations(ui->trackFitterIterationsSB->value());
+    else
+        theTrackFitter_->setNumberOfIterations(0);
     findAndFitTrack(findMethod, fitMethod);
 }
 
@@ -1796,6 +1809,10 @@ void mainTabs::on_trackFitPB_clicked()
     std::string fitMethod = ui->trackFitNameCB->currentText().toStdString();
 
     theTrackFitter_->setFitMethodName(fitMethod);
+    if (fitMethod == "Simple")
+        theTrackFitter_->setNumberOfIterations(ui->trackFitterIterationsSB->value());
+    else
+        theTrackFitter_->setNumberOfIterations(0);
 
     //cout << __PRETTY_FUNCTION__ << "Fit Method begin:    " << fitMethod << endl;
     findAndFitTrack("", fitMethod);
@@ -3056,6 +3073,10 @@ void mainTabs::on_fineAlignmentPB_clicked()
 
     std::string alignmentFitMethod = ui->alignmentTypeCB ->currentText().toStdString();
     theAligner_->setAlignmentFitMethodName(alignmentFitMethod);
+    if (alignmentFitMethod == "Simple")
+        theAligner_->setNumberOfIterations(ui->fineTrackFitterIterationsSB->value());
+    else
+        theAligner_->setNumberOfIterations(0);
 
     //theAligner_->clearFixParMap();
     for(Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it)
@@ -3137,7 +3158,13 @@ void mainTabs::on_trackFindAndFitAlignmentPB_clicked()
 {
     std::string fitMethod  = ui->trackFitAlignmentNameCB ->currentText().toStdString();
     std::string findMethod = ui->trackFindAlignmentNameCB->currentText().toStdString();
+    if (fitMethod == "Simple")
+        theTrackFitter_->setNumberOfIterations(ui->trackFitterIterationsSB->value());
+    else
+        theTrackFitter_->setNumberOfIterations(0);
+
     theTrackFitter_->setFitMethodName(fitMethod);
+
     findAndFitTrack(findMethod, fitMethod);
 }
 
@@ -4054,9 +4081,15 @@ void mainTabs::setAlignmentBoxes(const QString alignmentMethod)
 {
     std::string alignmentMethodString = alignmentMethod.toUtf8().constData();
     if (alignmentMethodString == "Kalman")
+    {
+        ui->fineTrackFitterIterationsSB->setEnabled(false);
         fixStrips(1);
+    }
     else if (alignmentMethodString == "Simple")
+    {
+        ui->fineTrackFitterIterationsSB->setEnabled(true);
         //ui->detectorsTableView->enableAll(1);
         fixStrips(0);
+    }
 
 }

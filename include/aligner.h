@@ -114,10 +114,11 @@ class aligner : public multiProcess<aligner,bool>
                                                      bool         noDiagonalClusters = true,
                                                      std::string  DUT                = "",
                                                      int          nEvents            = -1);
-    void                     setFixParMap       (std::string detector, int code                       ){parMap_[detector]=code  ;}
-    void                     clearFixParMap     (void                                                 ){parMap_.clear()         ;}
-    void                     setAlignmentFitMethodName   (std::string alignmentFitMethod              ){alignmentFitMethod_=alignmentFitMethod    ;}
-    //std::string              getAlignmentFitMethodName   (void                                        ){return fitMethodName_                     ;}
+    void                     setFixParMap       (std::string detector, int code                       ){parMap_[detector]=code                 ;}
+    void                     clearFixParMap     (void                                                 ){parMap_.clear()                        ;}
+    void                     setAlignmentFitMethodName   (std::string alignmentFitMethod              ){alignmentFitMethod_=alignmentFitMethod ;}
+    //std::string              getAlignmentFitMethodName   (void                                        ){return fitMethodName_                  ;}
+    void                     setNumberOfIterations       (int                   iterations            ){nIterations_ = iterations              ;}
 
   private :
      fileEater                                  * theFileEater_    ;
@@ -136,6 +137,7 @@ class aligner : public multiProcess<aligner,bool>
      bool         noDiagonalClusters_;
      std::string  DUT_               ;
      std::string  alignmentFitMethod_;
+     int          nIterations_       ;
 
      std::stringstream ss_ ;
 } ;

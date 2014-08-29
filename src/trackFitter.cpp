@@ -18,6 +18,7 @@ trackFitter::trackFitter(void)
     STDLINE("empty constructor",ACWhite);
     debug_ = false;
     tracksFitted_ = false ;
+    nIterations_ = 0;
 }
 
 //===============================================================================
@@ -156,10 +157,10 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
 
     ss_.str("");
     ss_ << "alignedHits.size: " << alignedHits.size();
-    //STDLINE(ss_.str(),ACPurple)
-//    double xPredLoc, yPredLoc, zPredLoc;
-//    double xHitLoc , yHitLoc , zHitLoc ;
-//    double xErrLoc , yErrLoc , zErrLoc ;
+    std::map<std::string, std::pair<double, double> > resMap; //residuals for each plane used for successive iterations
+    double xPredLoc, yPredLoc, zPredLoc;
+    double xHitLoc, yHitLoc, zHitLoc;
+    double xErrLoc, yErrLoc, zErrLoc;
     for(Event::alignedHitsCandidateMapDef::const_iterator tr=alignedHits.begin(); tr!=alignedHits.end(); tr++)
     {
         if( theGeometry->getDetector( tr->first )->isDUT() )  continue;
@@ -186,6 +187,65 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
        chi2 += pow(xHitLoc - xPredLoc, 2 )/(xErrLoc*xErrLoc) +
                pow(yHitLoc - yPredLoc, 2 )/(yErrLoc*yErrLoc)  ;
 */
+        if (nIterations_ == 0)
+            continue;
+
+//        xPredLoc = pars[0]*hit["z"] + pars[1];
+//        yPredLoc = pars[2]*hit["z"] + pars[3];
+        theGeometry->getDetector(tr->first)->getPredictedLocal(pars, xPredLoc, yPredLoc);
+        zPredLoc = theGeometry->getDetector( tr->first )->getZPosition();
+//        theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
+        xHitLoc = hit["x"];
+        yHitLoc = hit["y"];
+        zHitLoc = hit["z"];
+        xErrLoc = hit["xErr"];
+        yErrLoc = hit["yErr"];
+        zErrLoc = hit["zErr"];
+        theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xHitLoc, &yHitLoc, &zHitLoc, &xErrLoc, &yErrLoc, &zErrLoc);
+        if (theGeometry->getDetectorModule(tr->first)%2 == 0)
+            resMap[tr->first] = std::make_pair<double, double>(xHitLoc - xPredLoc, xErrLoc);
+        else
+            resMap[tr->first] = std::make_pair<double, double>(yHitLoc - yPredLoc, yErrLoc);
+    }
+
+    for (int iter = 0; iter < nIterations_; ++iter)
+    {
+        ROOT::Math::SVector<double,4> corrections = calculateParCorrections(pars, theGeometry, resMap);
+        pars += corrections;
+
+        chi2 = 0;
+
+        for(Event::alignedHitsCandidateMapDef::const_iterator tr=alignedHits.begin(); tr!=alignedHits.end(); tr++)
+        {
+            if( theGeometry->getDetector( tr->first )->isDUT() )  continue;
+            if( tr->first == excludedDetector )                   continue;
+
+            Event::aClusterDef hit = tr->second;
+
+            //global coordinates
+            chi2 += pow( hit["x"] - pars[0]*hit["z"] - pars[1], 2 )/(hit["xErr"]*hit["xErr"]) +
+                    pow( hit["y"] - pars[2]*hit["z"] - pars[3], 2 )/(hit["yErr"]*hit["yErr"])  ;
+
+//            if (iter == nIterations_-1)
+//                continue;
+
+//            xPredLoc = pars[0]*hit["z"] + pars[1];
+//            yPredLoc = pars[2]*hit["z"] + pars[3];
+            theGeometry->getDetector(tr->first)->getPredictedLocal(pars, xPredLoc, yPredLoc);
+            zPredLoc = theGeometry->getDetector( tr->first )->getZPosition();
+//            theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
+            xHitLoc = hit["x"];
+            yHitLoc = hit["y"];
+            zHitLoc = hit["z"];
+            xErrLoc = hit["xErr"];
+            yErrLoc = hit["yErr"];
+            zErrLoc = hit["zErr"];
+            theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xHitLoc, &yHitLoc, &zHitLoc, &xErrLoc, &yErrLoc, &zErrLoc);
+            if (theGeometry->getDetectorModule(tr->first)%2 == 0)
+                resMap[tr->first] = std::make_pair<double, double>(xHitLoc - xPredLoc, xErrLoc);
+            else
+                resMap[tr->first] = std::make_pair<double, double>(yHitLoc - yPredLoc, yErrLoc);
+        }
     }
 
     if(debug_)
@@ -1045,3 +1105,76 @@ void trackFitter::makeFittedTrackDeviations(Event * theEvent, Geometry*)
 }
 //=======================================================================================
 
+ROOT::Math::SVector<double,4> trackFitter::calculateParCorrections (ROOT::Math::SVector<double,4> pars, Geometry * geo, std::map<std::string, std::pair<double, double> > res)
+{
+    ROOT::Math::SMatrix<double,4,4> AtVA      ;
+    ROOT::Math::SMatrix<double,4,4> AtVAInv   ;
+    ROOT::Math::SVector<double,4>   AtVmq     ;
+    ROOT::Math::SVector<double,4>   dmq       ;//x_loc derivatives with inverse error
+    double D = 0;//denominator
+    double N = 0;//numerator
+
+    ROOT::Math::SVector<double,4>   corr;//corrections
+
+    for (std::map<std::string, std::pair<double, double> >::iterator it = res.begin(); it != res.end(); ++it)
+    {
+        int fail;
+        Detector::matrix33Def RM = geo->getDetector(it->first)->getRotationMatrix().Inverse(fail);
+        double z = geo->getDetector(it->first)->getZPosition();
+/*        std::cout << "Matrix for plane " << it->first << std::endl;
+        for (int r = 0; r < 3; ++r)
+        {
+            for (int c = 0; c < 3; ++c)
+                printf("%7.3f ", RM(r,c));
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;*/
+
+        if (geo->getDetectorModule(it->first)%2 == 0)
+        {
+            N = (pars(0)*z + pars(1))*(RM(1,1) - pars(2)*RM(2,1)) -
+                (pars(2)*z + pars(3))*(RM(0,1) - pars(0)*RM(2,1));
+            D = (RM(0,0) - pars(0)*RM(2,0))*(RM(1,1) - pars(2)*RM(2,1)) -
+                (RM(1,0) - pars(2)*RM(2,0))*(RM(0,1) - pars(0)*RM(2,1));
+            dmq(0) = ((z*(RM(1,1) - pars(2)*RM(2,1)) + RM(2,1)*(pars(2)*z + pars(3)))*D -
+                 (-RM(2,0)*(RM(1,1) - pars(2)*RM(2,1)) + RM(2,1)*(RM(1,0) - pars(2)*RM(2,0)))*N)/(D*D);
+            dmq(1) = (RM(1,1) - pars(2)*RM(2,1))/(D);
+            dmq(2) = ((-z*(RM(0,1) - pars(0)*RM(2,1)) -RM(2,1)*(pars(0)*z + pars(1)))*D -
+                 (RM(2,0)*(RM(0,1) - pars(0)*RM(2,1)) - RM(2,1)*(RM(0,0) - pars(0)*RM(2,0)))*N)/(D*D);
+            dmq(3) = -(RM(0,1) - pars(0)*RM(2,1))/(D);
+        }
+        else
+        {
+            N = (pars(2)*z + pars(3))*(RM(0,0) - pars(0)*RM(2,0)) -
+                (pars(0)*z + pars(1))*(RM(1,0) - pars(2)*RM(2,0));
+            D = (RM(1,1) - pars(2)*RM(2,1))*(RM(0,0) - pars(0)*RM(2,0)) -
+                (RM(0,1) - pars(0)*RM(2,1))*(RM(1,0) - pars(2)*RM(2,0));
+            dmq(2) = ((z*(RM(0,0) - pars(0)*RM(2,0)) + RM(2,0)*(pars(0)*z + pars(1)))*D -
+                 (-RM(2,1)*(RM(0,0) - pars(0)*RM(2,0)) + RM(2,0)*(RM(0,1) - pars(0)*RM(2,1)))*N)/(D*D);
+            dmq(3) = (RM(0,0) - pars(0)*RM(2,0))/(D);
+            dmq(0) = ((-z*(RM(1,0) - pars(2)*RM(2,0)) -RM(2,0)*(pars(2)*z + pars(3)))*D -
+                 (RM(2,1)*(RM(1,0) - pars(2)*RM(2,0)) - RM(2,0)*(RM(1,1) - pars(2)*RM(2,1)))*N)/(D*D);
+            dmq(1) = -(RM(1,0) - pars(2)*RM(2,0))/(D);
+        }
+
+        for (int r = 0; r < 4; ++r)
+        {
+            for (int c = 0; c < 4; ++c)
+            {
+                AtVA(r,c) += dmq(r)*dmq(c)/(res[it->first].second*res[it->first].second);
+            }
+        }
+
+        for (int ch = 0; ch < 4; ++ch)
+        {
+            AtVmq(ch) += dmq(ch)*res[it->first].first/(res[it->first].second*res[it->first].second);
+        }
+    }
+
+    int fail2;
+    AtVAInv = AtVA.Inverse(fail2);
+
+    corr = AtVAInv*AtVmq;
+    return corr;
+}
+//=======================================================================================

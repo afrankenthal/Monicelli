@@ -14,6 +14,7 @@ aligner::aligner(fileEater* theFileEater, HManager* theHManager) :
     theFileEater_(theFileEater)
   , theHManager_ (theHManager)
 {
+    nIterations_ = 0;
 }
 
 //=============================================================
@@ -303,6 +304,69 @@ bool aligner::align(void)
                         //std::cout << __PRETTY_FUNCTION__ << "Initial Track par " << i << ": " << fitpar[i] << std::endl;
                         //std::cout << __PRETTY_FUNCTION__ << "Initial covMat line " << i << ": " << AtVAInv[i][0] << " "<< AtVAInv[i][1] << " "<< AtVAInv[i][2] << " "<< AtVAInv[i][3] <<std::endl;
                     } /*  */
+
+                    if (alignmentFitMethod_ == "Simple")
+                    {
+                        std::map<std::string, std::pair<double, double> > resMap;
+                        for ( std::map<std::string, double>::iterator det=xmeas[j].begin(); det!=xmeas[j].end(); det++ )
+                        {
+                            if( theGeometry->getDetector( det->first )->isDUT() )  continue;
+                            if( det->first == exl->first ) continue;
+
+//                            double zPredLoc = ( -fitpar(1)*fRInv[det->first](2,0) - fitpar(3)*fRInv[det->first](2,1) + theGeometry->getDetector( det->first )->getZPosition())/( fitpar(0)*fRInv[det->first](2,0) + fitpar(2)*fRInv[det->first](2,1) + fRInv[det->first](2,2) );
+//                            double xPredLoc = fitpar[0]*zPredLoc + fitpar[1];
+//                            double yPredLoc = fitpar[2]*zPredLoc + fitpar[3];
+//                            theGeometry->getDetector( det->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
+                            double xPredLoc, yPredLoc;
+                            theGeometry->getDetector(det->first)->getPredictedLocal(fitpar, xPredLoc, yPredLoc);
+                            double xHitLoc = rxprime[det->first];
+                            double yHitLoc = ryprime[det->first];
+    //                        double zHitLoc = 0;
+                            double xErrLoc = sigx[j][det->first];
+                            double yErrLoc = sigy[j][det->first];
+    //                        double zErrLoc = 0;
+    //                        theGeometry->getDetector( det->first )->fromGlobalToLocal(&xHitLoc, &yHitLoc, &zHitLoc, &xErrLoc, &yErrLoc, &zErrLoc);
+                            if (theGeometry->getDetectorModule(det->first)%2 == 0)
+                                resMap[det->first] = std::make_pair<double, double>(xHitLoc - xPredLoc, xErrLoc);
+                            else
+                                resMap[det->first] = std::make_pair<double, double>(yHitLoc - yPredLoc, yErrLoc);
+
+                        }
+
+                        for (int iter = 0; iter < nIterations_; ++iter)
+                        {
+                            ROOT::Math::SVector<double,4> corrections = trackFitter::calculateParCorrections(fitpar, theGeometry, resMap);
+                            fitpar += corrections;
+
+                            if (iter == nIterations_-1)
+                                continue;
+
+                            for ( std::map<std::string, double>::iterator det=xmeas[j].begin(); det!=xmeas[j].end(); det++ )
+                            {
+                                if( theGeometry->getDetector( det->first )->isDUT() )  continue;
+                                if( det->first == exl->first ) continue;
+
+    //                            double zPredLoc = theGeometry->getDetector( det->first )->getZPosition();
+//                                double zPredLoc = ( -fitpar(1)*fRInv[det->first](2,0) - fitpar(3)*fRInv[det->first](2,1) + theGeometry->getDetector( det->first )->getZPosition())/( fitpar(0)*fRInv[det->first](2,0) + fitpar(2)*fRInv[det->first](2,1) + fRInv[det->first](2,2) );
+//                                double xPredLoc = fitpar[0]*zPredLoc + fitpar[1];
+//                                double yPredLoc = fitpar[2]*zPredLoc + fitpar[3];
+//                                theGeometry->getDetector( det->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
+                                double xPredLoc, yPredLoc;
+                                theGeometry->getDetector(det->first)->getPredictedLocal(fitpar, xPredLoc, yPredLoc);
+                                double xHitLoc = rxprime[det->first];
+                                double yHitLoc = ryprime[det->first];
+    //                          double zHitLoc = 0;
+                                double xErrLoc = sigx[j][det->first];
+                                double yErrLoc = sigy[j][det->first];
+    //                            double zErrLoc = 0;
+    //                            theGeometry->getDetector( det->first )->fromGlobalToLocal(&xHitLoc, &yHitLoc, &zHitLoc, &xErrLoc, &yErrLoc, &zErrLoc);
+                                if (theGeometry->getDetectorModule(det->first)%2 == 0)
+                                    resMap[det->first] = std::make_pair<double, double>(xHitLoc - xPredLoc, xErrLoc);
+                                else
+                                    resMap[det->first] = std::make_pair<double, double>(yHitLoc - yPredLoc, yErrLoc);
+                            }
+                        }
+                    }
 
                     if (alignmentFitMethod_=="Kalman")
                     {

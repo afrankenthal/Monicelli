@@ -563,6 +563,7 @@ void trackFinder::findRoadSearchTrackCandidates(Event* theEvent, Geometry* theGe
 void trackFinder::fitKalmanTrackCandidates(Event* theEvent, Geometry* theGeometry)
 {
     //Use simpleFit to establish initial estimates of track parameters
+    theTrackFitter_->setNumberOfIterations(0);
     fitSimpleTrackCandidates(theEvent, theGeometry);
 
     //Outputs of Simple Fit to iterate over
