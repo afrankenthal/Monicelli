@@ -259,6 +259,7 @@ bool aligner::align(void)
                     ROOT::Math::SVector<double,4>   AtVxy  ;
                     ROOT::Math::SMatrix<double,4,4> AtVAInv;//covMat
                     ROOT::Math::SVector<double,4>   fitpar ;//track parameters
+                    std::map<std::string, std::pair<double, double> > resMap;
 
                     // Loop on all planes but ii for each random track, simple fit
                     for( std::map<std::string, double>::iterator det=xmeas[j].begin(); det!=xmeas[j].end(); det++ )
@@ -305,27 +306,27 @@ bool aligner::align(void)
                         //std::cout << __PRETTY_FUNCTION__ << "Initial covMat line " << i << ": " << AtVAInv[i][0] << " "<< AtVAInv[i][1] << " "<< AtVAInv[i][2] << " "<< AtVAInv[i][3] <<std::endl;
                     } /*  */
 
-                    if (alignmentFitMethod_ == "Simple")
+                    if (alignmentFitMethod_ == "Simple" && nIterations_ > 0)
                     {
-                        std::map<std::string, std::pair<double, double> > resMap;
                         for ( std::map<std::string, double>::iterator det=xmeas[j].begin(); det!=xmeas[j].end(); det++ )
                         {
                             if( theGeometry->getDetector( det->first )->isDUT() )  continue;
                             if( det->first == exl->first ) continue;
 
-//                            double zPredLoc = ( -fitpar(1)*fRInv[det->first](2,0) - fitpar(3)*fRInv[det->first](2,1) + theGeometry->getDetector( det->first )->getZPosition())/( fitpar(0)*fRInv[det->first](2,0) + fitpar(2)*fRInv[det->first](2,1) + fRInv[det->first](2,2) );
-//                            double xPredLoc = fitpar[0]*zPredLoc + fitpar[1];
-//                            double yPredLoc = fitpar[2]*zPredLoc + fitpar[3];
-//                            theGeometry->getDetector( det->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
                             double xPredLoc, yPredLoc;
                             theGeometry->getDetector(det->first)->getPredictedLocal(fitpar, xPredLoc, yPredLoc);
-                            double xHitLoc = rxprime[det->first];
-                            double yHitLoc = ryprime[det->first];
-    //                        double zHitLoc = 0;
-                            double xErrLoc = sigx[j][det->first];
-                            double yErrLoc = sigy[j][det->first];
-    //                        double zErrLoc = 0;
-    //                        theGeometry->getDetector( det->first )->fromGlobalToLocal(&xHitLoc, &yHitLoc, &zHitLoc, &xErrLoc, &yErrLoc, &zErrLoc);
+//                            double xHitLoc = rxprime[det->first];
+//                            double yHitLoc = ryprime[det->first];
+//                            double zHitLoc = 0;
+//                            double xErrLoc = sigx[j][det->first];
+//                            double yErrLoc = sigy[j][det->first];
+                            double xHitLoc = rxprime[det->first]*fRInv[det->first][0][0]+ryprime[det->first]*fRInv[det->first][0][1];
+                            double yHitLoc = rxprime[det->first]*fRInv[det->first][1][0]+ryprime[det->first]*fRInv[det->first][1][1];
+                            double zHitLoc = fTz[det->first]+rxprime[det->first]*fRInv[det->first][2][0]+ryprime[det->first]*fRInv[det->first][2][1];
+                            double xErrLoc = sigx[j][det->first]*fRInv[det->first][0][0]+sigy[j][det->first]*fRInv[det->first][0][1];
+                            double yErrLoc = sigx[j][det->first]*fRInv[det->first][1][0]+sigy[j][det->first]*fRInv[det->first][1][1];
+                            double zErrLoc = 0;
+                            theGeometry->getDetector( det->first )->fromGlobalToLocal(&xHitLoc, &yHitLoc, &zHitLoc, &xErrLoc, &yErrLoc, &zErrLoc);
                             if (theGeometry->getDetectorModule(det->first)%2 == 0)
                                 resMap[det->first] = std::make_pair<double, double>(xHitLoc - xPredLoc, xErrLoc);
                             else
@@ -346,20 +347,20 @@ bool aligner::align(void)
                                 if( theGeometry->getDetector( det->first )->isDUT() )  continue;
                                 if( det->first == exl->first ) continue;
 
-    //                            double zPredLoc = theGeometry->getDetector( det->first )->getZPosition();
-//                                double zPredLoc = ( -fitpar(1)*fRInv[det->first](2,0) - fitpar(3)*fRInv[det->first](2,1) + theGeometry->getDetector( det->first )->getZPosition())/( fitpar(0)*fRInv[det->first](2,0) + fitpar(2)*fRInv[det->first](2,1) + fRInv[det->first](2,2) );
-//                                double xPredLoc = fitpar[0]*zPredLoc + fitpar[1];
-//                                double yPredLoc = fitpar[2]*zPredLoc + fitpar[3];
-//                                theGeometry->getDetector( det->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
                                 double xPredLoc, yPredLoc;
                                 theGeometry->getDetector(det->first)->getPredictedLocal(fitpar, xPredLoc, yPredLoc);
-                                double xHitLoc = rxprime[det->first];
-                                double yHitLoc = ryprime[det->first];
-    //                          double zHitLoc = 0;
-                                double xErrLoc = sigx[j][det->first];
-                                double yErrLoc = sigy[j][det->first];
-    //                            double zErrLoc = 0;
-    //                            theGeometry->getDetector( det->first )->fromGlobalToLocal(&xHitLoc, &yHitLoc, &zHitLoc, &xErrLoc, &yErrLoc, &zErrLoc);
+//                                double xHitLoc = rxprime[det->first];
+//                                double yHitLoc = ryprime[det->first];
+//                                double zHitLoc = 0;
+//                                double xErrLoc = sigx[j][det->first];
+//                                double yErrLoc = sigy[j][det->first];
+                                double xHitLoc = rxprime[det->first]*fRInv[det->first][0][0]+ryprime[det->first]*fRInv[det->first][0][1];
+                                double yHitLoc = rxprime[det->first]*fRInv[det->first][1][0]+ryprime[det->first]*fRInv[det->first][1][1];
+                                double zHitLoc = fTz[det->first]+rxprime[det->first]*fRInv[det->first][2][0]+ryprime[det->first]*fRInv[det->first][2][1];
+                                double xErrLoc = sigx[j][det->first]*fRInv[det->first][0][0]+sigy[j][det->first]*fRInv[det->first][0][1];
+                                double yErrLoc = sigx[j][det->first]*fRInv[det->first][1][0]+sigy[j][det->first]*fRInv[det->first][1][1];
+                                double zErrLoc = 0;
+                                theGeometry->getDetector( det->first )->fromGlobalToLocal(&xHitLoc, &yHitLoc, &zHitLoc, &xErrLoc, &yErrLoc, &zErrLoc);
                                 if (theGeometry->getDetectorModule(det->first)%2 == 0)
                                     resMap[det->first] = std::make_pair<double, double>(xHitLoc - xPredLoc, xErrLoc);
                                 else
