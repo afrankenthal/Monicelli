@@ -12,14 +12,14 @@ alias do 'make -f MakefileAll '
 setenv BASEDATADIR /data/TestBeam/2014_08_August
 
 #===============   Personalized configuration on this computer   ==============================================
-if(${HOSTNAME} == "ftbftracker01.fnal.gov") then
+if(${HOSTNAME} == "rulinux03.dhcp.fnal.gov") then
 
   #===== Local directories
   setenv MonicelliDir		   `pwd`
   setenv Monicelli_RawData_Dir     ${BASEDATADIR}/Merged
   setenv Monicelli_DataSample_Dir  ${BASEDATADIR}/Merged
   setenv Monicelli_CalSample_Dir   ${BASEDATADIR}/Calibrations
-  setenv MonicelliOutputDir	   ${BASEDATADIR}/MonicelliOutput
+  setenv MonicelliOutputDir	   /home/uplegger/Programming/MonicelliOutput
   setenv Monicelli_XML_Dir         ${BASEDATADIR}/Geometries
   
   #===== Location of the ROOT components

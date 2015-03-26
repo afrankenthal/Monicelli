@@ -3042,6 +3042,7 @@ void mainTabs::on_showSelectedEventsElectronDistribuitionPB_clicked()
 //===================================================================================================
 void mainTabs::on_geometrySetPB_clicked()
 {
+    std::cout << __PRETTY_FUNCTION__ << "They never call me!" << std::endl;
     if(theGeometry_ == NULL) return;
 
     for(std::map<std::string,GeometryParameters*>::iterator it=geometryParameters_.begin(); it!=geometryParameters_.end(); it++ )
@@ -3903,18 +3904,22 @@ void mainTabs::showGeometry()
     {
         if(geometryParameters_.find(it->first) == geometryParameters_.end())
         {
-            geometryParameters_[it->first] = new GeometryParameters();
             tmpGeoPars = new GeometryParameters();
             tmpGeoPars->setGeometry(0,yPos,tmpGeoPars->width(),tmpGeoPars->height());
             yPos += tmpGeoPars->height();
+            geometryParameters_[it->first] = tmpGeoPars;
+            //cout << __PRETTY_FUNCTION__ << "NEW Pointer: " << tmpGeoPars << std::endl;
         }
-        else tmpGeoPars = geometryParameters_[it->first];
+        else
+        {
+            tmpGeoPars = geometryParameters_[it->first];
+        }
         //std::cout << "Row: " << row << "\nRowCount:" << ui->geometryDisplayTable->rowCount() << std::endl;
 
-        if(row < ui->geometryDisplayTable->rowCount()){
-            ui->geometryDisplayTable->setCellWidget(row, 0, tmpGeoPars);
-        }else
+        cout << __PRETTY_FUNCTION__ << "Pointer: " << tmpGeoPars << " row count: " << ui->geometryDisplayTable->rowCount() << std::endl;
+        if(row >= ui->geometryDisplayTable->rowCount())
         {
+            //cout << __PRETTY_FUNCTION__ << "Row count: " << ui->geometryDisplayTable->rowCount() << std::endl;
             ui->geometryDisplayTable->insertRow(ui->geometryDisplayTable->rowCount());
             ui->geometryDisplayTable->setCellWidget(row, 0, tmpGeoPars);
             ui->geometryDisplayTable->setRowHeight(row, tmpGeoPars->height());
