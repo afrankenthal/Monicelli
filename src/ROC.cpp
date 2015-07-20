@@ -106,6 +106,7 @@ void ROC::setRowPitchVector(void)
         rowLowEdge_[r] = rowLowEdge_[r-1] + rowPitches_[r-1];
     }
     rocLengthY_ = rowLowEdge_[rowLowEdge_.size()-1] + rowPitches_[rowPitches_.size()-1];
+//    cout << __PRETTY_FUNCTION__ << "Roc lengthY: " << rocLengthX_ << " row 0 pitch: " <<  rowPitches_[rowPitches_.size()-1] << endl;
 }
 
 //==========================================================================
@@ -129,6 +130,7 @@ void ROC::setColPitchVector(void)
         colLowEdge_[c] = colLowEdge_[c-1] + colPitches_[c-1];
     }
     rocLengthX_ = colLowEdge_[colLowEdge_.size()-1] + colPitches_[colPitches_.size()-1];
+//    cout << __PRETTY_FUNCTION__ << "Roc lengthX: " << rocLengthX_ << " col 0 pitch: " <<  colPitches_[0] << " col 51 pitch: " <<  colPitches_[colPitches_.size()-1] << endl;
 }
 
 //==========================================================================

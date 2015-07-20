@@ -3916,7 +3916,7 @@ void mainTabs::showGeometry()
         }
         //std::cout << "Row: " << row << "\nRowCount:" << ui->geometryDisplayTable->rowCount() << std::endl;
 
-        cout << __PRETTY_FUNCTION__ << "Pointer: " << tmpGeoPars << " row count: " << ui->geometryDisplayTable->rowCount() << std::endl;
+        //cout << __PRETTY_FUNCTION__ << "Pointer: " << tmpGeoPars << " row count: " << ui->geometryDisplayTable->rowCount() << std::endl;
         if(row >= ui->geometryDisplayTable->rowCount())
         {
             //cout << __PRETTY_FUNCTION__ << "Row count: " << ui->geometryDisplayTable->rowCount() << std::endl;

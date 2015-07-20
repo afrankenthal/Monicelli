@@ -29,6 +29,7 @@ typedef struct
   int       trigger;
   int       runNumber;
   long long timestamp;
+  long long fastCounter;
 
 } T958Event;
 

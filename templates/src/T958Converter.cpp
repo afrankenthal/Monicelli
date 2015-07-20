@@ -26,7 +26,7 @@ T958Converter::T958Converter(EventReader* reader)
 
   theFile_ = TFile::Open(fileName.str().c_str(),"RECREATE");
   theTree_ = new TTree ("T958", "The reconstructed telescope tracks");
-  theTree_->Branch("event", &theT958Event_, "xSlope/D:ySlope/D:xIntercept/D:yIntercept/D:chi2/D:trigger/I:runNumber/I:timestamp/L");
+  theTree_->Branch("event", &theT958Event_, "xSlope/D:ySlope/D:xIntercept/D:yIntercept/D:chi2/D:trigger/I:runNumber/I:timestamp/L:fastCounter/L");
 
   // Retrieve from file the number of stored events  
   unsigned int numberOfEvents = reader->getNumberOfEvents() ;
@@ -83,27 +83,31 @@ void T958Converter::analyzeEvent(unsigned int event)
   for(unsigned int tr=0; tr<fittedTracks.size(); ++tr)
   {
     ROOT::Math::SVector<double,4> tParameters = fittedTracks[tr] ;
-    theT958Event_.xSlope     = tParameters[0];
-    theT958Event_.ySlope     = tParameters[2];
-    theT958Event_.xIntercept = tParameters[1]*10;//In um
-    theT958Event_.yIntercept = tParameters[3]*10;//In um
-    theT958Event_.chi2       = chi2[tr];
-    theT958Event_.trigger    = theEvent_->getTrigger();
-    theT958Event_.runNumber  = runNumber_;
-    theT958Event_.timestamp  = theEvent_->getUTC();
+    theT958Event_.xSlope      = tParameters[0];
+    theT958Event_.ySlope      = tParameters[2];
+    theT958Event_.xIntercept  = tParameters[1]*10;//In um
+    theT958Event_.yIntercept  = tParameters[3]*10;//In um
+    theT958Event_.chi2        = chi2[tr];
+    theT958Event_.trigger     = theEvent_->getTrigger();
+    theT958Event_.runNumber   = runNumber_;
+    theT958Event_.timestamp   = theEvent_->getUTC()>> 44;
+    theT958Event_.fastCounter = theEvent_->getUTC()&0xfffffffffff;
     theTree_->Fill();
-//    stringstream ss;
-//    ss.str("") ;
+    stringstream ss;
+    ss.str("") ;
 //    ss.setf(std::ios_base::right,std::ios_base::adjustfield) ;
 //    ss << std::setprecision(8) << " ";
-//    ss << std::setw( 4) << tr  
+    ss << std::setw( 4) << tr  
 //        << std::setw(15) << tParameters[0] 
 //        << std::setw(15) << tParameters[2] 
 //        << std::setw(15) << tParameters[1] 
 //        << std::setw(15) << tParameters[3] 
 //        << std::setprecision(3)
-//        << std::setw( 6) << chi2[tr] ; 
-//    STDLINE(ss.str(),ACGreen) ;
+//        << std::setw( 6) << chi2[tr] 
+          << std::setw(10)  << theEvent_->getTrigger()
+          << hex << std::setw(20)  << theT958Event_.timestamp 
+          << std::setw(20) << theT958Event_.fastCounter << dec; 
+    STDLINE(ss.str(),ACGreen) ;
     
     
   }

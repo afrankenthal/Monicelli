@@ -550,7 +550,7 @@ bool fileEater::parseBinary3(TTree* tree)
             dataType     =  (orderedData >> 60) & 0xf;
             station      =  (orderedData >> 56) & 0xf;
 
-            if(dataType==0) //pixels or DUTs
+            if(dataType==0) //PSI46 pixels or DUTs
             //if(station == 0 || station == 2 || station == 4)
             {
                 dataDebug    =  (orderedData >> 28) & 0x1    ;
@@ -598,7 +598,30 @@ bool fileEater::parseBinary3(TTree* tree)
                 adc          = (orderedData >> 1) & 0x7;
                 chip         = 0;
 
-                //std::cout << __PRETTY_FUNCTION__ << "Adc: " << adc << " Set: " << set << " Strip: " << strip << std::endl;
+//                std::cout << __PRETTY_FUNCTION__
+//                          << "Adc: " << adc
+//                          << " Set: " << set
+//                          << " Strip: " << strip
+//                          << " Module: " << module
+//                          << " Chip: " << chip
+//                          << " Col: " << col
+//                          << std::endl;
+            }
+            else if (dataType==2) //vipic
+            //else if(station == 5 || station == 6 || station == 7)//Strip data
+            {
+                dataDebug    = 0;
+                trig         = (orderedData >> 32) & 0xfffff;
+                module       = 0;
+                chip         = 0;
+                int count    = (orderedData>>16)&0x0f;
+                int bco      = (orderedData>>8)&0xff;
+                int chan     = (orderedData>>28)&0x0f;
+                int pixel    = (orderedData>>20)&0xff;
+                row          = pixel%64;
+                col          = pixel/64 + (chan*4);
+
+                std::cout << __PRETTY_FUNCTION__ << "Vipic row: " << row << " col: " << col << std::endl;
             }
             else
             {
@@ -625,24 +648,26 @@ bool fileEater::parseBinary3(TTree* tree)
                             << (orderedData & 0xffffffff);
                 outputFile_ <<  std::dec
                              << " data type: " << dataType
-                             << " trig: "   << trig
+                             << " trig: "      << trig
                              << " row: "	   << row
                              << " col: "	   << col
-                             << " chip: "   << chip
-                             << " module: "   << module
+                             << " chip: "      << chip
+                             << " module: "    << module
                              << " adc: "	   << adc
-                             << " station: "<< station
+                             << " station: "   << station
                              << std::endl;
             }
 
             ss_.str("");
             ss_ << "Station: " << station << " - " << "Plaq: " << module;
+            //STDLINE(ss_.str(), ACGreen) ;
 
             if( !theGeometry_->getDetector(ss_.str())                                           ||
                 !theGeometry_->getDetector(ss_.str())->getROC(chip)                             ||
                 !(row  < theGeometry_->getDetector(ss_.str())->getROC(chip)->getNumberOfRows()) ||
                 !(col  < theGeometry_->getDetector(ss_.str())->getROC(chip)->getNumberOfCols()) )
             {
+                std::string detName = ss_.str();
                 ss_.str("");
                 ss_ << ACRed << ACBold
                     << "WARNING: "
@@ -650,8 +675,11 @@ bool fileEater::parseBinary3(TTree* tree)
                     << "Incorrect data at block: "
                     << nByte
                     << " Station: " << station << " - " << "Plaq: " << module
-                    << " Roc: " << chip
-                    << ", Row: " << row << ", Col: " << col;
+                    << " Roc: "   << chip
+                    << ", Row: "  << row
+                    << ", Col: "  << col;
+                    //<< " nrows: " << theGeometry_->getDetector(detName)->getROC(chip)->getNumberOfRows()
+                    //<< " ncols: " << theGeometry_->getDetector(detName)->getROC(chip)->getNumberOfCols();
                 STDLINE(ss_.str(), ACCyan) ;
                 continue;
             }
