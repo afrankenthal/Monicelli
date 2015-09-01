@@ -443,8 +443,11 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
                 if(calibNew[(*r).first][(*c).first]->GetEntries() != 0)
                 {
                     fitR = theFitter_->calibrationFit(calibNew[(*r).first][(*c).first],
-                                                      0  *ELECTRONS_NUMBER,
-                                                      60000,NULL);
+                            //2000,
+                            //50000,
+                             2000,
+                            25000,
+                            NULL);
                     pars = fitR.first;
                 }
                 else
@@ -478,8 +481,11 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
             for (std::map<int,aPixelDataMapDef>::iterator c=(*r).second.begin(); c!=(*r).second.end(); ++c)
             {
                 fitR  = theFitter_->calibrationFit(calibNew[(*r).first][(*c).first],
-                                                   0  *ELECTRONS_NUMBER,
-                                                   60000,rightPars);
+                        //2000,
+                        //50000,
+                         2000,
+                        25000,
+                        rightPars);
 
                 if(calibNew[(*r).first][(*c).first]->GetEntries() !=0 && fitR.first == NULL)
                 {
@@ -578,8 +584,11 @@ bool calibrationLoader::makeHistograms(std::string detector, ROC *roc, bool fit,
             if(fit)
             {
                 fitter::fitResultDef fitR = theFitter_->calibrationFit(calib,
-                                                                       0  *ELECTRONS_NUMBER,
-                                                                       200*ELECTRONS_NUMBER,NULL);
+                                                                       //2000,
+                                                                       //50000,
+                                                                        2000,
+                                                                       25000,
+                                                                       NULL);
                 if(calib->GetEntries() != 0 && fitR.first == NULL /*|| fitR.second == NULL*/)
                 {
                     std::cout << std::endl ; // This interrupts the STSNAP without CR issued by the theFitter_->calibrationFit call above
@@ -603,7 +612,7 @@ bool calibrationLoader::makeHistograms(std::string detector, ROC *roc, bool fit,
                     if( fitR.first!=NULL )
                     {
                         outputFile_ << detector << " " << roc->getID() << " " << (*r).first << " " << (*c).first << " ";
-                        for(int p=0; p < theFitter_->getCalibrationFitFunctionNPar(); p++)
+                        for(int p=0; p < theFitter_->getCalibrationFitFunctionNPar(); p++)//FIXME THIS IS WRONG IF THE FUNCTION IN THE FITTER IS DIFFERENT THAN THE ONE IN THE FILE
                         {
                             outputFile_ << fitR.first[p] << " ";
                         }

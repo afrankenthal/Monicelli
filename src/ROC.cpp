@@ -16,15 +16,15 @@ ClassImp(ROC)
 
 //==========================================================================
 ROC::ROC(unsigned int position, int chipID, unsigned int degrees) :
-        rocLengthX_(0)
-        ,rocLengthY_(0)
-        ,numberOfRows_(0)
-        ,numberOfCols_(0)
-        ,chipID_(chipID)
-        ,orientation_(0)
-        ,position_(position)
-        ,standardPixelPitch_(std::pair<double,double>(-1,-1))
-        ,calibrationFilePath_("")
+    rocLengthX_(0)
+  ,rocLengthY_(0)
+  ,numberOfRows_(0)
+  ,numberOfCols_(0)
+  ,chipID_(chipID)
+  ,orientation_(0)
+  ,position_(position)
+  ,standardPixelPitch_(std::pair<double,double>(-1,-1))
+  ,calibrationFilePath_("")
 {
     this->setOrientation(degrees);
 }
@@ -32,13 +32,39 @@ ROC::ROC(unsigned int position, int chipID, unsigned int degrees) :
 //===============================================================================
 double ROC::calibrationFitFunction(double *x, double *par)
 {
+    //std::cout << __PRETTY_FUNCTION__ << "I should never be here!!!!!" << std::endl;
+    //If you want to make linear fits
+    return x[0]*par[0]+par[1];
+    //If you want to make arctan fits
     return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);
 }
 
 //===============================================================================
-double ROC::calibrationFitFunctionInv(double *x, double *par)
+double ROC::calibrationFitFunction(double *x, double *par, bool convert)
 {
-    return (atanh((x[0]-par[0])/par[1]) - par[3])/par[2];
+    if(convert)
+    {
+        return x[0]*par[0]+par[1];
+    }
+
+    else {
+        return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);
+    }
+
+}
+
+//===============================================================================
+double ROC::calibrationFitFunctionInv(double *x, double *par, bool convert )
+{
+
+    if (convert){
+        return (x[0]-par[1])/par[0];}
+
+    else
+    {
+        return (atanh((x[0]-par[0])/par[1]) - par[3])/par[2];
+    }
+
 }
 
 //==========================================================================
@@ -106,7 +132,7 @@ void ROC::setRowPitchVector(void)
         rowLowEdge_[r] = rowLowEdge_[r-1] + rowPitches_[r-1];
     }
     rocLengthY_ = rowLowEdge_[rowLowEdge_.size()-1] + rowPitches_[rowPitches_.size()-1];
-//    cout << __PRETTY_FUNCTION__ << "Roc lengthY: " << rocLengthX_ << " row 0 pitch: " <<  rowPitches_[rowPitches_.size()-1] << endl;
+    //    cout << __PRETTY_FUNCTION__ << "Roc lengthY: " << rocLengthX_ << " row 0 pitch: " <<  rowPitches_[rowPitches_.size()-1] << endl;
 }
 
 //==========================================================================
@@ -130,7 +156,7 @@ void ROC::setColPitchVector(void)
         colLowEdge_[c] = colLowEdge_[c-1] + colPitches_[c-1];
     }
     rocLengthX_ = colLowEdge_[colLowEdge_.size()-1] + colPitches_[colPitches_.size()-1];
-//    cout << __PRETTY_FUNCTION__ << "Roc lengthX: " << rocLengthX_ << " col 0 pitch: " <<  colPitches_[0] << " col 51 pitch: " <<  colPitches_[colPitches_.size()-1] << endl;
+    //    cout << __PRETTY_FUNCTION__ << "Roc lengthX: " << rocLengthX_ << " col 0 pitch: " <<  colPitches_[0] << " col 51 pitch: " <<  colPitches_[colPitches_.size()-1] << endl;
 }
 
 //==========================================================================
@@ -268,8 +294,11 @@ double ROC::getLengthLocalY(void  )
 }
 
 //=============================================================================
-bool ROC::calibratePixel(int row, int col, int adc, int& charge)
+bool ROC::calibratePixel(int row, int col, int adc, int& charge, bool convert)
 {
+
+    //-----------------------WE GO BACK TO THE "ORIGINAL" ROWS AND COLUMNS TO CALIBRATE-------------------------------
+
     double newAdc[1];
     //double maxVCal[1] = {255*421};
     double maxVCal[1] = {255*332};
@@ -278,9 +307,15 @@ bool ROC::calibratePixel(int row, int col, int adc, int& charge)
     double *par = this->getCalibrationFunction(row, col);
     if(par != 0)
     {
-        if(newAdc[0] > ROC::calibrationFitFunction(maxVCal, par))
-            newAdc[0] = (int)ROC::calibrationFitFunction(maxVCal, par);
-        charge = (int)ROC::calibrationFitFunctionInv(newAdc, par);//, true);
+        //std::cout << __PRETTY_FUNCTION__ << newAdc[0] << " : " << par[0] << " : " << par[1] << " : " << par[2] << " : " << par[3] << " : " << convert << std::endl;
+
+        if(newAdc[0] > ROC::calibrationFitFunction(maxVCal, par,convert ))
+            newAdc[0] = (int)ROC::calibrationFitFunction(maxVCal, par, convert);
+        //std::cout << __PRETTY_FUNCTION__ << newAdc[0] << " : " << par[0] << " : " << par[1] << " : " << par[2] << " : " << par[3] << std::endl;
+        charge = (int)ROC::calibrationFitFunctionInv(newAdc, par, convert);
+//        if(convert)
+//            std::cout << __PRETTY_FUNCTION__ << newAdc[0] << " : " << par[0] << " : " << par[1] << " : " << par[2] << " : " << par[3] << " : " << charge << std::endl;
+
         return true;
     }
     else
@@ -302,18 +337,22 @@ bool ROC::isPixelCalibrated(int row, int col)
 }
 
 //============================================================================
-void ROC::setCalibrationFunction(int row, int col, double *par, double *cov)//, int nPars )
+void ROC::setCalibrationFunction(int row, int col, double *par, double *cov)
 {
     if( pixelCalibrationFunctionTmp_.count(row) && pixelCalibrationFunctionTmp_[row].count(col))
         pixelCalibrationFunctionTmp_.clear();
 
     if(par != NULL)
     {
+        //std::cout << "Par:";
         for(int i=0; i < 4; i++)
+        //for(int i=0; i < 2; i++)
         {
+            //std::cout << " " << i << "->" << par[i];
             pixelCalibrationFunctionTmp_[row][col].push_back(par[i]);
             cov = 0;
         }
+        //std::cout << std::endl;
     }
 }
 

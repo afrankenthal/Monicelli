@@ -71,7 +71,7 @@ Event::clustersHitsMapDef clusterizer::findClusters(Event *theEvent)
         for(Event::plaqMapDef::iterator hits=plaqMap.begin(); hits!=plaqMap.end(); ++hits)
         {
             clusterID = 0;
-            //            std::cout << __PRETTY_FUNCTION__ << " Plaq: " << (*hits).first << " n hits: " << (*hits).second.size() << std::endl;
+            //std::cout << __PRETTY_FUNCTION__ << " Plaq: " << (*hits).first << " n hits: " << (*hits).second.size() << std::endl;
             while( hits->second.size() != 0 )
             {
                 Event::hitsDef& clusterHits = clustersHitsMap_[hits->first][clusterID];
@@ -89,19 +89,28 @@ Event::clustersHitsMapDef clusterizer::findClusters(Event *theEvent)
                         if ( ( abs(cCol - hits->second[h]["col"]) <= 1 ) && ( abs(cRow - hits->second[h]["row"]) <= 1 ))
                         {
                             clusterHits.push_back( hits->second[h] );
-                            /*                            STDLINE("push back!", ACYellow);
-                            std::stringstream shs;
-                            if ( abs(cCol - hits->second[h]["col"]) <= 1 )
+                            /*
+                            if("Station: 4 - Plaq: 1" == (*hits).first)
                             {
-                                shs << hits->first << ": got a cluster along columns " << cCol << " and " << hits->second[h]["col"] << " on row " << cRow;
-                                STDLINE(shs.str(), ACWhite);
+                                STDLINE("push back!", ACYellow);
+                                std::stringstream shs;
+                                shs << hits->first << ": got a cluster on col " << cCol << " and on row " << cRow;
+                                STDLINE(shs.str(), ACRed);
+                                if ( abs(cCol - hits->second[h]["col"]) == 0 )
+                                {
+                                    shs.str("");
+                                    shs << hits->first << ": got a cluster along columns " << cCol << " and " << hits->second[h]["col"] << " on row " << hits->second[h]["row"];
+                                    STDLINE(shs.str(), ACWhite);
+                                }
+                                if ( abs(cRow - hits->second[h]["row"]) == 0 )
+                                {
+                                    shs.str("");
+                                    shs << hits->first << ": got a cluster along rows " << cRow << " and " << hits->second[h]["row"] << " on column " << hits->second[h]["col"];
+                                    STDLINE(shs.str(), ACWhite);
+                                }
                             }
-                            if ( abs(cRow - hits->second[h]["row"]) <= 1 )
-                            {
-                                shs << hits->first << ": got a cluster along rows " << cRow << " and " << hits->second[h]["row"] << " on column " << cCol;
-                                STDLINE(shs.str(), ACWhite);
-                            }
-*/                          hits->second.erase( hits->second.begin()+h );
+                            */
+                            hits->second.erase( hits->second.begin()+h );
                             h--;
                         }
                     }
@@ -239,7 +248,14 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                 row = (*hit)["row"];
                 col = (*hit)["col"];
                 roc = detector->convertPixelToROC(&row, &col);
-                bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"]);
+
+                //FIXME ASSUMING THAT THE DUTs ARE ALL DIGITAL AND SO THEY USE A LINEAR FIT
+                //FIXME ASSUMING THAT THE DUTs ARE ALL DIGITAL AND SO THEY USE A LINEAR FIT
+                //FIXME ASSUMING THAT THE DUTs ARE ALL DIGITAL AND SO THEY USE A LINEAR FIT
+                bool convert = false;
+                if( det->first == "Station: 4 - Plaq: 0" ||  det->first == "Station: 4 - Plaq: 1" ||  det->first == "Station: 4 - Plaq: 2")
+                    convert = true;
+                bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"],convert);
 
                 if(isCalibrated)
                     pixels[p].charge = abs( (*hit)["charge"] );
@@ -681,17 +697,20 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 
                     //insert calibration
                     ROC *roc = detector->convertPixelToROC(&row, &col);
-                    bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"]);
+                    bool convert = false;
+                    if( det->first == "Station: 4 - Plaq: 0" ||  det->first == "Station: 4 - Plaq: 1" ||  det->first == "Station: 4 - Plaq: 2")
+                        convert = true;
+                    bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"],convert);
 
                     if(isCalibrated)
                         charge += (*hit)["charge"];  //Should be abs? Real charge. Should be fine since clusters of 3+ are used just for efficiencies
-                        //charge += abs((*hit)["charge"]);
+                    //charge += abs((*hit)["charge"]);
                     else
                         //calibratePixel returns -999999 in case the pixel is not calibrated so I arbitrarily
                         //set a value that is typical of a minimum threshold
                         charge += 0; //Doesn't really matter, just for efficiencies
-                        //charge += (*hit)["charge"];  //Should be abs? Not real charge - just adc
-                        //charge += abs((*hit)["charge"]);
+                    //charge += (*hit)["charge"];  //Should be abs? Not real charge - just adc
+                    //charge += abs((*hit)["charge"]);
                 }
                 if(cluster->second.size() != 1)
                 {
@@ -719,7 +738,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
     //        STDLINE(ig->first, ACYellow);
     //    }
 
-/*
+    /*
     std::stringstream ssf;
 
     STDLINE("New event", ACYellow);

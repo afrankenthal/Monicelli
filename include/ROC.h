@@ -54,13 +54,14 @@ class ROC : public TObject
 //   typedef   std::map< int, std::map<int, double> >                                  covMatMapDef                  ;
 //   typedef   std::pair<double*, ROC::covMatMapDef>                                   fitResultPairDef              ;
 
-   static double calibrationFitFunction   (double * x, double * par                       );
-          double calibrationFitFunctionInv(double * x, double * par                       );
-   bool          calibratePixel           (int row, int col, int adc, int& charge         );
+   static double calibrationFitFunction   (double *x, double *par                         );
+          double calibrationFitFunction   (double *x, double *par, bool convert           );
+          double calibrationFitFunctionInv(double *x, double *par, bool convert           );
+   bool          calibratePixel           (int row, int col, int adc, int& charge         , bool convert=false);
 
    void         setCalibrationFilePath    (std::string path                               ) {calibrationFilePath_= path; }
-//   void         setCalibrationFunction    (int row, int col, double *par, double *cov, int nPars) ;
    void         setCalibrationFunction    (int row, int col, double *par, double *cov) ;
+//   void         setCalibrationFunction    (int row, int col, double *par, double *cov) ;
    void         setStandardPixPitch       (double       raw_cm  , double col_cm           ) ;
    void         setOneRowPitch            (unsigned int raw     , double row_cm           ) ;
    void         setOneColPitch            (unsigned int col     , double col_cm           ) ;
@@ -126,7 +127,7 @@ class ROC : public TObject
    std::vector<double>           rowLowEdge_;
    std::vector<double>           colLowEdge_;
    double                        rocLengthX_;
-   double                        rocLengthY_;
+   double                         rocLengthY_;
 
    unsigned int                  numberOfRows_                        ;//the number of rows for a chip
                                                                        //it will be used to check merged data integrity
