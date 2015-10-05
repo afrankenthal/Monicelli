@@ -17,21 +17,28 @@
 ****************************************************************************/
 
 #include "EventReader.h"
-//#include <QRegExp>
-//#include <QString>
+#include "Event.h"
+#include "EventHeader.h"
+#include "Geometry.h"
+#include "MessageTools.h"
+#include <TFile.h>
+#include <TBranch.h>
+#include <TTree.h>
+
+#include <iostream>
 
 //====================================================================
 EventReader::EventReader(void) :
-  inputGeometryTree_(0),
-  inputEventTree_   (0),
-  inputEventHeader_ (0),
-  theEvent_	    (new Event()),
-  theEventHeader_   (new EventHeader()),
-  theEventBranch_   (0),
-  theEventTree_     (0),
-  theGeometry_      (new Geometry()),
-  path_ 	    (""),
-  runNumber_        (-1)
+  inputGeometryTree_    (0),
+  inputEventTree_       (0),
+  inputEventHeaderTree_ (0),
+  theEvent_	        (0),
+  theEventHeader_       (0),
+  //theEventBranch_       (0),
+  //theEventTree_         (0),
+  theGeometry_          (0),
+  path_ 	        (""),
+  runNumber_            (-1)
 {
   STDLINE("                                   ", ACCyan) ;
   STDLINE("+=================================+", ACCyan) ;
@@ -50,10 +57,29 @@ EventReader::EventReader(void) :
 //====================================================================
 EventReader::~EventReader(void)
 {
-  delete theEvent_;
-  delete theEventHeader_;
-  delete theGeometry_;
+  //delete theEvent_;
+  //delete theEventHeader_;
+  //delete theGeometry_;
 }
+
+//====================================================================
+TTree* EventReader::cloneEventTree  (void)
+{
+  if(inputEventTree_ != 0)
+    return inputEventTree_->CloneTree(0);
+  else
+    return 0;
+} 
+
+//====================================================================
+TTree* EventReader::cloneEventHeaderTree(void)
+{
+  if(inputEventHeaderTree_ != 0)
+    return inputEventHeaderTree_->CloneTree(0);
+  else
+    return 0;
+}
+
 //====================================================================
 bool EventReader::openEventsFile(std::string inputFileName)
 {
@@ -61,19 +87,22 @@ bool EventReader::openEventsFile(std::string inputFileName)
   inputEventTree_ = 0;
   
   std::string fullPath = path_ + inputFileName ;
-  inputEventsFile_ = new TFile( fullPath.c_str(), "read" );
+  inputEventsFile_ = TFile::Open( fullPath.c_str(), "READ" );
   
-  STDLINE("WARNING: I am searching for a run number that is only 3 digit long in a file name that is RunXXX_Merged.dat. If the file name is different you have to fix the line after this one!", ACRed) ;
-  std::string runNumberS = inputFileName.substr(3, inputFileName.length()-7);
+  unsigned int runNumberLength = 4;
+  STDLINE("WARNING: I am searching for a run number that is only " 
+          << runNumberLength 
+          << " digit long in a file name that is RunXXX_Merged.dat. If the file name is different you have to fix the line after this one!", ACRed) ;
+  std::string runNumberS = inputFileName.substr(3, runNumberLength);
   STDLINE (runNumberS, ACYellow);
-  runNumber_ = atoi(runNumberS.substr(0,4).c_str());
+  runNumber_ = atoi(runNumberS.substr(0,runNumberLength).c_str());
 
   if( !inputEventsFile_->IsOpen() )
   {
      STDLINE(std::string("Could not open file ") + fullPath, ACRed) ;
      exit(EXIT_FAILURE) ;
   }
-  
+  fileName_ = inputFileName;
   ss.str(""); ss << "File " << ACYellow << fullPath << ACGreen << " successfully opened" ;
   STDLINE(ss.str(), ACGreen) ;
   STDLINE("       ", ACGreen) ;
@@ -96,13 +125,13 @@ bool EventReader::openEventsFile(std::string inputFileName)
      ss << "Found " << inputEventTree_->GetEntries() << " events on file";
      STDLINE(ss.str(),ACGreen) ;
 
-     if( (inputEventHeader_ = (TTree*)inputEventsFile_->Get(eventsHeaderName.c_str())))
+     if( (inputEventHeaderTree_ = (TTree*)inputEventsFile_->Get(eventsHeaderName.c_str())))
      {
-       inputEventHeader_->SetBranchAddress("EventHeader",    &theEventHeader_);
-       inputEventHeader_->GetEntry(0);
+       inputEventHeaderTree_->SetBranchAddress("EventHeader",    &theEventHeader_);
+       inputEventHeaderTree_->GetEntry(0);
  
        ss.str("");
-       ss << "Found " << inputEventHeader_->GetEntries() << " headers";
+       ss << "Found " << inputEventHeaderTree_->GetEntries() << " headers";
        STDLINE(ss.str(),ACGreen) ;
      }
   }
@@ -123,7 +152,7 @@ bool EventReader::openGeoFile(std::string inputFileName)
   std::string fullPath = path_ + inputFileName ;
   STDLINE(path_        ,ACPurple) ;
   STDLINE(inputFileName,ACPurple) ;
-  inputGeometryFile_ = new TFile( fullPath.c_str(), "read" );
+  inputGeometryFile_ = TFile::Open( fullPath.c_str(), "READ" );
   
   if( !inputGeometryFile_->IsOpen() )
   {
@@ -146,4 +175,79 @@ bool EventReader::openGeoFile(std::string inputFileName)
      STDLINE(ss.str(),ACGreen) ;
   }
   return (inputGeometryTree_ != 0);
+}
+
+//====================================================================
+void EventReader::closeInputFiles(void)
+{
+  if(inputEventsFile_ != 0)
+  {
+    inputEventsFile_->Close();
+    inputEventsFile_ = 0;
+  }
+  if(inputGeometryFile_ != 0)
+  {
+    inputGeometryFile_->Close();
+    inputGeometryFile_ = 0;
+  }
+}
+
+//====================================================================
+unsigned int EventReader::getNumberOfEvents(void)
+{
+  return inputEventTree_->GetEntries();
+}
+
+//====================================================================
+std::string EventReader::getFileName(void)
+{
+  return path_+fileName_;
+}
+
+//====================================================================
+void EventReader::readEvent(unsigned int event)
+{
+  inputEventTree_->GetEntry(event);
+}
+
+//====================================================================
+void EventReader::setPath(std::string path)
+{
+  path_ = path;
+}	  
+
+//====================================================================
+Event* EventReader::getEventPointer(void)
+{
+  return theEvent_;
+}
+
+//====================================================================
+EventHeader* EventReader::getEventHeaderPointer(void)
+{
+  return theEventHeader_;
+}
+
+//====================================================================
+Geometry* EventReader::getGeometryPointer(void)
+{
+  return theGeometry_;
+}
+
+//====================================================================
+TTree* EventReader::getEventTreePointer(void)
+{
+  return inputEventTree_;
+}
+
+//====================================================================
+TTree* EventReader::getEventHeaderTreePointer(void) 
+{
+  return inputEventHeaderTree_;
+}
+
+//====================================================================
+unsigned int EventReader::getRunNumber(void) 
+{
+  return runNumber_;
 }

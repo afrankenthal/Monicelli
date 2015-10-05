@@ -125,7 +125,7 @@ PxEvent PxEvent::operator+=(const PxEvent& event)
   //cout << event.getTriggerNumber() << ":" << this->getTriggerNumber() << endl;
   if(this->getTriggerNumber() == -1)
     this->setTriggerNumber(event.getTriggerNumber());
-  for(int i=0; i<event.getNumberOfHits(); i++)
+  for(unsigned int i=0; i<event.getNumberOfHits(); i++)
   {
     this->setRawHit(event.getRawHit(i));
     this->setDecodedHit(event.getDecodedHit(i));    

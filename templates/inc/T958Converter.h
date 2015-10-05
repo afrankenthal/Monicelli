@@ -6,8 +6,8 @@
 ** Milano, 20126
 **
 ****************************************************************************/
-#ifndef __T958Converter_H__
-#define __T958Converter_H__
+#ifndef _T958Converter_h_
+#define _T958Converter_h_
 
 #include "TTree.h"
 

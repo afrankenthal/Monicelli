@@ -5,6 +5,7 @@
  ****************************************************************************/
 #include "StripTestReader.h"
 #include "EventReader.h"
+#include "Event.h"
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -23,8 +24,13 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <errno.h>
-#define BUFLEN 1024
 #include "PxEvent.h"
+#include <TFile.h>
+#include <TTree.h>
+#include <TH2F.h>
+#include <TH2F.h>
+
+#define BUFLEN 1024
 
 using namespace std;
 
@@ -1014,11 +1020,11 @@ StripTestReader::StripTestReader(EventReader* reader) :
   }
 
   
-  int lastPixelMatch             = 0;
-  int adjustmentToTriggerCounter = 0;
-  int currentAdjustmentToTrigger = 0;
-  int adjustmentToTrigger        = 0;
-  int noMatchCounter             = 0;
+  //int lastPixelMatch             = 0;
+  //int adjustmentToTriggerCounter = 0;
+  //int currentAdjustmentToTrigger = 0;
+  //int adjustmentToTrigger        = 0;
+  //int noMatchCounter             = 0;
 
   int lastStripEvent = 0;
   for(int pixelEvent=0; pixelEvent<theTrackTree_->GetEntries(); pixelEvent++)
@@ -1467,7 +1473,7 @@ void StripTestReader::getStripEvents()
 	    correctedTrigger = trigger;
         //memory_[currentBCO_]->setTriggerNumber(trigger);
         //std::cout <<  "END EVENT------TRIGGER = " << currentTrigger_ << " Bco: " << hex << currentTriggerBCO_-dataTriggerDelay << " ---------------------" << dec<< endl << endl;		     
-        unsigned int lowBCO   = (currentBCO_ & 0xffULL);
+        //unsigned int lowBCO   = (currentBCO_ & 0xffULL);
         uint64_t   eventBCO = (currentBCO_ & 0xffffffffffffff00ULL) + currentTriggerBCO_;
 
         eventBCO -= dataTriggerDelay;
@@ -1479,7 +1485,7 @@ void StripTestReader::getStripEvents()
         if(memory_.find(eventBCO-0x100) != memory_.end()){ eventBCO -= 0x100; cout << "Found event 0x100 bco ago" << endl;}
         if(memory_.find(eventBCO-0x101) != memory_.end()){ eventBCO -= 0x101; cout << "Found event 0x101 bco ago" << endl;}
 
-        if(previousTriggerBco != -1)
+        if((int)previousTriggerBco != -1)
 	{
 	  if(abs((int)(eventBCO - previousTriggerBco)) <= 20)
 	    cout << "Trig#: " << trigger << " Delta trigger bco: " << (int)(eventBCO - previousTriggerBco) << " Trig bco: " << eventBCO << " Prev bco: " << previousTriggerBco << endl;

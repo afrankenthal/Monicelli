@@ -8,6 +8,10 @@
 ****************************************************************************/
 #include "T1037Converter.h"
 #include "EventReader.h"
+#include "Event.h"
+#include "MessageTools.h"
+
+#include <TFile.h>
 #include <sstream>
 
 using namespace std;
@@ -66,11 +70,11 @@ T1037Converter::~T1037Converter ()
 //
 void T1037Converter::analyzeEvent(unsigned int event)
 {
-  Event::clustersMapDef            & clusters                 = theEvent_->getClusters        ()     ;
+  //Event::clustersMapDef            & clusters                 = theEvent_->getClusters        ()     ;
   Event::fittedTracksDef           & fittedTracks             = theEvent_->getFittedTracks    ()     ;
   Event::chi2VectorDef             & chi2                     = theEvent_->getFittedTracksChi2()     ;
-  Event::fittedTracksCovarianceDef & fittedTrackCovariance    = theEvent_->getFittedTracksCovariance();
-  Event::trackCandidatesDef        & trackPoints              = theEvent_->getTrackCandidates ()     ;
+  //Event::fittedTracksCovarianceDef & fittedTrackCovariance    = theEvent_->getFittedTracksCovariance();
+  //Event::trackCandidatesDef        & trackPoints              = theEvent_->getTrackCandidates ()     ;
 
   if( fittedTracks.size() == 0 ) return ;
 

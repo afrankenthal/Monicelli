@@ -1,5 +1,5 @@
 PROJECT = Utilities
-EXES     = bin/ReaderTemplate bin/Converter bin/GeometryConverter bin/T1037Converter bin/T958Converter bin/StripTestReader bin/AdamParaConverter
+EXES     = bin/ReaderTemplate bin/Converter bin/GeometryConverter bin/T1037Converter bin/T958Converter bin/StripTestReader bin/AdamParaConverter bin/EventFilter
 
 PWD         = `pwd`
 ROOTCONFIG := root-config
@@ -13,6 +13,7 @@ SRCDIR      = src
 LIBDIR      = lib
 SRCEXT      = cpp
 
+$(shell cp -p ../include/Detector.h ../include/ROC.h ../include/Event.h ../include/EventHeader.h ../include/Geometry.h $(INCDIR))
 $(shell cp -p ../src/Detector.cpp ../src/ROC.cpp ../src/Event.cpp ../src/EventHeader.cpp ../src/Geometry.cpp $(SRCDIR))
 
 OPTIMIZER_FLAGS = -g
@@ -21,8 +22,8 @@ OPTIMIZER_FLAGS = -g
 INCFLAGS = -I$(INCDIR) \
            -I$(MonicelliDir)/include \
            `$(ROOTCONFIG) --cflags`
-	   
-LDLIBS = `$(ROOTCONFIG) --libs`
+
+LDLIBS = `root-config --libs` -lTreePlayer -lSmatrix
 
 ifeq ($(PLATFORM),linux)
 # Linux with egcs, gcc 2.9x, gcc 3.x (>= RedHat 5.2)
@@ -93,10 +94,10 @@ dep :
 
 #--------------------------------------------------------------------------------------------------------#
 dynlib :  $(DYNLIB)
-	
+
 #--------------------------------------------------------------------------------------------------------#
 exes : $(EXES)
-	
+
 #--------------------------------------------------------------------------------------------------------#
 $(OBJDIR)/%.o : $(SRCDIR)/%.$(SRCEXT) 
 	@echo '     [0;31m[1m[7mCompiling[0m [0;36m[1m[7m$< [0m'
@@ -135,10 +136,9 @@ $(OBJDIR)/EventHeaderDict.o: $(OBJDIR)/EventHeaderDict.C
             -o $(OBJDIR)/EventHeaderDict.o                               \
                $(OBJDIR)/EventHeaderDict.C                               \
                `root-config --cflags`
-        
+
 #--------------------------------------------------------------------------------------------------------#
 $(OBJDIR)/EventHeaderDict.C: ${MonicelliDir}/include/EventHeader.h             
-                       
 	@echo ' '
 	@echo '------------- Building EventHeader Dictionary '
 	rm -f     $(OBJDIR)/EventHeaderDict.* &&                         \
@@ -153,7 +153,7 @@ $(OBJDIR)/EventDict.o: $(OBJDIR)/EventDict.C
             -o $(OBJDIR)/EventDict.o                               \
                $(OBJDIR)/EventDict.C                               \
                `root-config --cflags`
-        
+
 #--------------------------------------------------------------------------------------------------------#
 $(OBJDIR)/EventDict.C: ${MonicelliDir}/include/Event.h             \
                        ${MonicelliDir}/include/Geometry.h          \
@@ -167,6 +167,7 @@ $(OBJDIR)/EventDict.C: ${MonicelliDir}/include/Event.h             \
                      ${MonicelliDir}/include/Geometry.h+           \
                      ${MonicelliDir}/include/Detector.h+           \
                      ${MonicelliDir}/include/ROC.h+
+
 ###################################################################################################
 PxEventDictionary: $(INCDIR)/PxEvent.h 
 	cd $(INCDIR); rootcint -f $@.$(SRCEXT) -c PxEvent.h+; mv $@.$(SRCEXT) ../$(SRCDIR)/
@@ -178,7 +179,7 @@ install:
         else
 	  @mv $(BINDIR)/$(EXE) $(PROJECT_BIN)
         endif
-	
+
 #--------------------------------------------------------------------------------------------------------#
 clean : 
 	@echo '[1;32m[1m*****************************************************************[0m'

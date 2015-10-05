@@ -8,8 +8,10 @@
 ****************************************************************************/
 
 #include "ReaderTemplate.h"
+#include "EventReader.h"
 #include "EventAnalyzer.h"
 
+#include <iostream>
 //====================================================================
 int main(int argv, char **args)
 {
@@ -20,8 +22,8 @@ int main(int argv, char **args)
       return 1;
     }
 
-  int n = 0;
-  TApplication app("readerTemplate",&n, 0);
+  //int n = 0;
+  //TApplication app("readerTemplate",&n, 0);
 
   // Instantiate a reader: this class is delegated to handling the root input 
   // file and provide pointers to the classes contained in the file to the

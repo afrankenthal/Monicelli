@@ -8,6 +8,9 @@
 ****************************************************************************/
 #include "AdamParaConverter.h"
 #include "EventReader.h"
+#include "MessageTools.h"
+#include "Event.h"
+
 #include <sstream>
 
 using namespace std;
@@ -22,7 +25,8 @@ AdamParaConverter::AdamParaConverter(EventReader* reader)
   runNumber_ = reader->getRunNumber();
   
   stringstream fileName;
-  fileName << "/home/nfs/cmstestbeam/Adam_2014_01_January/Run" << runNumber_ << "_AdamPara_converted.txt";
+  //fileName << "/home/nfs/cmstestbeam/Adam_2014_01_January/Run" << runNumber_ << "_AdamPara_converted.txt";
+  fileName << "./Run" << runNumber_ << "_AdamPara_converted.txt";
 
   theFile_.open(fileName.str().c_str());
 

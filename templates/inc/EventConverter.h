@@ -6,10 +6,15 @@
 ** Milano, 20126
 **
 ****************************************************************************/
-#ifndef __EventConverter_H__
-#define __EventConverter_H__
+#ifndef _EventConverter_h_
+#define _EventConverter_h_
 
-#include "EventReader.h"
+class EventReader;
+class Event;
+class EventHeader;
+class Geometry;
+class TH2F;
+
 #include <sstream>
 
 //====================================================================

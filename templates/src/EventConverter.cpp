@@ -8,11 +8,15 @@
 ****************************************************************************/
 
 #include "EventConverter.h"
+#include "EventReader.h"
+#include "Event.h"
+#include "Geometry.h"
+#include "MessageTools.h"
 #include "Data.h"
+
 #include <TFile.h>
 #include <TTree.h>
 #include <string>
-#include <sstream>
 
 using namespace std;
 
@@ -23,8 +27,8 @@ using namespace std;
 //
 EventConverter::EventConverter(EventReader * reader ) : 
    theEventReader_ ( reader                         )
-  ,theHeader_      ( reader->getEventHeaderPointer())
   ,theEvent_       ( reader->getEventPointer   ()   )
+  ,theHeader_      ( reader->getEventHeaderPointer())
   ,theGeometry_    ( reader->getGeometryPointer()   )
 {
 }
@@ -44,6 +48,14 @@ void EventConverter::convert()
   stringstream plaqName;
   
   string outFileName = theEventReader_->getFileName();
+  if(outFileName.find(".root") == string::npos)
+  {
+  
+      ss_.str("") ;
+      ss_ << "Can't find .root in file: " << outFileName << ". Aborting...";
+      STDLINE(ss_.str(),ACRed);
+      exit(EXIT_FAILURE);
+  }  
   outFileName.replace(outFileName.find(".root"),5,"_Converted.root");
   if(theEventReader_->getFileName() == outFileName)
   {
@@ -52,15 +64,16 @@ void EventConverter::convert()
   }
   TFile* outFile = new TFile(outFileName.c_str(),"RECREATE");
   TTree* outTree = new TTree("CaptanTrack","The Track Tree");
-  TH1F*  dutCharge = new TH1F("dutCharge","dutCharge",2024,0,100000);
+  //TH1F*  dutCharge = new TH1F("dutCharge","dutCharge",2024,0,100000);
   Data   aData;
   aData.branch(outTree);
 
   unsigned int numberOfEvents = theEventReader_->getNumberOfEvents() ;
 
   // Retrieve individual events and analyze them individually
-  int badEventsCounter = 0;
-  for(unsigned int e=0; e<numberOfEvents; e++)
+  //int badEventsCounter = 0;
+  //for(unsigned int e=0; e<numberOfEvents; e++)
+  for(unsigned int e=0; e<10; e++)
   {
     theEventReader_->readEvent(e) ;
     if(e % 10000 == 0)
@@ -77,8 +90,8 @@ void EventConverter::convert()
     Event::chi2VectorDef	     & fittedTracksChi2       = theEvent_->getFittedTracksChi2();
     Event::residualsMapDef	     & fittedTrackResiduals   = theEvent_->getFittedTrackResiduals();
     Event::trackCandidatesDef        & trackCandidates	      = theEvent_->getTrackCandidates();
-    Event::residualsMapDef	     & fittedTrackDeviations  = theEvent_->getFittedTrackDeviations();
-    Event::residualsMapDef	     & fittedTrackPulls       = theEvent_->getFittedTrackPulls();
+    //Event::residualsMapDef	     & fittedTrackDeviations  = theEvent_->getFittedTrackDeviations();
+    //Event::residualsMapDef	     & fittedTrackPulls       = theEvent_->getFittedTrackPulls();
     Event::fittedTracksCovarianceDef & fittedTracksCovariance = theEvent_->getFittedTracksCovariance();
 
 
@@ -90,19 +103,19 @@ void EventConverter::convert()
     {
       STDLINE("There is something very wrong in the track sizes", ACRed);
     }
-    for(int t=0; t<trackCandidates.size(); t++)
+    for(unsigned int t=0; t<trackCandidates.size(); t++)
     {
+      std::cout << __PRETTY_FUNCTION__ << "Intercept:  " << fittedTracks[t][1]*10 << std::endl;
       aData.setItrack  (t);
       aData.setNhits   (trackCandidates[t].size());
       aData.setNdof    (trackCandidates[t].size()-4);
       aData.setChi2    (fittedTracksChi2[t]);
       aData.setProb    (fittedTracksChi2[t]);//TO BE FIXED
-      aData.setXproj0  (fittedTracks[t][1]/100);
-      aData.setYproj0  (fittedTracks[t][3]/100);
-      aData.setXslope  (fittedTracks[t][0]/100);
-      aData.setYslope  (fittedTracks[t][2]/100);
+      aData.setXproj0  (fittedTracks[t][1]*10);
+      aData.setYproj0  (fittedTracks[t][3]*10);
+      aData.setXslope  (fittedTracks[t][0]);
+      aData.setYslope  (fittedTracks[t][2]);
       
-	STDLINE("HERE", ACYellow);
       int station   = 0;
       int plaquette = 0;
       
@@ -124,7 +137,7 @@ void EventConverter::convert()
 	
         float row = 0;
 	float col = 0;
-	double xp, yp, zp, xRes, yRes;					  	    
+	double xp, yp, xRes, yRes;//zp 					  	    
         double pixelCenterX; 						  	    
         double pixelCenterY;						  	    
         double xErr = 0.;						  	    
@@ -146,7 +159,7 @@ void EventConverter::convert()
 		
 		unsigned int size = (unsigned int)clustersHits[plaqName.str()][clusterID].size();
 		
-	        for( int h=0; h<size; h++ )
+	        for(unsigned int h=0; h<size; h++ )
 	        {
 	    	     row += (float)clustersHits[plaqName.str()][clusterID][h]["row"];
 	    	     col += (float)clustersHits[plaqName.str()][clusterID][h]["col"];
@@ -164,7 +177,7 @@ void EventConverter::convert()
 	        aData.setChi2Excl(fittedTracksChi2[t], p);//TO BE FIXED
 		aData.setXresid  (fittedTrackResiduals[t][plaqName.str()].first*10, p);
 	        aData.setYresid  (fittedTrackResiduals[t][plaqName.str()].second*10,p);
-		
+		std::cout << __PRETTY_FUNCTION__ << "sigma: " << sqrt(fittedTracksCovariance[t](1,1))*10 << std::endl;
 		xyErr = det->getTrackErrorsOnPlane(fittedTracks[t],fittedTracksCovariance[t]);
 		aData.setXpErr(xyErr.first,p);
 		aData.setYpErr(xyErr.second,p);
@@ -260,7 +273,7 @@ void EventConverter::convert()
       	            	     aData.setCharge  (clusters[plaqName.str()][clusterID]["charge"], p);
 		             row = 0;
 			     col = 0;
-	            	     for( int h=0; h<size; h++ )
+	            	     for(unsigned int h=0; h<size; h++ )
 	            	     {
 	    	    		  row += (float)clustersHits[plaqName.str()][clusterID][h]["row"];
 	    	    		  col += (float)clustersHits[plaqName.str()][clusterID][h]["col"];
@@ -317,8 +330,8 @@ void EventConverter::convert()
 	
        plaqName << "Station: " << station << " - " << "Plaq: " << plaquette;
 	
-       int row = 0;
-       int col = 0;
+       //int row = 0;
+       //int col = 0;
 	
        if( station == 4 && plaquette == 0 )
        {

@@ -8,7 +8,14 @@
 ****************************************************************************/
 
 #include "EventAnalyzer.h"
-#include <sstream>
+#include "EventReader.h"
+#include "MessageTools.h"
+#include "Event.h"
+
+#include <TFile.h>
+#include <TTree.h>
+#include <TH1F.h>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -93,8 +100,8 @@ void EventAnalyzer::analyzeEvent(unsigned int event)
   Event::clustersMapDef            & clusters                 = theEvent_->getClusters              ();
   Event::fittedTracksDef           & fittedTracks             = theEvent_->getFittedTracks          ();
   Event::chi2VectorDef             & chi2                     = theEvent_->getFittedTracksChi2      ();
-  Event::fittedTracksCovarianceDef & fittedTrackCovariance    = theEvent_->getFittedTracksCovariance();
-  Event::trackCandidatesDef        & trackPoints              = theEvent_->getTrackCandidates       ();
+  //Event::fittedTracksCovarianceDef & fittedTrackCovariance    = theEvent_->getFittedTracksCovariance();
+  //Event::trackCandidatesDef        & trackPoints              = theEvent_->getTrackCandidates       ();
   Event::residualsMapDef           & fittedTrackResiduals     = theEvent_->getFittedTrackResiduals  ();
   
 

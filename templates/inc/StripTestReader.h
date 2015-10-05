@@ -6,11 +6,10 @@
 ** Milano, 20126
 **
 ****************************************************************************/
-#ifndef __StripTestReader_H__
-#define __StripTestReader_H__
+#ifndef _StripTestReader_h_
+#define _StripTestReader_h_
 
 #include "Detector.h"
-#include "TTree.h"
 #include <stdint.h>
 #include <map>
 

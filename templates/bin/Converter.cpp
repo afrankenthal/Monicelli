@@ -8,6 +8,7 @@
 ****************************************************************************/
 
 #include "ReaderTemplate.h"
+#include "EventReader.h"
 #include "EventConverter.h"
 #include "MessageTools.h"
 
@@ -85,6 +86,7 @@ int main(int argv, char **args)
   // allow user manipulation of the event components (hits, clusters and 
   // reconstructed tracks)
   
+  STDLINE(ss_.str(),ACYellow) ;
   EventConverter * converter = new EventConverter(reader) ;
   converter->convert();
   

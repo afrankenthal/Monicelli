@@ -1,6 +1,7 @@
 #include "EventReader.h"
 #include "StripTestReader.h"
 
+#include <iostream>
 //====================================================================
 int main(int argv, char **argc)
 {
@@ -11,7 +12,7 @@ int main(int argv, char **argc)
     return 1;
   }
 
-  TApplication app("StripTestReader",&argv, argc);
+  //TApplication app("StripTestReader",&argv, argc);
   EventReader * reader = new EventReader() ; 
   //reader->setPath ("/data/TestBeam/2013_11_November/MonicelliOutput/");
   reader->setPath ("/data/TestBeam/2014_01_January/MonicelliOutput/");

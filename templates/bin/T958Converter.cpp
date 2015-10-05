@@ -1,6 +1,8 @@
 #include "EventReader.h"
 #include "T958Converter.h"
 
+#include <iostream>
+
 //====================================================================
 int main(int argv, char **argc)
 {
@@ -11,7 +13,7 @@ int main(int argv, char **argc)
       return 1;
     }
 
-  TApplication app("T958Converter",&argv, argc);
+  //TApplication app("T958Converter",&argv, argc);
   EventReader * reader = new EventReader() ; 
   reader->setPath ("/data/TestBeam/2014_08_August/MonicelliOutput/");
   reader->openEventsFile(argc[1]);

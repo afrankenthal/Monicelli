@@ -39,7 +39,7 @@ int main(int argv, char **args)
   std::string fileName = args[1] ;
   std::string path     = ""      ;
   
-  int pos = fileName.find_last_of("/") ;
+  unsigned int pos = fileName.find_last_of("/") ;
 
   path = fileName.substr(0, pos+1);
 
@@ -92,7 +92,7 @@ int main(int argv, char **args)
     double xRight = 1;
     double yRight = 0;
     double zRight = 0;
-    double alpha,beta,gamma;
+    //double alpha,beta,gamma;
     unsigned int numberOfCols, numberOfRows;
     
     //alpha = (theGeometry->getXRotation() + theGeometry->getXRotationCorrection())*PI/180.;

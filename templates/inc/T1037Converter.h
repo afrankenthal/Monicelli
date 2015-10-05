@@ -6,8 +6,8 @@
 ** Milano, 20126
 **
 ****************************************************************************/
-#ifndef __T1037Converter_H__
-#define __T1037Converter_H__
+#ifndef _T1037Converter_h_
+#define _T1037Converter_h_
 
 #include "TTree.h"
 
