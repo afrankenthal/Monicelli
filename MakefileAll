@@ -138,6 +138,8 @@ clean:
 	cd plugins/customSpinBox  && make clean && cd ../ 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTableView  =======================================<<$(ACPlain)'
 	cd plugins/customTableView  && make clean && cd ../ 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTableWidget  =======================================<<$(ACPlain)'
+	cd plugins/customTableWidget  && make clean && cd ../ 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTextEdit =======================================<<$(ACPlain)'
 	cd plugins/customTextEdit && make clean && cd ../ 
 
@@ -161,6 +163,9 @@ distclean:
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTableView  =======================================<<$(ACPlain)'
 	cd plugins/customTableView  && make distclean && qmake
+	@echo 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTableWidget  =======================================<<$(ACPlain)'
+	cd plugins/customTableWidget  && make distclean && qmake
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTextEdit =======================================<<$(ACPlain)'
 	cd plugins/customTextEdit && make distclean && qmake

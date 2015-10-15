@@ -72,7 +72,7 @@ bool aligner::align(void)
         {
             ss_.str("");
             ss_ << "Reading event: " << ev ;
-            STDLINE(ss_.str(),ACWhite);
+            STDSNAP(ss_.str(),ACWhite);
         }
 
         Event *theEvent = theFileEater_->getEvent(ev);

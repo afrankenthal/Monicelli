@@ -7,8 +7,8 @@
 **
 ****************************************************************************/
 
-#ifndef ROC_H
-#define ROC_H
+#ifndef _ROC_h_
+#define _ROC_h_
 
 #include <string>
 #include <map>

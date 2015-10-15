@@ -219,7 +219,18 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
         for (Event::aClusterHitsMapDef::iterator cluster=det->second.begin(); cluster!=det->second.end(); cluster++)
         {
             if(cluster->second.size() == 0) continue;
-
+            //ERASING DIAGONAL CLUSTERS!!!!!!!!
+//            if(cluster->second.size() == 2)
+//            {
+//                Event::hitsDef::iterator hit0 = cluster->second.begin();
+//                Event::hitsDef::iterator hit1 = cluster->second.begin()+1;
+//                if((*hit0)["col"] != (*hit1)["col"] && (*hit0)["row"] != (*hit1)["row"] )
+//                {
+//                    //std::cout << __PRETTY_FUNCTION__ << "Erasing diagonal cluster0!" << std::endl;
+//                    continue;
+//                }
+//            }
+            //END ERASING DIAGONAL CLUSTERS!!!!!!!!
             double& x      = clustersMap_[det->first][cluster->first]["x"];
             double& y      = clustersMap_[det->first][cluster->first]["y"];
             double& xErr   = clustersMap_[det->first][cluster->first]["xErr"];
@@ -271,9 +282,12 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                 //std::cout << __PRETTY_FUNCTION__ << "data type: " << dataType << std::endl;
             }
 
-            double chargeSharing  = 2;//20um charge sharing at 90 deg
-            double xChargeSharing = 5*tan(fabs(detector->getYRotation(false))*pi/180);//7*sin(fabs(detector->getYRotation(false))*pi/180);//at 25 deg it gives ~+-20+30um charge sharing region which is all pixel
-            double yChargeSharing = 5*tan(fabs(detector->getXRotation(false))*pi/180);//7*sin(fabs(detector->getXRotation(false))*pi/180);
+            double chargeSharing  = 0.4;//20um charge sharing at 90 deg
+            double tilted25ChargeSharing  = 7.5;//20um charge sharing at 90 deg
+            double xChargeSharing = 4*tan(fabs(detector->getYRotation(false))*pi/180)+ chargeSharing;//5*tan(fabs(detector->getYRotation(false))*pi/180)//7*sin(fabs(detector->getYRotation(false))*pi/180);//at 25 deg it gives ~+-20+30um charge sharing region which is all pixel
+            double yChargeSharing = 4*tan(fabs(detector->getXRotation(false))*pi/180)+ chargeSharing;//5*tan(fabs(detector->getXRotation(false))*pi/180)//7*sin(fabs(detector->getXRotation(false))*pi/180);
+            //double singleClusters  = 3;//20um charge sharing at 90 deg
+            //double doubleClusters  = 1.4;//20um charge sharing at 90 deg
             //if(detector->getXRotation(false) != 0 || detector->getYRotation(false) != 0)
             //    chargeSharing = 5;
             //if(detector->getXRotation(false) != 0)
@@ -285,17 +299,27 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 
                 x    = pixels[0].x;
                 y    = pixels[0].y;
-                xErr = (pixels[0].xPitch-2*xChargeSharing)/sqrt(12.);
-                yErr = (pixels[0].yPitch-2*yChargeSharing)/sqrt(12.);
-                //xErr = (pixels[0].xPitch-2*chargeSharing)/sqrt(12.);
-                //yErr = (pixels[0].yPitch-2*chargeSharing)/sqrt(12.);
+                if(fabs(detector->getYRotation(false)) > 10) xErr = tilted25ChargeSharing/sqrt(12.);
+                else xErr = (pixels[0].xPitch-2*chargeSharing)/sqrt(12.);
+                if(fabs(detector->getXRotation(false)) > 10) yErr = tilted25ChargeSharing/sqrt(12.);
+                else yErr = (pixels[0].yPitch-2*chargeSharing)/sqrt(12.);
+//                if(fabs(detector->getYRotation(false)) > 10) xErr = 3;
+//                else xErr = (pixels[0].xPitch)/sqrt(12.);
+//                if(fabs(detector->getXRotation(false)) > 10) yErr = 3;
+//                else yErr = (pixels[0].yPitch)/sqrt(12.);
+
+                //xErr = singleClusters;
+                //yErr = singleClusters;
+
             }
             else if(pixels.size() == 2)
             {
                 double center;
                 double pitch;
+                double sizeTwoErrorBase = 0.8;//from2.8
                 if(useEtaFunction_ && chargeAsymmetryPars_[det->first][roc->getID()]["X"] != 0 && chargeAsymmetryPars_[det->first][roc->getID()]["Y"] != 0)
                 {
+                    std::cout << __PRETTY_FUNCTION__ << "I shouldn't be here!" << std::endl;
                     if(pixels[0].x == pixels[1].x)
                     {
                         x    = pixels[0].x;
@@ -330,7 +354,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                             double eta = (pixels[1].charge - pixels[0].charge)/charge;
                             y = center + ((eta-chargeAsymmetryPars_[det->first][roc->getID()]["Y"][1])/chargeAsymmetryPars_[det->first][roc->getID()]["Y"][0])/10;
                         }
-                        yErr = 2.7/sqrt(12.)+sin(fabs(detector->getXRotation(false))*pi/180);
+                        yErr = sizeTwoErrorBase+0.5*sin(fabs(detector->getXRotation(false))*pi/180);//2.7/sqrt(12.)+sin(fabs(detector->getXRotation(false))*pi/180)
                     }
                     if(pixels[0].y == pixels[1].y)
                     {
@@ -348,7 +372,8 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                             double eta = (pixels[1].charge - pixels[0].charge)/charge;
                             x = center + ((eta-chargeAsymmetryPars_[det->first][roc->getID()]["X"][1])/chargeAsymmetryPars_[det->first][roc->getID()]["X"][0])/10;
                         }
-                        xErr = 2.7/sqrt(12.)+sin(fabs(detector->getYRotation(false))*pi/180);
+                        xErr = sizeTwoErrorBase + 0.5*sin(fabs(detector->getYRotation(false))*pi/180);//2.7/sqrt(12.)+sin(fabs(detector->getYRotation(false))*pi/180)
+                        //xErr = sizeTwoErrorBase;//2.7/sqrt(12.)+sin(fabs(detector->getYRotation(false))*pi/180)
                     }
                 }
                 else
@@ -358,12 +383,14 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                     if(pixels[0].x == pixels[1].x)
                     {
                         x    = pixels[0].x;
-                        xErr = (pixels[0].xPitch-2*xChargeSharing)/sqrt(12.);
-                        //                    if(detector->getYRotation(false) == 0)
-                        //                        xErr = (pixels[0].xPitch)/sqrt(12.);
-                        //                    else
-                        //                        xErr = 0.55*(pixels[0].xPitch)/sqrt(12.);//!!!Copied from the yErr but don't have statistics
-                        //xErr = pixels[0].xPitch/sqrt(12.);
+                        if(fabs(detector->getYRotation(false)) > 10) xErr = tilted25ChargeSharing/sqrt(12.);
+                        else xErr = (pixels[0].xPitch-2*chargeSharing)/sqrt(12.);
+//                        if(fabs(detector->getYRotation(false)) > 10) xErr = 3;
+//                        else xErr = (pixels[0].xPitch)/sqrt(12.);
+
+                        //if(fabs(detector->getYRotation(false)) > 10) xErr = doubleClusters;
+                        //else xErr = singleClusters;
+
                         //double c = (pixels[0].y + pixels[1].y)/2;
                         if( pixels[0].y < pixels[1].y )
                         {
@@ -383,14 +410,26 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                         }
                         //2.7/sqrt(12.) -> indetermination of the charge
                         //sin(fabs(detector->getXRotation(false))*pi/180) -> bigger charge sharing area
-                        yErr = 2.7/sqrt(12.)+sin(fabs(detector->getXRotation(false))*pi/180);
-                        //                        yErr = chargeSharing/(sqrt(12)*charge);
+                        //yErr = sizeTwoErrorBase+sin(fabs(detector->getXRotation(false))*pi/180);
+                        if(fabs(detector->getXRotation(false)) > 10) yErr = 1.35;
+                        else yErr = 0.65;
+//                        yErr = 1.44338;
+                        //if(fabs(detector->getXRotation(false)) > 10) yErr = doubleClusters;//yErr = 1.2
+                        //else yErr = doubleClusters;//yErr = 0.8
 
                     }
                     else if(pixels[0].y == pixels[1].y)//NEED to include the diagonals which must be treated separately
                     {
                         y    = pixels[0].y;
-                        yErr = (pixels[0].yPitch-2*yChargeSharing)/sqrt(12.);
+                        //yErr = (pixels[0].yPitch-2*yChargeSharing)/sqrt(12.);
+                        if(fabs(detector->getXRotation(false)) > 10) yErr = tilted25ChargeSharing/sqrt(12.);
+                        else yErr = (pixels[0].yPitch-2*chargeSharing)/sqrt(12.);
+//                        if(fabs(detector->getXRotation(false)) > 10) yErr = 3;
+//                        else yErr = (pixels[0].yPitch)/sqrt(12.);
+
+                        //if(fabs(detector->getXRotation(false)) > 10) yErr = doubleClusters;
+                        //else yErr = singleClusters;
+
                         //if(detector->getXRotation(false) == 0)
                         //    yErr = (pixels[0].yPitch)/sqrt(12.);
                         //else
@@ -413,13 +452,18 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                         }
                         //2.7/sqrt(12.) -> indetermination of the charge
                         //sin(fabs(detector->getYRotation(false))*pi/180) -> bigger charge sharing area
-                        xErr = 2.7/sqrt(12.)+sin(fabs(detector->getYRotation(false))*pi/180);
-                        //                        xErr = chargeSharing/(sqrt(12)*charge);
+                        //xErr = sizeTwoErrorBase+sin(fabs(detector->getYRotation(false))*pi/180);
+                        if(fabs(detector->getYRotation(false)) > 10) xErr = 1.35;
+                        else xErr = 0.65;
+//                        xErr = 1.44338;
+                        //if(fabs(detector->getYRotation(false)) > 10) xErr = doubleClusters;//xErr = 1.2
+                        //else xErr = doubleClusters;//xErr = 0.8
 
                     }
                     else    //this is for ***>>>>diagonal (yVet[0] != yVet[1] && xVet[0] != xVet[1]) <<<<<<<****
                     {       //cluster made of 2 hits that were discarded before the new changes
                         //STDLINE("Diagonal Cluster???", ACRed);
+                        //clustersMap_.erase(clustersMap_.find(det->first));
                         if( pixels[0].y < pixels[1].y )
                         {
                             center = (pixels[0].y + pixels[0].yPitch/2. );
@@ -444,17 +488,19 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 
                         if( detector->getXRotation(false)!=0 )
                         {
-                            yErr = 20./(6.5*sqrt(12.));
+                            //yErr = 20./(6.5*sqrt(12.));
                             //yErr = 20./(4.6*sqrt(12.));
+                            yErr = 1.4;
                         }
-                        else  yErr = 2.887                ;
+                        else  yErr = 2.887;
 
                         if( detector->getYRotation(false)!=0 )
                         {
-                            xErr = 20./(6.5*sqrt(12.));
+                            //xErr = 20./(6.5*sqrt(12.));
                             //xErr = 20./(4.6*sqrt(12.));
+                            xErr = 1.4;
                         }
-                        else  xErr = 2.887   ;
+                        else  xErr = 2.887;
                     }
                 }
             }

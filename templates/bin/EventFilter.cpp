@@ -27,6 +27,9 @@ bool analyzeEvent(Event* event, unsigned int eventNumber);
 int main(int argv, char **args)
 {
   std::vector<std::string> fileNames;
+  //April 2014
+  fileNames.push_back("Run33_Merged.root");
+
   //fileNames.push_back("Run1358.root");
   //fileNames.push_back("Run1359.root");
 //   fileNames.push_back("Run1361.root");
@@ -42,12 +45,20 @@ int main(int argv, char **args)
 //   fileNames.push_back("Run1374.root");
   
 //   fileNames.push_back("Run3407_Merged.root");
-   fileNames.push_back("Run3409_Merged.root");
+//   fileNames.push_back("Run3409_Merged.root");
 //    fileNames.push_back("Run3411_Merged.root");
 //    fileNames.push_back("Run3412_Merged.root");
 //    fileNames.push_back("Run3413_Merged.root");
 //    fileNames.push_back("Run3414_Merged.root");
 //    fileNames.push_back("Run3416_Merged.root");
+
+//    fileNames.push_back("Run3437_Merged.root");
+//    fileNames.push_back("Run3439_Merged.root");
+//    fileNames.push_back("Run3441_Merged.root");
+//    fileNames.push_back("Run3442_Merged.root");
+//    fileNames.push_back("Run3443_Merged.root");
+//    fileNames.push_back("Run3444_Merged.root");
+//    fileNames.push_back("Run3445_Merged.root");
 
   std::vector<std::string> geoFileNames;
   for(std::vector<std::string>::iterator it=fileNames.begin(); it!=fileNames.end(); it++)
@@ -143,7 +154,7 @@ void copyEvents(EventReader* reader, TTree* newEventTree)
     {
       //cout << "Filling" << endl;
       newEventTree->Fill();
-      if(newEventTree->GetEntries() >= 10000) return;
+      if(newEventTree->GetEntries() >= 40000) return;
     }
   }
   STDSNAP("Progress 100 %\n",ACGreen) ;
@@ -159,11 +170,11 @@ bool analyzeEvent(Event* event, unsigned int eventNumber)
 
     //Event::plaqMapDef  	                          & theRawData	           = event->getRawData		     ();
     Event::clustersMapDef	                  & clusters  	           = event->getClusters		     ();
-    //Event::clustersHitsMapDef                     & clustersHits	   = event->getClustersHits	     ();
+    Event::clustersHitsMapDef                     & clustersHits	   = event->getClustersHits	     ();
     //Event::residualsMapDef	                  & fittedTrackResiduals   = event->getFittedTrackResiduals  ();
-    Event::trackCandidatesDef                     & trackCandidates	   = event->getTrackCandidates       ();
-    //Event::fittedTracksDef                        & fittedTracks           = event->getFittedTracks  	     ();
-    Event::fittedTracksCovarianceDef              & fittedTracksCovariance = event->getFittedTracksCovariance();
+    //Event::trackCandidatesDef                     & trackCandidates	   = event->getTrackCandidates       ();
+//    Event::fittedTracksDef                        & fittedTracks           = event->getFittedTracks  	     ();
+//    Event::fittedTracksCovarianceDef              & fittedTracksCovariance = event->getFittedTracksCovariance();
     //Event::chi2VectorDef	                  & fittedTracksChi2       = event->getFittedTracksChi2      ();
     //Event::clustersMapDef&     alignedClusters       = event->getAlignedClusters()       ;
     //Event::trackCandidatesDef& alignedHitsCandidates = event->getAlignedHitsCandidates() ;
@@ -179,19 +190,25 @@ bool analyzeEvent(Event* event, unsigned int eventNumber)
 	 return false;
        for (Event::aClusterMapDef::const_iterator clusterIt=clustersIt->second.begin(); clusterIt!=clustersIt->second.end(); clusterIt++)
        {
-	 if(clusterIt->second.find("size")->second > 2)
+         
+// 	   std::cout << "Plane Name: " << clustersIt->first
+// 	             << " Size: "    << clustersHits.find(clustersIt->first)->second.find(clusterIt->first)->second.size()
+// 	             << " X error: " << clusterIt->second.find("xErr")->second
+// 	             << " Y error: " << clusterIt->second.find("yErr")->second 
+// 		     << std::endl;
+	 if(clusterIt->second.find("size")->second != 2)
 	   return false;
        }
    }
-   for(unsigned int t=0; t<fittedTracksCovariance.size(); t++)
-   {
-       //cout << __PRETTY_FUNCTION__ << "Intercept: " << fittedTracks[t][1]*10 << endl;
-       //cout << __PRETTY_FUNCTION__ << "Sigma: " << sqrt(covMat[t](1,1))*10 << endl;
-       //if(fittedTracksCovariance[t](1,1) != 0) 
-       //  cout << __PRETTY_FUNCTION__ << sqrt(fittedTracksCovariance[t](1,1))*10 << endl;
-       if(sqrt(fittedTracksCovariance[t](1,1))*10 > 0.465)
-	 return false;
-   }
+//    for(unsigned int t=0; t<fittedTracksCovariance.size(); t++)
+//    {
+//      cout << __PRETTY_FUNCTION__ << "Intercept: " << fittedTracks[t][1]*10 << endl;
+//      cout << __PRETTY_FUNCTION__ << "Sigma: " << sqrt(fittedTracksCovariance[t](1,1))*10 << endl;
+//        //if(fittedTracksCovariance[t](1,1) != 0) 
+//        //  cout << __PRETTY_FUNCTION__ << sqrt(fittedTracksCovariance[t](1,1))*10 << endl;
+//        if(sqrt(fittedTracksCovariance[t](3,3))*10 > 4.7)
+// 	 return false;
+//    }
   
   
   return true;                              

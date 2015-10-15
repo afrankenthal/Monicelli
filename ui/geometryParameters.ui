@@ -6,9 +6,127 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>976</width>
-    <height>46</height>
+    <width>960</width>
+    <height>45</height>
    </rect>
+  </property>
+  <property name="palette">
+   <palette>
+    <active>
+     <colorrole role="Light">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="NoRole">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </active>
+    <inactive>
+     <colorrole role="Light">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="NoRole">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </inactive>
+    <disabled>
+     <colorrole role="Light">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="NoRole">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </disabled>
+   </palette>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -18,8 +136,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>976</width>
-     <height>46</height>
+     <width>960</width>
+     <height>45</height>
     </rect>
    </property>
    <property name="palette">
@@ -34,6 +152,24 @@
         </color>
        </brush>
       </colorrole>
+      <colorrole role="Base">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="NoRole">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
      </active>
      <inactive>
       <colorrole role="Light">
@@ -45,6 +181,24 @@
         </color>
        </brush>
       </colorrole>
+      <colorrole role="Base">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="NoRole">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
      </inactive>
      <disabled>
       <colorrole role="Light">
@@ -53,6 +207,24 @@
          <red>0</red>
          <green>0</green>
          <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="Base">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>181</green>
+         <blue>96</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="NoRole">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>255</green>
+         <blue>255</blue>
         </color>
        </brush>
       </colorrole>
@@ -80,9 +252,46 @@
      <rect>
       <x>135</x>
       <y>0</y>
-      <width>841</width>
+      <width>826</width>
       <height>46</height>
      </rect>
+    </property>
+    <property name="palette">
+     <palette>
+      <active>
+       <colorrole role="Base">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>255</red>
+          <green>181</green>
+          <blue>96</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </active>
+      <inactive>
+       <colorrole role="Base">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>255</red>
+          <green>181</green>
+          <blue>96</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </inactive>
+      <disabled>
+       <colorrole role="Base">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>255</red>
+          <green>181</green>
+          <blue>96</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </disabled>
+     </palette>
     </property>
     <property name="title">
      <string/>
@@ -105,7 +314,7 @@
     <widget class="QLabel" name="label_6">
      <property name="geometry">
       <rect>
-       <x>280</x>
+       <x>270</x>
        <y>25</y>
        <width>41</width>
        <height>16</height>
@@ -141,7 +350,7 @@
     <widget class="QLabel" name="label_15">
      <property name="geometry">
       <rect>
-       <x>380</x>
+       <x>370</x>
        <y>25</y>
        <width>16</width>
        <height>16</height>
@@ -162,7 +371,7 @@
     <widget class="QLabel" name="label_21">
      <property name="geometry">
       <rect>
-       <x>735</x>
+       <x>725</x>
        <y>5</y>
        <width>16</width>
        <height>16</height>
@@ -183,7 +392,7 @@
     <widget class="QLabel" name="label_14">
      <property name="geometry">
       <rect>
-       <x>450</x>
+       <x>440</x>
        <y>25</y>
        <width>16</width>
        <height>16</height>
@@ -204,7 +413,7 @@
     <widget class="QLabel" name="label_18">
      <property name="geometry">
       <rect>
-       <x>735</x>
+       <x>725</x>
        <y>25</y>
        <width>16</width>
        <height>16</height>
@@ -225,7 +434,7 @@
     <widget class="QLabel" name="label_9">
      <property name="geometry">
       <rect>
-       <x>810</x>
+       <x>800</x>
        <y>25</y>
        <width>26</width>
        <height>16</height>
@@ -243,7 +452,7 @@
     <widget class="QLineEdit" name="basePar2LE">
      <property name="geometry">
       <rect>
-       <x>680</x>
+       <x>670</x>
        <y>5</y>
        <width>56</width>
        <height>16</height>
@@ -258,7 +467,7 @@
     <widget class="QLineEdit" name="basePar4LE">
      <property name="geometry">
       <rect>
-       <x>395</x>
+       <x>385</x>
        <y>25</y>
        <width>56</width>
        <height>16</height>
@@ -294,7 +503,7 @@
     <widget class="QLineEdit" name="totalPar4LE">
      <property name="geometry">
       <rect>
-       <x>325</x>
+       <x>315</x>
        <y>25</y>
        <width>56</width>
        <height>16</height>
@@ -312,7 +521,7 @@
     <widget class="QLabel" name="label_20">
      <property name="geometry">
       <rect>
-       <x>665</x>
+       <x>655</x>
        <y>5</y>
        <width>16</width>
        <height>16</height>
@@ -393,7 +602,7 @@
     <widget class="QLineEdit" name="correctionPar5LE">
      <property name="geometry">
       <rect>
-       <x>750</x>
+       <x>740</x>
        <y>25</y>
        <width>56</width>
        <height>16</height>
@@ -408,7 +617,7 @@
     <widget class="QLabel" name="degL_2">
      <property name="geometry">
       <rect>
-       <x>525</x>
+       <x>515</x>
        <y>5</y>
        <width>26</width>
        <height>16</height>
@@ -447,7 +656,7 @@
     <widget class="QLineEdit" name="basePar1LE">
      <property name="geometry">
       <rect>
-       <x>395</x>
+       <x>385</x>
        <y>5</y>
        <width>56</width>
        <height>16</height>
@@ -462,7 +671,7 @@
     <widget class="QLineEdit" name="correctionPar4LE">
      <property name="geometry">
       <rect>
-       <x>465</x>
+       <x>455</x>
        <y>25</y>
        <width>56</width>
        <height>16</height>
@@ -477,7 +686,7 @@
     <widget class="QLineEdit" name="correctionPar1LE">
      <property name="geometry">
       <rect>
-       <x>465</x>
+       <x>455</x>
        <y>5</y>
        <width>56</width>
        <height>16</height>
@@ -492,7 +701,7 @@
     <widget class="QLabel" name="label_3">
      <property name="geometry">
       <rect>
-       <x>280</x>
+       <x>270</x>
        <y>5</y>
        <width>41</width>
        <height>16</height>
@@ -513,9 +722,9 @@
     <widget class="QLabel" name="label_4">
      <property name="geometry">
       <rect>
-       <x>560</x>
+       <x>545</x>
        <y>5</y>
-       <width>46</width>
+       <width>51</width>
        <height>16</height>
       </rect>
      </property>
@@ -555,7 +764,7 @@
     <widget class="QLineEdit" name="totalPar1LE">
      <property name="geometry">
       <rect>
-       <x>325</x>
+       <x>315</x>
        <y>5</y>
        <width>56</width>
        <height>16</height>
@@ -573,7 +782,7 @@
     <widget class="QLabel" name="label_17">
      <property name="geometry">
       <rect>
-       <x>450</x>
+       <x>440</x>
        <y>5</y>
        <width>16</width>
        <height>16</height>
@@ -594,7 +803,7 @@
     <widget class="QLineEdit" name="correctionPar2LE">
      <property name="geometry">
       <rect>
-       <x>750</x>
+       <x>740</x>
        <y>5</y>
        <width>56</width>
        <height>16</height>
@@ -609,7 +818,7 @@
     <widget class="QLabel" name="label_7">
      <property name="geometry">
       <rect>
-       <x>565</x>
+       <x>555</x>
        <y>25</y>
        <width>41</width>
        <height>16</height>
@@ -630,7 +839,7 @@
     <widget class="QLabel" name="label_8">
      <property name="geometry">
       <rect>
-       <x>525</x>
+       <x>515</x>
        <y>25</y>
        <width>26</width>
        <height>16</height>
@@ -648,7 +857,7 @@
     <widget class="QLabel" name="label_19">
      <property name="geometry">
       <rect>
-       <x>665</x>
+       <x>655</x>
        <y>25</y>
        <width>16</width>
        <height>16</height>
@@ -669,7 +878,7 @@
     <widget class="QLineEdit" name="totalPar5LE">
      <property name="geometry">
       <rect>
-       <x>610</x>
+       <x>600</x>
        <y>25</y>
        <width>56</width>
        <height>16</height>
@@ -687,7 +896,7 @@
     <widget class="QLineEdit" name="basePar5LE">
      <property name="geometry">
       <rect>
-       <x>680</x>
+       <x>670</x>
        <y>25</y>
        <width>56</width>
        <height>16</height>
@@ -717,7 +926,7 @@
     <widget class="QLineEdit" name="totalPar2LE">
      <property name="geometry">
       <rect>
-       <x>610</x>
+       <x>600</x>
        <y>5</y>
        <width>56</width>
        <height>16</height>
@@ -768,7 +977,7 @@
     <widget class="QLabel" name="degL_3">
      <property name="geometry">
       <rect>
-       <x>810</x>
+       <x>800</x>
        <y>5</y>
        <width>26</width>
        <height>16</height>
@@ -780,7 +989,7 @@
       </font>
      </property>
      <property name="text">
-      <string>dg</string>
+      <string>deg</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="totalPar0LE">
@@ -843,7 +1052,7 @@
     <widget class="QLabel" name="label_16">
      <property name="geometry">
       <rect>
-       <x>380</x>
+       <x>370</x>
        <y>5</y>
        <width>16</width>
        <height>16</height>

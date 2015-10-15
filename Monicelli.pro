@@ -9,7 +9,8 @@
 
 include("$(ROOTSYS)/include/rootcint.pri")
 
-QMAKE_CFLAGS_RELEASE = -O3
+QMAKE_CFLAGS_RELEASE = -g
+QMAKE_CXXFLAGS_RELEASE = -g
 
 target.path          = ./
 sources.path         = ./

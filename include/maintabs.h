@@ -260,7 +260,6 @@ private slots:
     void setCBslopeLimits                                         (TObject         * obj             ,
                                                                    unsigned int      event           ,
                                                                    TCanvas         *                 );
-    void comboBoxPlaqSelectedConnection                           (int               tabIndex        );
     void enableLimitZ                                             (int               state           );
     void updateFixParMap                                          (bool              fix             );
     void on_copyGeoGeometryPB_clicked                             (void                              );

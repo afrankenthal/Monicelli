@@ -7,8 +7,8 @@
 **
 ****************************************************************************/
 
-#ifndef CLUSTERIZER_H
-#define CLUSTERIZER_H
+#ifndef _clusterizer_h_
+#define _clusterizer_h_
 
 #include "math.h"
 #include <fstream>

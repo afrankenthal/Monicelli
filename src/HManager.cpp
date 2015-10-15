@@ -2102,10 +2102,10 @@ HManager::stringVDef HManager::makeTrackErrorsOnDUTs2 (Event * theEvent, bool &a
             ss_.str(""); ss_ << fullPaths[0]  << "/" << duts->first;
             if( (vetHx = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str())) == 0 )
             {
-                vetHx = new TH1D(duts->first.c_str(), duts->first.c_str(), 10000, 0, 10 );
-                vetHx->GetXaxis()->SetTitle("X Track Errors on Dut (10 mu)");
+                vetHx = new TH1D(duts->first.c_str(), duts->first.c_str(), 400, 0, 20 );
+                vetHx->GetXaxis()->SetTitle("X Track Errors on Dut (#mum)");
                 vetHx->GetYaxis()->SetTitle("# of tracks" );
-                vetHx->GetXaxis()->SetRangeUser(0,2);
+                vetHx->GetXaxis()->SetRangeUser(0,10);
                 vetHx->SetDirectory(0);
                 this->addItem(fullPaths[0] , vetHx );
             }
@@ -2114,20 +2114,26 @@ HManager::stringVDef HManager::makeTrackErrorsOnDUTs2 (Event * theEvent, bool &a
             ss_.str(""); ss_ << fullPaths[1]  << "/" << duts->first;
             if( (vetHy = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str())) == 0 )
             {
-                vetHy = new TH1D(duts->first.c_str(), duts->first.c_str(), 10000, 0, 10 );
-                vetHy->GetXaxis()->SetTitle("Y Track Errors on Dut (10 mu)");
+                vetHy = new TH1D(duts->first.c_str(), duts->first.c_str(), 400, 0, 20 );
+                vetHy->GetXaxis()->SetTitle("Y Track Errors on Dut (#mum)");
                 vetHy->GetYaxis()->SetTitle("# of tracks" );
-                vetHy->GetXaxis()->SetRangeUser(0,2);
+                vetHy->GetXaxis()->SetRangeUser(0,10);
                 vetHy->SetDirectory(0);
                 this->addItem(fullPaths[1] , vetHy );
             }
             else if(redo_) vetHy->Reset();
 
             Detector::xyPair xyPair = duts->second->getTrackErrorsOnPlane(fittedTracks[tr], covMat[tr]);
-            //            vetHx->Fill( sqrt(xyPair.first ) );
-            //            vetHy->Fill( sqrt(xyPair.second) );
-            vetHx->Fill( sqrt(covMat[tr](1,1)) );
-            vetHy->Fill( sqrt(covMat[tr](3,3)) );
+            if(duts->first.c_str() == std::string("Station: 4 - Plaq: 1"))
+            {
+                vetHx->Fill( 10*sqrt(covMat[tr](1,1)) );
+                vetHy->Fill( 10*sqrt(covMat[tr](3,3)) );
+            }
+            else
+            {
+                vetHx->Fill( 10*sqrt(xyPair.first ) );
+                vetHy->Fill( 10*sqrt(xyPair.second) );
+            }
         }
     }
 

@@ -87,9 +87,8 @@ bool EventReader::openEventsFile(std::string inputFileName)
   inputEventTree_ = 0;
   
   std::string fullPath = path_ + inputFileName ;
-  inputEventsFile_ = TFile::Open( fullPath.c_str(), "READ" );
   
-  unsigned int runNumberLength = 4;
+  unsigned int runNumberLength = 3;
   STDLINE("WARNING: I am searching for a run number that is only " 
           << runNumberLength 
           << " digit long in a file name that is RunXXX_Merged.dat. If the file name is different you have to fix the line after this one!", ACRed) ;
@@ -97,6 +96,7 @@ bool EventReader::openEventsFile(std::string inputFileName)
   STDLINE (runNumberS, ACYellow);
   runNumber_ = atoi(runNumberS.substr(0,runNumberLength).c_str());
 
+  inputEventsFile_ = TFile::Open( fullPath.c_str(), "READ" );
   if( !inputEventsFile_->IsOpen() )
   {
      STDLINE(std::string("Could not open file ") + fullPath, ACRed) ;

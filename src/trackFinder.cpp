@@ -47,10 +47,18 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
     if( minPoints_ < MINIMUM_TRACK_POINTS )
         minPoints_ = MINIMUM_TRACK_POINTS;
 
-    for(Event::clustersMapDef::const_iterator clustersIt=clusters.begin(); clustersIt!=clusters.end(); clustersIt++)
-        if(maxPlanePoints_ > 0 && clustersIt->second.size() > maxPlanePoints_)
-            return;
-
+    minPoints_ = 8;//Hardcoded to be removed!!!!!!!!!!!!!!!!!!!!!
+//    maxPlanePoints_ = 1;
+//    for(Event::clustersMapDef::const_iterator clustersIt=clusters.begin(); clustersIt!=clusters.end(); clustersIt++)
+//    {
+//        if(maxPlanePoints_ > 0 && clustersIt->second.size() > maxPlanePoints_)
+//            return;
+//        for (Event::aClusterMapDef::const_iterator clusterIt=clustersIt->second.begin(); clusterIt!=clustersIt->second.end(); clusterIt++)
+//        {
+//            if(clusterIt->second.find("size")->second != 2)
+//                return;
+//        }
+//    }
     //Since all tracking is done in global coordinate first create alignedClusters from local clusters
     //Event::clustersMapDef alignedClusters;
     for(Event::clustersMapDef::const_iterator clustersIt=clusters.begin(); clustersIt!=clusters.end(); clustersIt++)
@@ -772,6 +780,7 @@ void trackFinder::cleanUpTracks(std::vector<Event::alignedHitsCandidateMapDef>& 
                     trackCandidates.push_back(*tracksIt);
                     tracksFitted   .push_back(aFittedTrack.first.first);
                     covMat         .push_back(aFittedTrack.first.second);
+                    //std::cout << "[trackFinder::cleanUpTracks]" << sqrt(covMat[covMat.size()-1](1,1)) << std::endl;
                     chi2           .push_back(aFittedTrack.second);
                     position = trackCandidates.size()-1;
                     if(maxHitsCandidates.find(chi2[position]) == maxHitsCandidates.end())

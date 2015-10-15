@@ -10,7 +10,7 @@ GeometryParameters::GeometryParameters(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    this->setGeometry(0, 0, 967, 46);
+    this->setGeometry(0, 0, 960, 45);
 
     total_.push_back(ui->totalPar0LE);
     total_.push_back(ui->totalPar1LE);

@@ -52,14 +52,14 @@ Detector::Detector (std::string ID, bool isDUT, bool isStrip) :
 //===============================================================================
 Detector::~Detector(void)
 {
-//    STDLINE("Detector::~Detector",ACRed);
+    //    STDLINE("Detector::~Detector",ACRed);
     for(ROCsMapDef::iterator it=ROCsChipIDMap_.begin(); it!=ROCsChipIDMap_.end(); it++)
     {
         delete it->second;
     }
     ROCsChipIDMap_  .clear();
     ROCsPositionMap_.clear();
-//    STDLINE("Detector::~Detector",ACGreen);
+    //    STDLINE("Detector::~Detector",ACGreen);
 }
 
 //===============================================================================
@@ -1118,10 +1118,12 @@ Detector::xyPair Detector::propagateTrackErrors(ROOT::Math::SVector<double,4>& t
     double dfNX_dqx   = (RInv[1][1]-trackPars[2]*RInv[2][1]);
     double dfNX_dsly  = (trackPars[0]*z+trackPars[1])*(-RInv[2][1])-(z)*(RInv[0][1]-trackPars[0]*RInv[2][1]);
     double dfNX_dqy   =-(RInv[0][1]-trackPars[0]*RInv[2][1]);
+
     double dfNY_dslx  = (trackPars[2]*z+trackPars[3])*(-RInv[2][0])-(z+trackPars[1])*(RInv[1][0]-trackPars[2]*RInv[2][0]);
     double dfNY_dqx   =-(RInv[1][0]-trackPars[2]*RInv[2][0]);
     double dfNY_dsly  = (z)*(RInv[0][0]-trackPars[0]*RInv[2][0])-(trackPars[0]*z+trackPars[1])*(-RInv[2][0]);
     double dfNY_dqy   = (RInv[0][0]-trackPars[0]*RInv[2][0]);
+
     double dfD_dslx   = (-RInv[2][0])*(RInv[1][1]-trackPars[2]*RInv[2][1])-(RInv[1][0]-trackPars[2]*RInv[2][0])*(-RInv[2][1]);
     //double dfD_dqx    = 0;
     double dfD_dsly   = (RInv[0][0]-trackPars[0]*RInv[2][0])*(-RInv[2][1])-(-RInv[2][0])*(RInv[0][1]-trackPars[0]*RInv[2][1]);
@@ -1135,15 +1137,30 @@ Detector::xyPair Detector::propagateTrackErrors(ROOT::Math::SVector<double,4>& t
     double dpredy_dsly= dfNY_dsly/den-predY*dfD_dsly/den;
     double dpredy_dqy = dfNY_dqy/den;
 
-    predSigmaXX  = dpredx_dslx*dpredx_dslx*AtVAInv(0,0)+dpredx_dqx*dpredx_dqx*AtVAInv(1,1)+dpredx_dsly*dpredx_dsly*AtVAInv(2,2)+dpredx_dqy*dpredx_dqy*AtVAInv(3,3)+
-            2*dpredx_dslx*dpredx_dqx*AtVAInv(0,1)+2*dpredx_dslx*dpredx_dsly*AtVAInv(0,2)+2*dpredx_dslx*dpredx_dqy*AtVAInv(0,3)+
-            2*dpredx_dqx*dpredx_dsly*AtVAInv(1,2)+2*dpredx_dqx*dpredx_dqy*AtVAInv(1,3)+
-            2*dpredx_dsly*dpredx_dqy*AtVAInv(2,3);
-    predSigmaYY  = dpredy_dslx*dpredy_dslx*AtVAInv(0,0)+dpredy_dqx*dpredy_dqx*AtVAInv(1,1)+dpredy_dsly*dpredy_dsly*AtVAInv(2,2)+dpredy_dqy*dpredy_dqy*AtVAInv(3,3)+
-            2*dpredy_dslx*dpredy_dqx*AtVAInv(0,1)+2*dpredy_dslx*dpredy_dsly*AtVAInv(0,2)+2*dpredy_dslx*dpredy_dqy*AtVAInv(0,3)+
-            2*dpredy_dqx*dpredy_dsly*AtVAInv(1,2)+2*dpredy_dqx*dpredy_dqy*AtVAInv(1,3)+
-            2*dpredy_dsly*dpredy_dqy*AtVAInv(2,3);
+    predSigmaXX  =
+            dpredx_dslx*dpredx_dslx    * AtVAInv(0,0)
+            + dpredx_dqx*dpredx_dqx    * AtVAInv(1,1)
+            + dpredx_dsly*dpredx_dsly  * AtVAInv(2,2)
+            + dpredx_dqy*dpredx_dqy    * AtVAInv(3,3)
+            + 2*dpredx_dslx*dpredx_dqx * AtVAInv(0,1)
+            + 2*dpredx_dslx*dpredx_dsly* AtVAInv(0,2)
+            + 2*dpredx_dslx*dpredx_dqy * AtVAInv(0,3)
+            + 2*dpredx_dqx*dpredx_dsly * AtVAInv(1,2)
+            + 2*dpredx_dqx*dpredx_dqy  * AtVAInv(1,3)
+            + 2*dpredx_dsly*dpredx_dqy * AtVAInv(2,3);
+    predSigmaYY  =
+            dpredy_dslx*dpredy_dslx    * AtVAInv(0,0)
+            + dpredy_dqx*dpredy_dqx    * AtVAInv(1,1)
+            + dpredy_dsly*dpredy_dsly  * AtVAInv(2,2)
+            + dpredy_dqy*dpredy_dqy    * AtVAInv(3,3)
+            + 2*dpredy_dslx*dpredy_dqx * AtVAInv(0,1)
+            + 2*dpredy_dslx*dpredy_dsly* AtVAInv(0,2)
+            + 2*dpredy_dslx*dpredy_dqy * AtVAInv(0,3)
+            + 2*dpredy_dqx*dpredy_dsly * AtVAInv(1,2)
+            + 2*dpredy_dqx*dpredy_dqy  * AtVAInv(1,3)
+            + 2*dpredy_dsly*dpredy_dqy * AtVAInv(2,3);
 
+    //predSigmaXX and predSigmaYY are the predicted squared errors at z. To get the error you need to sqrt(predSigmaXX)
     return std::make_pair(predSigmaXX,predSigmaYY);
 }
 

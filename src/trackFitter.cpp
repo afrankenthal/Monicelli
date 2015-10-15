@@ -36,6 +36,7 @@ Event::fittedTracksDef trackFitter::fitTracks(const Event::trackCandidatesDef&  
         trackFitter::aFittedTrackDef aFittedTrack = this->fitSingleTrack(tracks[i], theGeometry, excludedDetector);
         fittedTracks_.push_back( aFittedTrack.first.first  );
         covMat_.push_back( aFittedTrack.first.second )      ;
+        std::cout << __PRETTY_FUNCTION__ << covMat_[1](0,0) << std::endl;
         chi2_.push_back( aFittedTrack.second )              ;
 
         if( excludedDetectorFound_ ) this->makeDetectorTrackResiduals(aFittedTrack.first.first, aFittedTrack.first.second,

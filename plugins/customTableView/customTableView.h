@@ -76,13 +76,13 @@ class customTableView : public QTableView
 };
 
 //================================================================================================
-class Delegate : public QItemDelegate
-{
-  public:
-      QSize sizeHint( const QStyleOptionViewItem & option, const QModelIndex & index )  const;
+//class Delegate : public QItemDelegate
+//{
+//  public:
+//      QSize sizeHint( const QStyleOptionViewItem & option, const QModelIndex & index )  const;
 
-  private:
+//  private:
 
-};
+//};
 
 #endif // customTableView_H

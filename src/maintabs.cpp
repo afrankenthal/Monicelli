@@ -75,8 +75,6 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
              this                                , SLOT  ( findValuesChanged             (int                                     ) ) );
     connect( ui->findEventsMinHitsToSearchSB     , SIGNAL( valueChanged                  (int                                     ) ),
              this                                , SLOT  ( findValuesChanged             (int                                     ) ) );
-    connect( ui->expertModeTabs                  , SIGNAL( currentChanged                (int                                     ) ),
-             this                                , SLOT  ( comboBoxPlaqSelectedConnection(int                                     ) ) );
     connect( ui->rawAlignmentFitAllCB            , SIGNAL( clicked                       (bool                                    ) ),
              this                                , SLOT  ( swapRawAlignmentFitCBs        (bool                                    ) ) );
     connect( ui->rawAlignmentMyFitParXCB         , SIGNAL( clicked                       (bool                                    ) ),
@@ -297,7 +295,10 @@ void mainTabs::on_eatRootFilePB_clicked()
 void mainTabs::openRootFile(QString fileName)
 {
     for(std::map<std::string,GeometryParameters*>::iterator it=geometryParameters_.begin(); it!=geometryParameters_.end(); it++)
+    {
+        ui->geometryDisplayTable->removeRow(0);
         delete it->second;
+    }
     geometryParameters_.clear();
 
     theHManager_->setRunSubDir( theFileEater_->openFile(fileName.toStdString()) );
@@ -676,18 +677,7 @@ void mainTabs::selectedCanvasObjectManager(TObject *obj,unsigned int event,TCanv
     //            << "This object belongs to " <<  tipped->objectName().toStdString();
     //    STDLINE(tipText.str(),ACCyan) ;
 }
-//===========================================================================
-void mainTabs::comboBoxPlaqSelectedConnection(int tabIndex)
-{
-    ss_.str("");
-    ss_ << ui->expertModeTabs->widget(tabIndex)->objectName().toStdString() << "PlaqSelectCB";
 
-    if( ui->expertModeTabs->widget(tabIndex)->findChild<QComboBox *>(QString::fromStdString(ss_.str())) )
-    {
-        QComboBox *currentComboBox = ui->expertModeTabs->widget(tabIndex)->findChild<QComboBox *>(QString::fromStdString(ss_.str()));
-        currentComboBox->setCurrentIndex       ( currentComboBox->findText( QString::fromStdString(plaqSelected_) ) );
-    }
-}
 //=========================================================================
 //*** EXPERT   MODE   TAB ****************************************************************************************
 //---------------------------RAW DATA PROCESSING TAB------------------------------------------
@@ -1791,6 +1781,7 @@ void mainTabs::on_trackFitNameCB_currentIndexChanged(const QString &arg1)
 
 }
 
+//=============================================================================
 void mainTabs::on_trackFindAndFitPB_clicked()
 {
     std::string fitMethod  = ui->trackFitNameCB ->currentText().toStdString();
@@ -3890,15 +3881,10 @@ void mainTabs::copyGeoFileTo(QString fileName)
 //===================================================================================================
 void mainTabs::showGeometry()
 {
- /*   for(unsigned int pos = 0; pos < ui->geometryDisplayTable->rowCount(); pos ++)
-    {
-        ui->geometryDisplayTable->removeRow(pos);
-        --pos;
-    }
- */
- if(theGeometry_ == NULL) return;
-    int yPos = 21;
-    int row = 0;
+    //std::cout << __PRETTY_FUNCTION__ << std::endl;
+    if(theGeometry_ == NULL) return;
+    int yPos = 0;
+    int row  = 0;
     GeometryParameters* tmpGeoPars;
     for(Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); it++)
     {
@@ -3908,31 +3894,25 @@ void mainTabs::showGeometry()
             tmpGeoPars->setGeometry(0,yPos,tmpGeoPars->width(),tmpGeoPars->height());
             yPos += tmpGeoPars->height();
             geometryParameters_[it->first] = tmpGeoPars;
-            //cout << __PRETTY_FUNCTION__ << "NEW Pointer: " << tmpGeoPars << std::endl;
         }
         else
         {
             tmpGeoPars = geometryParameters_[it->first];
         }
-        //std::cout << "Row: " << row << "\nRowCount:" << ui->geometryDisplayTable->rowCount() << std::endl;
-
-        //cout << __PRETTY_FUNCTION__ << "Pointer: " << tmpGeoPars << " row count: " << ui->geometryDisplayTable->rowCount() << std::endl;
         if(row >= ui->geometryDisplayTable->rowCount())
         {
-            //cout << __PRETTY_FUNCTION__ << "Row count: " << ui->geometryDisplayTable->rowCount() << std::endl;
             ui->geometryDisplayTable->insertRow(ui->geometryDisplayTable->rowCount());
-            ui->geometryDisplayTable->setCellWidget(row, 0, tmpGeoPars);
             ui->geometryDisplayTable->setRowHeight(row, tmpGeoPars->height());
             ui->geometryDisplayTable->setColumnWidth(0, tmpGeoPars->width()+4);
+            ui->geometryDisplayTable->setCellWidget(row, 0, tmpGeoPars);
         }
 
         tmpGeoPars->showDetectorPars(it->second);
         //tmpGeoPars->show();
-        //std::cout << "Height: " <<  tmpGeoPars->width() << " | yPos:" << ui->geometryDisplayTable->cellWidget(row, 0)->y() << std::endl;
-        ui->geometryDisplayTable->show();
         row++;
 
     }
+    ui->geometryDisplayTable->show();
     geometryDisplayShrinkFix_++;
 }
 //===================================================================================================

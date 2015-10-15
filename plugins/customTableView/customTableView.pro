@@ -10,6 +10,9 @@
 #
 #-------------------------------------------------
 
+QMAKE_CFLAGS_RELEASE = -g
+QMAKE_CXXFLAGS_RELEASE = -g
+
 QT          += core gui
 
 TARGET       = customTableView

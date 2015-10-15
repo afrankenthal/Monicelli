@@ -7,8 +7,8 @@
 **
 ****************************************************************************/
 
-#ifndef EVENTHEADER_H
-#define EVENTHEADER_H
+#ifndef _EventHeader_h_
+#define _EventHeader_h_
 
 #include <TObject.h>
 

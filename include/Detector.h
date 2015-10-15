@@ -7,8 +7,8 @@
 **
 ****************************************************************************/
 
-#ifndef DETECTOR_H
-#define DETECTOR_H
+#ifndef _Detector_h_
+#define _Detector_h_
 
 #include <map>
 #include <math.h>

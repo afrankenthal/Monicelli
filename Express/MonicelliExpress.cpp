@@ -149,7 +149,7 @@ int main(int argc, char** argv)
 
     //////////////////////////////////////////
     //Show beamspots
-    theFileEater.populate();
+    //theFileEater.populate();
     
     //////////////////////////////////////////
     //////////////////////////////////////////
@@ -197,11 +197,11 @@ int main(int argc, char** argv)
 
     //////////////////////////////////////////
     //Residuals
-    theTrackFitter.clearSelectedDetectorsList();
+    //theTrackFitter.clearSelectedDetectorsList();
 
-    theTrackFitter.setOperation(&trackFitter::makeFittedTracksResiduals);
-    theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFitter);
-    theFileEater.updateEvents2();
+    //theTrackFitter.setOperation(&trackFitter::makeFittedTracksResiduals);
+    //theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFitter);
+    //theFileEater.updateEvents2();
   }
   
   return EXIT_SUCCESS;

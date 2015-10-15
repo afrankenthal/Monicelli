@@ -7,8 +7,8 @@
 **
 ****************************************************************************/
 
-#ifndef GEOMETRY_H
-#define GEOMETRY_H
+#ifndef _Geometry_h_
+#define _Geometry_h_
 
 #include <list>
 #include <map>
