@@ -129,7 +129,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>6</x>
       <y>6</y>
-      <width>71</width>
+      <width>81</width>
       <height>22</height>
      </rect>
     </property>
@@ -154,9 +154,9 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>4</x>
-      <y>44</y>
+      <y>40</y>
       <width>19</width>
-      <height>16</height>
+      <height>18</height>
      </rect>
     </property>
     <property name="palette">
@@ -198,7 +198,7 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="font">
      <font>
-      <pointsize>12</pointsize>
+      <pointsize>10</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
@@ -211,9 +211,9 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>26</x>
-      <y>38</y>
+      <y>40</y>
       <width>59</width>
-      <height>24</height>
+      <height>18</height>
      </rect>
     </property>
     <property name="palette">

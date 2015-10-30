@@ -26,9 +26,9 @@
    <property name="geometry">
     <rect>
      <x>4</x>
-     <y>68</y>
-     <width>315</width>
-     <height>173</height>
+     <y>65</y>
+     <width>401</width>
+     <height>176</height>
     </rect>
    </property>
    <property name="title">
@@ -40,10 +40,10 @@
    <widget class="QGroupBox" name="nonStandardPitchGB">
     <property name="geometry">
      <rect>
-      <x>2</x>
-      <y>84</y>
-      <width>309</width>
-      <height>89</height>
+      <x>0</x>
+      <y>85</y>
+      <width>310</width>
+      <height>90</height>
      </rect>
     </property>
     <property name="palette">
@@ -777,10 +777,10 @@ p, li { white-space: pre-wrap; }
    <widget class="QGroupBox" name="standardPitchGB">
     <property name="geometry">
      <rect>
-      <x>158</x>
-      <y>2</y>
-      <width>153</width>
-      <height>81</height>
+      <x>0</x>
+      <y>45</y>
+      <width>310</width>
+      <height>40</height>
      </rect>
     </property>
     <property name="palette">
@@ -835,10 +835,10 @@ p, li { white-space: pre-wrap; }
     <widget class="QLabel" name="standardRowPitchLB">
      <property name="geometry">
       <rect>
-       <x>6</x>
-       <y>22</y>
+       <x>5</x>
+       <y>20</y>
        <width>41</width>
-       <height>16</height>
+       <height>18</height>
       </rect>
      </property>
      <property name="text">
@@ -848,10 +848,10 @@ p, li { white-space: pre-wrap; }
     <widget class="QLabel" name="standardColPitchLB">
      <property name="geometry">
       <rect>
-       <x>6</x>
-       <y>42</y>
-       <width>57</width>
-       <height>16</height>
+       <x>130</x>
+       <y>20</y>
+       <width>71</width>
+       <height>18</height>
       </rect>
      </property>
      <property name="text">
@@ -861,7 +861,7 @@ p, li { white-space: pre-wrap; }
     <widget class="customLineEdit" name="standardRowPitchLE">
      <property name="geometry">
       <rect>
-       <x>72</x>
+       <x>50</x>
        <y>20</y>
        <width>70</width>
        <height>18</height>
@@ -914,8 +914,8 @@ p, li { white-space: pre-wrap; }
     <widget class="customLineEdit" name="standardColPitchLE">
      <property name="geometry">
       <rect>
-       <x>72</x>
-       <y>40</y>
+       <x>200</x>
+       <y>20</y>
        <width>70</width>
        <height>18</height>
       </rect>
@@ -967,10 +967,10 @@ p, li { white-space: pre-wrap; }
     <widget class="QPushButton" name="standardPitchHelpPB">
      <property name="geometry">
       <rect>
-       <x>94</x>
-       <y>62</y>
+       <x>280</x>
+       <y>20</y>
        <width>22</width>
-       <height>14</height>
+       <height>18</height>
       </rect>
      </property>
      <property name="palette">
@@ -1033,10 +1033,10 @@ p, li { white-space: pre-wrap; }
    <widget class="QGroupBox" name="ROCLayoutGB">
     <property name="geometry">
      <rect>
-      <x>2</x>
-      <y>2</y>
-      <width>150</width>
-      <height>81</height>
+      <x>0</x>
+      <y>5</y>
+      <width>400</width>
+      <height>40</height>
      </rect>
     </property>
     <property name="palette">
@@ -1091,10 +1091,10 @@ p, li { white-space: pre-wrap; }
     <widget class="QLabel" name="colLayoutLB">
      <property name="geometry">
       <rect>
-       <x>4</x>
-       <y>40</y>
-       <width>57</width>
-       <height>16</height>
+       <x>95</x>
+       <y>20</y>
+       <width>71</width>
+       <height>18</height>
       </rect>
      </property>
      <property name="text">
@@ -1104,10 +1104,10 @@ p, li { white-space: pre-wrap; }
     <widget class="QLabel" name="rowLayoutLB">
      <property name="geometry">
       <rect>
-       <x>4</x>
-       <y>22</y>
+       <x>5</x>
+       <y>20</y>
        <width>41</width>
-       <height>16</height>
+       <height>18</height>
       </rect>
      </property>
      <property name="text">
@@ -1117,10 +1117,10 @@ p, li { white-space: pre-wrap; }
     <widget class="QLabel" name="orientationLayoutLB">
      <property name="geometry">
       <rect>
-       <x>4</x>
-       <y>60</y>
-       <width>77</width>
-       <height>16</height>
+       <x>210</x>
+       <y>20</y>
+       <width>96</width>
+       <height>18</height>
       </rect>
      </property>
      <property name="toolTip">
@@ -1144,9 +1144,9 @@ p, li { white-space: pre-wrap; }
     <widget class="customLineEdit" name="colLayoutLE">
      <property name="geometry">
       <rect>
-       <x>80</x>
-       <y>38</y>
-       <width>40</width>
+       <x>165</x>
+       <y>20</y>
+       <width>36</width>
        <height>18</height>
       </rect>
      </property>
@@ -1200,9 +1200,9 @@ p, li { white-space: pre-wrap; }
     <widget class="customLineEdit" name="orientationLayoutLE">
      <property name="geometry">
       <rect>
-       <x>80</x>
-       <y>58</y>
-       <width>40</width>
+       <x>305</x>
+       <y>20</y>
+       <width>36</width>
        <height>18</height>
       </rect>
      </property>
@@ -1253,9 +1253,9 @@ p, li { white-space: pre-wrap; }
     <widget class="customLineEdit" name="rowLayoutLE">
      <property name="geometry">
       <rect>
-       <x>80</x>
-       <y>18</y>
-       <width>39</width>
+       <x>50</x>
+       <y>20</y>
+       <width>36</width>
        <height>18</height>
       </rect>
      </property>
@@ -1312,10 +1312,10 @@ p, li { white-space: pre-wrap; }
     <widget class="QPushButton" name="layoutHelpPB">
      <property name="geometry">
       <rect>
-       <x>124</x>
-       <y>40</y>
+       <x>355</x>
+       <y>20</y>
        <width>22</width>
-       <height>14</height>
+       <height>18</height>
       </rect>
      </property>
      <property name="palette">
@@ -1375,14 +1375,117 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </widget>
+   <widget class="QGroupBox" name="calibrationFitGB">
+    <property name="geometry">
+     <rect>
+      <x>315</x>
+      <y>45</y>
+      <width>86</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <property name="palette">
+     <palette>
+      <active>
+       <colorrole role="Text">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </active>
+      <inactive>
+       <colorrole role="Text">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </inactive>
+      <disabled>
+       <colorrole role="Text">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>118</red>
+          <green>118</green>
+          <blue>117</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </disabled>
+     </palette>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="title">
+     <string>Calib. Fit</string>
+    </property>
+    <widget class="QRadioButton" name="radioButton">
+     <property name="geometry">
+      <rect>
+       <x>5</x>
+       <y>20</y>
+       <width>86</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Linear</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButton_2">
+     <property name="geometry">
+      <rect>
+       <x>5</x>
+       <y>40</y>
+       <width>86</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>ArcTan</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButton_3">
+     <property name="geometry">
+      <rect>
+       <x>5</x>
+       <y>60</y>
+       <width>86</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Weibull</string>
+     </property>
+    </widget>
+   </widget>
+   <zorder>nonStandardPitchGB</zorder>
+   <zorder>standardPitchGB</zorder>
+   <zorder>ROCInUseCB</zorder>
+   <zorder>ROCLayoutGB</zorder>
+   <zorder>calibrationFitGB</zorder>
   </widget>
   <widget class="QGroupBox" name="ROCIdGB">
    <property name="geometry">
     <rect>
      <x>4</x>
      <y>0</y>
-     <width>401</width>
-     <height>30</height>
+     <width>326</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="palette">
@@ -1458,10 +1561,10 @@ p, li { white-space: pre-wrap; }
    <widget class="QPushButton" name="browsePB">
     <property name="geometry">
      <rect>
-      <x>338</x>
-      <y>4</y>
-      <width>61</width>
-      <height>22</height>
+      <x>0</x>
+      <y>5</y>
+      <width>96</width>
+      <height>18</height>
      </rect>
     </property>
     <property name="palette">
@@ -1521,98 +1624,15 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;navigation in the file-system to locate a suitable calibration file for this ROC.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
-     <string>Browse</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="calibFileLB">
-    <property name="geometry">
-     <rect>
-      <x>2</x>
-      <y>0</y>
-      <width>77</width>
-      <height>29</height>
-     </rect>
-    </property>
-    <property name="palette">
-     <palette>
-      <active>
-       <colorrole role="Text">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>116</red>
-          <green>158</green>
-          <blue>255</blue>
-         </color>
-        </brush>
-       </colorrole>
-       <colorrole role="ButtonText">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>255</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </colorrole>
-      </active>
-      <inactive>
-       <colorrole role="Text">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>116</red>
-          <green>158</green>
-          <blue>255</blue>
-         </color>
-        </brush>
-       </colorrole>
-       <colorrole role="ButtonText">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>255</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </colorrole>
-      </inactive>
-      <disabled>
-       <colorrole role="Text">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>106</red>
-          <green>104</green>
-          <blue>100</blue>
-         </color>
-        </brush>
-       </colorrole>
-       <colorrole role="ButtonText">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>106</red>
-          <green>104</green>
-          <blue>100</blue>
-         </color>
-        </brush>
-       </colorrole>
-      </disabled>
-     </palette>
-    </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Calib. file</string>
+     <string>Calib. File</string>
     </property>
    </widget>
    <widget class="customLineEdit" name="calibFileLE">
     <property name="geometry">
      <rect>
-      <x>86</x>
-      <y>6</y>
-      <width>243</width>
+      <x>100</x>
+      <y>5</y>
+      <width>221</width>
       <height>18</height>
      </rect>
     </property>
@@ -1670,152 +1690,12 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Full &lt;span style=&quot; font-weight:600; color:#0000ff;&quot;&gt;PATH&lt;/span&gt; name of the file holding the &lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;calibration&lt;/span&gt; of this particular ROC&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-  </widget>
-  <widget class="customLineEdit" name="rocDescriptionLE">
-   <property name="geometry">
-    <rect>
-     <x>90</x>
-     <y>29</y>
-     <width>315</width>
-     <height>35</height>
-    </rect>
-   </property>
-   <property name="palette">
-    <palette>
-     <active>
-      <colorrole role="Base">
-       <brush brushstyle="SolidPattern">
-        <color alpha="255">
-         <red>255</red>
-         <green>197</green>
-         <blue>131</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </active>
-     <inactive>
-      <colorrole role="Base">
-       <brush brushstyle="SolidPattern">
-        <color alpha="255">
-         <red>255</red>
-         <green>197</green>
-         <blue>131</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </inactive>
-     <disabled>
-      <colorrole role="Base">
-       <brush brushstyle="SolidPattern">
-        <color alpha="255">
-         <red>212</red>
-         <green>208</green>
-         <blue>200</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </disabled>
-    </palette>
-   </property>
-   <property name="font">
-    <font>
-     <weight>50</weight>
-     <bold>false</bold>
-    </font>
-   </property>
-  </widget>
-  <widget class="QLabel" name="rocDescriptionLB">
-   <property name="geometry">
-    <rect>
-     <x>6</x>
-     <y>40</y>
-     <width>77</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="palette">
-    <palette>
-     <active>
-      <colorrole role="Text">
-       <brush brushstyle="SolidPattern">
-        <color alpha="255">
-         <red>116</red>
-         <green>158</green>
-         <blue>255</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </active>
-     <inactive>
-      <colorrole role="Text">
-       <brush brushstyle="SolidPattern">
-        <color alpha="255">
-         <red>116</red>
-         <green>158</green>
-         <blue>255</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </inactive>
-     <disabled>
-      <colorrole role="Text">
-       <brush brushstyle="SolidPattern">
-        <color alpha="255">
-         <red>106</red>
-         <green>104</green>
-         <blue>100</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </disabled>
-    </palette>
-   </property>
-   <property name="font">
-    <font>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>Description</string>
-   </property>
-  </widget>
-  <widget class="QGroupBox" name="posGB">
-   <property name="geometry">
-    <rect>
-     <x>322</x>
-     <y>159</y>
-     <width>81</width>
-     <height>82</height>
-    </rect>
-   </property>
-   <property name="toolTip">
-    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;table border=&quot;0&quot; style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
-&lt;tr&gt;
-&lt;td style=&quot;border: none;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; text-decoration: underline; color:#0000ff;&quot;&gt;POS (Position)&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This number specifies the logical assignment of a &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;ROC ID to its actual position in the host plaquette, &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;as shown in the picture below. &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This picture specifies the POS numbering within a &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;plaquette.&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;:/Describes the relative position of ROCs whitn a plaquette&quot; /&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-   <property name="title">
-    <string/>
-   </property>
-   <widget class="customLineEdit" name="posLE">
+   <widget class="customLineEdit" name="rocDescriptionLE">
     <property name="geometry">
      <rect>
-      <x>38</x>
-      <y>12</y>
-      <width>37</width>
+      <x>100</x>
+      <y>25</y>
+      <width>221</width>
       <height>18</height>
      </rect>
     </property>
@@ -1862,148 +1742,14 @@ p, li { white-space: pre-wrap; }
       <bold>false</bold>
      </font>
     </property>
-    <property name="toolTip">
-     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;table border=&quot;0&quot; style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
-&lt;tr&gt;
-&lt;td style=&quot;border: none;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; text-decoration: underline; color:#0000ff;&quot;&gt;POS (Position)&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Specifies the correspondance between the &lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;ID&lt;/span&gt; of this&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;ROC and its place (&lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;POS&lt;/span&gt;) within the host plaquette &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;according to the ordering shown in this picture:&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;:/Describes the relative position of ROCs whitn a plaquette&quot; /&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
    </widget>
-   <widget class="QLabel" name="posLB">
+   <widget class="QLabel" name="rocDescriptionLB">
     <property name="geometry">
      <rect>
-      <x>8</x>
-      <y>14</y>
-      <width>31</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>POS</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="controlsGB">
-   <property name="geometry">
-    <rect>
-     <x>322</x>
-     <y>77</y>
-     <width>81</width>
-     <height>74</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string/>
-   </property>
-   <widget class="customCheckBox" name="ROCInUseCB">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>4</x>
-      <y>6</y>
-      <width>71</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="cursor">
-     <cursorShape>PointingHandCursor</cursorShape>
-    </property>
-    <property name="toolTip">
-     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;table border=&quot;0&quot; style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
-&lt;tr&gt;
-&lt;td style=&quot;border: none;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; text-decoration: underline; color:#0000ff;&quot;&gt;Enabled flag&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Check this box to make &lt;span style=&quot; font-weight:600;&quot;&gt;this&lt;/span&gt; particular station &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;an existing component  of the telescope&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="text">
-     <string>Enabled</string>
-    </property>
-   </widget>
-   <widget class="customLineEdit" name="ROCIdLE">
-    <property name="geometry">
-     <rect>
-      <x>34</x>
-      <y>32</y>
-      <width>39</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="palette">
-     <palette>
-      <active>
-       <colorrole role="Base">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>255</red>
-          <green>170</green>
-          <blue>255</blue>
-         </color>
-        </brush>
-       </colorrole>
-      </active>
-      <inactive>
-       <colorrole role="Base">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>255</red>
-          <green>170</green>
-          <blue>255</blue>
-         </color>
-        </brush>
-       </colorrole>
-      </inactive>
-      <disabled>
-       <colorrole role="Base">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>212</red>
-          <green>208</green>
-          <blue>200</blue>
-         </color>
-        </brush>
-       </colorrole>
-      </disabled>
-     </palette>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-   </widget>
-   <widget class="QLabel" name="ROCIdLB">
-    <property name="geometry">
-     <rect>
-      <x>4</x>
-      <y>38</y>
-      <width>19</width>
-      <height>16</height>
+      <x>5</x>
+      <y>25</y>
+      <width>91</width>
+      <height>18</height>
      </rect>
     </property>
     <property name="palette">
@@ -2012,9 +1758,9 @@ p, li { white-space: pre-wrap; }
        <colorrole role="Text">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
-          <red>170</red>
-          <green>0</green>
-          <blue>127</blue>
+          <red>116</red>
+          <green>158</green>
+          <blue>255</blue>
          </color>
         </brush>
        </colorrole>
@@ -2023,9 +1769,9 @@ p, li { white-space: pre-wrap; }
        <colorrole role="Text">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
-          <red>170</red>
-          <green>0</green>
-          <blue>127</blue>
+          <red>116</red>
+          <green>158</green>
+          <blue>255</blue>
          </color>
         </brush>
        </colorrole>
@@ -2045,15 +1791,245 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="font">
      <font>
-      <pointsize>12</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
     <property name="text">
-     <string>Id</string>
+     <string>Description</string>
     </property>
    </widget>
+  </widget>
+  <widget class="QLabel" name="ROCIdLB">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>25</y>
+     <width>20</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="palette">
+    <palette>
+     <active>
+      <colorrole role="Text">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>170</red>
+         <green>0</green>
+         <blue>127</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </active>
+     <inactive>
+      <colorrole role="Text">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>170</red>
+         <green>0</green>
+         <blue>127</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </inactive>
+     <disabled>
+      <colorrole role="Text">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>106</red>
+         <green>104</green>
+         <blue>100</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </disabled>
+    </palette>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Id</string>
+   </property>
+  </widget>
+  <widget class="customLineEdit" name="ROCIdLE">
+   <property name="geometry">
+    <rect>
+     <x>365</x>
+     <y>25</y>
+     <width>40</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="palette">
+    <palette>
+     <active>
+      <colorrole role="Base">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>170</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </active>
+     <inactive>
+      <colorrole role="Base">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>170</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </inactive>
+     <disabled>
+      <colorrole role="Base">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>212</red>
+         <green>208</green>
+         <blue>200</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </disabled>
+    </palette>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+  </widget>
+  <widget class="customCheckBox" name="ROCInUseCB">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>5</y>
+     <width>81</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="cursor">
+    <cursorShape>PointingHandCursor</cursorShape>
+   </property>
+   <property name="toolTip">
+    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;table border=&quot;0&quot; style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;border: none;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; text-decoration: underline; color:#0000ff;&quot;&gt;Enabled flag&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Check this box to make &lt;span style=&quot; font-weight:600;&quot;&gt;this&lt;/span&gt; particular station &lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;an existing component  of the telescope&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="text">
+    <string>Enabled</string>
+   </property>
+  </widget>
+  <widget class="customLineEdit" name="posLE">
+   <property name="geometry">
+    <rect>
+     <x>365</x>
+     <y>45</y>
+     <width>40</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="palette">
+    <palette>
+     <active>
+      <colorrole role="Base">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>197</green>
+         <blue>131</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </active>
+     <inactive>
+      <colorrole role="Base">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>197</green>
+         <blue>131</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </inactive>
+     <disabled>
+      <colorrole role="Base">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>212</red>
+         <green>208</green>
+         <blue>200</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </disabled>
+    </palette>
+   </property>
+   <property name="font">
+    <font>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="toolTip">
+    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;table border=&quot;0&quot; style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;border: none;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; text-decoration: underline; color:#0000ff;&quot;&gt;POS (Position)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Specifies the correspondance between the &lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;ID&lt;/span&gt; of this&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;ROC and its place (&lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;POS&lt;/span&gt;) within the host plaquette &lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;according to the ordering shown in this picture:&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;:/Describes the relative position of ROCs whitn a plaquette&quot; /&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="posLB">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>45</y>
+     <width>31</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>POS</string>
+   </property>
   </widget>
  </widget>
  <customwidgets>
