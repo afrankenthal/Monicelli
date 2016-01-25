@@ -1,12 +1,33 @@
-/****************************************************************************
-** Authors: Dario Menasce, Stefano Terzo
-**
-** I.N.F.N. Milan-Bicocca
-** Piazza  della Scienza 3, Edificio U2
-** Milano, 20126
-**
-****************************************************************************/
-
+/*===============================================================================
+ * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
+ * 
+ * Copyright (C) 2014 
+ *
+ * Authors:
+ *
+ * Dario Menasce      (INFN) 
+ * Luigi Moroni       (INFN)
+ * Jennifer Ngadiuba  (INFN)
+ * Stefano Terzo      (INFN)
+ * Lorenzo Uplegger   (FNAL)
+ * Luigi Vigani       (INFN)
+ *
+ * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ================================================================================*/
+ 
 #include "aligner.h"
 
 //=============================================================
@@ -328,9 +349,9 @@ bool aligner::align(void)
                             double zErrLoc = 0;
                             theGeometry->getDetector( det->first )->fromGlobalToLocal(&xHitLoc, &yHitLoc, &zHitLoc, &xErrLoc, &yErrLoc, &zErrLoc);
                             if (theGeometry->getDetectorModule(det->first)%2 == 0)
-                                resMap[det->first] = std::make_pair<double, double>(xHitLoc - xPredLoc, xErrLoc);
+                                resMap[det->first] = std::make_pair(xHitLoc - xPredLoc, xErrLoc); // ToROOT6
                             else
-                                resMap[det->first] = std::make_pair<double, double>(yHitLoc - yPredLoc, yErrLoc);
+                                resMap[det->first] = std::make_pair(yHitLoc - yPredLoc, yErrLoc); // ToROOT6
 
                         }
 
@@ -362,9 +383,9 @@ bool aligner::align(void)
                                 double zErrLoc = 0;
                                 theGeometry->getDetector( det->first )->fromGlobalToLocal(&xHitLoc, &yHitLoc, &zHitLoc, &xErrLoc, &yErrLoc, &zErrLoc);
                                 if (theGeometry->getDetectorModule(det->first)%2 == 0)
-                                    resMap[det->first] = std::make_pair<double, double>(xHitLoc - xPredLoc, xErrLoc);
+                                    resMap[det->first] = std::make_pair(xHitLoc - xPredLoc, xErrLoc); // ToROOT6
                                 else
-                                    resMap[det->first] = std::make_pair<double, double>(yHitLoc - yPredLoc, yErrLoc);
+                                    resMap[det->first] = std::make_pair(yHitLoc - yPredLoc, yErrLoc); // ToROOT6
                             }
                         }
                     }
@@ -674,7 +695,7 @@ bool aligner::align(void)
                     }
                     else if(phase == 1)//User defined
                     {
-                        int dataType = dataTypeMeas[j][exl->first];
+                        // int dataType = dataTypeMeas[j][exl->first];
                         if(trial == maxtrial_)
                         {
                             Detector::xyPair predSigmas = theGeometry->getDetector(exl->first)->propagateTrackErrors(fitpar,AtVAInv,fRInv[exl->first],fTz[exl->first]);

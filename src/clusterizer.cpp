@@ -1,12 +1,33 @@
-/****************************************************************************
-** Authors: Dario Menasce, Stefano Terzo
-**
-** I.N.F.N. Milan-Bicocca
-** Piazza  della Scienza 3, Edificio U2
-** Milano, 20126
-**
-****************************************************************************/
-
+/*===============================================================================
+ * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
+ * 
+ * Copyright (C) 2014 
+ *
+ * Authors:
+ *
+ * Dario Menasce      (INFN) 
+ * Luigi Moroni       (INFN)
+ * Jennifer Ngadiuba  (INFN)
+ * Stefano Terzo      (INFN)
+ * Lorenzo Uplegger   (FNAL)
+ * Luigi Vigani       (INFN)
+ *
+ * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ================================================================================*/
+ 
 #include "clusterizer.h"
 #include <iostream>
 #include <TFile.h>
@@ -315,7 +336,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
             else if(pixels.size() == 2)
             {
                 double center;
-                double pitch;
+                // double pitch;
                 double sizeTwoErrorBase = 0.8;//from2.8
                 if(useEtaFunction_ && chargeAsymmetryPars_[det->first][roc->getID()]["X"] != 0 && chargeAsymmetryPars_[det->first][roc->getID()]["Y"] != 0)
                 {
@@ -327,7 +348,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                         if( pixels[0].y < pixels[1].y )
                         {
                             center = (pixels[0].y + pixels[0].yPitch/2. );
-                            pitch = pixels[0].yPitch;
+                            // pitch = pixels[0].yPitch;
                             double eta = (pixels[0].charge - pixels[1].charge)/charge;
                             y = center + ((eta-chargeAsymmetryPars_[det->first][roc->getID()]["Y"][1])/chargeAsymmetryPars_[det->first][roc->getID()]["Y"][0])/10;
                             /*
@@ -395,7 +416,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                         if( pixels[0].y < pixels[1].y )
                         {
                             center = (pixels[0].y + pixels[0].yPitch/2. );
-                            pitch = pixels[0].yPitch;
+                            // pitch = pixels[0].yPitch;
                             y = (pixels[0].charge*(center - (yChargeSharing+chargeSharing)) + pixels[1].charge*(center + (yChargeSharing+chargeSharing)))/charge;
                             //                            ssk << "Plaquette " << det->first << ", cluster along  y: " <<  pixels[0].y << "|" << pixels[0].charge << "-" << pixels[1].y << "|" << pixels[1].charge << " -> " << y;
                             //                            STDLINE(ssk.str(), ACGreen);
@@ -403,7 +424,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                         else
                         {
                             center = (pixels[1].y + pixels[1].yPitch/2. );
-                            pitch = pixels[1].yPitch;
+                            // pitch = pixels[1].yPitch;
                             y = (pixels[1].charge*(center - (yChargeSharing+chargeSharing)) + pixels[0].charge*(center + (yChargeSharing+chargeSharing)))/charge;
                             //                            ssk << "Plaquette " << det->first << ", cluster along  y: " <<  pixels[0].y << "-" << pixels[1].y << " -> " << y;
                             //                            STDLINE(ssk.str(), ACGreen);
@@ -851,6 +872,7 @@ std::string  clusterizer::getLabel (void )
     return "Reconstructing hit clusters";
 }
 
+//=============================================================================
 std::string clusterizer::getPlaneID (int station, int plaquette)
 {
     std::stringstream ss;

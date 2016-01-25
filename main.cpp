@@ -7,6 +7,36 @@
 **
 ****************************************************************************/
 
+/*===============================================================================
+ * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
+ * 
+ * Copyright (C) 2014 
+ *
+ * Authors:
+ *
+ * Dario Menasce      (INFN) 
+ * Luigi Moroni       (INFN)
+ * Jennifer Ngadiuba  (INFN)
+ * Stefano Terzo      (INFN)
+ * Lorenzo Uplegger   (FNAL)
+ * Luigi Vigani       (INFN)
+ *
+ * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ================================================================================*/
+ 
 #include <iostream>
 
 #include <QApplication>
@@ -18,6 +48,8 @@
 #include <QEventLoop>
 #include <QThread>
 
+#include <TApplication.h>
+
 #include "MessageTools.h"
 
 #include "mainwindow.h"
@@ -28,6 +60,9 @@ int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(Monicelli);
 
+    system("clear") ;
+
+    TApplication rootapp("Simple Qt ROOT Application", &argc, argv);
     QApplication::setStyle(new QPlastiqueStyle()) ;
 
     QApplication app(argc, argv);
@@ -66,6 +101,17 @@ int main(int argc, char *argv[])
         FATAL("The 'MonicelliOutputDir' environment variable is not defined",ACYellow) ;
         missingEnvVariable = true;
     }
+    else
+    {
+        QFile tmpFile(envVariables) ;
+        if( !tmpFile.exists() )
+        {
+            ss_.str("") ; ss_ << "The " << envVariables << " directory (MonicelliOutputDir) does not exist" ;
+            FATAL(ss_.str(),ACRed) ;
+            FATAL("Please create one...",ACCyan) ;
+            missingEnvVariable = true;
+        }
+    }
     envVariables = getenv("Monicelli_XML_Dir");
     if(envVariables == NULL)
     {
@@ -88,15 +134,18 @@ int main(int argc, char *argv[])
     QSplashScreen splash(pixmap);
 
     splash.setMask(pixmap.mask());
+
+    app.processEvents();
+
     splash.show();
 
     app.processEvents();
 
+//    sleep(5) ;
+
     window.show();
 
     splash.raise() ;
-
-    sleep(1) ;
 
     splash.finish(&window);
 
@@ -108,19 +157,20 @@ int main(int argc, char *argv[])
     STDLINE("|                                                  |",color);
     STDLINE("|        The MTEST pixel-telescope tracks          |",color);
     STDLINE("|            pattern recognition code              |",color);
+    STDLINE("|    at Fermi National Accelerator Laboratory      |",color);
     STDLINE("|                                                  |",color);
-    STDLINE("|           D. Menasce, L. Moroni, S. Terzo, 2011  |",color);
+    STDLINE("|        D. Menasce, L. Moroni, S. Terzo           |",color);
+    STDLINE("|             J. Ngadiuba, L. Vigani               |",color);
     STDLINE("|                                                  |",color);
     STDLINE("+--------------------------------------------------+",color);
     STDLINE("",color);
 
     app.exec();
 
-    STDLINE("Done! (A fake assert condition will now be generated to actually bring the client to a halt...).",ACCyan);
+    STDLINE("",ACWhite);
+    STDLINE("Done! Hope you enjoyed...",ACCyan);
 
     std::cout << std::endl << std::endl ;
-
-    assert(0) ;
 
     return 0 ;
 }

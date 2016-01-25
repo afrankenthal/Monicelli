@@ -1,11 +1,34 @@
-/****************************************************************************
-** Authors: Dario Menasce, Stefano Terzo
-**
-** I.N.F.N. Milan-Bicocca
-** Piazza  della Scienza 3, Edificio U2
-** Milano, 20126
-**
-****************************************************************************/
+/*===============================================================================
+ * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
+ * 
+ * Copyright (C) 2014 
+ *
+ * Authors:
+ *
+ * Dario Menasce      (INFN) 
+ * Luigi Moroni       (INFN)
+ * Jennifer Ngadiuba  (INFN)
+ * Stefano Terzo      (INFN)
+ * Lorenzo Uplegger   (FNAL)
+ * Luigi Vigani       (INFN)
+ *
+ * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ================================================================================*/
+ 
+
 /*
 #include <iomanip>
 #include <TMath.h>
@@ -57,7 +80,7 @@ void fitter::gaussFit(TH1*  histo)
    //ss_.str("") ;ss_ << "Setting range user: " << loEdge << " - " << hiEdge << " for " << histo->GetName() ; STDLINE(ss_.str(),ACWhite) ;
 
    TF1 *gaus = new TF1("gausFitFunc", "[2]*TMath::Gaus(x,[0],[1])", min, max) ;
-   gaus->SetLineColor(4);
+   gaus->SetLineColor(2);
    gaus->SetParNames("Mean", "Sigma", "Height");
 
    for(int i=0; i<4; i++)
@@ -69,6 +92,8 @@ void fitter::gaussFit(TH1*  histo)
      gaus->SetRange(min, max);
      gaus->SetParameters(mean, rms, height);
 
+     ss_.str("") ; ss_ << "Gaussian fit to " << histo->GetName() ;
+     STDLINE(ss_.str(),ACYellow) ;
      histo->Fit("gausFitFunc", "RLQ");
 
      mean_ = gaus->GetParameter(0);
@@ -129,13 +154,13 @@ void fitter::gaussFit(TH1*  histo, double mean, double userRMS, double nRMS)
 //===============================================================================
 void fitter::chi2Fit(TH1* histo)
 {
-    double hiEdge  = histo->GetBinLowEdge( histo->FindLastBinAbove(0) );
+//    double hiEdge  = histo->GetBinLowEdge( histo->FindLastBinAbove(0) );
     double min     = 0;
     double max     = 20;
-    double loEdge  = histo->GetBinLowEdge( histo->FindFirstBinAbove(0));
-    double mean    = histo->GetMean()         ;
-    double rms     = histo->GetRMS()          ;
-    double height  = histo->GetMaximum()      ;
+//    double loEdge  = histo->GetBinLowEdge( histo->FindFirstBinAbove(0));
+//    double mean    = histo->GetMean()         ;
+//    double rms     = histo->GetRMS()          ;
+//    double height  = histo->GetMaximum()      ;
 
     //ss_.str("") ;ss_ << "Setting range user: " << loEdge << " - " << hiEdge << " for " << histo->GetName() ; STDLINE(ss_.str(),ACWhite) ;
 

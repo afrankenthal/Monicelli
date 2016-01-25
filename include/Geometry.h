@@ -1,12 +1,33 @@
-/****************************************************************************
-** Authors: Dario Menasce, Stefano Terzo
-**
-** I.N.F.N. Milan-Bicocca
-** Piazza  della Scienza 3, Edificio U2
-** Milano, 20126
-**
-****************************************************************************/
-
+/*===============================================================================
+ * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
+ * 
+ * Copyright (C) 2014 
+ *
+ * Authors:
+ *
+ * Dario Menasce      (INFN) 
+ * Luigi Moroni       (INFN)
+ * Jennifer Ngadiuba  (INFN)
+ * Stefano Terzo      (INFN)
+ * Lorenzo Uplegger   (FNAL)
+ * Luigi Vigani       (INFN)
+ *
+ * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ================================================================================*/
+ 
 #ifndef _Geometry_h_
 #define _Geometry_h_
 
@@ -28,9 +49,16 @@ class Geometry : public TObject
   Geometry(void);
  ~Geometry(void);
 
+  typedef std::map< std::string , Detector* >   detectorsMapDef;
+  typedef std::map< int , int >                 dataTypeMapDef ;
+
+  typedef std::map< std::string , Detector* >::iterator   iterator;
+  iterator                                                begin() {return detectorsMap_.begin() ;}
+  iterator                                                end()   {return detectorsMap_.end()   ;}
+
   Detector                  * addDetector           (std::string  plaqID,
-                                                     bool         isDUT = false,
-                                                     bool         isStrip = false);
+                                                     bool         isDUT   = false,
+                                                     bool         isStrip = false   );
 
   void                        clear                 (void                           ) {detectorsMap_.clear()       ;}
   bool                        empty                 (void                           ) {return detectorsMap_.empty();}
@@ -41,14 +69,16 @@ class Geometry : public TObject
   int                         getDetectorStation    (std::string  plaqID            );
   int                         getDetectorModule     (std::string  plaqID            );
 
+
   std::vector<Detector*>      getDUTs               (void                           );
+  detectorsMapDef             getDetectors          (void                           ) {return detectorsMap_        ;}
   std::string                 getDetectorID         (int          Station, int Plaq );
   unsigned int                getDetectorsNumber    (bool         excludeDUT = false);
   std::string                 getGeometryFileName   (void                           ) {return geometryFileName_    ;}
   double                      getMaxDetectorsLength (void                           );
   unsigned int                getMaxRowsNum         (void                           );
   unsigned int                getMaxColsNum         (void                           );
-  bool                        calibrationDone       (void                           ){return calibrationDone_      ;}
+  bool                        calibrationDone       (void                           ) {return calibrationDone_     ;}
 
   void                        setDUTnumbers         (unsigned int dutNumbers        ) {dutNumbers_ = dutNumbers    ;}
   void                        setGeometryFileName   (std::string  fileName          ) ;
@@ -58,29 +88,21 @@ class Geometry : public TObject
 
   void                        dump                  (void                           );
 
-  typedef std::map< std::string , Detector* >::iterator   iterator;
-  iterator                                                begin() {return detectorsMap_.begin() ;}
-  iterator                                                end()   {return detectorsMap_.end()   ;}
-
  private:
-
-  typedef std::map< std::string , Detector* >   detectorsMapDef;
-  typedef std::map< int , int >                 dataTypeMapDef;
 
   bool compare_zPosition (std::string first, std::string second);
 
-  detectorsMapDef                 detectorsMap_              ;
-  dataTypeMapDef                  dataTypeMap_               ;
-  std::vector<int>                runNumbers_                ;
-  unsigned int                    dutNumbers_                ;
-  std::string                     geometryFileName_          ;
-  bool                            calibrationDone_           ;
+  detectorsMapDef   detectorsMap_     ;
+  dataTypeMapDef    dataTypeMap_      ;
+  std::vector<int>  runNumbers_       ;
+  unsigned int      dutNumbers_       ;
+  std::string       geometryFileName_ ;
+  bool              calibrationDone_  ;
 
-  //std::stringstream               ss_                        ;//! temporary state value
+  std::stringstream ss_               ;//! temporary state value
 
   ClassDef(Geometry,1)
 
 } ;
-
 
 #endif // GEOMETRY_H

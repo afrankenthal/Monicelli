@@ -136,7 +136,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>960</width>
+     <width>966</width>
      <height>45</height>
     </rect>
    </property>
@@ -239,9 +239,14 @@
      <rect>
       <x>5</x>
       <y>15</y>
-      <width>131</width>
+      <width>121</width>
       <height>16</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>8</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Station:0 - Plaq:0</string>
@@ -250,9 +255,9 @@
    <widget class="QGroupBox" name="parametersGB">
     <property name="geometry">
      <rect>
-      <x>135</x>
+      <x>128</x>
       <y>0</y>
-      <width>826</width>
+      <width>833</width>
       <height>46</height>
      </rect>
     </property>
@@ -293,6 +298,11 @@
       </disabled>
      </palette>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
     <property name="title">
      <string/>
     </property>
@@ -301,9 +311,46 @@
       <rect>
        <x>115</x>
        <y>25</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -337,9 +384,46 @@
       <rect>
        <x>185</x>
        <y>25</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -350,7 +434,7 @@
     <widget class="QLabel" name="label_15">
      <property name="geometry">
       <rect>
-       <x>370</x>
+       <x>372</x>
        <y>25</y>
        <width>16</width>
        <height>16</height>
@@ -371,7 +455,7 @@
     <widget class="QLabel" name="label_21">
      <property name="geometry">
       <rect>
-       <x>725</x>
+       <x>727</x>
        <y>5</y>
        <width>16</width>
        <height>16</height>
@@ -392,7 +476,7 @@
     <widget class="QLabel" name="label_14">
      <property name="geometry">
       <rect>
-       <x>440</x>
+       <x>442</x>
        <y>25</y>
        <width>16</width>
        <height>16</height>
@@ -413,7 +497,7 @@
     <widget class="QLabel" name="label_18">
      <property name="geometry">
       <rect>
-       <x>725</x>
+       <x>727</x>
        <y>25</y>
        <width>16</width>
        <height>16</height>
@@ -434,7 +518,7 @@
     <widget class="QLabel" name="label_9">
      <property name="geometry">
       <rect>
-       <x>800</x>
+       <x>802</x>
        <y>25</y>
        <width>26</width>
        <height>16</height>
@@ -454,9 +538,46 @@
       <rect>
        <x>670</x>
        <y>5</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -469,9 +590,46 @@
       <rect>
        <x>385</x>
        <y>25</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -482,7 +640,7 @@
     <widget class="QLabel" name="label_13">
      <property name="geometry">
       <rect>
-       <x>170</x>
+       <x>172</x>
        <y>5</y>
        <width>16</width>
        <height>16</height>
@@ -505,9 +663,46 @@
       <rect>
        <x>315</x>
        <y>25</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -521,7 +716,7 @@
     <widget class="QLabel" name="label_20">
      <property name="geometry">
       <rect>
-       <x>655</x>
+       <x>657</x>
        <y>5</y>
        <width>16</width>
        <height>16</height>
@@ -563,7 +758,7 @@
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>245</x>
+       <x>247</x>
        <y>25</y>
        <width>26</width>
        <height>16</height>
@@ -581,7 +776,7 @@
     <widget class="QLabel" name="label_10">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>102</x>
        <y>5</y>
        <width>16</width>
        <height>16</height>
@@ -604,9 +799,46 @@
       <rect>
        <x>740</x>
        <y>25</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -617,7 +849,7 @@
     <widget class="QLabel" name="degL_2">
      <property name="geometry">
       <rect>
-       <x>515</x>
+       <x>517</x>
        <y>5</y>
        <width>26</width>
        <height>16</height>
@@ -635,7 +867,7 @@
     <widget class="QLabel" name="label_12">
      <property name="geometry">
       <rect>
-       <x>170</x>
+       <x>172</x>
        <y>25</y>
        <width>16</width>
        <height>16</height>
@@ -658,9 +890,46 @@
       <rect>
        <x>385</x>
        <y>5</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -673,9 +942,46 @@
       <rect>
        <x>455</x>
        <y>25</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -688,9 +994,46 @@
       <rect>
        <x>455</x>
        <y>5</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -743,7 +1086,7 @@
     <widget class="QLabel" name="label_11">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>102</x>
        <y>25</y>
        <width>16</width>
        <height>16</height>
@@ -766,9 +1109,46 @@
       <rect>
        <x>315</x>
        <y>5</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -782,7 +1162,7 @@
     <widget class="QLabel" name="label_17">
      <property name="geometry">
       <rect>
-       <x>440</x>
+       <x>442</x>
        <y>5</y>
        <width>16</width>
        <height>16</height>
@@ -805,9 +1185,46 @@
       <rect>
        <x>740</x>
        <y>5</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -839,7 +1256,7 @@
     <widget class="QLabel" name="label_8">
      <property name="geometry">
       <rect>
-       <x>515</x>
+       <x>517</x>
        <y>25</y>
        <width>26</width>
        <height>16</height>
@@ -857,7 +1274,7 @@
     <widget class="QLabel" name="label_19">
      <property name="geometry">
       <rect>
-       <x>655</x>
+       <x>657</x>
        <y>25</y>
        <width>16</width>
        <height>16</height>
@@ -880,9 +1297,46 @@
       <rect>
        <x>600</x>
        <y>25</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -898,9 +1352,46 @@
       <rect>
        <x>670</x>
        <y>25</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -913,9 +1404,46 @@
       <rect>
        <x>115</x>
        <y>5</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -928,9 +1456,46 @@
       <rect>
        <x>600</x>
        <y>5</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -946,9 +1511,46 @@
       <rect>
        <x>185</x>
        <y>5</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -961,9 +1563,46 @@
       <rect>
        <x>45</x>
        <y>25</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -977,7 +1616,7 @@
     <widget class="QLabel" name="degL_3">
      <property name="geometry">
       <rect>
-       <x>800</x>
+       <x>802</x>
        <y>5</y>
        <width>26</width>
        <height>16</height>
@@ -997,9 +1636,46 @@
       <rect>
        <x>45</x>
        <y>5</y>
-       <width>56</width>
+       <width>60</width>
        <height>16</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>248</green>
+           <blue>234</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>181</green>
+           <blue>96</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="font">
       <font>
@@ -1034,7 +1710,7 @@
     <widget class="QLabel" name="degL">
      <property name="geometry">
       <rect>
-       <x>245</x>
+       <x>247</x>
        <y>5</y>
        <width>26</width>
        <height>16</height>
@@ -1052,7 +1728,7 @@
     <widget class="QLabel" name="label_16">
      <property name="geometry">
       <rect>
-       <x>370</x>
+       <x>372</x>
        <y>5</y>
        <width>16</width>
        <height>16</height>

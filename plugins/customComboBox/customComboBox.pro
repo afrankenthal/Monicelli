@@ -10,6 +10,9 @@
 #
 #-------------------------------------------------
 
+QMAKE_CFLAGS_RELEASE   = -std=c++0x
+QMAKE_CXXFLAGS_RELEASE = -std=c++0x
+
 QT          += core gui
 
 TARGET       = customComboBox

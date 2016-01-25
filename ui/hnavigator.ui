@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>350</width>
-    <height>665</height>
+    <height>740</height>
    </rect>
   </property>
   <property name="palette">
@@ -51,7 +51,7 @@
    <string>Histogram Navigator</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../Monicelli.qrc">
     <normaloff>:/New Canvas button icon</normaloff>:/New Canvas button icon</iconset>
   </property>
   <property name="currentIndex">
@@ -75,7 +75,7 @@
     <property name="geometry">
      <rect>
       <x>4</x>
-      <y>480</y>
+      <y>552</y>
       <width>336</width>
       <height>157</height>
      </rect>
@@ -178,7 +178,7 @@
      <property name="geometry">
       <rect>
        <x>108</x>
-       <y>114</y>
+       <y>116</y>
        <width>39</width>
        <height>18</height>
       </rect>
@@ -197,8 +197,8 @@
      <property name="geometry">
       <rect>
        <x>8</x>
-       <y>114</y>
-       <width>93</width>
+       <y>116</y>
+       <width>101</width>
        <height>16</height>
       </rect>
      </property>
@@ -210,7 +210,7 @@
      <property name="geometry">
       <rect>
        <x>244</x>
-       <y>114</y>
+       <y>116</y>
        <width>82</width>
        <height>18</height>
       </rect>
@@ -219,9 +219,9 @@
     <widget class="QLabel" name="canvasSizeLB">
      <property name="geometry">
       <rect>
-       <x>160</x>
+       <x>164</x>
        <y>116</y>
-       <width>75</width>
+       <width>81</width>
        <height>16</height>
       </rect>
      </property>
@@ -303,7 +303,7 @@
       </palette>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="actionsTP">
       <attribute name="title">
@@ -344,7 +344,7 @@ p, li { white-space: pre-wrap; }
         <rect>
          <x>6</x>
          <y>26</y>
-         <width>169</width>
+         <width>241</width>
          <height>19</height>
         </rect>
        </property>
@@ -357,7 +357,7 @@ p, li { white-space: pre-wrap; }
         <rect>
          <x>6</x>
          <y>6</y>
-         <width>231</width>
+         <width>253</width>
          <height>19</height>
         </rect>
        </property>
@@ -489,7 +489,7 @@ p, li { white-space: pre-wrap; }
       <rect>
        <x>7</x>
        <y>136</y>
-       <width>213</width>
+       <width>229</width>
        <height>18</height>
       </rect>
      </property>
@@ -537,9 +537,9 @@ p, li { white-space: pre-wrap; }
     <widget class="QCheckBox" name="flattenHierarchyCB">
      <property name="geometry">
       <rect>
-       <x>230</x>
+       <x>248</x>
        <y>136</y>
-       <width>63</width>
+       <width>77</width>
        <height>19</height>
       </rect>
      </property>
@@ -568,7 +568,7 @@ p, li { white-space: pre-wrap; }
       <x>4</x>
       <y>26</y>
       <width>336</width>
-      <height>453</height>
+      <height>525</height>
      </rect>
     </property>
     <property name="sizeIncrement">
@@ -640,6 +640,8 @@ p, li { white-space: pre-wrap; }
    </attribute>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../Monicelli.qrc"/>
+ </resources>
  <connections/>
 </ui>

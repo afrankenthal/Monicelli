@@ -1,16 +1,39 @@
-/****************************************************************************
-** Authors: Dario Menasce, Stefano Terzo
-**
-** I.N.F.N. Milan-Bicocca
-** Piazza  della Scienza 3, Edificio U2
-** Milano, 20126
-**
-****************************************************************************/
-
+/*===============================================================================
+ * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
+ * 
+ * Copyright (C) 2014 
+ *
+ * Authors:
+ *
+ * Dario Menasce      (INFN) 
+ * Luigi Moroni       (INFN)
+ * Jennifer Ngadiuba  (INFN)
+ * Stefano Terzo      (INFN)
+ * Lorenzo Uplegger   (FNAL)
+ * Luigi Vigani       (INFN)
+ *
+ * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ================================================================================*/
+ 
 #include "maintabs.h"
 #include "ui_maintabs.h"
 #include "qmessagebox.h"
 #include <QTableWidget>
+#include "TBenchmark.h"
+#include "Geometry.h"
 
 #include <iterator>
 
@@ -39,6 +62,7 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
     theFitter_           = NULL;
     theHManager_         = NULL;
     theHNavigator_       = NULL;
+    theBenchmark_        = NULL ;
     //theParser_           = NULL;
     //timer_               = NULL;
     timer2_              = NULL;
@@ -124,7 +148,7 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
     connect( ui->showPullsPB                     , SIGNAL( clicked                       (                                        ) ),
              this                                , SLOT  ( showResiduals                 (                                        ) ) );
     connect(ui->alignmentTypeCB                  , SIGNAL(currentIndexChanged            (const QString                           ) ),
-             this                                , SLOT  (setAlignmentBoxes              (const QString                          ) ) );
+             this                                , SLOT  (setAlignmentBoxes              (const QString                           ) ) );
     connect(ui->fixAllCB                         , SIGNAL(stateChanged                   (int                                     ) ),
             ui->detectorsTableView               , SLOT  (fixAll                         (int                                     ) ) );
     connect(ui->fixExtremesCB                    , SIGNAL(stateChanged                   (int                                     ) ),
@@ -149,10 +173,10 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
             ui->detectorsTableView               , SLOT  (enableAll                      (int                                     ) ) );
     connect(ui->fixStripsCB                      , SIGNAL(stateChanged                   (int                                     ) ),
              this                                , SLOT  (fixStrips                      (int                                     ) ) );
-    connect( ui->trackFinderLeftCanvas           , SIGNAL(RootEventProcessed             (TObject *, unsigned int, TCanvas *      ) ),
-             this                                , SLOT  (setCBslopeLimits               (TObject *, unsigned int, TCanvas *      ) ) );
-    connect( ui->trackFinderRightCanvas          , SIGNAL(RootEventProcessed             (TObject *, unsigned int, TCanvas *      ) ),
-             this                                , SLOT  (setCBslopeLimits               (TObject *, unsigned int, TCanvas *      ) ) );
+//     connect( ui->trackFinderLeftCanvas           , SIGNAL(RootEventProcessed             (TObject *, unsigned int, TCanvas *      ) ),
+//              this                                , SLOT  (setCBslopeLimits               (TObject *, unsigned int, TCanvas *      ) ) );
+//     connect( ui->trackFinderRightCanvas          , SIGNAL(RootEventProcessed             (TObject *, unsigned int, TCanvas *      ) ),
+//              this                                , SLOT  (setCBslopeLimits               (TObject *, unsigned int, TCanvas *      ) ) );
     connect( ui->saveXMLResultsPB2               , SIGNAL(clicked                        (void                                    ) ),
              this                                , SLOT  (on_saveXMLResultsPB_clicked    (void                                    ) ) );
     connect( ui->saveXMLResultsPB3               , SIGNAL(clicked                        (void                                    ) ),
@@ -166,8 +190,73 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
     connect( ui->yRoadToleranceSB2               , SIGNAL(valueChanged                   (int                                     ) ),
              ui->yRoadToleranceSB                , SLOT  (setValue                       (int                                     ) ) );
 
-    ui->trackFinderLeftCanvas ->EnableSignalEvents(kMouseReleaseEvent);
-    ui->trackFinderRightCanvas->EnableSignalEvents(kMouseReleaseEvent);
+    beamSpot2DCanvas_			                 = new QRootCanvas(ui->beamSpot2DCanvas                      	  ,"") ; // ToROOT6
+    beamSpotProjXCanvas_ 		                 = new QRootCanvas(ui->beamSpotProjXCanvas		     	          ,"") ; // ToROOT6
+    beamSpotProjYCanvas_ 		                 = new QRootCanvas(ui->beamSpotProjYCanvas		     	          ,"") ; // ToROOT6
+    chargeADCCanvas_			                 = new QRootCanvas(ui->chargeADCCanvas			     	          ,"") ; // ToROOT6
+    chargeElectronsCanvas_		                 = new QRootCanvas(ui->chargeElectronsCanvas		     	      ,"") ; // ToROOT6
+    clustersCanvas_			                     = new QRootCanvas(ui->clustersCanvas			     	          ,"") ; // ToROOT6
+    dutAlignmentPullsCanvasLeft_ 	             = new QRootCanvas(ui->dutAlignmentPullsCanvasLeft		          ,"") ; // ToROOT6
+    dutAlignmentPullsCanvasRight_	             = new QRootCanvas(ui->dutAlignmentPullsCanvasRight		          ,"") ; // ToROOT6
+    dutAlignmentPullsSize1CanvasLeft_	         = new QRootCanvas(ui->dutAlignmentPullsSize1CanvasLeft 	      ,"") ; // ToROOT6
+    dutAlignmentPullsSize1CanvasRight_	         = new QRootCanvas(ui->dutAlignmentPullsSize1CanvasRight	      ,"") ; // ToROOT6
+    dutAlignmentPullsSize2CanvasLeft_	         = new QRootCanvas(ui->dutAlignmentPullsSize2CanvasLeft 	      ,"") ; // ToROOT6
+    dutAlignmentPullsSize2CanvasRight_	         = new QRootCanvas(ui->dutAlignmentPullsSize2CanvasRight	      ,"") ; // ToROOT6
+    dutAlignmentResidualsCanvasLeft_	         = new QRootCanvas(ui->dutAlignmentResidualsCanvasLeft  	      ,"") ; // ToROOT6
+    dutAlignmentResidualsCanvasRight_	         = new QRootCanvas(ui->dutAlignmentResidualsCanvasRight 	      ,"") ; // ToROOT6
+    dutAlignmentResidualsSize1CanvasLeft_        = new QRootCanvas(ui->dutAlignmentResidualsSize1CanvasLeft	      ,"") ; // ToROOT6
+    dutAlignmentResidualsSize1CanvasRight_       = new QRootCanvas(ui->dutAlignmentResidualsSize1CanvasRight	  ,"") ; // ToROOT6
+    dutAlignmentResidualsSize2CanvasLeft_        = new QRootCanvas(ui->dutAlignmentResidualsSize2CanvasLeft	      ,"") ; // ToROOT6
+    dutAlignmentResidualsSize2CanvasRight_       = new QRootCanvas(ui->dutAlignmentResidualsSize2CanvasRight	  ,"") ; // ToROOT6
+    dutAlignmentResXYvsXYCanvasLeft_	         = new QRootCanvas(ui->dutAlignmentResXYvsXYCanvasLeft  	      ,"") ; // ToROOT6
+    dutAlignmentResXYvsXYCanvasRight_	         = new QRootCanvas(ui->dutAlignmentResXYvsXYCanvasRight 	      ,"") ; // ToROOT6
+    dutAlignmentResXYvsXYSize1CanvasLeft_        = new QRootCanvas(ui->dutAlignmentResXYvsXYSize1CanvasLeft	      ,"") ; // ToROOT6
+    dutAlignmentResXYvsXYSize1CanvasRight_       = new QRootCanvas(ui->dutAlignmentResXYvsXYSize1CanvasRight	  ,"") ; // ToROOT6
+    dutAlignmentResXYvsXYSize2CanvasLeft_        = new QRootCanvas(ui->dutAlignmentResXYvsXYSize2CanvasLeft	      ,"") ; // ToROOT6
+    dutAlignmentResXYvsXYSize2CanvasRight_       = new QRootCanvas(ui->dutAlignmentResXYvsXYSize2CanvasRight	  ,"") ; // ToROOT6
+    eventDisplayLeftCanvas_		                 = new QRootCanvas(ui->eventDisplayLeftCanvas		     	      ,"") ; // ToROOT6
+    eventDisplayRightCanvas_		             = new QRootCanvas(ui->eventDisplayRightCanvas  		          ,"") ; // ToROOT6
+    fineAlignmentPullsCanvasLeft_	             = new QRootCanvas(ui->fineAlignmentPullsCanvasLeft		          ,"") ; // ToROOT6
+    fineAlignmentPullsCanvasRight_	             = new QRootCanvas(ui->fineAlignmentPullsCanvasRight		      ,"") ; // ToROOT6
+    fineAlignmentPullsSize1CanvasLeft_	         = new QRootCanvas(ui->fineAlignmentPullsSize1CanvasLeft	      ,"") ; // ToROOT6
+    fineAlignmentPullsSize1CanvasRight_	         = new QRootCanvas(ui->fineAlignmentPullsSize1CanvasRight	      ,"") ; // ToROOT6
+    fineAlignmentPullsSize2CanvasLeft_	         = new QRootCanvas(ui->fineAlignmentPullsSize2CanvasLeft	      ,"") ; // ToROOT6
+    fineAlignmentPullsSize2CanvasRight_	         = new QRootCanvas(ui->fineAlignmentPullsSize2CanvasRight	      ,"") ; // ToROOT6
+    fineAlignmentResidualsCanvasLeft_	         = new QRootCanvas(ui->fineAlignmentResidualsCanvasLeft 	      ,"") ; // ToROOT6
+    fineAlignmentResidualsCanvasRight_	         = new QRootCanvas(ui->fineAlignmentResidualsCanvasRight	      ,"") ; // ToROOT6
+    fineAlignmentResidualsSize1CanvasLeft_       = new QRootCanvas(ui->fineAlignmentResidualsSize1CanvasLeft	  ,"") ; // ToROOT6
+    fineAlignmentResidualsSize1CanvasRight_      = new QRootCanvas(ui->fineAlignmentResidualsSize1CanvasRight	  ,"") ; // ToROOT6
+    fineAlignmentResidualsSize2CanvasLeft_       = new QRootCanvas(ui->fineAlignmentResidualsSize2CanvasLeft	  ,"") ; // ToROOT6
+    fineAlignmentResidualsSize2CanvasRight_      = new QRootCanvas(ui->fineAlignmentResidualsSize2CanvasRight	  ,"") ; // ToROOT6
+    fineAlignmentResXYvsXYCanvasLeft_	         = new QRootCanvas(ui->fineAlignmentResXYvsXYCanvasLeft 	      ,"") ; // ToROOT6
+    fineAlignmentResXYvsXYCanvasRight_	         = new QRootCanvas(ui->fineAlignmentResXYvsXYCanvasRight	      ,"") ; // ToROOT6
+    fineAlignmentResXYvsXYSize1CanvasLeft_       = new QRootCanvas(ui->fineAlignmentResXYvsXYSize1CanvasLeft	  ,"") ; // ToROOT6
+    fineAlignmentResXYvsXYSize1CanvasRight_      = new QRootCanvas(ui->fineAlignmentResXYvsXYSize1CanvasRight	  ,"") ; // ToROOT6
+    fineAlignmentResXYvsXYSize2CanvasLeft_       = new QRootCanvas(ui->fineAlignmentResXYvsXYSize2CanvasLeft	  ,"") ; // ToROOT6
+    fineAlignmentResXYvsXYSize2CanvasRight_      = new QRootCanvas(ui->fineAlignmentResXYvsXYSize2CanvasRight	  ,"") ; // ToROOT6
+    fineAlignmentResXYvsYXCanvasLeft_	         = new QRootCanvas(ui->fineAlignmentResXYvsYXCanvasLeft 	      ,"") ; // ToROOT6
+    fineAlignmentResXYvsYXCanvasRight_	         = new QRootCanvas(ui->fineAlignmentResXYvsYXCanvasRight	      ,"") ; // ToROOT6
+    loadCalibrationMainCanvas_                   = new QRootCanvas(ui->loadCalibrationMainCanvas   	              ,"") ; // ToROOT6
+    mainTabsExpertCanvas_                        = new QRootCanvas(ui->mainTabsExpertCanvas   	                  ,"") ; // ToROOT6
+    rawAlignmentLeftCanvas_		                 = new QRootCanvas(ui->rawAlignmentLeftCanvas		     	      ,"") ; // ToROOT6
+    rawAlignmentRightCanvas_		             = new QRootCanvas(ui->rawAlignmentRightCanvas  		          ,"") ; // ToROOT6
+    rawAlignmentSynpoticLeftCanvas_	             = new QRootCanvas(ui->rawAlignmentSynpoticLeftCanvas		      ,"") ; // ToROOT6
+    rawAlignmentSynpoticRightCanvas_	         = new QRootCanvas(ui->rawAlignmentSynpoticRightCanvas  	      ,"") ; // ToROOT6
+    residuals2DResidualsVsCoordinateLeftCanvas_  = new QRootCanvas(ui->residuals2DResidualsVsCoordinateLeftCanvas ,"") ; // ToROOT6
+    residuals2DResidualsVsCoordinateRightCanvas_ = new QRootCanvas(ui->residuals2DResidualsVsCoordinateRightCanvas,"") ; // ToROOT6
+    residualsManualFitLeftCanvas_	             = new QRootCanvas(ui->residualsManualFitLeftCanvas		          ,"") ; // ToROOT6
+    residualsManualFitRightCanvas_	             = new QRootCanvas(ui->residualsManualFitRightCanvas		      ,"") ; // ToROOT6
+    residualsPullsLeftCanvas_		             = new QRootCanvas(ui->residualsPullsLeftCanvas 		          ,"") ; // ToROOT6
+    residualsPullsRightCanvas_		             = new QRootCanvas(ui->residualsPullsRightCanvas		          ,"") ; // ToROOT6
+    residualsResidualsVsCoordinateLeftCanvas_    = new QRootCanvas(ui->residualsResidualsVsCoordinateLeftCanvas   ,"") ; // ToROOT6
+    residualsResidualsVsCoordinateRightCanvas_   = new QRootCanvas(ui->residualsResidualsVsCoordinateRightCanvas  ,"") ; // ToROOT6
+    residualsSynopticViewLeftCanvas_	         = new QRootCanvas(ui->residualsSynopticViewLeftCanvas  	      ,"") ; // ToROOT6
+    residualsSynopticViewRightCanvas_	         = new QRootCanvas(ui->residualsSynopticViewRightCanvas 	      ,"") ; // ToROOT6
+    trackFinderLeftCanvas_		                 = new QRootCanvas(ui->trackFinderLeftCanvas			          ,"") ; // ToROOT6
+    trackFinderRightCanvas_		                 = new QRootCanvas(ui->trackFinderRightCanvas			          ,"") ; // ToROOT6
+						 
+//    ui->trackFinderLeftCanvas ->EnableSignalEvents(kMouseReleaseEvent); // ToROOT6
+//    ui->trackFinderRightCanvas->EnableSignalEvents(kMouseReleaseEvent); // ToROOT6
 
     ui->loadedGeometryLE->setReadOnly(true);
     ui->xmlGeometryLE   ->setReadOnly(true);
@@ -195,24 +284,25 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
     ui->parseFilePB->setCheckable  (true);
     ui->showAllPlaqPB->setCheckable(true);
 
-    ui->rawAlignmentLeftCanvas ->EnableSignalEvents(kMousePressEvent       );
-    ui->rawAlignmentLeftCanvas ->EnableSignalEvents(kMouseDoubleClickEvent );
-    ui->rawAlignmentRightCanvas->EnableSignalEvents(kMousePressEvent       );
-    ui->rawAlignmentRightCanvas->EnableSignalEvents(kMouseDoubleClickEvent );
-    ui->eventDisplayLeftCanvas ->EnableSignalEvents(kMousePressEvent       );
-    ui->eventDisplayLeftCanvas ->EnableSignalEvents(kMouseDoubleClickEvent );
+/*
+    ui->rawAlignmentLeftCanvas ->EnableSignalEvents(kMousePressEvent       ); // ToROOT6
+    ui->rawAlignmentLeftCanvas ->EnableSignalEvents(kMouseDoubleClickEvent ); // ToROOT6
+    ui->rawAlignmentRightCanvas->EnableSignalEvents(kMousePressEvent       ); // ToROOT6
+    ui->rawAlignmentRightCanvas->EnableSignalEvents(kMouseDoubleClickEvent ); // ToROOT6
+    ui->eventDisplayLeftCanvas ->EnableSignalEvents(kMousePressEvent       ); // ToROOT6
+    ui->eventDisplayLeftCanvas ->EnableSignalEvents(kMouseDoubleClickEvent ); // ToROOT6
+*/
+//     connect(ui->rawAlignmentLeftCanvas,   SIGNAL(RootEventProcessed         (TObject *, unsigned int, TCanvas *)),
+//             this,                         SLOT(  selectedCanvasObjectManager(TObject *, unsigned int, TCanvas *)) );
+// 
+//     connect(ui->rawAlignmentRightCanvas,  SIGNAL(RootEventProcessed         (TObject *, unsigned int, TCanvas *)),
+//             this,                         SLOT(  selectedCanvasObjectManager(TObject *, unsigned int, TCanvas *)) );
+// 
+//     connect(ui->eventDisplayLeftCanvas,   SIGNAL(RootEventProcessed         (TObject *, unsigned int, TCanvas *)),
+//             this,                         SLOT(  selectedCanvasObjectManager(TObject *, unsigned int, TCanvas *)) );
 
-    connect(ui->rawAlignmentLeftCanvas,   SIGNAL(RootEventProcessed         (TObject *, unsigned int, TCanvas *)),
-            this,                         SLOT(  selectedCanvasObjectManager(TObject *, unsigned int, TCanvas *)) );
 
-    connect(ui->rawAlignmentRightCanvas,  SIGNAL(RootEventProcessed         (TObject *, unsigned int, TCanvas *)),
-            this,                         SLOT(  selectedCanvasObjectManager(TObject *, unsigned int, TCanvas *)) );
-
-    connect(ui->eventDisplayLeftCanvas,   SIGNAL(RootEventProcessed         (TObject *, unsigned int, TCanvas *)),
-            this,                         SLOT(  selectedCanvasObjectManager(TObject *, unsigned int, TCanvas *)) );
-
-
-    ui->eventDisplayLeftCanvas->GetCanvas()->SetBit(kNoContextMenu);
+//    ui->eventDisplayLeftCanvas->GetCanvas()->SetBit(kNoContextMenu); // ToROOT6
 
     std::string telescopePicture = path_.toStdString() + std::string("/images/PixelTelescopeGeometry.jpg") ;
     QImage image(QString(telescopePicture.c_str()));
@@ -492,7 +582,7 @@ void mainTabs::getNxNy(int divider, int &nx, int &ny)
 }
 
 //===========================================================================
-void mainTabs::drawAll(TQtWidget   * where,
+void mainTabs::drawAll(QRootCanvas * where,               // ToROOT6
                        std::string   what,
                        std::string   detector,
                        std::string   options,
@@ -555,30 +645,34 @@ void mainTabs::drawAll(TQtWidget   * where,
 }
 
 //===========================================================================
-void mainTabs::setLogAxis(TQtWidget * where, std::string axis)
+void mainTabs::setLogAxis(QRootCanvas * where, std::string axis) // ToROOT6
 {
     if (axis == "xaxis")
     {
         if ( where->GetCanvas()->GetSelectedPad()->GetLogx() )
-            where->GetCanvas()->GetSelectedPad()->SetLogx(0);
-        else                              where->GetCanvas()->GetSelectedPad()->SetLogx(1);
+             where->GetCanvas()->GetSelectedPad()->SetLogx(0);
+        else                              
+	     where->GetCanvas()->GetSelectedPad()->SetLogx(1);
     }
     if (axis == "yaxis")
     {
         if ( where->GetCanvas()->GetSelectedPad()->GetLogy() )
-            where->GetCanvas()->GetSelectedPad()->SetLogy(0);
-        else                              where->GetCanvas()->GetSelectedPad()->SetLogy(1);
+             where->GetCanvas()->GetSelectedPad()->SetLogy(0);
+        else                              
+	     where->GetCanvas()->GetSelectedPad()->SetLogy(1);
     }
     if (axis == "zaxis")
     {
         if ( where->GetCanvas()->GetSelectedPad()->GetLogz() )
-            where->GetCanvas()->GetSelectedPad()->SetLogz(0);
-        else                              where->GetCanvas()->GetSelectedPad()->SetLogz(1);
+             where->GetCanvas()->GetSelectedPad()->SetLogz(0);
+        else                              
+	     where->GetCanvas()->GetSelectedPad()->SetLogz(1);
     }
 }
 //=========================================================================
-void mainTabs::selectedCanvasObjectManager(TObject *obj,unsigned int event,TCanvas *)
+void mainTabs::selectedCanvasObjectManager(TObject *,unsigned int,TCanvas *)
 {
+/* // ToROOT6
     TQtWidget *tipped = (TQtWidget *)sender();
     ss_.str("");
     ss_ << obj->ClassName();
@@ -634,41 +728,41 @@ void mainTabs::selectedCanvasObjectManager(TObject *obj,unsigned int event,TCanv
         if ( className == "TAxis" ) { axis->UnZoom(); }
         if ( className == "TH2I"  )
         {
-            /*  STDLINE("TH2I",ACRed) ;
-          ss_.str("");
-          double leftB,rightB;
-          if( (binx-th2i->GetXaxis()->GetFirst()) < (th2i->GetXaxis()->GetLast()-binx) )
-          {
-            leftB  = th2i->GetXaxis()->GetFirst() + 1.*( binx - th2i->GetXaxis()->GetFirst() ) / ZOOMFACTOR;
-            rightB = th2i->GetXaxis()->GetLast()  - 2.*( th2i->GetXaxis()->GetLast() - binx  ) / leftB     ;
-          }
-          else
-          {
-            rightB  = th2i->GetXaxis()->GetLast()  - 1.*( th2i->GetXaxis()->GetLast() -binx   ) / ZOOMFACTOR;
-            leftB   = th2i->GetXaxis()->GetFirst() + 2.*( binx - th2i->GetXaxis()->GetFirst()  ) / rightB    ;
-          }
-          ss_<< th2i->GetXaxis()->GetLast();
-          STDLINE(ss_.str(),ACRed) ;
-          th2i->GetXaxis()->SetRange((int)leftB,100);
-          ss_<< th2i->GetXaxis()->GetLast();
-          STDLINE(ss_.str(),ACGreen) ;
-          th2i->GetXaxis()->SetRange((int)leftB,20);
+//          STDLINE("TH2I",ACRed) ;
+//          ss_.str("");
+//          double leftB,rightB;
+//          if( (binx-th2i->GetXaxis()->GetFirst()) < (th2i->GetXaxis()->GetLast()-binx) )
+//          {
+//            leftB  = th2i->GetXaxis()->GetFirst() + 1.*( binx - th2i->GetXaxis()->GetFirst() ) / ZOOMFACTOR;
+//            rightB = th2i->GetXaxis()->GetLast()  - 2.*( th2i->GetXaxis()->GetLast() - binx  ) / leftB     ;
+//          }
+//          else
+//          {
+//            rightB  = th2i->GetXaxis()->GetLast()  - 1.*( th2i->GetXaxis()->GetLast() -binx   ) / ZOOMFACTOR;
+//            leftB   = th2i->GetXaxis()->GetFirst() + 2.*( binx - th2i->GetXaxis()->GetFirst()  ) / rightB    ;
+//          }
+//          ss_<< th2i->GetXaxis()->GetLast();
+//          STDLINE(ss_.str(),ACRed) ;
+//          th2i->GetXaxis()->SetRange((int)leftB,100);
+//          ss_<< th2i->GetXaxis()->GetLast();
+//          STDLINE(ss_.str(),ACGreen) ;
+//          th2i->GetXaxis()->SetRange((int)leftB,20);
 
-          double downB,upB;
-          ss_.str("");
-          if( (biny-th2i->GetYaxis()->GetFirst()) < (th2i->GetYaxis()->GetLast()-biny ) )
-          {
-            downB  = th2i->GetYaxis()->GetFirst() + 1.*( biny - th2i->GetYaxis()->GetFirst() ) / ZOOMFACTOR;
-            upB = th2i->GetYaxis()->GetLast()  - 2.*( th2i->GetYaxis()->GetLast()-biny  ) / downB     ;
-          }
-          else
-          {
-            upB  = th2i->GetYaxis()->GetLast()  - 1.*( th2i->GetYaxis()->GetLast()-biny   ) / ZOOMFACTOR;
-            downB   = th2i->GetYaxis()->GetFirst() + 2.*( biny - th2i->GetYaxis()->GetFirst()  ) / upB    ;
-          }
-          th2i->GetYaxis()->SetRange((int)downB,(int)upB);
-          ss_ << downB << " = " << upB;
-          STDLINE(ss_.str(),ACGreen) ;*/
+//          double downB,upB;
+//          ss_.str("");
+//          if( (biny-th2i->GetYaxis()->GetFirst()) < (th2i->GetYaxis()->GetLast()-biny ) )
+//          {
+//            downB  = th2i->GetYaxis()->GetFirst() + 1.*( biny - th2i->GetYaxis()->GetFirst() ) / ZOOMFACTOR;
+//            upB = th2i->GetYaxis()->GetLast()  - 2.*( th2i->GetYaxis()->GetLast()-biny  ) / downB     ;
+//          }
+//          else
+//          {
+//            upB  = th2i->GetYaxis()->GetLast()  - 1.*( th2i->GetYaxis()->GetLast()-biny   ) / ZOOMFACTOR;
+//            downB   = th2i->GetYaxis()->GetFirst() + 2.*( biny - th2i->GetYaxis()->GetFirst()  ) / upB    ;
+//          }
+//          th2i->GetYaxis()->SetRange((int)downB,(int)upB);
+//          ss_ << downB << " = " << upB;
+//          STDLINE(ss_.str(),ACGreen) ;
         }
     }
 
@@ -676,6 +770,7 @@ void mainTabs::selectedCanvasObjectManager(TObject *obj,unsigned int event,TCanv
     //            << " : " << obj->GetObjectInfo(tipped->GetEventX(),tipped->GetEventY()) << "\n"
     //            << "This object belongs to " <<  tipped->objectName().toStdString();
     //    STDLINE(tipText.str(),ACCyan) ;
+*/ // ToROOT6
 }
 
 //=========================================================================
@@ -692,7 +787,7 @@ void mainTabs::on_eatFilePB_clicked()
 
     if( !this->on_loadGeometryPB_clicked()) return ;
 
-    ui->parseFilePB           ->setEnabled(true ) ;
+    ui->parseFilePB->setEnabled(true ) ;
 
     //theFileEater_->openFile(fileName.toStdString());
     ui->loadedFileLE->setText   (fileName);
@@ -705,7 +800,7 @@ void mainTabs::on_eatFilePB_clicked()
 
     if ( fileName.endsWith(".dat") )
     {
-        ui->writeASCIICB        ->setEnabled(true ) ;
+        ui->writeASCIICB->setEnabled(true ) ;
 
         if(ui->writeASCIICB->isChecked())
         {
@@ -738,7 +833,7 @@ void mainTabs::on_showBeamSpotPB_clicked()
 
     for(std::map<std::string,TH2I*>::iterator hIt=vetH_.begin(); hIt!=vetH_.end(); ++hIt)
     {
-        ui->mainTabsExpertCanvas->GetCanvas()->cd(pad++)    ;
+        mainTabsExpertCanvas_->GetCanvas()->cd(pad++)    ;
         if( ui->limitZCB->isChecked())
         {
             hIt->second->SetMaximum(ui->limitZSB->value()) ;
@@ -746,9 +841,9 @@ void mainTabs::on_showBeamSpotPB_clicked()
         hIt->second->Draw("COLZ")  ;
     }
 
-    ui->mainTabsExpertCanvas->GetCanvas()->Modified() ;
-    ui->mainTabsExpertCanvas->GetCanvas()->Update()   ;
-    ui->mainTabsExpertCanvas->GetCanvas()->cd(0)    ;
+    mainTabsExpertCanvas_->GetCanvas()->Modified() ;
+    mainTabsExpertCanvas_->GetCanvas()->Update()   ;
+    mainTabsExpertCanvas_->GetCanvas()->cd(0)	;
 
 }
 
@@ -759,7 +854,7 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
 
     ss_.str("");
     ss_ << currentProcess->getName()  << " process is ended with signal: " <<  success;
-    STDLINE(ss_.str(), ACRed);
+    STDLINE(ss_.str(), ACYellow);
 
     if(success)
     {
@@ -781,19 +876,19 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
         {
             if(success)
             {
-                ui->parseFilePB        -> setChecked(false)    ;
-                ui->showBeamSpotPB     -> setEnabled(true)     ;
-                ui->calibrationLoaderPB-> setEnabled(true)     ;
+                ui->parseFilePB        -> setChecked(false)  ;
+                ui->showBeamSpotPB     -> setEnabled(true)   ;
+                ui->calibrationLoaderPB-> setEnabled(true)   ;
                 this->openRootFile(QString::fromStdString(theFileEater_->getOutputTreeCompletePath()));
             }
             else
             {
-                ui->parseFilePB      -> setEnabled(true)   ;
-                ui->eatFilePB        -> setEnabled(true)   ;
-                ui->loadGeometryPB   -> setEnabled(true)   ;
-                ui->maxRawEventsCB   -> setEnabled(true)   ;
-                ui->maxRawEventsAllCB-> setEnabled(true)   ;
-                if( ui->loadGeometryPB->isChecked() ) ui->maxRawEventsSB   -> setEnabled(true)   ;
+                ui->parseFilePB        -> setEnabled(true)   ;
+                ui->eatFilePB          -> setEnabled(true)   ;
+                ui->loadGeometryPB     -> setEnabled(true)   ;
+                ui->maxRawEventsCB     -> setEnabled(true)   ;
+                ui->maxRawEventsAllCB  -> setEnabled(true)   ;
+                if( ui->loadGeometryPB->isChecked() ) ui->maxRawEventsSB-> setEnabled(true) ;
             }
 
             ui->beamSpotCB       -> setEnabled(true)     ;
@@ -899,84 +994,84 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
         {
             if(theAligner_->getOperation() == &aligner::align && !geo->second->isDUT())
             {
-                this->drawAll(ui->fineAlignmentResidualsCanvasLeft      , histoTypeV[0] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
-                this->drawAll(ui->fineAlignmentResidualsCanvasRight     , histoTypeV[3] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(fineAlignmentResidualsCanvasLeft_      , histoTypeV[0] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(fineAlignmentResidualsCanvasRight_     , histoTypeV[3] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(ui->fineAlignmentResidualsSize1CanvasLeft , histoTypeV[1] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
-                this->drawAll(ui->fineAlignmentResidualsSize1CanvasRight, histoTypeV[4] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(fineAlignmentResidualsSize1CanvasLeft_ , histoTypeV[1] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(fineAlignmentResidualsSize1CanvasRight_, histoTypeV[4] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(ui->fineAlignmentResidualsSize2CanvasLeft , histoTypeV[2] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
-                this->drawAll(ui->fineAlignmentResidualsSize2CanvasRight, histoTypeV[5] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(fineAlignmentResidualsSize2CanvasLeft_ , histoTypeV[2] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(fineAlignmentResidualsSize2CanvasRight_, histoTypeV[5] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(ui->fineAlignmentPullsCanvasLeft          , histoTypeV[6] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
-                this->drawAll(ui->fineAlignmentPullsCanvasRight         , histoTypeV[9] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(fineAlignmentPullsCanvasLeft_	     , histoTypeV[6] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(fineAlignmentPullsCanvasRight_	     , histoTypeV[9] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(ui->fineAlignmentPullsSize1CanvasLeft     , histoTypeV[7] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
-                this->drawAll(ui->fineAlignmentPullsSize1CanvasRight    , histoTypeV[10], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(fineAlignmentPullsSize1CanvasLeft_     , histoTypeV[7] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(fineAlignmentPullsSize1CanvasRight_    , histoTypeV[10], geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(ui->fineAlignmentPullsSize2CanvasLeft     , histoTypeV[8] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
-                this->drawAll(ui->fineAlignmentPullsSize2CanvasRight    , histoTypeV[11], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(fineAlignmentPullsSize2CanvasLeft_     , histoTypeV[8] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(fineAlignmentPullsSize2CanvasRight_    , histoTypeV[11], geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
                 if (ui->fillAllAlignmentPlotsCB->isChecked())
                 {
-                    this->drawAll(ui->fineAlignmentResXYvsYXCanvasLeft      , histoTypeV[12], geo->first, "", 0, 0, xPlots, yPlots, tPad);
-                    this->drawAll(ui->fineAlignmentResXYvsYXCanvasRight     , histoTypeV[15], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(fineAlignmentResXYvsYXCanvasLeft_	 , histoTypeV[12], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(fineAlignmentResXYvsYXCanvasRight_	 , histoTypeV[15], geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                    this->drawAll(ui->fineAlignmentResXYvsYXSize1CanvasLeft , histoTypeV[13], geo->first, "", 0, 0, xPlots, yPlots, tPad);
-                    this->drawAll(ui->fineAlignmentResXYvsYXSize1CanvasRight, histoTypeV[16], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(fineAlignmentResXYvsYXSize1CanvasLeft_ , histoTypeV[13], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(fineAlignmentResXYvsYXSize1CanvasRight_, histoTypeV[16], geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                    this->drawAll(ui->fineAlignmentResXYvsYXSize2CanvasLeft , histoTypeV[14], geo->first, "", 0, 0, xPlots, yPlots, tPad);
-                    this->drawAll(ui->fineAlignmentResXYvsYXSize2CanvasRight, histoTypeV[17], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(fineAlignmentResXYvsYXSize2CanvasLeft_ , histoTypeV[14], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(fineAlignmentResXYvsYXSize2CanvasRight_, histoTypeV[17], geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                    this->drawAll(ui->fineAlignmentResXYvsXYCanvasLeft      , histoTypeV[18], geo->first, "", 0, 0, xPlots, yPlots, tPad);
-                    this->drawAll(ui->fineAlignmentResXYvsXYCanvasRight     , histoTypeV[21], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(fineAlignmentResXYvsXYCanvasLeft_	 , histoTypeV[18], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(fineAlignmentResXYvsXYCanvasRight_	 , histoTypeV[21], geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                    this->drawAll(ui->fineAlignmentResXYvsXYSize1CanvasLeft , histoTypeV[19], geo->first, "", 0, 0, xPlots, yPlots, tPad);
-                    this->drawAll(ui->fineAlignmentResXYvsXYSize1CanvasRight, histoTypeV[22], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(fineAlignmentResXYvsXYSize1CanvasLeft_ , histoTypeV[19], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(fineAlignmentResXYvsXYSize1CanvasRight_, histoTypeV[22], geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                    this->drawAll(ui->fineAlignmentResXYvsXYSize2CanvasLeft , histoTypeV[20], geo->first, "", 0, 0, xPlots, yPlots, tPad);
-                    this->drawAll(ui->fineAlignmentResXYvsXYSize2CanvasRight, histoTypeV[23], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(fineAlignmentResXYvsXYSize2CanvasLeft_ , histoTypeV[20], geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                    this->drawAll(fineAlignmentResXYvsXYSize2CanvasRight_, histoTypeV[23], geo->first, "", 0, 0, xPlots, yPlots, tPad);
                 }
             }
             else if(theAligner_->getOperation() == &aligner::alignDUT && geo->second->isDUT())
             {
-                this->drawAll(ui->dutAlignmentResidualsCanvasLeft      , histoTypeV[0], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
-                this->drawAll(ui->dutAlignmentResidualsCanvasRight     , histoTypeV[3], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(dutAlignmentResidualsCanvasLeft_	    , histoTypeV[0], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(dutAlignmentResidualsCanvasRight_     , histoTypeV[3], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                this->drawAll(ui->dutAlignmentResidualsSize1CanvasLeft , histoTypeV[1], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
-                this->drawAll(ui->dutAlignmentResidualsSize1CanvasRight, histoTypeV[4], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(dutAlignmentResidualsSize1CanvasLeft_ , histoTypeV[1], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(dutAlignmentResidualsSize1CanvasRight_, histoTypeV[4], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                this->drawAll(ui->dutAlignmentResidualsSize2CanvasLeft , histoTypeV[2], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
-                this->drawAll(ui->dutAlignmentResidualsSize2CanvasRight, histoTypeV[5], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(dutAlignmentResidualsSize2CanvasLeft_ , histoTypeV[2], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(dutAlignmentResidualsSize2CanvasRight_, histoTypeV[5], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                this->drawAll(ui->dutAlignmentPullsCanvasLeft          , histoTypeV[6] , geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
-                this->drawAll(ui->dutAlignmentPullsCanvasRight         , histoTypeV[9] , geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(dutAlignmentPullsCanvasLeft_	    , histoTypeV[6] , geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(dutAlignmentPullsCanvasRight_	    , histoTypeV[9] , geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                this->drawAll(ui->dutAlignmentPullsSize1CanvasLeft     , histoTypeV[7] , geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
-                this->drawAll(ui->dutAlignmentPullsSize1CanvasRight    , histoTypeV[10], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(dutAlignmentPullsSize1CanvasLeft_     , histoTypeV[7] , geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(dutAlignmentPullsSize1CanvasRight_    , histoTypeV[10], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                this->drawAll(ui->dutAlignmentPullsSize2CanvasLeft     , histoTypeV[8] , geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
-                this->drawAll(ui->dutAlignmentPullsSize2CanvasRight    , histoTypeV[11], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(dutAlignmentPullsSize2CanvasLeft_     , histoTypeV[8] , geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                this->drawAll(dutAlignmentPullsSize2CanvasRight_    , histoTypeV[11], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
                 if (ui->fillAllDUTAlignmentPlotsCB->isChecked())
                 {
-                    this->drawAll(ui->dutAlignmentResXYvsYXCanvasLeft      , histoTypeV[12], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
-                    this->drawAll(ui->dutAlignmentResXYvsYXCanvasRight     , histoTypeV[15], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(dutAlignmentResXYvsYXCanvasLeft_      , histoTypeV[12], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(dutAlignmentResXYvsYXCanvasRight_     , histoTypeV[15], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                    this->drawAll(ui->dutAlignmentResXYvsYXSize1CanvasLeft , histoTypeV[13], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
-                    this->drawAll(ui->dutAlignmentResXYvsYXSize1CanvasRight, histoTypeV[16], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(dutAlignmentResXYvsYXSize1CanvasLeft_ , histoTypeV[13], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(dutAlignmentResXYvsYXSize1CanvasRight_, histoTypeV[16], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                    this->drawAll(ui->dutAlignmentResXYvsYXSize2CanvasLeft , histoTypeV[14], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
-                    this->drawAll(ui->dutAlignmentResXYvsYXSize2CanvasRight, histoTypeV[17], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(dutAlignmentResXYvsYXSize2CanvasLeft_ , histoTypeV[14], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(dutAlignmentResXYvsYXSize2CanvasRight_, histoTypeV[17], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                    this->drawAll(ui->dutAlignmentResXYvsXYCanvasLeft      , histoTypeV[18], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
-                    this->drawAll(ui->dutAlignmentResXYvsXYCanvasRight     , histoTypeV[21], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(dutAlignmentResXYvsXYCanvasLeft_      , histoTypeV[18], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(dutAlignmentResXYvsXYCanvasRight_     , histoTypeV[21], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                    this->drawAll(ui->dutAlignmentResXYvsXYSize1CanvasLeft , histoTypeV[19], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
-                    this->drawAll(ui->dutAlignmentResXYvsXYSize1CanvasRight, histoTypeV[22], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(dutAlignmentResXYvsXYSize1CanvasLeft_ , histoTypeV[19], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(dutAlignmentResXYvsXYSize1CanvasRight_, histoTypeV[22], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
 
-                    this->drawAll(ui->dutAlignmentResXYvsXYSize2CanvasLeft , histoTypeV[20], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
-                    this->drawAll(ui->dutAlignmentResXYvsXYSize2CanvasRight, histoTypeV[23], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(dutAlignmentResXYvsXYSize2CanvasLeft_ , histoTypeV[20], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
+                    this->drawAll(dutAlignmentResXYvsXYSize2CanvasRight_, histoTypeV[23], geo->first, "", 0, 0, dutPlots, dutPlots, tPad);
                 }
             }
             else
@@ -1039,9 +1134,9 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
         if(subFunc == &HManager::makeAdcDistributions2)
         {
             ui->clusterResultsTab->setCurrentIndex(4);
-            this->drawAll(ui->chargeADCCanvas,      fullPaths[0]);
-            this->drawAll(ui->chargeElectronsCanvas,fullPaths[1]);
-            this->drawAll(ui->clustersCanvas       ,fullPaths[1]);
+            this->drawAll(chargeADCCanvas_      , fullPaths[0]);
+            this->drawAll(chargeElectronsCanvas_, fullPaths[1]);
+            this->drawAll(clustersCanvas_       , fullPaths[1]);
         }
         else if(subFunc == &HManager::makeResidualDistributions)
         {
@@ -1054,31 +1149,31 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
                 residualsType_ = fullPaths;
                 lowRange = ui->residualRangeLowCB->currentText().toDouble() ;
                 higRange = ui->residualRangeHigCB->currentText().toDouble() ;
-                this->drawAll(ui->residualsSynopticViewLeftCanvas , fullPaths[0], "", "", lowRange, higRange);
-                this->drawAll(ui->residualsSynopticViewRightCanvas, fullPaths[1], "", "", lowRange, higRange);
+                this->drawAll(residualsSynopticViewLeftCanvas_ , fullPaths[0], "", "", lowRange, higRange);
+                this->drawAll(residualsSynopticViewRightCanvas_, fullPaths[1], "", "", lowRange, higRange);
             }
             else if( theHManager_->getResidualsToPlot() == "showPulls" )
             {
-                this->drawAll(ui->residualsPullsLeftCanvas , fullPaths[0], "", "", lowRange, higRange);
-                this->drawAll(ui->residualsPullsRightCanvas, fullPaths[1], "", "", lowRange, higRange);
+                this->drawAll(residualsPullsLeftCanvas_ , fullPaths[0], "", "", lowRange, higRange);
+                this->drawAll(residualsPullsRightCanvas_, fullPaths[1], "", "", lowRange, higRange);
             }
             else if( theHManager_->getResidualsToPlot() == "showScatterResiduals" )
             {
 
-                this->drawAll(ui->residuals2DResidualsVsCoordinateLeftCanvas , fullPaths[0], "", "", lowRange, higRange);
-                this->drawAll(ui->residuals2DResidualsVsCoordinateRightCanvas, fullPaths[1], "", "", lowRange, higRange);
+                this->drawAll(residuals2DResidualsVsCoordinateLeftCanvas_ , fullPaths[0], "", "", lowRange, higRange);
+                this->drawAll(residuals2DResidualsVsCoordinateRightCanvas_, fullPaths[1], "", "", lowRange, higRange);
                 fullPaths = theHManager_->makeMeanScatterResidual(fullPaths, true);
                 if     ( ui->xResidualZRotationRB->isChecked() ||
                          ui->yResidualZRotationRB->isChecked()    )
                 {
-                    this->drawAll(ui->residualsResidualsVsCoordinateLeftCanvas , fullPaths[0], "", "COLZ");
-                    this->drawAll(ui->residualsResidualsVsCoordinateRightCanvas, fullPaths[1], "", "COLZ");
+                    this->drawAll(residualsResidualsVsCoordinateLeftCanvas_ , fullPaths[0], "", "COLZ");
+                    this->drawAll(residualsResidualsVsCoordinateRightCanvas_, fullPaths[1], "", "COLZ");
                 }
                 else if( ui->xResidualYRotationRB->isChecked() ||
                          ui->yResidualXRotationRB->isChecked()    )
                 {
-                    this->drawAll(ui->residualsResidualsVsCoordinateLeftCanvas , fullPaths[2], "", "COLZ");
-                    this->drawAll(ui->residualsResidualsVsCoordinateRightCanvas, fullPaths[3], "", "COLZ");
+                    this->drawAll(residualsResidualsVsCoordinateLeftCanvas_ , fullPaths[2], "", "COLZ");
+                    this->drawAll(residualsResidualsVsCoordinateRightCanvas_, fullPaths[3], "", "COLZ");
                 }
             }
 
@@ -1102,22 +1197,42 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
 //=============================================================================
 void mainTabs::endThreadSettings(threadEnd_Function function, HManager::stringVDef histoType)
 {
-    STDLINE("mainTabs::endThreadSettings()",ACRed);
+    STDLINE("Closing thread...",ACYellow);
     (this->*function)(histoType);
-    STDLINE("mainTabs::endThreadSettings()",ACGreen);
+    STDLINE("Thread closed!"   ,ACGreen );
 }
 //=============================================================================
 void mainTabs::advanceProgressBar2()
 {
     ui->parseProgressBar->setValue(theThreader_->getCurrentIteration());
 
-    bool                           success = false;
-    if(theThreader_->isFinished()) success = true;
+//    bool                           success = false;
+//    if(theThreader_->isFinished()) success = true;
 
     if( !theThreader_->isRunning())
     {
         STDLINE("All events have been processed",ACPurple) ;
         timer2_->stop();
+        if( !theBenchmark_ )
+        {
+            STDLINE("=============== No Benchmark was setup =================",ACWhite) ;
+        }
+        else
+        {
+            STDLINE("=============== Benchmark =====================",ACWhite) ;
+            cout << endl ;
+            theBenchmark_->Stop(theThreadProcess_.c_str());
+            Float_t realTime = 0 ;
+            Float_t CPUTime  = 0 ;
+            cout << "                      " ;
+            theBenchmark_->Summary(realTime, CPUTime);
+            cout << endl ;
+            ss_.str("") ; ss_ << "Process: " << theThreadProcess_ << "\t\t\tElapsed time: " << realTime << "\tCPU time: " << CPUTime << "\n";
+            ui->benchmarksTE->insertPlainText(ss_.str().c_str()) ;
+            STDLINE("=============== Benchmark =====================",ACWhite) ;
+        }
+        delete theBenchmark_ ;
+        theBenchmark_ = NULL ;
         ui->parseProgressBar->setValue(ui->parseProgressBar->maximum()) ;
         //this->endProcessSettings(theThreader_->getCurrentProcess(),success);
     }
@@ -1259,6 +1374,99 @@ bool mainTabs::loadGeometry(QString type)
     showGeometry();
     theGeometry_->dump();
 
+    Geometry::detectorsMapDef dets = theGeometry_->getDetectors() ;
+    ss_.str("") ;
+    int row  = 0 ;
+    int rows = 0 ;
+    for(Geometry::detectorsMapDef::iterator d=dets.begin(); d!=dets.end(); ++d)
+    {
+        rows += d->second->getNumberOfROCs();
+    }
+    ui->detGeoFileDetailsTW->setRowCount(rows);
+    for(Geometry::detectorsMapDef::iterator d=dets.begin(); d!=dets.end(); ++d)
+    {
+        ss_.str("") ; ss_ << d->second->getID() ;
+        QTableWidgetItem *rItemA = new QTableWidgetItem(ss_.str().c_str());
+        rItemA->setTextAlignment(Qt::AlignVCenter);
+        rItemA->setTextAlignment(Qt::AlignRight);
+        ui->detGeoFileDetailsTW->setItem(row, 0, rItemA);
+        ui->detGeoFileDetailsTW->setColumnWidth(0, 115) ;
+
+        ss_.str("") ; ss_ << d->second->getName() ;
+        QTableWidgetItem *rItemB = new QTableWidgetItem(ss_.str().c_str());
+        rItemB->setTextAlignment(Qt::AlignVCenter);
+        rItemB->setTextAlignment(Qt::AlignRight);
+        ui->detGeoFileDetailsTW->setItem(row, 1, rItemB);
+        ui->detGeoFileDetailsTW->setColumnWidth(1, 80) ;
+
+        ss_.str("") ; ss_ << d->second->getNumberOfROCs() ;
+        QTableWidgetItem *rItemC = new QTableWidgetItem(ss_.str().c_str());
+        rItemC->setTextAlignment(Qt::AlignVCenter);
+        rItemC->setTextAlignment(Qt::AlignRight);
+        ui->detGeoFileDetailsTW->setItem(row, 2, rItemC);
+        ui->detGeoFileDetailsTW->setColumnWidth(2, 50) ;
+
+        ss_.str("") ; ss_ << d->second->getDetectorLengthX() ;
+        QTableWidgetItem *rItemD = new QTableWidgetItem(ss_.str().c_str());
+        rItemD->setTextAlignment(Qt::AlignVCenter);
+        rItemD->setTextAlignment(Qt::AlignRight);
+        ui->detGeoFileDetailsTW->setItem(row, 3, rItemD);
+        ui->detGeoFileDetailsTW->setColumnWidth(3, 70) ;
+
+        ss_.str("") ; ss_ << d->second->getDetectorLengthY() ;
+        QTableWidgetItem *rItemE = new QTableWidgetItem(ss_.str().c_str());
+        rItemE->setTextAlignment(Qt::AlignVCenter);
+        rItemE->setTextAlignment(Qt::AlignRight);
+        ui->detGeoFileDetailsTW->setItem(row, 4, rItemE);
+        ui->detGeoFileDetailsTW->setColumnWidth(4, 70) ;
+
+        ss_.str("") ;
+        QBrush b(QColor(255,255,255)) ;
+        if( d->second->isDUT() )
+        {
+            ss_ << "X";
+            b.setColor(QColor(255,121,116)) ;
+        }
+        QTableWidgetItem *rItemF = new QTableWidgetItem(ss_.str().c_str());
+        rItemF->setTextAlignment(Qt::AlignVCenter);
+        rItemF->setTextAlignment(Qt::AlignRight);
+        rItemF->setBackground(b) ;
+        ui->detGeoFileDetailsTW->setItem(row, 5, rItemF);
+        ui->detGeoFileDetailsTW->setColumnWidth(5, 40) ;
+
+        for(unsigned int r=0; r<d->second->getNumberOfROCs(); ++r)
+        {
+            ROC * theROC = d->second->getROCByPosition(r) ;
+
+            ss_.str("") ; ss_ << theROC->getID();
+            QTableWidgetItem *rItemG = new QTableWidgetItem(ss_.str().c_str());
+            rItemG->setTextAlignment(Qt::AlignVCenter);
+            rItemG->setTextAlignment(Qt::AlignRight);
+            ui->detGeoFileDetailsTW->setItem(row, 6, rItemG);
+            ui->detGeoFileDetailsTW->setColumnWidth(6, 40) ;
+
+            ss_.str("") ; ss_ << theROC->getNumberOfRows();
+            QTableWidgetItem *rItemH = new QTableWidgetItem(ss_.str().c_str());
+            rItemH->setTextAlignment(Qt::AlignVCenter);
+            rItemH->setTextAlignment(Qt::AlignRight);
+            ui->detGeoFileDetailsTW->setItem(row, 7, rItemH);
+            ui->detGeoFileDetailsTW->setColumnWidth(7, 50) ;
+
+            ss_.str("") ; ss_ << theROC->getNumberOfCols();
+            QTableWidgetItem *rItemI = new QTableWidgetItem(ss_.str().c_str());
+            rItemI->setTextAlignment(Qt::AlignVCenter);
+            rItemI->setTextAlignment(Qt::AlignRight);
+            ui->detGeoFileDetailsTW->setItem(row, 8, rItemI);
+            ui->detGeoFileDetailsTW->setColumnWidth(8, 50) ;
+
+            ss_.str("") ; ss_ << theROC->getCalibrationFilePath();
+            QTableWidgetItem *rItemD = new QTableWidgetItem(ss_.str().c_str());
+            rItemD->setTextAlignment(Qt::AlignVCenter);
+            rItemD->setTextAlignment(Qt::AlignRight);
+            ui->detGeoFileDetailsTW->setItem(row++, 9, rItemD);
+        }
+    }
+
     ui->loadedGeometryLE->setText   (fileName);
     ui->loadedGeometryLE->setToolTip(fileName);
     ui->xmlGeometryLE   ->setText   (theGeometry_->getGeometryFileName().c_str());
@@ -1315,8 +1523,8 @@ void mainTabs::on_showPixelCalibrationPB_clicked()
     gStyle->SetOptStat(1111) ;
     gStyle->SetOptFit(111111);
 
-    ui->loadCalibrationMainCanvas->GetCanvas()->cd();
-    ui->loadCalibrationMainCanvas->GetCanvas()->Pad()->SetObjectStat(true);
+    loadCalibrationMainCanvas_->GetCanvas()->cd();
+    loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(true);
     TH1* histo = theCalibrationLoader_->getHistogram(ui->loadCalibrationsTabPagePlaqSelectCB->currentText().toStdString(),
                                                      ui->calibrationROCSB->value(),
                                                      ui->calibrationRowSB->value(),
@@ -1328,8 +1536,8 @@ void mainTabs::on_showPixelCalibrationPB_clicked()
         return;
     histo->GetFunction(theFitter_->getCalibrationFitFunctionName())->Draw("same");
 
-    ui->loadCalibrationMainCanvas->GetCanvas()->Modified();
-    ui->loadCalibrationMainCanvas->GetCanvas()->Update();
+    loadCalibrationMainCanvas_->GetCanvas()->Modified();
+    loadCalibrationMainCanvas_->GetCanvas()->Update();
 
     //    theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString());
 
@@ -1415,13 +1623,13 @@ void mainTabs::showBeamProfiles_end(HManager::stringVDef histoType)
             {
                 histo = (TH1*) theHManager_->getHistogram(histoType[1], (*it).first );
                 theFitter_->gaussFit( histo );
-                ui->rawAlignmentSynpoticLeftCanvas->GetCanvas()->cd(pad)->Modified() ;
-                ui->rawAlignmentSynpoticLeftCanvas->GetCanvas()->cd(pad)->Update() ;
+                rawAlignmentSynpoticLeftCanvas_->GetCanvas()->cd(pad)->Modified() ;
+                rawAlignmentSynpoticLeftCanvas_->GetCanvas()->cd(pad)->Update() ;
 
                 histo = (TH1*) theHManager_->getHistogram(histoType[2], (*it).first );
                 theFitter_->gaussFit( histo );
-                ui->rawAlignmentSynpoticRightCanvas->GetCanvas()->cd(pad)->Modified();
-                ui->rawAlignmentSynpoticRightCanvas->GetCanvas()->cd(pad)->Update();
+                rawAlignmentSynpoticRightCanvas_->GetCanvas()->cd(pad)->Modified();
+                rawAlignmentSynpoticRightCanvas_->GetCanvas()->cd(pad)->Update();
             }
         }
         else
@@ -1449,8 +1657,8 @@ void mainTabs::showBeamProfiles_end(HManager::stringVDef histoType)
 
     //Draw histograms
     gStyle->SetOptFit(0);
-    this->drawAll(ui->rawAlignmentSynpoticLeftCanvas, histoType[1]);
-    this->drawAll(ui->rawAlignmentSynpoticRightCanvas,histoType[2]);
+    this->drawAll(rawAlignmentSynpoticLeftCanvas_ , histoType[1]);
+    this->drawAll(rawAlignmentSynpoticRightCanvas_, histoType[2]);
 
     ui->showBeamProfilesPB->setText("Fit")               ;
     ui->showBeamProfilesPB->update()                     ;
@@ -1495,10 +1703,10 @@ void mainTabs::on_rawAlignmentTabPagePlaqSelectCB_currentIndexChanged(QString pl
             ui->xProfileMeanLE->setText(QString::number(histo->GetMean()));
             ui->xProfileSigmaLE->setText(QString::number(histo->GetRMS()));
         }
-        ui->rawAlignmentLeftCanvas->GetCanvas()->cd();
+        rawAlignmentLeftCanvas_->GetCanvas()->cd();
         histo->Draw();
-        ui->rawAlignmentLeftCanvas->GetCanvas() ->Modified();
-        ui->rawAlignmentLeftCanvas->GetCanvas() ->Update()  ;
+        rawAlignmentLeftCanvas_->GetCanvas() ->Modified();
+        rawAlignmentLeftCanvas_->GetCanvas() ->Update()  ;
 
         //yProfile
         histo = (TH1*)theHManager_->getHistogram(histoType[2], plaqSelected_);
@@ -1514,10 +1722,10 @@ void mainTabs::on_rawAlignmentTabPagePlaqSelectCB_currentIndexChanged(QString pl
             ui->yProfileMeanLE->setText(QString::number(histo->GetMean()));
             ui->yProfileSigmaLE->setText(QString::number(histo->GetRMS()));
         }
-        ui->rawAlignmentRightCanvas->GetCanvas()->cd();
+        rawAlignmentRightCanvas_->GetCanvas()->cd();
         histo->Draw();
-        ui->rawAlignmentRightCanvas->GetCanvas()->Modified();
-        ui->rawAlignmentRightCanvas->GetCanvas()->Update()  ;
+        rawAlignmentRightCanvas_->GetCanvas()->Modified();
+        rawAlignmentRightCanvas_->GetCanvas()->Update()  ;
     }
 }
 //===========================================================================
@@ -1594,7 +1802,7 @@ void mainTabs::rawAlignmentFitCompare_end(HManager::stringVDef histoType)
     double Amp = 0 ;
     bool fisrtDrawn=false;
     int color=1    ;
-    ui->rawAlignmentLeftCanvas->GetCanvas()->cd();
+    rawAlignmentLeftCanvas_->GetCanvas()->cd();
 
     for (Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it )
     {
@@ -1628,7 +1836,7 @@ void mainTabs::rawAlignmentFitCompare_end(HManager::stringVDef histoType)
     Amp=0;
     fisrtDrawn=false;
     color=1;
-    ui->rawAlignmentRightCanvas->GetCanvas()->cd();
+    rawAlignmentRightCanvas_->GetCanvas()->cd();
     for (Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it )
     {
         histo = (TH1*)theHManager_->getHistogram( histoType[2], (*it).first );
@@ -1659,11 +1867,11 @@ void mainTabs::rawAlignmentFitCompare_end(HManager::stringVDef histoType)
 
     delete leg;
 
-    ui->rawAlignmentLeftCanvas->GetCanvas()->Modified() ;
-    ui->rawAlignmentLeftCanvas->GetCanvas()->Update()   ;
+    rawAlignmentLeftCanvas_->GetCanvas()->Modified() ;
+    rawAlignmentLeftCanvas_->GetCanvas()->Update()   ;
 
-    ui->rawAlignmentRightCanvas->GetCanvas()->Modified() ;
-    ui->rawAlignmentRightCanvas->GetCanvas()->Update()   ;
+    rawAlignmentRightCanvas_->GetCanvas()->Modified() ;
+    rawAlignmentRightCanvas_->GetCanvas()->Update()   ;
 }
 //==============================================================================
 void mainTabs::on_writeAlignmentPB_clicked()
@@ -1735,22 +1943,34 @@ void mainTabs::writeAlignment_end(HManager::stringVDef histoType)
         {
             if (plaq%2 == 0)
             {
-                theGeometry_->getDetector(getPlaneID(stat, plaq))->setYPosition(theGeometry_->getDetector(getPlaneID(stat, plaq+1))->getYPosition());
-                theGeometry_->getDetector(getPlaneID(stat, plaq))->setYPositionError(90000/sqrt(12));
+                if( theGeometry_->getDetector(getPlaneID(stat, plaq+1)) != 0 )
+                {
+                  theGeometry_->getDetector(getPlaneID(stat, plaq))->setYPosition(theGeometry_->getDetector(getPlaneID(stat, plaq+1))->getYPosition());
+                  theGeometry_->getDetector(getPlaneID(stat, plaq))->setYPositionError(90000/sqrt(12));
+
+                }
             }
             else
             {
-                theGeometry_->getDetector(getPlaneID(stat, plaq))->setXPosition(theGeometry_->getDetector(getPlaneID(stat, plaq-1))->getXPosition());
-                theGeometry_->getDetector(getPlaneID(stat, plaq))->setXPositionError(90000/sqrt(12));
+                if( theGeometry_->getDetector(getPlaneID(stat, plaq-1)) != 0 )
+                {
+                  theGeometry_->getDetector(getPlaneID(stat, plaq))->setXPosition(theGeometry_->getDetector(getPlaneID(stat, plaq-1))->getXPosition());
+                  theGeometry_->getDetector(getPlaneID(stat, plaq))->setXPositionError(90000/sqrt(12));
+
+                }
             }
         }
     }
 
     //LUIGINO: thing added manually for calculating predicted errors on DUT, nothing more, must be cancelled soon
 
-    theGeometry_->getDetector(getPlaneID(2, 0))->setXPosition((theGeometry_->getDetector(getPlaneID(0, 7))->getXPosition()+ theGeometry_->getDetector(getPlaneID(1, 0))->getXPosition())/2);
-    theGeometry_->getDetector(getPlaneID(2, 0))->setYPosition((theGeometry_->getDetector(getPlaneID(0, 7))->getYPosition()+ theGeometry_->getDetector(getPlaneID(1, 0))->getYPosition())/2);
-
+    if(theGeometry_->getDetector(getPlaneID(0, 7)) != 0 && theGeometry_->getDetector(getPlaneID(1, 0)) != 0)
+    {
+        theGeometry_->getDetector(getPlaneID(2, 0))->setXPosition((theGeometry_->getDetector(getPlaneID(0, 7))->getXPosition()+
+                                                                   theGeometry_->getDetector(getPlaneID(1, 0))->getXPosition())/2);
+        theGeometry_->getDetector(getPlaneID(2, 0))->setYPosition((theGeometry_->getDetector(getPlaneID(0, 7))->getYPosition()+
+                                                                   theGeometry_->getDetector(getPlaneID(1, 0))->getYPosition())/2);
+    }
     theFileEater_->updateGeometry("geometry");
     theGeometry_ = theFileEater_->getGeometry();
     showGeometry();
@@ -1847,7 +2067,7 @@ void mainTabs::findAndFitTrack(std::string findMethod, std::string fitMethod)
     double maxPlanePoints = -1;
     if( ui->trackFinderPlanePointsCB->isChecked() ) maxPlanePoints = ui->trackFinderPlanePointsSB->value();
 
-    /*
+/*
     theFileEater_->setTolerances(ui->xRoadToleranceSB->value()*(1e-4)*CONVF,
                                  ui->yRoadToleranceSB->value()*(1e-4)*CONVF,
                                  trackPoints                               ,
@@ -1863,15 +2083,17 @@ void mainTabs::findAndFitTrack(std::string findMethod, std::string fitMethod)
     theTrackFinder_->setTrackingOperationParameters(findMethod,fitMethod,ui->includeDUTfindCB->isChecked());
     theFileEater_  ->setOperation(&fileEater::updateEvents2,theTrackFinder_);
     theTrackFinder_->setOperation(&trackFinder::findAndFitTracks);
+    STDLINE("Launching theFileEater_...",ACPurple) ;
     this->launchThread2(theFileEater_);
 }
 
 //=============================================================================
 void mainTabs::launchThread2(process * theProcess)
 {
+    process * activeProcess = NULL ;
+    activeProcess = theThreader_->getCurrentProcess();
     if(theThreader_->isRunning())
     {
-        process * activeProcess = theThreader_->getCurrentProcess();
         ss_.str("");
         ss_ << "WARNING: action temporarily disabled, " << activeProcess->getLabel() << " is running";
         STDLINE(ss_.str(),ACRed);
@@ -1885,10 +2107,13 @@ void mainTabs::launchThread2(process * theProcess)
 
     theThreader_->setProcess(theProcess);
     //theThreader_->runTheMethod(theProcess,&process::execute());
+    theBenchmark_     = new TBenchmark() ;
+    theThreadProcess_ = theProcess->getLabel() ;
+    theBenchmark_->Start(theThreadProcess_.c_str());
     theThreader_->start();
 
     ss_.str("");
-    ss_ << theProcess->getLabel() << " executing...";
+    ss_ << theProcess->getLabel() << "...";
     ui->parsingActivityLB->setText(QString::fromStdString(ss_.str()));
     STDLINE(ss_.str(),ACGreen);
 
@@ -1912,6 +2137,9 @@ template<class Class> void mainTabs::launchThread3(process * theProcess, Class *
     ui->parseProgressBar->setMaximum(theProcess->getMaxIterations());
 
     theThreader_->setProcess(theProcess  );
+    theBenchmark_     = new TBenchmark() ;
+    theThreadProcess_ = theProcess->getLabel() ;
+    theBenchmark_->Start(theThreadProcess_.c_str());
     theThreader_->setFuture(QtConcurrent::run(object,fn));
 
     ss_.str("");
@@ -1940,10 +2168,10 @@ void mainTabs::showChi2Distributions()
 void mainTabs::showChi2Distributions_end(HManager::stringVDef histoPaths)
 {
     redoChi2_ = false;
-    ui->trackFinderLeftCanvas->GetCanvas()->cd();
+    trackFinderLeftCanvas_->GetCanvas()->cd();
     theHManager_->getHistogram(histoPaths[0])->Draw();
-    ui->trackFinderLeftCanvas->GetCanvas()->Modified();
-    ui->trackFinderLeftCanvas->GetCanvas()->Update();
+    trackFinderLeftCanvas_->GetCanvas()->Modified();
+    trackFinderLeftCanvas_->GetCanvas()->Update();
 }
 //=============================================================================
 void mainTabs::on_showTrackErrorsOnDut_clicked()
@@ -1967,25 +2195,25 @@ void mainTabs::showTrackErrorsOnDut_end(HManager::stringVDef xyHList)
     std::vector<Detector*> DUTs = theGeometry_->getDUTs();
     int hNum = DUTs.size() ;
 
-    ui->trackFinderRightCanvas->GetCanvas()->Divide(2,hNum,0.001,0.001) ;
+    trackFinderRightCanvas_->GetCanvas()->Divide(2,hNum,0.001,0.001) ;
 
     int padNum = 1 ;
     for(std::vector<Detector*>::iterator it=DUTs.begin(); it!=DUTs.end(); ++it)
     {
-        ui->trackFinderRightCanvas->GetCanvas()->cd(padNum);
+        trackFinderRightCanvas_->GetCanvas()->cd(padNum);
         theHManager_->getHistogram(xyHList[0],(*it)->getID())->Draw();
         padNum += 2 ;
     }
     padNum = 2 ;
     for(std::vector<Detector*>::iterator it=DUTs.begin(); it!=DUTs.end(); ++it)
     {
-        ui->trackFinderRightCanvas->GetCanvas()->cd(padNum);
+        trackFinderRightCanvas_->GetCanvas()->cd(padNum);
         theHManager_->getHistogram(xyHList[1],(*it)->getID())->Draw();
         padNum += 2 ;
     }
 
-    ui->trackFinderRightCanvas->GetCanvas()->Modified();
-    ui->trackFinderRightCanvas->GetCanvas()->Update();
+   trackFinderRightCanvas_->GetCanvas()->Modified();
+   trackFinderRightCanvas_->GetCanvas()->Update();
 }
 //=============================================================================
 void mainTabs::on_showSlopeDistributions_clicked()
@@ -2009,7 +2237,7 @@ void mainTabs::showSlopeDistributions_end(HManager::stringVDef xyStringVec)
     redoChi2_ =  false;
 
     TH1 * histo;
-    ui->trackFinderLeftCanvas->GetCanvas()->cd();
+    trackFinderLeftCanvas_->GetCanvas()->cd();
     histo = (TH1*)theHManager_->getHistogram(xyStringVec[1]);
 
     if( !ui->fullRangeCB->isChecked() )
@@ -2024,10 +2252,10 @@ void mainTabs::showSlopeDistributions_end(HManager::stringVDef xyStringVec)
 
     histo->Draw();
 
-    ui->trackFinderLeftCanvas->GetCanvas()->Modified();
-    ui->trackFinderLeftCanvas->GetCanvas()->Update();
+    trackFinderLeftCanvas_->GetCanvas()->Modified();
+    trackFinderLeftCanvas_->GetCanvas()->Update();
 
-    ui->trackFinderRightCanvas->GetCanvas()->cd();
+    trackFinderRightCanvas_->GetCanvas()->cd();
     histo = (TH1*)theHManager_->getHistogram(xyStringVec[2]);
 
     if( !ui->fullRangeCB->isChecked() )
@@ -2042,8 +2270,8 @@ void mainTabs::showSlopeDistributions_end(HManager::stringVDef xyStringVec)
 
     histo->Draw();
 
-    ui->trackFinderRightCanvas->GetCanvas()->Modified();
-    ui->trackFinderRightCanvas->GetCanvas()->Update();
+    trackFinderRightCanvas_->GetCanvas()->Modified();
+    trackFinderRightCanvas_->GetCanvas()->Update();
 
     ui->trackFinderFitSlopePB->setEnabled(true);
     ui->applySlopeLimitsPB->setEnabled(true)   ;
@@ -2056,7 +2284,7 @@ void mainTabs::on_applySlopeLimitsPB_clicked()
 //=============================================================================
 void mainTabs::setCBslopeLimits(TObject *obj,unsigned int event,TCanvas *)
 {
-    TQtWidget *tipped = (TQtWidget *)sender();
+    QWidget *tipped = (QWidget *)sender();          
     ss_.str("");
     ss_ << obj->ClassName();
     std::string className = ss_.str();
@@ -2197,10 +2425,10 @@ void mainTabs::trackFinderFitSlope_end(HManager::stringVDef xyStringVec)
     theHManager_->getHistogram(xyStringVec[1])->Draw();
     theHManager_->getHistogram(xyStringVec[2])->Draw();
 
-    ui->trackFinderLeftCanvas ->GetCanvas()->Modified() ;
-    ui->trackFinderLeftCanvas ->GetCanvas()->Update()   ;
-    ui->trackFinderRightCanvas->GetCanvas()->Modified();
-    ui->trackFinderRightCanvas->GetCanvas()->Update()  ;
+    trackFinderLeftCanvas_ ->GetCanvas()->Modified() ;
+    trackFinderLeftCanvas_ ->GetCanvas()->Update()   ;
+    trackFinderRightCanvas_->GetCanvas()->Modified();
+    trackFinderRightCanvas_->GetCanvas()->Update()  ;
 
     ui->trackFinderSlopeAlignPB->setEnabled(true);
 }
@@ -2253,9 +2481,22 @@ void mainTabs::showResiduals()
     if( ui->residualsOnlyClusterSizeCB ->isChecked()) onlyClusterSizeFilter = ui->residualsOnlyClusterSizeSB ->value();
 
     theHManager_->resetResidualCounters();
-    theHManager_->setResidualFilters(type,chi2filter,maxTracksFilter,maxPlanePointsFilter,minTrackHitsFilter,maxClusterSizeFilter,onlyClusterSizeFilter);
-    theHManager_->setOperation(&HManager::eventsCycle,&HManager::makeResidualDistributions);
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+    theHManager_->setResidualFilters   (
+                                        type,
+                                        chi2filter,
+				        maxTracksFilter,
+				        maxPlanePointsFilter,
+				        minTrackHitsFilter,
+				        maxClusterSizeFilter,
+				        onlyClusterSizeFilter
+				       );
+    theHManager_->setOperation        (
+                                       &HManager::eventsCycle,
+				       &HManager::makeResidualDistributions
+				      );
+    theHManager_->setRunSubDir        ( 
+                                       theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) 
+				      );
     this->launchThread2(theHManager_);
 }
 
@@ -2408,31 +2649,31 @@ void mainTabs::showResiduals2()
     {
         lowRange = ui->residualRangeLowCB->currentText().toDouble() ;
         higRange = ui->residualRangeHigCB->currentText().toDouble() ;
-        this->drawAll(ui->residualsSynopticViewLeftCanvas , histoType[0], "", "", lowRange, higRange);
-        this->drawAll(ui->residualsSynopticViewRightCanvas, histoType[1], "", "", lowRange, higRange);
+        this->drawAll(residualsSynopticViewLeftCanvas_ , histoType[0], "", "", lowRange, higRange);
+        this->drawAll(residualsSynopticViewRightCanvas_, histoType[1], "", "", lowRange, higRange);
     }
     if( sender() == ui->showPullsPB)
     {
-        this->drawAll(ui->residualsPullsLeftCanvas , histoType[0], "", "", lowRange, higRange);
-        this->drawAll(ui->residualsPullsRightCanvas, histoType[1], "", "", lowRange, higRange);
+        this->drawAll(residualsPullsLeftCanvas_ , histoType[0], "", "", lowRange, higRange);
+        this->drawAll(residualsPullsRightCanvas_, histoType[1], "", "", lowRange, higRange);
     }
     if( sender() == ui->showScatterResidualsPB )
     {
 
-        this->drawAll(ui->residuals2DResidualsVsCoordinateLeftCanvas , histoType[0], "", "", lowRange, higRange);
-        this->drawAll(ui->residuals2DResidualsVsCoordinateRightCanvas, histoType[1], "", "", lowRange, higRange);
+        this->drawAll(residuals2DResidualsVsCoordinateLeftCanvas_ , histoType[0], "", "", lowRange, higRange);
+        this->drawAll(residuals2DResidualsVsCoordinateRightCanvas_, histoType[1], "", "", lowRange, higRange);
         histoType = theHManager_->makeMeanScatterResidual(histoType, true);
         if     ( ui->xResidualZRotationRB->isChecked() ||
                  ui->yResidualZRotationRB->isChecked()    )
         {
-            this->drawAll(ui->residualsResidualsVsCoordinateLeftCanvas , histoType[0], "", "COLZ");
-            this->drawAll(ui->residualsResidualsVsCoordinateRightCanvas, histoType[1], "", "COLZ");
+            this->drawAll(residualsResidualsVsCoordinateLeftCanvas_ , histoType[0], "", "COLZ");
+            this->drawAll(residualsResidualsVsCoordinateRightCanvas_, histoType[1], "", "COLZ");
         }
         else if( ui->xResidualYRotationRB->isChecked() ||
                  ui->yResidualXRotationRB->isChecked()    )
         {
-            this->drawAll(ui->residualsResidualsVsCoordinateLeftCanvas , histoType[2], "", "COLZ");
-            this->drawAll(ui->residualsResidualsVsCoordinateRightCanvas, histoType[3], "", "COLZ");
+            this->drawAll(residualsResidualsVsCoordinateLeftCanvas_ , histoType[2], "", "COLZ");
+            this->drawAll(residualsResidualsVsCoordinateRightCanvas_, histoType[3], "", "COLZ");
         }
     }
 
@@ -2577,8 +2818,8 @@ void mainTabs::on_trackFitterFitPB_clicked()
         //        this->drawAll(ui->residualsSynopticViewRightCanvas, residualsType_.second, "", lowRange, higRange);
     }
 
-    this->drawAll(ui->residualsSynopticViewLeftCanvas , residualsType_[0], "", "", lowRange, higRange);
-    this->drawAll(ui->residualsSynopticViewRightCanvas, residualsType_[1], "", "", lowRange, higRange);
+    this->drawAll(residualsSynopticViewLeftCanvas_ , residualsType_[0], "", "", lowRange, higRange);
+    this->drawAll(residualsSynopticViewRightCanvas_, residualsType_[1], "", "", lowRange, higRange);
 
     //    this->drawAll(ui->residualsSynopticViewLeftCanvas , "Xresiduals", "", "", lowRange, higRange);
     //    this->drawAll(ui->residualsSynopticViewRightCanvas, "Yresiduals", "", "", lowRange, higRange);
@@ -2767,17 +3008,17 @@ void mainTabs::on_residualsTabPagePlaqSelectCB_currentIndexChanged(const QString
         ui->yResidualSigmaLE->setText(QString::fromStdString(ss_.str()));
     }
 
-    ui->residualsManualFitLeftCanvas->GetCanvas()->cd() ;
+    residualsManualFitLeftCanvas_->GetCanvas()->cd() ;
     gStyle->SetOptFit(11);
     theHManager_->getHistogram(residualsType_[0], plaqSelected_)->Draw() ;
-    ui->residualsManualFitRightCanvas->GetCanvas()->cd();
+    residualsManualFitRightCanvas_->GetCanvas()->cd();
     gStyle->SetOptFit(11);
     theHManager_->getHistogram(residualsType_[1], plaqSelected_)->Draw();
 
-    ui->residualsManualFitLeftCanvas ->GetCanvas()->Modified();
-    ui->residualsManualFitLeftCanvas ->GetCanvas()->Update()  ;
-    ui->residualsManualFitRightCanvas->GetCanvas()->Modified();
-    ui->residualsManualFitRightCanvas->GetCanvas()->Update()  ;
+    residualsManualFitLeftCanvas_ ->GetCanvas()->Modified();
+    residualsManualFitLeftCanvas_ ->GetCanvas()->Update()  ;
+    residualsManualFitRightCanvas_->GetCanvas()->Modified();
+    residualsManualFitRightCanvas_->GetCanvas()->Update()  ;
 }
 //===========================================================================
 void mainTabs::swapResidualsFitCBs (bool checked )
@@ -2875,8 +3116,8 @@ void mainTabs::on_FitScatterResidualsPB_clicked()
 
     //gStyle->SetOptFit (1111);
     //gStyle->SetOptStat(1111);
-    this->drawAll(ui->residualsResidualsVsCoordinateLeftCanvas , X_RES_Y_POS_MEAN);
-    this->drawAll(ui->residualsResidualsVsCoordinateRightCanvas, Y_RES_X_POS_MEAN);
+    this->drawAll(residualsResidualsVsCoordinateLeftCanvas_ , X_RES_Y_POS_MEAN);
+    this->drawAll(residualsResidualsVsCoordinateRightCanvas_, Y_RES_X_POS_MEAN);
 }
 //============================================================================
 void mainTabs::on_applyZrotationsPB_clicked()
@@ -3033,7 +3274,7 @@ void mainTabs::on_showSelectedEventsElectronDistribuitionPB_clicked()
 //===================================================================================================
 void mainTabs::on_geometrySetPB_clicked()
 {
-    std::cout << __PRETTY_FUNCTION__ << "They never call me!" << std::endl;
+    STDLINE("They never call me!",ACWhite);
     if(theGeometry_ == NULL) return;
 
     for(std::map<std::string,GeometryParameters*>::iterator it=geometryParameters_.begin(); it!=geometryParameters_.end(); it++ )
@@ -3304,7 +3545,7 @@ void mainTabs::on_showHitsFreqPB_clicked()
         histoType = theHManager_->eventsCycle();
     }
 
-    this->drawAll(ui->eventDisplayLeftCanvas, histoType[0]);
+    this->drawAll(eventDisplayLeftCanvas_, histoType[0]);
 }
 //=============================================================================
 void mainTabs::on_eventSelectedSpinBox_valueChanged(int eventSelected)
@@ -3348,13 +3589,13 @@ void mainTabs::on_eventSelectedSpinBox_valueChanged(int eventSelected)
     }
 
 
-    ui->eventDisplayRightCanvas->GetCanvas()->cd();
+    eventDisplayRightCanvas_->GetCanvas()->cd();
     theHManager_->getHistogram(histoType, plaqSelected_)->Draw("COLZ")    ;
 
     if(ui->showAllPlaqPB->isChecked()) this->showAllPlaq();
 
-    ui->eventDisplayRightCanvas->GetCanvas()->Modified() ;
-    ui->eventDisplayRightCanvas->GetCanvas()->Update()   ;
+    eventDisplayRightCanvas_->GetCanvas()->Modified() ;
+    eventDisplayRightCanvas_->GetCanvas()->Update()   ;
 }
 //=================================================================
 void mainTabs::on_eventDisplayTabPagePlaqSelectCB_currentIndexChanged(QString plaqSelected)
@@ -3378,11 +3619,11 @@ void mainTabs::showAllPlaq()
 {
     if(ui->selectRawEventsRB->isChecked())
     {
-        this->drawAll(ui->eventDisplayLeftCanvas, "rawEvent", "", "COLZ");
+        this->drawAll(eventDisplayLeftCanvas_, "rawEvent", "", "COLZ");
     }
     if(ui->selectClusterRB->isChecked())
     {
-        this->drawAll(ui->eventDisplayLeftCanvas, "clusterEvent", "", "COLZ");
+        this->drawAll(eventDisplayLeftCanvas_, "clusterEvent", "", "COLZ");
     }
 }
 //===========================================================================
@@ -3435,7 +3676,7 @@ void mainTabs::on_eventDisplayShowBeamSpotsPB_clicked()
     theHManager_->setSubProcessFunction(&HManager::makeBeamSpots2);
     std::string histoType = theHManager_->eventsCycle()[0];
 
-    this->drawAll(ui->eventDisplayLeftCanvas, histoType, "", "COLZ");
+    this->drawAll(eventDisplayLeftCanvas_, histoType, "", "COLZ");
 }
 //===========================================================================
 void mainTabs::on_eventDisplayDUTprojectionPB_clicked()
@@ -3463,7 +3704,7 @@ void mainTabs::on_show3dFittedTracksBeamPB_clicked()
 
     std::string histoType = theHManager_->makeFittedTracksBeam(selectedEvents_)[0];
 
-    this->drawAll(ui->eventDisplayLeftCanvas, histoType, "", "COLZ");
+    this->drawAll(eventDisplayLeftCanvas_, histoType, "", "COLZ");
 }
 
 //===========================================================================
@@ -3490,10 +3731,10 @@ void mainTabs::buildClusterPlots()
 //===========================================================================
 void mainTabs::buildClusterPlots_end(HManager::stringVDef histoType)
 {
-    this->drawAll(ui->beamSpotProjXCanvas,histoType[1]);
-    this->drawAll(ui->beamSpotProjYCanvas,histoType[2]);
-    this->drawAll(ui->beamSpot2DCanvas,   histoType[3]);
-    this->drawAll(ui->clustersCanvas,     histoType[0]);
+    this->drawAll(beamSpotProjXCanvas_,histoType[1]);
+    this->drawAll(beamSpotProjYCanvas_,histoType[2]);
+    this->drawAll(beamSpot2DCanvas_,   histoType[3]);
+    this->drawAll(clustersCanvas_,     histoType[0]);
 }
 
 //===========================================================================
@@ -3689,14 +3930,15 @@ void mainTabs::on_reconstructEventsPB_clicked()
 
     std::string inputFile = "";
 
-    //    for(int i=0; i<ui->selectedFilesLW->count(); ++i)
-    //    {
-    //        std::string fileName = ui->selectedFilesLW->item(i)->text().toStdString() ;
-    //        inputFiles_.push_back(fileName) ;
-    //        ss_.str("");
-    //        ss_ << i << "]\t" << fileName ;
-    //        STDLINE(ss_.str(),ACGreen) ;
-    //    }
+    for(int i=0; i<ui->selectedFilesLW->count(); ++i)
+    {
+        std::string fileName = ui->selectedFilesLW->item(i)->text().toStdString() ;
+        inputFiles_.push_back(fileName) ;
+        ss_.str("");
+        ss_ << i << "]\t" << fileName ;
+        STDLINE(ss_.str(),ACGreen) ;
+    }
+
     for(int i=0; i<ui->selectedFilesLW->count(); ++i)
     {
         if(ui->selectedFilesLW->item(i)->isSelected()) continue;
@@ -3704,6 +3946,7 @@ void mainTabs::on_reconstructEventsPB_clicked()
         ui->selectedFilesLW->item(i)->setSelected(true);
         break;
     }
+
     if(inputFile.empty())
     {
         STDLINE("ALL files have been processed",ACGreen);
@@ -3715,11 +3958,11 @@ void mainTabs::on_reconstructEventsPB_clicked()
     theFileEater_->openFile( ui->geometryLE->text().toStdString() );
     //theFileEater_->setInputFileNames( inputFiles_ );
 
-    double chi2Cut = -1 ;
-    if( ui->trackFinderChi2cutCB->isChecked() ) chi2Cut = ui->trackFinderChi2cutSB->value() ;
-    double trackPoints = -1;
-    if( ui->trackFinderTrackPointsCB->isChecked() ) trackPoints = ui->trackFinderTrackPointsSB->value();
-    double maxPlanePoints = -1;
+    double chi2Cut        = -1 ;
+    double trackPoints    = -1 ;
+    double maxPlanePoints = -1 ;
+    if( ui->trackFinderChi2cutCB->isChecked()     ) chi2Cut        = ui->trackFinderChi2cutSB->value() ;
+    if( ui->trackFinderTrackPointsCB->isChecked() ) trackPoints    = ui->trackFinderTrackPointsSB->value();
     if( ui->trackFinderPlanePointsCB->isChecked() ) maxPlanePoints = ui->trackFinderPlanePointsSB->value();
 
     theTrackFinder_->setTrackSearchParameters(ui->xRoadToleranceSB->value()*(1e-4)*CONVF,
@@ -3730,14 +3973,14 @@ void mainTabs::on_reconstructEventsPB_clicked()
     STDLINE("",ACWhite) ;
 
     if (ui->maxRawEventsAllCB->isChecked())
-        theFileEater_->setEventsLimit( ui->maxRawEventsAllSB->value() );
-    else   theFileEater_->setEventsLimit( -1 );
+           theFileEater_->setEventsLimit( ui->maxRawEventsAllSB->value() );
+    else   theFileEater_->setEventsLimit( -1                             );
 
-    theFileEater_->setOperation(&fileEater::fullReconstruction,theClusterizer_);
+    theFileEater_  ->setOperation(&fileEater::fullReconstruction,theClusterizer_);
     theTrackFinder_->setOperation(&trackFinder::findAndFitTracks);//Might not work, used to be road search, but road search no longer fits
-    theFileEater_->addSubProcess(theTrackFinder_);
+    theFileEater_  ->addSubProcess(theTrackFinder_);
     theTrackFitter_->setOperation(&trackFitter::makeFittedTracksResiduals);
-    theFileEater_->addSubProcess(theTrackFitter_);
+    theFileEater_  ->addSubProcess(theTrackFitter_);
 
     theFileEater_->setInputFileName(inputFile);
     this->launchThread2(theFileEater_);
@@ -4077,4 +4320,11 @@ void mainTabs::setAlignmentBoxes(const QString alignmentMethod)
         fixStrips(0);
     }
 
+}
+
+//================================================================================
+void mainTabs::on_clearBulkFilesPB_clicked()
+{
+    ui->selectedFilesLW->clear() ;
+    ui->geometryLE->clear() ;
 }

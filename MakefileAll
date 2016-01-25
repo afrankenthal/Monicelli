@@ -142,6 +142,9 @@ clean:
 	cd plugins/customTableWidget  && make clean && cd ../ 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTextEdit =======================================<<$(ACPlain)'
 	cd plugins/customTextEdit && make clean && cd ../ 
+	rm -f tmp/*
+	rm -f *.pcm
+	rm -f Monicelli
 
 ###############################################################
 distclean:
@@ -169,3 +172,4 @@ distclean:
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTextEdit =======================================<<$(ACPlain)'
 	cd plugins/customTextEdit && make distclean && qmake
+	rm -f tmp/*

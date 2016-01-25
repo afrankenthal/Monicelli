@@ -1,12 +1,33 @@
-/****************************************************************************
-** Authors: Dario Menasce, Stefano Terzo
-**
-** I.N.F.N. Milan-Bicocca
-** Piazza  della Scienza 3, Edificio U2
-** Milano, 20126
-**
-****************************************************************************/
-
+/*===============================================================================
+ * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
+ * 
+ * Copyright (C) 2014 
+ *
+ * Authors:
+ *
+ * Dario Menasce      (INFN) 
+ * Luigi Moroni       (INFN)
+ * Jennifer Ngadiuba  (INFN)
+ * Stefano Terzo      (INFN)
+ * Lorenzo Uplegger   (FNAL)
+ * Luigi Vigani       (INFN)
+ *
+ * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ================================================================================*/
+ 
 #ifndef _Detector_h_
 #define _Detector_h_
 
@@ -52,38 +73,38 @@ public:
     typedef        std::pair<int,int       >       rowColPair ;
 
     void           setupVariables                (void);
-    ROC*           convertPixelToROC             (unsigned int* detector_row, unsigned int* detector_col);
-    void           convertPixelFromROC           (ROC* roc, unsigned int* roc_row, unsigned int* roc_col);
-    void           fromGlobalToLocal             (double* x, double* y, double* z,    double* xErr, double* yErr, double* zErr);
-    void           fromGlobalToLocal             (double* x, double* y, double* z);
-    double         fromLocalToGlobal             (double* x, double* y, double* z,    double* xErr, double* yErr, double* zErr);
-    void           fromLocalToGlobal             (double* x, double* y, double* z);
-    void           fromLocalToGlobalNoRotation   (double* x, double* y, double* xErr, double* yErr);
-    void           flipPositionLocal             (double* x, double* y, double* xErr=0, double* yErr=0  );
-    void           flipBackPositionLocal         (double* x, double* y, double* xErr=0, double* yErr=0  );
-    void           flipPixel                     (unsigned int* row, unsigned int* col                  );
-    void           flipBackPixel                 (unsigned int* row, unsigned int* col                  );
-    void           flipDistance                  (double* deltaX, double* deltaY                        );
-    void           flipBackDistance              (double* deltaX, double* deltaY                        );
+    ROC*           convertPixelToROC             (unsigned int* detector_row, unsigned int* detector_col                                                               );
+    void           convertPixelFromROC           (ROC         * roc,          unsigned int* roc_row,     unsigned int* roc_col                                         );
+    void           fromGlobalToLocal             (double      * x,            double      * y,           double      * z,      double* xErr, double* yErr, double* zErr);
+    void           fromGlobalToLocal             (double      * x,            double      * y,           double      * z                                               );
+    double         fromLocalToGlobal             (double      * x,            double      * y,           double      * z,      double* xErr, double* yErr, double* zErr);
+    void           fromLocalToGlobal             (double      * x,            double      * y,           double      * z                                               );
+    void           fromLocalToGlobalNoRotation   (double      * x,            double      * y,           double      * xErr,   double* yErr                            );
+    void           flipPositionLocal             (double      * x,            double      * y,           double      * xErr=0, double* yErr=0                          );
+    void           flipBackPositionLocal         (double      * x,            double      * y,           double      * xErr=0, double* yErr=0                          );
+    void           flipPixel                     (unsigned int* row,          unsigned int* col                                                                        );
+    void           flipBackPixel                 (unsigned int* row,          unsigned int* col                                                                        );
+    void           flipDistance                  (double      * deltaX,       double      * deltaY                                                                     );
+    void           flipBackDistance              (double      * deltaX,       double      * deltaY                                                                     );
 
-    bool           switchXYFromLocaToGlobal      (void);
+    bool           switchXYFromLocaToGlobal      (void                                    ) ;
 
-    matrix33Def    getRotationMatrix             (                                                      );
+    matrix33Def    getRotationMatrix             (                                        ) ;
 
-    unsigned int   getNumberOfCols               (bool global = false                     )                                  ;
-    unsigned int   getNumberOfRows               (bool global = false                     )                                  ;
+    unsigned int   getNumberOfCols               (bool         global = false             ) ;
+    unsigned int   getNumberOfRows               (bool         global = false             ) ;
     unsigned int   getLastCol                    (void                                    ) {return (this->getNumberOfCols()-1);}
     unsigned int   getLastRow                    (void                                    ) {return (this->getNumberOfRows()-1);}
-    ROC          * getROC                        (int chipID                              )                                  ;
-    ROC          * getROCByPosition              (unsigned int chipPosition)                                                 ;
+    ROC          * getROC                        (int          chipID                     ) ;
+    ROC          * getROCByPosition              (unsigned int chipPosition               ) ;
     ROC          * findROC                       (unsigned int row, unsigned int col      ) ;
-    unsigned int   getNumberOfROCs               ( void                                   ) {return numberOfROCs_            ;}
-    unsigned int   getROCPositionLocalX          (int chipID                              ) ;
-    unsigned int   getROCPositionLocalY          (int chipID                              ) ;
+    unsigned int   getNumberOfROCs               (void                                    ) {return numberOfROCs_              ;}
+    unsigned int   getROCPositionLocalX          (int          chipID                     ) ;
+    unsigned int   getROCPositionLocalY          (int          chipID                     ) ;
     unsigned int   getROCPositionLocalXFromCol   (unsigned int col                        ) ;
     unsigned int   getROCPositionLocalYFromRow   (unsigned int row                        ) ;
-    unsigned int   getNumberOfROCsLocalX         (void                                    ) {return xNumberOfROCs_           ;}
-    unsigned int   getNumberOfROCsLocalY         (void                                    ) {return yNumberOfROCs_           ;}
+    unsigned int   getNumberOfROCsLocalX         (void                                    ) {return xNumberOfROCs_             ;}
+    unsigned int   getNumberOfROCsLocalY         (void                                    ) {return yNumberOfROCs_             ;}
     //Locally cols are always in X and rows always in Y
     double         getPixelCenterLocalX          (unsigned int col                        ) ;
     double         getPixelCenterLocalY          (unsigned int row                        ) ;
@@ -91,10 +112,13 @@ public:
     double         getPixelLowEdgeLocalY         (unsigned int row                        ) ;
     double         getPixelPitchLocalX           (unsigned int col                        ) ;
     double         getPixelPitchLocalY           (unsigned int row                        ) ;
-    int            getPixelColFromLocalX         (double xLocal                           ) ;
-    int            getPixelRowFromLocalY         (double yLocal                           ) ;
-    rowColPair     getPixelCellFromLocal         (double x, double y                      ) ;
-    rowColPair     getPixelCellFromGlobal        (double x, double y, double z            ) ;
+    int            getPixelColFromLocalX         (double       xLocal                     ) ;
+    int            getPixelRowFromLocalY         (double       yLocal                     ) ;
+    rowColPair     getPixelCellFromLocal         (double       x,
+                                                  double       y                          ) ;
+    rowColPair     getPixelCellFromGlobal        (double       x,
+                                                  double       y,
+                                                  double       z                          ) ;
     double         getAlignmentPredictedGlobal   (ROOT::Math::SVector<double,4>& trackPars, matrix33Def& RInv, double z, double& predX, double& predY);
     void           getPredictedGlobal            (ROOT::Math::SVector<double,4>& trackPars, double& predX, double& predY, double& predZ) ;
     void           getPredictedLocal             (ROOT::Math::SVector<double,4>& trackPars, double& predX, double& predY) ;
@@ -142,7 +166,8 @@ public:
     void           setXBackFlipped               ( bool isIt                              ) {xBackFlipped_ = isIt          ;}
     void           setYBackFlipped               ( bool isIt                              ) {yBackFlipped_ = isIt          ;}
     void           setPosition                   (double x, double y, double z)             {xPosition_ = x; yPosition_ = y; zPosition_ = z;}
-    void           setNumberOfROCs               (unsigned int xNumberOfROCs, unsigned int yNumberOfROCs               );
+    void           setNumberOfROCs               (unsigned int xNumberOfROCs,
+                                                  unsigned int yNumberOfROCs              );
     void           setXNumberOfROCs              (unsigned int xNumberOfROCs)               {xNumberOfROCs_=xNumberOfROCs; this->updateNumberOfROCs() ;}
     void           setYNumberOfROCs              (unsigned int yNumberOfROCs)               {yNumberOfROCs_=yNumberOfROCs; this->updateNumberOfROCs() ;}
 
@@ -174,15 +199,15 @@ public:
 
 private:
     void           XYZRotation                (double* x, double* y, double* z,    double* xErr, double* yErr, double* zErr, bool backward = false);
-    void           XYZRotation                (double* x, double* y, double* z,    bool backward = false);
-    void           XRotation                  (double* y, double* z, double* yErr, double* zErr, bool backward = false);
-    void           YRotation                  (double* x, double* z, double* xErr, double* zErr, bool backward = false);
-    void           ZRotation                  (double* x, double* y, double* xErr, double* yErr, bool backward = false);
-    void           XRotation                  (double* y, double* z, bool backward = false);
-    void           YRotation                  (double* x, double* z, bool backward = false);
-    void           ZRotation                  (double* x, double* y, bool backward = false);
-    void           translateXY                (double* x, double* y, bool backward = false);
-    void           translateCorrection        (double* x, double* y, bool backward = false);
+    void           XYZRotation                (double* x, double* y, double* z,                                              bool backward = false);
+    void           XRotation                  (double* y, double* z, double* yErr, double* zErr,                             bool backward = false);
+    void           YRotation                  (double* x, double* z, double* xErr, double* zErr,                             bool backward = false);
+    void           ZRotation                  (double* x, double* y, double* xErr, double* yErr,                             bool backward = false);
+    void           XRotation                  (double* y, double* z,                                                         bool backward = false);
+    void           YRotation                  (double* x, double* z,                                                         bool backward = false);
+    void           ZRotation                  (double* x, double* y,                                                         bool backward = false);
+    void           translateXY                (double* x, double* y,                                                         bool backward = false);
+    void           translateCorrection        (double* x, double* y,                                                         bool backward = false);
 
     void           updateNumberOfROCs         (void){numberOfROCs_=xNumberOfROCs_*yNumberOfROCs_ ;}
 

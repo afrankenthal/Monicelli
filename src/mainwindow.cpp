@@ -1,18 +1,40 @@
-/****************************************************************************
-** Authors: Dario Menasce, Stefano Terzo
-**
-** I.N.F.N. Milan-Bicocca
-** Piazza  della Scienza 3, Edificio U2
-** Milano, 20126
-**
-****************************************************************************/
-
+/*===============================================================================
+ * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
+ * 
+ * Copyright (C) 2014 
+ *
+ * Authors:
+ *
+ * Dario Menasce      (INFN) 
+ * Luigi Moroni       (INFN)
+ * Jennifer Ngadiuba  (INFN)
+ * Stefano Terzo      (INFN)
+ * Lorenzo Uplegger   (FNAL)
+ * Luigi Vigani       (INFN)
+ *
+ * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ================================================================================*/
+ 
 #include <iostream>
 
 #include <QBrush>
 #include <QtGui>
 
 #include <TBrowser.h>
+#include <TSystem.h>
 
 #include "mainwindow.h"
 #include "mdichild.h"
@@ -24,6 +46,15 @@ MainWindow::MainWindow()
     path_ = QString(getenv("MonicelliDir")) ;
     this->initialize() ;
 
+    fRootTimer_ = new QTimer( this );                   // ToROOT6
+    QObject::connect(                                   // ToROOT6
+                     fRootTimer_,                       // ToROOT6
+                     SIGNAL(timeout()),                 // ToROOT6
+                     this,                              // ToROOT6
+                     SLOT(handle_root_events())         // ToROOT6
+                    );                                  // ToROOT6
+    fRootTimer_->start( 20 );                           // ToROOT6
+
     mdiArea      = new QMdiArea;
     windowMapper = new QSignalMapper(this);
 
@@ -33,9 +64,9 @@ MainWindow::MainWindow()
     mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     mdiArea->setVerticalScrollBarPolicy(  Qt::ScrollBarAsNeeded);
 
-    QLinearGradient gradient(0,mainWindowW_,0,mainWindowH_);
-    gradient.setColorAt(0, QColor::fromRgbF(10, 10, 10, 1));
-    gradient.setColorAt(1, QColor::fromRgbF(19, 19, 19, 0));
+    QLinearGradient gradient(0,mainWindowW_,0,mainWindowH_/4);
+    gradient.setColorAt(0.5, QColor::fromRgb( 0,  0,  0, 255));
+    gradient.setColorAt(1.0, QColor::fromRgb(60, 60, 60, 255));
 
     QBrush mdiAreaBrush(gradient);
     mdiArea->setBackground(mdiAreaBrush);
@@ -67,9 +98,11 @@ MainWindow::MainWindow()
 
     setUnifiedTitleAndToolBarOnMac(true);
 
-    theTabWidget_  = NULL ;
-    theHNavigator_ = NULL ;
-    theXMLEditor_  = NULL ;
+    theTabWidget_      = NULL ;
+    theHNavigator_     = NULL ;
+    theXMLEditor_      = NULL ;
+    
+    mainTabsActivated_ = false ;
 
     theFileEater_ = new fileEater();
     theHManager_  = new HManager(theFileEater_);
@@ -91,6 +124,7 @@ void MainWindow::initialize()
 void MainWindow::cleanClose()
 {
     STDLINE("Closing everything",ACRed) ;
+    writeSettings();
     exit(0) ;
 }
 
@@ -489,8 +523,6 @@ void MainWindow::buildMainPanel()
 
         mdiSubWindow * cSw = (mdiSubWindow*)mdiArea->addSubWindow(theTabWidget_) ;
 
-        newMainPanelAct->setEnabled(false) ;
-
         connect(cSw,
                 SIGNAL(destroyed()             ),
                 this,
@@ -502,6 +534,7 @@ void MainWindow::buildMainPanel()
 
     theTabWidget_->collectExistingWidgets(this);
 
+    mainTabsActivated_ = true ;
 }
 
 //===========================================================================
@@ -513,17 +546,16 @@ void MainWindow::buildHNavigator()
 
         cSw = (mdiSubWindow*)mdiArea->addSubWindow(theHNavigator_) ;
 
-        hNavigatorAct->setEnabled(false) ;
-
         connect(cSw, SIGNAL(destroyed()), this, SLOT(enableHNavigatorButton()));
 
         cSw->setGeometry(1015,5,theHNavigator_->width()+8,theHNavigator_->height()+40) ;
 
         cSw->show() ;
+
+        return ;
     }
 
     theHNavigator_->collectExistingWidgets(this);
-
 }
 
 //===========================================================================
@@ -595,6 +627,7 @@ void MainWindow::writeSettings()
     QSettings settings("CMS", "Monicelli");
     settings.setValue("pos", pos());
     settings.setValue("size", size());
+    STDLINE("Updating GUI geometry",ACCyan) ;
 }
 
 //===========================================================================
@@ -633,4 +666,11 @@ void MainWindow::setActiveSubWindow(QWidget *window)
     if (!window)
         return;
     mdiArea->setActiveSubWindow(qobject_cast<QMdiSubWindow *>(window));
+}
+
+//===========================================================================
+void MainWindow::handle_root_events()         // ToROOT6
+{                                             // ToROOT6
+   //call the inner loop of ROOT              // ToROOT6
+   gSystem->ProcessEvents();                  // ToROOT6
 }

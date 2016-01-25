@@ -1,20 +1,33 @@
-/****************************************************************************
-** Authors: Dario Menasce, Stefano Terzo
-**
-** I.N.F.N. Milan-Bicocca
-** Piazza  della Scienza 3, Edificio U2
-** Milano, 20126
-**
-** This class encapsulates the execution of a heavy CPU-cyles consumer in
-** a separate thread (a QThread). The 'run()' method is invoked when the thread
-** is started via the 'start()' method: it is supposed to call a method of the
-** 'fileEater' class and continue untill the method ends. In order to send
-** eventual 'abort' commands to the 'fileEater', this class is supposed to
-** instantiate a handle to the 'MessageBus' class which is in charge of
-** broadcasting messages between a GUI and a slave process.
-**
-****************************************************************************/
-
+/*===============================================================================
+ * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
+ * 
+ * Copyright (C) 2014 
+ *
+ * Authors:
+ *
+ * Dario Menasce      (INFN) 
+ * Luigi Moroni       (INFN)
+ * Jennifer Ngadiuba  (INFN)
+ * Stefano Terzo      (INFN)
+ * Lorenzo Uplegger   (FNAL)
+ * Luigi Vigani       (INFN)
+ *
+ * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ================================================================================*/
+ 
 #ifndef FILEEATER_H
 #define FILEEATER_H
 
@@ -50,6 +63,7 @@
 //#include "trackFitter.h"
 #include "verbosity.h"
 
+using namespace std; // ToROOT6
 
 class trackFinder;
 class HManager   ;
@@ -61,10 +75,10 @@ class fileEater : public multiProcess<fileEater,bool>
 
 public:
 
-    typedef std::map<std::string,TFile*>                fileMapDef       ;
-    typedef std::vector<std::string>                    fileVDef         ;
-    typedef std::vector<subProcess<Event,Geometry>*>    subProcessVDef   ;
-    typedef std::map<std::string,TH2I*>                 hMapDef          ;
+    typedef std::map<std::string,TFile*>             fileMapDef     ;
+    typedef std::vector<std::string>                 fileVDef	    ;
+    typedef std::vector<subProcess<Event,Geometry>*> subProcessVDef ;
+    typedef std::map<std::string,TH2I*>              hMapDef	    ;
 
     fileEater()                       ;
     fileEater(int argc, char ** argv) ; // Call this for a stand-alone program
@@ -168,7 +182,7 @@ private:
     fileHandleDef                 inputTreesMap_            ;
     std::string                   outputTreeFileName_       ;
     std::string                   inputFileName_            ;
-    fileVDef                      inputFileNames_            ;
+    fileVDef                      inputFileNames_           ;
     std::string                   outputFileName_           ;
     std::string                   outputTreePath_           ;
     Event::plaqMapDef             plaqMap_                  ;

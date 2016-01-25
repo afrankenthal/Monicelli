@@ -1,12 +1,33 @@
-/****************************************************************************
-** Authors: Dario Menasce, Stefano Terzo
-**
-** I.N.F.N. Milan-Bicocca
-** Piazza  della Scienza 3, Edificio U2
-** Milano, 20126
-**
-****************************************************************************/
-
+/*===============================================================================
+ * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
+ * 
+ * Copyright (C) 2014 
+ *
+ * Authors:
+ *
+ * Dario Menasce      (INFN) 
+ * Luigi Moroni       (INFN)
+ * Jennifer Ngadiuba  (INFN)
+ * Stefano Terzo      (INFN)
+ * Lorenzo Uplegger   (FNAL)
+ * Luigi Vigani       (INFN)
+ *
+ * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ================================================================================*/
+ 
 #include "hnavigator.h"
 #include "ui_hnavigator.h"
 
@@ -283,15 +304,25 @@ void HNavigator::resizeEvent(QResizeEvent * )
        DE: topGrbx - botFram (dYGrbx)
 
    */
+//  int topComb = 0; // Actually unused
+  int topFram = 0;
+  int topGrbx = 0;
+//  int botComb = 0; // Actually unused
+  int botFram = 0;
+//  int botGrbx = 0; // Actually unused
+
   QRect thisRect = this->geometry() ;
 
   QRect combRect = ui->hNavigatorInputFileCB->geometry() ;
   QRect framRect = ui->hNavigatorTreeFrame  ->geometry() ;
   QRect grbxRect = ui->hNavigatorCanvasGB   ->geometry() ;
 
-  int topComb = combRect.y() ; int botComb = topComb + combRect.height() ;
-  int topFram = framRect.y() ; int botFram = topFram + framRect.height() ;
-  int topGrbx = grbxRect.y() ; int botGrbx = topGrbx + grbxRect.height() ;
+//  topComb = combRect.y()  		; // Actually unused
+  topFram = framRect.y()  		;
+  topGrbx = grbxRect.y()  		;
+//  botComb = topComb + combRect.height() ; // Actually unused
+  botFram = topFram + framRect.height() ;
+//  botGrbx = topGrbx + grbxRect.height() ; // Actually unused
 
   int dw = combRect.height() + grbxRect.height() + 40 ; // 40 is the total amount of vertical space between components
 
@@ -307,10 +338,13 @@ void HNavigator::resizeEvent(QResizeEvent * )
   combRect = ui->hNavigatorInputFileCB->geometry() ;
   framRect = ui->hNavigatorTreeFrame  ->geometry() ;
 
-  topComb = combRect.y()    ; botComb = topComb + combRect.height() ;
-  topFram = framRect.y()    ; botFram = topFram + framRect.height() ;
-  topGrbx = botFram         ; botGrbx = topGrbx + grbxRect.height() ;
-         
+//  topComb = combRect.y()     		  ; // Actually unused
+  topFram = framRect.y()     		;
+  topGrbx = botFram + 8        		;
+//  botComb = topComb + combRect.height() ; // Actually unused	
+  botFram = topFram + framRect.height() ;       
+//  botGrbx = topGrbx + grbxRect.height() ; // Actually unused       
+	 
   // Adjust for vertical stretching
   if( theHTreeBrowser_ ) // At first call this component is not yet existing
     theHTreeBrowser_       ->setGeometry(framRect.x(), framRect.y(), thisRect.width()-20, framRect.height() ) ;

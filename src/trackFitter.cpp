@@ -1,12 +1,33 @@
-/****************************************************************************
-** Authors: Dario Menasce, Stefano Terzo
-**
-** I.N.F.N. Milan-Bicocca
-** Piazza  della Scienza 3, Edificio U2
-** Milano, 20126
-**
-****************************************************************************/
-
+/*===============================================================================
+ * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
+ * 
+ * Copyright (C) 2014 
+ *
+ * Authors:
+ *
+ * Dario Menasce      (INFN) 
+ * Luigi Moroni       (INFN)
+ * Jennifer Ngadiuba  (INFN)
+ * Stefano Terzo      (INFN)
+ * Lorenzo Uplegger   (FNAL)
+ * Luigi Vigani       (INFN)
+ *
+ * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ================================================================================*/
+ 
 #include "trackFitter.h"
 #include <TVectorT.h>
 #include <TMatrixTSym.h>
@@ -15,10 +36,10 @@
 trackFitter::trackFitter(void)
 {
     count=0;
-    STDLINE("empty constructor",ACWhite);
-    debug_ = false;
+    STDLINE("Empty constructor",ACWhite);
+    debug_        = false;
     tracksFitted_ = false ;
-    nIterations_ = 0;
+    nIterations_  = 0;
 }
 
 //===============================================================================
@@ -159,7 +180,7 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
     ss_.str("");
     ss_ << "alignedHits.size: " << alignedHits.size();
     std::map<std::string, std::pair<double, double> > resMap; //residuals for each plane used for successive iterations
-    double xPredLoc, yPredLoc, zPredLoc;
+    double xPredLoc, yPredLoc ;
     double xHitLoc, yHitLoc, zHitLoc;
     double xErrLoc, yErrLoc, zErrLoc;
     for(Event::alignedHitsCandidateMapDef::const_iterator tr=alignedHits.begin(); tr!=alignedHits.end(); tr++)
@@ -194,7 +215,7 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
 //        xPredLoc = pars[0]*hit["z"] + pars[1];
 //        yPredLoc = pars[2]*hit["z"] + pars[3];
         theGeometry->getDetector(tr->first)->getPredictedLocal(pars, xPredLoc, yPredLoc);
-        zPredLoc = theGeometry->getDetector( tr->first )->getZPosition();
+//        zPredLoc = theGeometry->getDetector( tr->first )->getZPosition();
 //        theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
         xHitLoc = hit["x"];
         yHitLoc = hit["y"];
@@ -204,9 +225,9 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
         zErrLoc = hit["zErr"];
         theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xHitLoc, &yHitLoc, &zHitLoc, &xErrLoc, &yErrLoc, &zErrLoc);
         if (theGeometry->getDetectorModule(tr->first)%2 == 0)
-            resMap[tr->first] = std::make_pair<double, double>(xHitLoc - xPredLoc, xErrLoc);
+            resMap[tr->first] = std::make_pair(xHitLoc - xPredLoc, xErrLoc); // ToROOT6
         else
-            resMap[tr->first] = std::make_pair<double, double>(yHitLoc - yPredLoc, yErrLoc);
+            resMap[tr->first] = std::make_pair(yHitLoc - yPredLoc, yErrLoc); // ToROOT6
     }
 
     for (int iter = 0; iter < nIterations_; ++iter)
@@ -233,7 +254,7 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
 //            xPredLoc = pars[0]*hit["z"] + pars[1];
 //            yPredLoc = pars[2]*hit["z"] + pars[3];
             theGeometry->getDetector(tr->first)->getPredictedLocal(pars, xPredLoc, yPredLoc);
-            zPredLoc = theGeometry->getDetector( tr->first )->getZPosition();
+//            zPredLoc = theGeometry->getDetector( tr->first )->getZPosition();
 //            theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
             xHitLoc = hit["x"];
             yHitLoc = hit["y"];
@@ -243,9 +264,9 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
             zErrLoc = hit["zErr"];
             theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xHitLoc, &yHitLoc, &zHitLoc, &xErrLoc, &yErrLoc, &zErrLoc);
             if (theGeometry->getDetectorModule(tr->first)%2 == 0)
-                resMap[tr->first] = std::make_pair<double, double>(xHitLoc - xPredLoc, xErrLoc);
+                resMap[tr->first] = std::make_pair(xHitLoc - xPredLoc, xErrLoc); // ToROOT6
             else
-                resMap[tr->first] = std::make_pair<double, double>(yHitLoc - yPredLoc, yErrLoc);
+                resMap[tr->first] = std::make_pair(yHitLoc - yPredLoc, yErrLoc); // ToROOT6
         }
     }
 

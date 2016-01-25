@@ -1,12 +1,33 @@
-/****************************************************************************
-** Authors: Dario Menasce, Stefano Terzo
-**
-** I.N.F.N. Milan-Bicocca
-** Piazza  della Scienza 3, Edificio U2
-** Milano, 20126
-**
-****************************************************************************/
-
+/*===============================================================================
+ * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
+ * 
+ * Copyright (C) 2014 
+ *
+ * Authors:
+ *
+ * Dario Menasce      (INFN) 
+ * Luigi Moroni       (INFN)
+ * Jennifer Ngadiuba  (INFN)
+ * Stefano Terzo      (INFN)
+ * Lorenzo Uplegger   (FNAL)
+ * Luigi Vigani       (INFN)
+ *
+ * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ================================================================================*/
+ 
 #include <iomanip>
 #include <sstream>
 
@@ -131,7 +152,7 @@ std::string fileEater::openFile(std::string inputFile)
             {
                 if(inputTreesMap_.size() > 40) inputTreesMap_.erase(inputTreesMap_.begin());
                 inputTreesMap_[inputFile] = new TFile( inputFile.c_str(), "read" );
-                STDLINE(std::string("Successfully opened ") + inputFile, ACRed)  ;
+                STDLINE(std::string("Successfully opened ") + inputFile, ACGreen)  ;
             }
             if( !inputTreesMap_[inputFile]->IsOpen() )
             {
@@ -248,7 +269,7 @@ std::string fileEater::openFile(std::string inputFile)
             }
 
 
-            STDLINE(std::string("Successfully opened ") + inputFile, ACRed)   ;
+            STDLINE(std::string("Successfully opened ") + inputFile, ACGreen)   ;
 
             ss_.str("");
             ss_ << fileName << ".root";
@@ -278,7 +299,7 @@ bool fileEater::openGeometryFile(std::string geometryFileName)
         return false;
     }
     else
-        STDLINE(std::string("Successfully opened ") + geometryFileName, ACRed)  ;
+        STDLINE(std::string("Successfully opened ") + geometryFileName, ACGreen)  ;
 
     //get geometry root tree
     inputGeometryTree_ = (TTree*)inputTreesMap_[geometryFileName]->Get(GEOMETRY_TREE_NAME);
@@ -287,9 +308,6 @@ bool fileEater::openGeometryFile(std::string geometryFileName)
         theGeometry_->clear();
         inputGeometryTree_->SetBranchAddress("GeometryBranch" , &theGeometry_   );
         inputGeometryTree_->GetEntry(0); //it takes long time...
-        ss_.str("");
-        ss_ << "Found " << inputGeometryTree_->GetEntries() << " geometry entry";
-        STDLINE(ss_.str(),ACGreen) ;
 
         //this implementation require geometry version changes:
         //adding the function and the variable to the geometry header.
@@ -461,13 +479,12 @@ void fileEater::makeGeometryTreeFile(std::string eventFileCompletePath)
         inputTreesMap_[outputGeometryTreeFileName]->Close() ;
         inputTreesMap_.erase( outputGeometryTreeFileName )  ;
     }
-    STDLINE(outputGeometryTreeFileName,ACRed);
-    TFile outputGeometryTreeFile( outputGeometryTreeFileName.c_str(), "recreate");
-    TTree  outputGeometryTree( GEOMETRY_TREE_NAME, "A tree with a Geometry class")  ;
+    STDLINE(outputGeometryTreeFileName,ACYellow);
+    TFile  outputGeometryTreeFile( outputGeometryTreeFileName.c_str(), "recreate");
+    TTree  outputGeometryTree    ( GEOMETRY_TREE_NAME, "A tree with a Geometry class")  ;
     //Fill Geometry Tree                                             ;
     outputGeometryTree.Branch("GeometryBranch" , "Geometry" , &theGeometry_ , 16000, 0 ) ;
     outputGeometryTree.Fill();
-
     outputGeometryTreeFile.Write() ;
     //histogramsFolder_->Write()     ;
     openGeometryFile(outputGeometryTreeFileName);
@@ -520,7 +537,6 @@ bool fileEater::parseBinary3(TTree* tree)
                     //std::cout << __PRETTY_FUNCTION__ << ss_ << " Printout " << std::endl;
                     STDSNAP("Building event for " + ss_.str() + "\n",ACGreen) ;
                 }
-
                 theEvent_->setRawData(trig, plaqMap_);
                 //theEvent_->setRawData(counts, plaqMap_);
                 //std::cout << __PRETTY_FUNCTION__ << theEvent_->getTrigger() << std::endl;
@@ -614,8 +630,8 @@ bool fileEater::parseBinary3(TTree* tree)
                 trig         = (orderedData >> 32) & 0xfffff;
                 module       = 0;
                 chip         = 0;
-                int count    = (orderedData>>16)&0x0f;
-                int bco      = (orderedData>>8)&0xff;
+//                int count    = (orderedData>>16)&0x0f;
+//                int bco      = (orderedData>>8)&0xff;
                 int chan     = (orderedData>>28)&0x0f;
                 int pixel    = (orderedData>>20)&0xff;
                 row          = pixel%64;
@@ -667,23 +683,25 @@ bool fileEater::parseBinary3(TTree* tree)
                 !(row  < theGeometry_->getDetector(ss_.str())->getROC(chip)->getNumberOfRows()) ||
                 !(col  < theGeometry_->getDetector(ss_.str())->getROC(chip)->getNumberOfCols()) )
             {
-                std::string detName = ss_.str();
-                ss_.str("");
-                ss_ << ACRed << ACBold
-                    << "WARNING: "
-                    << ACWhite << ACBold
-                    << "Incorrect data at block: "
-                    << nByte
-                    << " Station: " << station << " - " << "Plaq: " << module
-                    << " Roc: "   << chip
-                    << ", Row: "  << row
-                    << ", Col: "  << col;
+                if( currentVerbosity_ > 1 )
+                {
+                    std::string detName = ss_.str();
+                    ss_.str("");
+                    ss_ << ACRed << ACBold
+                        << "WARNING: "
+                        << ACWhite << ACBold
+                        << "Incorrect data at block: "
+                        << nByte
+                        << " Station: " << station << " - " << "Plaq: " << module
+                        << " Roc: "   << chip
+                        << ", Row: "  << row
+                        << ", Col: "  << col;
                     //<< " nrows: " << theGeometry_->getDetector(detName)->getROC(chip)->getNumberOfRows()
                     //<< " ncols: " << theGeometry_->getDetector(detName)->getROC(chip)->getNumberOfCols();
-                STDLINE(ss_.str(), ACCyan) ;
+                    STDLINE(ss_.str(), ACCyan) ;
+                }
                 continue;
             }
-
 
             theGeometry_->getDetector(station, module)->convertPixelFromROC(theGeometry_->getDetector(station, module)->getROC(chip), &row, &col);
 
@@ -745,7 +763,7 @@ bool fileEater::parseMagicASCII(int &trig, int &nByte, int &nLine)
         int chip         = Utils::toInt(what[6]) ;
         int adc          = Utils::toInt(what[8]) ;
         int station      = Utils::toInt(what[9]) ;
-        int module         = Utils::toInt(what[7]) ;
+        int module       = Utils::toInt(what[7]) ;
 
         if( Utils::toInt(what[3]) < trig)//what we wanna do with this?
         {
@@ -758,9 +776,9 @@ bool fileEater::parseMagicASCII(int &trig, int &nByte, int &nLine)
         ss_ << "Station: " << station << " - " << "Plaq: " << module;
 
         if( !(row  < theGeometry_->getDetector(ss_.str())->getROC(chip)->getNumberOfRows()) ||
-                !(col  < theGeometry_->getDetector(ss_.str())->getROC(chip)->getNumberOfCols()) ||
-                !theGeometry_->getDetector(ss_.str())                                     ||
-                !theGeometry_->getDetector(ss_.str())->getROC(chip))
+            !(col  < theGeometry_->getDetector(ss_.str())->getROC(chip)->getNumberOfCols()) ||
+            !        theGeometry_->getDetector(ss_.str())                                   ||
+            !        theGeometry_->getDetector(ss_.str())->getROC(chip))
         {
             ss_.str("");
             ss_ << "WARNING: Bad data at line: " << nLine;
@@ -772,8 +790,8 @@ bool fileEater::parseMagicASCII(int &trig, int &nByte, int &nLine)
         trig = Utils::toInt(what[3]) ;
 
         theGeometry_->getDetector(station, module)->convertPixelFromROC(theGeometry_->getDetector(station, module)->getROC(chip),
-                                                                      &row                                                  ,
-                                                                      &col                                                    );
+                                                                        &row                                                    ,
+                                                                        &col                                                   );
         //push back values
         Event::aHitDef aHit;
         aHit["row"] = row  ;
@@ -802,7 +820,7 @@ void fileEater::fillMagicPlaqComposition( int station, int module, unsigned int 
     //real time beam spot filling
     if ( !(beamSpotsH_.find(ss_.str()) != beamSpotsH_.end()) )
     {
-        STDLINE("Filling " + ss_.str(),ACWhite);
+        STDLINE("Filling " + ss_.str(),ACGreen);
         int cols = detector->getNumberOfCols();
         int rows = detector->getNumberOfRows();
         beamSpotsH_[ss_.str()] = new TH2I(ss_.str().c_str(), ss_.str().c_str(), cols, 0, cols, rows, 0, rows);
@@ -1183,14 +1201,14 @@ fileEater::subProcessVDef fileEater::getCurrentSubProcess()
 //================================================================================
 std::string  fileEater::getLabel (void )
 {
-    if(processOperation_ == &fileEater::parse                     )  return  "File parsing"                ;
-    if(processOperation_ == &fileEater::fullReconstruction        )
+    if(processOperation_ == &fileEater::parse              ) return  "File parsing" ;
+    if(processOperation_ == &fileEater::fullReconstruction )
     {
         ss_.str("");
         ss_ << inputFileName_ << " full reconstruction";
         return ss_.str();
     }
-    if(processOperation_ == &fileEater::updateEvents2 && !currentSubProcess_.empty()         )
+    if(processOperation_ == &fileEater::updateEvents2 && !currentSubProcess_.empty())
     {
         ss_.str("");
         for(unsigned int i=0; i<currentSubProcess_.size(); ++i)
@@ -1200,7 +1218,8 @@ std::string  fileEater::getLabel (void )
         }
         return ss_.str();
     }
-    else                                         return  NO_PROCESS_LABEL_                ;
+    else
+        return NO_PROCESS_LABEL_ ;
 }
 
 //================================================================================

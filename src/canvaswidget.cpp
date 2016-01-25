@@ -1,13 +1,35 @@
-/****************************************************************************
-** Authors: Dario Menasce, Stefano Terzo
-**
-** I.N.F.N. Milan-Bicocca
-** Piazza  della Scienza 3, Edificio U2
-** Milano, 20126
-**
-****************************************************************************/
-
+/*===============================================================================
+ * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
+ * 
+ * Copyright (C) 2014 
+ *
+ * Authors:
+ *
+ * Dario Menasce      (INFN) 
+ * Luigi Moroni       (INFN)
+ * Jennifer Ngadiuba  (INFN)
+ * Stefano Terzo      (INFN)
+ * Lorenzo Uplegger   (FNAL)
+ * Luigi Vigani       (INFN)
+ *
+ * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ================================================================================*/
+ 
 #include <iostream>
+#include <sstream>
 #include "canvaswidget.h"
 
 #include "ui_canvaswidget.h"
@@ -22,6 +44,8 @@ canvasWidget::canvasWidget(QWidget *parent) :
     ui(new Ui::canvasWidget)
 {
     ui->setupUi(this);
+//    canvas_ = new QRootCanvas(ui->theCanvas,"") ;
+    canvas_ = new QRootCanvas(this,"") ;
 }
 
 //===========================================================================
@@ -34,16 +58,18 @@ canvasWidget::~canvasWidget()
 //===========================================================================
 void canvasWidget::divide( int nx, int ny )
 {
-  ui->theCanvas->GetCanvas()->Clear() ;
-  ui->theCanvas->GetCanvas()->Divide(nx, ny, 0.001, 0.001) ;
-  ui->theCanvas->GetCanvas()->Modified() ;
-  ui->theCanvas->GetCanvas()->Update();
+//  canvas_ = new QRootCanvas(canvas_,"") ;
+
+  canvas_->GetCanvas()->Clear() ;
+  canvas_->GetCanvas()->Divide(nx, ny, 0.001, 0.001) ;
+  canvas_->GetCanvas()->Modified() ;
+  canvas_->GetCanvas()->Update();
 }
 
 //===========================================================================
 void canvasWidget::cd( int pos )
 {
-  ui->theCanvas->GetCanvas()->cd(pos) ;
+  canvas_->GetCanvas()->cd(pos) ;
 }
 
 //===========================================================================
@@ -51,19 +77,18 @@ void canvasWidget::flush( void )
 {
   int tot = 0 ;
   TObject * obj = NULL ;
-  TIter next(ui->theCanvas->GetCanvas()->GetListOfPrimitives()) ;
+  TIter next(canvas_->GetCanvas()->GetListOfPrimitives()) ;
   while((obj = next()))
   {
     if( obj->InheritsFrom(TVirtualPad::Class()))
     {
-      ui->theCanvas->GetCanvas()->SetClickSelectedPad((TPad*)(obj)) ;
-      ui->theCanvas->GetCanvas()->SetClickSelected((obj)) ;
+      canvas_->GetCanvas()->SetClickSelectedPad((TPad*)(obj)) ;
+      canvas_->GetCanvas()->SetClickSelected((obj)) ;
       tot++ ;
-      ui->theCanvas->GetCanvas()->cd(tot) ;
+      canvas_->GetCanvas()->cd(tot) ;
       gPad->Update();
-      ui->theCanvas->GetCanvas()->Modified() ;
-      ui->theCanvas->GetCanvas()->Update();
-
+      canvas_->GetCanvas()->Modified() ;
+      canvas_->GetCanvas()->Update();
 
       ss_.str("") ;
       ss_ << "Working on pad " << tot ;
@@ -76,31 +101,31 @@ void canvasWidget::flush( void )
 //===========================================================================
 void canvasWidget::update( void )
 {
-  ui->theCanvas->GetCanvas()->Modified() ;
-  ui->theCanvas->GetCanvas()->Update();
+  canvas_->GetCanvas()->Modified() ;
+  canvas_->GetCanvas()->Update();
 }
 
 //===========================================================================
 void canvasWidget::clear( )
 {
-  ui->theCanvas->GetCanvas()->Clear();
-  ui->theCanvas->GetCanvas()->Modified() ;
-  ui->theCanvas->GetCanvas()->Update();
+  canvas_->GetCanvas()->Clear();
+  canvas_->GetCanvas()->Modified() ;
+  canvas_->GetCanvas()->Update();
 }
 
 //===========================================================================
 void canvasWidget::resizeEvent ( QResizeEvent * re )
 {
-  int margin = 20 ;
+  int margin = 0 ;
   QSize newSize(re->size().width()-margin, re->size().height()-margin); // Allow room for margins
-  ui->theCanvas->resize(newSize) ;
-  ui->theCanvas->GetCanvas()->Modified() ;
-  ui->theCanvas->GetCanvas()->Update();
+  canvas_->resize(newSize) ;
+  canvas_->GetCanvas()->Modified() ;
+  canvas_->GetCanvas()->Update();
 }
 
 //===========================================================================
 void canvasWidget::setTitle(std::string title)
 {
   STDLINE(title,ACWhite) ;
-  ui->theCanvas->setWindowTitle(QApplication::translate("canvasWidget", title.c_str(), 0, QApplication::UnicodeUTF8));
+  canvas_->setWindowTitle(QApplication::translate("canvasWidget", title.c_str(), 0, QApplication::UnicodeUTF8));
 }

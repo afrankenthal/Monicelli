@@ -1,12 +1,33 @@
-/****************************************************************************
-** Authors: Dario Menasce, Stefano Terzo
-**
-** I.N.F.N. Milan-Bicocca
-** Piazza  della Scienza 3, Edificio U2
-** Milano, 20126
-**
-****************************************************************************/
-
+/*===============================================================================
+ * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
+ * 
+ * Copyright (C) 2014 
+ *
+ * Authors:
+ *
+ * Dario Menasce      (INFN) 
+ * Luigi Moroni       (INFN)
+ * Jennifer Ngadiuba  (INFN)
+ * Stefano Terzo      (INFN)
+ * Lorenzo Uplegger   (FNAL)
+ * Luigi Vigani       (INFN)
+ *
+ * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ================================================================================*/
+ 
 #include "geometryLoader.h"
 
 //======================================================================
@@ -200,7 +221,7 @@ void geometryLoader::acquireInfo(DOMElement * element)
         if( tagName == "stations" )
         {
             ss_.str("");
-            ss_ << "stations in use: " << keyValue["inUse" ];
+            ss_ << "Stations in use: " << keyValue["inUse" ];
             STDLINE(ss_.str(),ACYellow) ;
         }
 
@@ -214,7 +235,7 @@ void geometryLoader::acquireInfo(DOMElement * element)
         if( tagName == "detectors" )
         {
             ss_.str("");
-            ss_ << "detectors in use: " << keyValue["inUse" ];
+            ss_ << "Detectors in use: " << keyValue["inUse" ];
             STDLINE(ss_.str(),ACYellow) ;
         }
 
@@ -227,7 +248,7 @@ void geometryLoader::acquireInfo(DOMElement * element)
                 currentPlaqID_ = ss_.str();
                 theGeometry_->addDetector( currentPlaqID_ );
 
-                STDLINE(keyValue["name"] + " detector id: " + currentPlaqID_,ACYellow) ;
+                STDLINE(keyValue["name"] + " detector id: " + currentPlaqID_,ACGreen) ;
 
                 theGeometry_->getDetector( currentPlaqID_ )->setName(keyValue["name"]);
                 if(keyValue["name"] == "FSSR2")
@@ -254,9 +275,8 @@ void geometryLoader::acquireInfo(DOMElement * element)
         {
             if( this->toLower(textContent) == "yes" || this->toLower(textContent) == "true")
             {
-                STDLINE("get Detector",ACYellow) ;
+                STDLINE("Get Detector",ACYellow) ;
                 theGeometry_->getDetector( currentPlaqID_ )->setXBackFlipped(true );
-                STDLINE("cleared",ACYellow) ;
             }
             else   theGeometry_->getDetector( currentPlaqID_ )->setXBackFlipped(false);
         }
@@ -290,7 +310,7 @@ void geometryLoader::acquireInfo(DOMElement * element)
         {
             if( tagName == "fineGranularity" )
             {
-                STDLINE("Reading fineGranularity",ACGreen);
+                STDLINE("Reading fineGranularity",ACYellow);
                 STDLINE("Rotations relative to " + keyValue["relativeRotations"],ACYellow) ;
             }
 
