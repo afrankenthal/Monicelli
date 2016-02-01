@@ -1,18 +1,17 @@
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE MonicelliExpressConfiguration SYSTEM "./dtd/ExpressConfiguration.dtd">
 <MonicelliExpressConfiguration>
-  <Defaults FilesPath="/data/TestBeam/2014_08_August/Merged/" 
-           GeometriesPath="/data/TestBeam/2014_08_August/Geometries/" 
-           TrackFindingAlgorithm="FirstAndLast" 
-           TrackFittingAlgorithm="Simple" 
-	   NumberOfEvents="5000" 
-	   TrackPoints="22" 
-	   MaxPlanePoints="5" 
-	   Chi2Cut="-1" 
-	   XTolerance="250" 
-	   YTolerance="250"
-	   FindDut="false"
-	   UseEtaFunction="false"/>
-  <File Name="Run680_Merged.dat" Geometry="Run1_with_strips_Merged.geo" />
+  <Defaults FilesPath="/raid2/data1/vtx1/dinardo/TestBeamData2015/Merged/" 
+            GeometriesPath="/raid2/data1/vtx1/dinardo/TestBeamData2015/Geometries/" 
+            TrackFindingAlgorithm="FirstAndLast" 
+            TrackFittingAlgorithm="Simple" 
+	    NumberOfEvents="-1" 
+	    TrackPoints="8" 
+	    MaxPlanePoints="5" 
+	    Chi2Cut="-1" 
+	    XTolerance="500" 
+	    YTolerance="500" 
+	    FindDut="true"
+            UseEtaFunction="true"/>
+  <File Name="Run495_Merged.dat" Geometry="Run495_Merged.geo" />
 </MonicelliExpressConfiguration>
-
