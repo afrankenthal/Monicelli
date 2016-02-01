@@ -28,9 +28,10 @@
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # ================================================================================*/
 
-include("$(ROOTSYS)/include/rootcint.pri")
-QMAKE_CFLAGS_RELEASE   = -std=c++11
-QMAKE_CXXFLAGS_RELEASE = -std=c++11
+include("$(ROOTINC)/rootcint.pri")
+
+QMAKE_CFLAGS_RELEASE   = $(CPLUSPLUSFLAGS)
+QMAKE_CXXFLAGS_RELEASE = $(CPLUSPLUSFLAGS)
 
 target.path          = ./
 sources.path         = ./
@@ -147,7 +148,7 @@ sources.files        = $$SOURCES                                 \
 DEFINES              = USE_QT
 
 INCLUDEPATH	    += ./include				 \
-		       -pthread $(ROOTSYS)/include		 \
+		       -pthread $(ROOTINC)   		         \
 		       $(QTDIR)/include/QtXml			 \
 		       $(XERCESCINC)				 \
 		       $(BOOSTINC)
@@ -159,7 +160,7 @@ INCLUDEPATH	    += plugins/customCheckBox			 \
 		       plugins/customTextEdit			 \
 		       plugins/customTableView
 		       
-LIBS                += -L$(ROOTSYS)/lib                          \
+LIBS                += -L$(ROOTLIB)                              \
                
 
 LIBS                += -L$(BOOSTLIB)                             \
@@ -183,10 +184,19 @@ INSTALLS            += target sources
 header.depends       = include/EventHeader.h
 
 header.target        = tmp/EventHeaderDict.C
-header.commands      = rootcint -f tmp/EventHeaderDict.C         \
-				-c include/EventHeader.h+ &&     \
-		       ls -la tmp/*.pcm &&                       \
+
+ROOTVER              = $(ROOTVER)
+
+contains(ROOTVER, FIVE) {
+ header.commands     = @echo "------ ROOT5 header ----------" && \
+                       rootcint -f tmp/EventHeaderDict.C         \
+				-c include/EventHeader.h+   
+} else {  
+ header.commands     = @echo "------ ROOT6 header ----------" && \
+                       rootcint -f tmp/EventHeaderDict.C         \
+				-c include/EventHeader.h+     && \
 		       cp tmp/*.pcm .
+}
 
 trees.depends        = include/Event.h                           \
                        include/Geometry.h                        \
@@ -194,13 +204,23 @@ trees.depends        = include/Event.h                           \
                        include/ROC.h
 
 trees.target         = tmp/EventDict.C
-trees.commands       = rootcint -f tmp/EventDict.C               \
+
+contains(ROOTVER, FIVE) {
+ trees.commands      = @echo "------ ROOT5 commands --------" && \
+                       rootcint -f tmp/EventDict.C               \
                                 -c include/Event.h+              \
                                    include/Geometry.h+           \
                                    include/Detector.h+           \
-                                   include/ROC.h+ &&             \
-		       ls -la tmp/*.pcm &&                       \
+                                   include/ROC.h+           
+} else {
+ trees.commands      = @echo "------ ROOT6 commands --------" && \
+                       rootcint -f tmp/EventDict.C               \
+                                -c include/Event.h+              \
+                                   include/Geometry.h+           \
+                                   include/Detector.h+           \
+                                   include/ROC.h+             && \
 		       cp tmp/*.pcm .
+}
 
 QMAKE_EXTRA_TARGETS += trees
 QMAKE_EXTRA_TARGETS += header
@@ -236,6 +256,6 @@ QT                  *= xml
 
 DEPENDPATH          += . src include
 
-extraclean.commands  = rm -rf Makefile *.pcm
+extraclean.commands  = rm -rf Makefile *.pcm tmp/* plugins/*/moc_* plugins/*/Makefile plugins/*/ui_* 
 distclean.depends    = extraclean
 QMAKE_EXTRA_TARGETS += distclean extraclean

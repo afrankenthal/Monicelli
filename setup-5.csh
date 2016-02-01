@@ -39,36 +39,14 @@ alias do 'make -f MakefileAll '
 setenv BASEDATADIR /user/gr1/e831/menasce/MonicelliNew/data/2015_10_October
 
 #===============   Personalized configuration on this computer   ==============================================
-if(${HOSTNAME} == "rulinux03.dhcp.fnal.gov") then
+if(${HOSTNAME} == "hal9000.mib.infn.it") then
 
-  #===== Local directories
-  setenv MonicelliDir		   `pwd`
-  setenv Monicelli_RawData_Dir     ${BASEDATADIR}/Merged
-  setenv Monicelli_DataSample_Dir  ${BASEDATADIR}/Merged
-  setenv Monicelli_CalSample_Dir   ${BASEDATADIR}/Calibrations
-  setenv MonicelliOutputDir	   /home/uplegger/Programming/MonicelliOutput
-  setenv Monicelli_XML_Dir         ${BASEDATADIR}/Geometries
+  if(     ${USER} == "menasce") then
+   setenv BASEDATADIR ../data/2015_10_October/
+  else if(${USER} == "dinardo") then
+   setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamData2015
+  endif
   
-  #===== Location of the ROOT components
-  setenv ROOTSYS		   /opt/local/root
-
-  #===== Location of the Qt components
-  setenv QTDIR  		   /opt/local/qt
-  setenv QTCREATORDIR		   /opt/local/qtcreator
-
-  #===== Location of the BOOST components
-  setenv BOOSTINC		   /usr/include
-  setenv BOOSTLIB		   /usr/lib64
-
-  #===== Location of the XERCES components
-  setenv XERCESCINC		   /opt/local/xerces/include
-  setenv XERCESCLIB		   /opt/local/xerces/lib
-  
-  setenv LD_LIBRARY_PATH           /usr/lib64
-  
-else if(${HOSTNAME} == "hal9000.mib.infn.it") then
-
-  echo "In hal9000, old version"
 
   #===== Local directories
   setenv MonicelliDir		   `pwd`
@@ -79,7 +57,10 @@ else if(${HOSTNAME} == "hal9000.mib.infn.it") then
   setenv Monicelli_XML_Dir	   ${BASEDATADIR}/Geometries
   
   #===== Location of the ROOT components
+  setenv ROOTVER                   FIVE
   setenv ROOTSYS		   /user/service/root-5.28.00g/
+  setenv ROOTINC		   $ROOTSYS/include/root
+  setenv ROOTLIB		   $ROOTSYS/lib/root
 
   #===== Location of the Qt components
   setenv QTDIR  		   /usr/local/Trolltech/Qt-4.8.0/
@@ -93,6 +74,9 @@ else if(${HOSTNAME} == "hal9000.mib.infn.it") then
   setenv XERCESCINC		   /opt/local/xerces/include
   setenv XERCESCLIB		   /opt/local/xerces/lib
   
+  #===== C++ flags
+  setenv CPLUSPLUSFLAGS            -std=c++0x
+
   setenv LD_LIBRARY_PATH	  
   
   alias qtcreator /opt/local/qtcreator-2.7.1/bin/qtcreator
@@ -100,5 +84,5 @@ else if(${HOSTNAME} == "hal9000.mib.infn.it") then
 endif
 
 #===== Final PATH definitions
-setenv PATH			$ROOTSYS/bin:$QTDIR/bin:$QTCREATORDIR/bin:$PATH
-setenv LD_LIBRARY_PATH          $ROOTSYS/lib/root:${BOOSTLIB}:$QTDIR/lib:$XERCESCLIB/:$MonicelliDir/plugins/libs/:$MonicelliDir/test/customWidgets/libs:$LD_LIBRARY_PATH
+setenv PATH	       ${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}/
+setenv LD_LIBRARY_PATH ${ROOTLIB}:${BOOSTLIB}:${QTDIR}/lib:${XERCESCLIB}/:${MonicelliDir}/plugins/libs/:${MonicelliDir}/test/customWidgets/libs:${LD_LIBRARY_PATH}

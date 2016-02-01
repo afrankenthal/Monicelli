@@ -41,46 +41,15 @@
 alias do       'make -f MakefileAll '
 alias cleanAll 'make -f MakefileAll clean'
 
-#setenv PATH            /opt/rh/python27/root/usr/bin$:${PATH}
-#setenv LD_LIBRARY_PATH /opt/rh/python27/root/usr/lib64
-#setenv MANPATH         /opt/rh/python27/root/usr/share/man
-#setenv XDG_DATA_DIRS   /opt/rh/python27/root/usr/share
-#setenv PKG_CONFIG_PATH /opt/rh/python27/root/usr/lib64/pkgconfig
-
-#setenv BASEDATADIR     /user/gr1/e831/menasce/MonicelliNew/data/2015_10_October
-setenv BASEDATADIR     /data/TestBeam/2015_10_October
-
 #===============   Personalized configuration on this computer   ==============================================
-if(${HOSTNAME} == "rulinux04.dhcp.fnal.gov") then
+if(${HOSTNAME} == "hal9000.mib.infn.it") then
 
-  #===== Local directories
-  setenv MonicelliDir		   `pwd`
-  setenv Monicelli_RawData_Dir     ${BASEDATADIR}/Merged
-  setenv Monicelli_DataSample_Dir  ${BASEDATADIR}/Merged
-  setenv Monicelli_CalSample_Dir   ${BASEDATADIR}/Calibrations
-  setenv MonicelliOutputDir	   /home/uplegger/Programming/MonicelliOutput
-  setenv Monicelli_XML_Dir         ${BASEDATADIR}/Geometries
+  if(     ${USER} == "menasce") then
+   setenv BASEDATADIR ../data/2015_10_October/
+  else if(${USER} == "dinardo") then
+   setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamData2015
+  endif
   
-  #===== Location of the ROOT components
-  setenv ROOTSYS		   /opt/local/root
-
-  #===== Location of the Qt components
-  setenv QTDIR  		   /opt/local/qt
-  setenv QTCREATORDIR		   /opt/local/qtcreator
-
-  #===== Location of the BOOST components
-  setenv BOOSTINC		   /usr/include
-  setenv BOOSTLIB		   /usr/lib64
-
-  #===== Location of the XERCES components
-  setenv XERCESCINC		   /opt/local/xerces/include
-  setenv XERCESCLIB		   /opt/local/xerces/lib
-  
-  setenv LD_LIBRARY_PATH           /usr/lib64
-  
-else if(${HOSTNAME} == "hal9000.mib.infn.it") then
-
-  echo "In hal9000, newest version"
   setenv PATH /opt/rh/devtoolset-2/root/usr/bin:/bin:/usr/bin:/usr/local/bin:/usr/printmi/bin
 
   #===== Local directories
@@ -92,7 +61,10 @@ else if(${HOSTNAME} == "hal9000.mib.infn.it") then
   setenv Monicelli_XML_Dir	   ${BASEDATADIR}/Geometries
   
   #===== Location of the ROOT components
+  setenv ROOTVER                   SIX
   setenv ROOTSYS		   /user/service/root-6.04.10/
+  setenv ROOTINC		   $ROOTSYS/include/root
+  setenv ROOTLIB		   $ROOTSYS/lib/root
 
   #===== Location of the Qt components
   setenv QTDIR  		   /usr/local/Trolltech/Qt-4.8.5
@@ -106,10 +78,15 @@ else if(${HOSTNAME} == "hal9000.mib.infn.it") then
   setenv XERCESCINC		   /opt/local/xerces/include
   setenv XERCESCLIB		   /opt/local/xerces/lib
   
-  alias qtcreator ${QTCREATORDIR}/qtcreator
+  #===== C++ flags
+  setenv CPLUSPLUSFLAGS            -std=c++11
+
+  setenv LD_LIBRARY_PATH	   
+  
+  alias  qtcreator                 ${QTCREATORDIR}/qtcreator
     
 endif
 
 #===== Final PATH definitions
-setenv PATH		$ROOTSYS/bin:$QTDIR/bin:$QTCREATORDIR/bin:$PATH
-setenv LD_LIBRARY_PATH  $ROOTSYS/lib:${BOOSTLIB}:$QTDIR/lib:$XERCESCLIB/:$MonicelliDir/plugins/libs/:$MonicelliDir/test/customWidgets/libs:$LD_LIBRARY_PATH
+setenv PATH		${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}
+setenv LD_LIBRARY_PATH  ${ROOTLIB}:${BOOSTLIB}:${QTDIR}/lib:${XERCESCLIB}/:${MonicelliDir}/plugins/libs/:${MonicelliDir}/test/customWidgets/libs:${LD_LIBRARY_PATH}
