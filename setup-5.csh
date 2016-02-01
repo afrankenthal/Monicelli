@@ -33,7 +33,7 @@
 # Once you have fetched this copy from the cvs repository, make a copy (name it something
 # like mySetupQt.csh) and modify the copy to suit your needs. Please do NOT put bac in cvs  
 # a modified copy of the original setupQt.csh if you have by mistake accidentally edited it.
-#
+
 
 alias do 'make -f MakefileAll '
 setenv BASEDATADIR /user/gr1/e831/menasce/MonicelliNew/data/2015_10_October
@@ -69,6 +69,7 @@ if(${HOSTNAME} == "rulinux03.dhcp.fnal.gov") then
 else if(${HOSTNAME} == "hal9000.mib.infn.it") then
 
   echo "In hal9000, old version"
+
   #===== Local directories
   setenv MonicelliDir		   `pwd`
   setenv Monicelli_RawData_Dir     ${BASEDATADIR}/Merged

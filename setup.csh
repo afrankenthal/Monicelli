@@ -33,7 +33,7 @@
 # Once you have fetched this copy from the cvs repository, make a copy (name it something
 # like mySetupQt.csh) and modify the copy to suit your needs. Please do NOT put bac in cvs  
 # a modified copy of the original setupQt.csh if you have by mistake accidentally edited it.
-#
+
 # Before running Monicelli, source YOUR own, PRIVATE **copy** of this file:
 
 # scl enable devtoolset-2 tcsh
@@ -81,6 +81,7 @@ else if(${HOSTNAME} == "hal9000.mib.infn.it") then
 
   echo "In hal9000, newest version"
   setenv PATH /opt/rh/devtoolset-2/root/usr/bin:/bin:/usr/bin:/usr/local/bin:/usr/printmi/bin
+
   #===== Local directories
   setenv MonicelliDir		   `pwd`
   setenv Monicelli_RawData_Dir     ${BASEDATADIR}/Merged
@@ -103,8 +104,6 @@ else if(${HOSTNAME} == "hal9000.mib.infn.it") then
   #===== Location of the XERCES components
   setenv XERCESCINC		   /opt/local/xerces/include
   setenv XERCESCLIB		   /opt/local/xerces/lib
-  
-#  setenv LD_LIBRARY_PATH	   
   
   alias qtcreator ${QTCREATORDIR}/qtcreator
     
