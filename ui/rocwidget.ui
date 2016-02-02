@@ -1475,7 +1475,6 @@ p, li { white-space: pre-wrap; }
    </widget>
    <zorder>nonStandardPitchGB</zorder>
    <zorder>standardPitchGB</zorder>
-   <zorder>ROCInUseCB</zorder>
    <zorder>ROCLayoutGB</zorder>
    <zorder>calibrationFitGB</zorder>
   </widget>

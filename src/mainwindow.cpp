@@ -625,7 +625,7 @@ void MainWindow::readSettings()
 void MainWindow::writeSettings()
 {
     QSettings settings("CMS", "Monicelli");
-    settings.setValue("pos", pos());
+    settings.setValue("pos" , pos ());
     settings.setValue("size", size());
     STDLINE("Updating GUI geometry",ACCyan) ;
 }

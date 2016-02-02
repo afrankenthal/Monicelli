@@ -581,7 +581,7 @@ p, li { white-space: pre-wrap; }
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>8</number>
+      <number>6</number>
      </property>
      <widget class="QWidget" name="rawDataProcessingTabPage">
       <attribute name="title">
@@ -11290,9 +11290,9 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="geometry">
         <rect>
-         <x>260</x>
+         <x>264</x>
          <y>5</y>
-         <width>361</width>
+         <width>357</width>
          <height>186</height>
         </rect>
        </property>
@@ -12259,7 +12259,7 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="title">
-        <string>Track Options</string>
+        <string>Track Opts.</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

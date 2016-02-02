@@ -36,86 +36,70 @@ QMAKE_CXXFLAGS_RELEASE = $(CPLUSPLUSFLAGS)
 target.path          = ./
 sources.path         = ./
 
-HEADERS              = include/canvaswidget.h                    \
-                       include/detectortabwidget.h               \
-                       include/detectorw.h                       \
-                       include/hnavigator.h                      \
-                       include/maintabs.h                        \
-                       include/mainwindow.h                      \
-                       include/mdichild.h                        \
-                       include/newNonStandardTabDialog.h         \
-                       include/nonstandardpitch.h                \
-                       include/remNonStandardTabDialog.h         \
-                       include/roctabwidget.h                    \
-                       include/rocwidget.h                       \
-                       include/serialIdDialog.h                  \
-                       include/stationgb.h                       \
-                       include/stationtabwidget.h                \
-                       include/xmlcreationdialog.h               \
-                       include/xmleditor.h                       \
-                       include/aligner.h                         \
+HEADERS              = include/aligner.h                         \
                        include/ANSIColors.h                      \
                        include/beamSimulator.h                   \
                        include/calibrationLoader.h               \
+                       include/canvaswidget.h                    \
                        include/clusterizer.h                     \
                        include/Detector.h                        \
+                       include/detectortabwidget.h               \
+                       include/detectorw.h                       \
                        include/DOMTreeErrorReporter.hpp          \
                        include/Event.h                           \
                        include/EventHeader.h                     \
                        include/fileEater.h                       \
                        include/fitter.h                          \
-                       include/HManager.h                        \
-                       include/hTreeBrowser.h                    \
                        include/Geometry.h                        \
                        include/geometryLoader.h                  \
+                       include/GeometryParameters.h              \
+                       include/histogramPaths.h                  \
+                       include/HManager.h                        \
+                       include/hnavigator.h                      \
+                       include/hTreeBrowser.h                    \
+                       include/maintabs.h                        \
+                       include/mainwindow.h                      \
+                       include/mdichild.h                        \
                        include/mdisubwindow.h                    \
                        include/MessageTools.h                    \
                        include/msg.h                             \
+                       include/multiProcess.h                    \
+                       include/newNonStandardTabDialog.h         \
+                       include/nonstandardpitch.h                \
+                       include/process.h                         \
+                       include/qrootcanvas.h                     \
+                       include/remNonStandardTabDialog.h         \
                        include/ROC.h                             \
+                       include/roctabwidget.h                    \
+                       include/rocwidget.h                       \
+                       include/serialIdDialog.h                  \
+                       include/subProcess.h                      \
+                       include/subMultiProcess.h                 \
+                       include/stationgb.h                       \
+                       include/stationtabwidget.h                \
+                       include/threader.h                        \
                        include/trackFinder.h                     \
                        include/trackFitter.h                     \
                        include/verbosity.h                       \
+                       include/xmlcreationdialog.h               \
+                       include/xmleditor.h                       \
                        include/xmlParser.h                       \
-                       include/process.h                         \
-                       include/threader.h                        \
-                       include/subProcess.h                      \
-                       include/histogramPaths.h                  \
-                       include/multiProcess.h                    \
-                       include/subMultiProcess.h                 \
-                       include/GeometryParameters.h              \
                        plugins/customCheckBox/customCheckBox.h   \
                        plugins/customComboBox/customComboBox.h   \
                        plugins/customLineEdit/customLineEdit.h   \
                        plugins/customSpinBox/customSpinBox.h     \
-                       plugins/customTableView/customTableView.h \
-                       tmp/EventDict.h                           \
-                       tmp/EventHeaderDict.h                     \                      
-                       include/qrootcanvas.h
+                       plugins/customTableView/customTableView.h 
 
                                                                      
 SOURCES              = main.cpp                                  \
-                       src/canvaswidget.cpp                      \
-                       src/detectortabwidget.cpp                 \
-                       src/detectorw.cpp                         \
-                       src/hnavigator.cpp                        \
-                       src/mainwindow.cpp                        \
-                       src/maintabs.cpp                          \
-                       src/mdichild.cpp                          \	 		
-                       src/newNonStandardTabDialog.cpp           \
-                       src/nonstandardpitch.cpp                  \
-                       src/remNonStandardTabDialog.cpp           \
-                       src/roctabwidget.cpp                      \
-                       src/rocwidget.cpp                         \
-                       src/serialIdDialog.cpp                    \
-                       src/stationgb.cpp                         \
-                       src/stationtabwidget.cpp                  \
-                       src/xmlcreationdialog.cpp                 \
-                       src/xmleditor.cpp                         \
                        src/aligner.cpp                           \
                        src/beamSimulator.cpp                     \
                        src/calibrationLoader.cpp                 \
+                       src/canvaswidget.cpp                      \
                        src/clusterizer.cpp                       \
                        src/Detector.cpp                          \
+                       src/detectortabwidget.cpp                 \
+                       src/detectorw.cpp                         \
                        src/DOMTreeErrorReporter.cpp              \
                        src/Event.cpp                             \
                        src/EventHeader.cpp                       \
@@ -123,18 +107,32 @@ SOURCES              = main.cpp                                  \
                        src/fitter.cpp                            \
                        src/Geometry.cpp                          \
                        src/geometryLoader.cpp                    \
-                       src/mdisubwindow.cpp                      \
+                       src/GeometryParameters.cpp                \
                        src/HManager.cpp                          \
+                       src/hnavigator.cpp                        \
                        src/hTreeBrowser.cpp                      \
+                       src/mainwindow.cpp                        \
+                       src/maintabs.cpp                          \
+                       src/mdichild.cpp                          \	 		
+                       src/mdisubwindow.cpp                      \
+                       src/newNonStandardTabDialog.cpp           \
+                       src/nonstandardpitch.cpp                  \
+                       src/remNonStandardTabDialog.cpp           \
                        src/ROC.cpp                               \
+                       src/roctabwidget.cpp                      \
+                       src/rocwidget.cpp                         \
+                       src/serialIdDialog.cpp                    \
+                       src/stationgb.cpp                         \
+                       src/stationtabwidget.cpp                  \
+                       src/qrootcanvas.cpp                       \
                        src/trackFinder.cpp                       \
                        src/trackFitter.cpp                       \
-                       src/xmlParser.cpp                         \
                        src/threader.cpp                          \
-                       src/GeometryParameters.cpp                \
+                       src/xmlcreationdialog.cpp                 \
+                       src/xmleditor.cpp                         \
+                       src/xmlParser.cpp                         \
                        tmp/EventDict.C                           \
-                       tmp/EventHeaderDict.C                     \                      
-                       src/qrootcanvas.cpp
+                       tmp/EventHeaderDict.C
 
 RESOURCES            = Monicelli.qrc
 
@@ -256,6 +254,11 @@ QT                  *= xml
 
 DEPENDPATH          += . src include
 
-extraclean.commands  = rm -rf Makefile *.pcm tmp/* plugins/*/moc_* plugins/*/Makefile plugins/*/ui_* 
+extraclean.commands  = rm -rf Makefile                          \
+                       *.pcm                                    \
+                       tmp/*                                    \
+                       Express/MonicelliExpress                 \
+                       MakefileExpress
+
 distclean.depends    = extraclean
 QMAKE_EXTRA_TARGETS += distclean extraclean

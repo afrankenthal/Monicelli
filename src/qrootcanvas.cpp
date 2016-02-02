@@ -65,6 +65,10 @@ QRootCanvas::QRootCanvas(QWidget *parent, string title) : QWidget(parent, 0), fC
    setUpdatesEnabled(kFALSE);
    setMouseTracking(kTRUE);
 
+   stringstream ss_ ;
+   STDLINE("++++++++++++++++++",ACCyan) ;
+   ss_.str("") ; ss_ << " this  w|h: " << width() << " | " << height() << " winID: " << winId() ;
+                 STDLINE(ss_.str().c_str(),ACCyan) ;
    int wid = gVirtualX->AddWindow((ULong_t)winId(), width(), height());
    
    this->setGeometry(
@@ -74,7 +78,11 @@ QRootCanvas::QRootCanvas(QWidget *parent, string title) : QWidget(parent, 0), fC
                      parent->height()
                     );
 
+   ss_.str("") ; ss_ << "parent w|h: " << parent->width() << " | " << parent->height() << endl ;
+                 ss_ << " this  w|h: " <<         width() << " | " <<         height() << " wid: " << wid ;
+                 STDLINE(ss_.str().c_str(),ACCyan) ;
    fCanvas = new TCanvas(title.c_str(), width(), height(), wid);
+   STDLINE("++++++++++++++++++",ACCyan) ;
 }
 
 //______________________________________________________________________________

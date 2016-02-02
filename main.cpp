@@ -63,9 +63,9 @@ int main(int argc, char *argv[])
     system("clear") ;
 
     TApplication rootapp("Simple Qt ROOT Application", &argc, argv);
-    QApplication::setStyle(new QPlastiqueStyle()) ;
 
     QApplication app(argc, argv);
+    QApplication::setStyle(new QPlastiqueStyle()) ;
 
     std::stringstream ss_ ;
 
