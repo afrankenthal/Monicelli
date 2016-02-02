@@ -178,33 +178,33 @@
 class Event : public TObject
 {
 public:
-    typedef ROOT::Math::SMatrix<double,4,4>                matrixDef                   ;
-    typedef ROOT::Math::SVector<double,4>                  vectorDef                   ;
-    typedef std::map<std::string, int>                     aHitDef                     ;
-    typedef std::vector<aHitDef>                           hitsDef                     ;
-    typedef std::map<std::string, hitsDef>                 plaqMapDef                  ;
-    typedef std::map<std::string, double>                  aClusterDef                 ;
-    typedef std::map<int, aClusterDef>                     aClusterMapDef              ;
-    typedef std::map<int, hitsDef>                         aClusterHitsMapDef          ;
-    typedef std::map<std::string, aClusterMapDef>          clustersMapDef              ;
-    typedef std::map<std::string, aClusterHitsMapDef>      clustersHitsMapDef          ;
-    typedef std::map<std::string, double>                  clusterCoordinateDef        ;
-    typedef std::map<std::string, clusterCoordinateDef>    alignedHitsCandidateMapDef  ;
-    typedef std::vector<alignedHitsCandidateMapDef>        trackCandidatesDef          ;
-    typedef std::pair<double, double>                      xyResiduePairDef            ;
-    typedef std::map<std::string, xyResiduePairDef>        trackResidualsMapDef        ;
-    typedef std::map<unsigned int, trackResidualsMapDef>   residualsMapDef             ;
-    typedef std::vector<vectorDef>                         fittedTracksDef             ;
-    typedef std::vector<matrixDef>                         fittedTracksCovarianceDef   ;
-    typedef std::vector<double>                            chi2VectorDef               ;
-    typedef std::vector<std::map<std::string, vectorDef> > unconstrainedFittedTracksDef;
-    typedef std::vector<std::map<std::string, matrixDef> > unconstrainedFittedTracksCovarianceDef;
-    typedef std::vector<std::map<std::string, double> >    unconstrainedChi2VectorDef  ;
+    typedef ROOT::Math::SMatrix<double,4,4>                matrixDef                    	  ;
+    typedef ROOT::Math::SVector<double,4>                  vectorDef                    	  ;
+    typedef std::map<std::string, int>                     aHitDef                      	  ;
+    typedef std::vector<aHitDef>                           hitsDef                      	  ;
+    typedef std::map<std::string, hitsDef>                 plaqMapDef                   	  ;
+    typedef std::map<std::string, double>                  aClusterDef                  	  ;
+    typedef std::map<int, aClusterDef>                     aClusterMapDef               	  ;
+    typedef std::map<int, hitsDef>                         aClusterHitsMapDef           	  ;
+    typedef std::map<std::string, aClusterMapDef>          clustersMapDef               	  ;
+    typedef std::map<std::string, aClusterHitsMapDef>      clustersHitsMapDef           	  ;
+    typedef std::map<std::string, double>                  clusterCoordinateDef         	  ;
+    typedef std::map<std::string, clusterCoordinateDef>    alignedHitsCandidateMapDef   	  ;
+    typedef std::vector<alignedHitsCandidateMapDef>        trackCandidatesDef           	  ;
+    typedef std::pair<double, double>                      xyResiduePairDef             	  ;
+    typedef std::map<std::string, xyResiduePairDef>        trackResidualsMapDef         	  ;
+    typedef std::map<unsigned int, trackResidualsMapDef>   residualsMapDef              	  ;
+    typedef std::vector<vectorDef>                         fittedTracksDef              	  ;
+    typedef std::vector<matrixDef>                         fittedTracksCovarianceDef    	  ;
+    typedef std::vector<double>                            chi2VectorDef                	  ;
+    typedef std::vector<std::map<std::string, vectorDef> > unconstrainedFittedTracksDef 	  ;
+    typedef std::vector<std::map<std::string, matrixDef> > unconstrainedFittedTracksCovarianceDef ;
+    typedef std::vector<std::map<std::string, double> >    unconstrainedChi2VectorDef             ;
 
     Event(void) ;
     ~Event(void);
 
-    void                                    clear                                 (void            );
+    void                                    clear                                 (void);
 
     //Getters
     unconstrainedFittedTracksDef&           getUnconstrainedFittedTracks          (void){return unconstrainedFittedTracks_          ;}
