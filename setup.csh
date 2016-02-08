@@ -47,7 +47,8 @@ setenv MANPATH         /opt/rh/python27/root/usr/share/man
 setenv XDG_DATA_DIRS   /opt/rh/python27/root/usr/share
 setenv PKG_CONFIG_PATH /opt/rh/python27/root/usr/lib64/pkgconfig
 
-setenv BASEDATADIR     /user/gr1/e831/menasce/MonicelliNew/data/2015_10_October
+#setenv BASEDATADIR     /user/gr1/e831/menasce/MonicelliNew/data/2015_10_October
+setenv BASEDATADIR /data/TestBeam/2015_12_December
 
 #===============   Personalized configuration on this computer   ==============================================
 if(${HOSTNAME} == "rulinux03.dhcp.fnal.gov") then
