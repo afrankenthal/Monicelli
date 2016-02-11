@@ -260,6 +260,7 @@ extraclean.commands  = rm -rf Makefile                          \
                        *.pcm                                    \
                        tmp/*                                    \
                        Express/MonicelliExpress                 \
+		       plugins/*/Makefile                       \
                        MakefileExpress
 
 distclean.depends    = extraclean

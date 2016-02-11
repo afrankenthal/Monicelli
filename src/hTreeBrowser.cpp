@@ -195,33 +195,7 @@ void hTreeBrowser::populate(TFolder * currentFolder, QTreeWidgetItem * parentWIt
 
         if( existingWItems_.find(objPath) == existingWItems_.end())
         {
-/*           
-            // ss_.str(""); ss_ << currentFolder->GetName() << " || " << "objPath: " << objPath << " parentWItem: " << parentWItem; STDLINE(ss_.str(),ACWhite)
-            bool alreadyThere = false ;
-            for(existingWItemsDef::iterator pi=existingWItems_.begin(); pi!=existingWItems_.end(); ++pi)
-            {
-                if( (*pi).second == parentWItem) {alreadyThere = true ; break;}
-                // ss_.str(""); ss_ << "  " << (*pi).first << " --> " << (*pi).second << " alreadyThere: " << alreadyThere; STDLINE(ss_.str(),ACCyan)
-            }
-
-            if( alreadyThere )
-            {
-              wItem = parentWItem ;
-              create = false ;
-            }
-            else
-            {
-              wItem = new QTreeWidgetItem(parentWItem) ;
-              existingWItems_[objPath] = wItem ;
-              create = true ;
-              // ss_.str(""); ss_  << "Created " << ACRed << ACBold << parentWItem ; STDLINE(ss_.str(),ACCyan)
-            }
-
-*/
- 
-            ss_.str(""); ss_  << "Created " << ACRed << ACBold << parentWItem << " for objPath " << objPath ; STDLINE(ss_.str(),ACCyan)
             wItem = new QTreeWidgetItem(parentWItem) ;
-//            STDLINE(ss_.str(),ACCyan)
             existingWItems_[objPath] = wItem ;
             create = true ;
 

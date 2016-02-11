@@ -34,12 +34,15 @@
 # like mySetupQt.csh) and modify the copy to suit your needs. Please do NOT put bac in cvs  
 # a modified copy of the original setupQt.csh if you have by mistake accidentally edited it.
 
-# Before running Monicelli, source YOUR own, PRIVATE **copy** of this file:
-
+# To run Monicelli do the following:
+#
 # scl enable devtoolset-2 tcsh
+# source setup-6.csh
+# ./Monicelli
 
-alias do       'make -f MakefileAll '
-alias cleanAll 'make -f MakefileAll clean'
+alias do           'make -f MakefileAll '
+alias cleanAll     'make -f MakefileAll clean'
+alias distCleanAll 'make -f MakefileAll distclean'
 
 #===============   Personalized configuration on this computer   ==============================================
 if(${HOSTNAME} == "hal9000.mib.infn.it") then
