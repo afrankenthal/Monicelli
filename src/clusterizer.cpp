@@ -38,6 +38,12 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/regex.hpp>
 
+// ######################################################
+// # Use this flag in case of normal incidence on DUT   #
+// # and in case there are problems in aligning the DUT #
+// ######################################################
+#define TESTDIVIDE false
+
 using namespace std;
 
 
@@ -315,172 +321,242 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
             //    yChargeSharing = 5;
             //if(detector->getYRotation(false) != 0)
             //    xChargeSharing = 5;
-            if(pixels.size() == 1)
-            {
 
+            if(pixels.size() == 1)
+	      {
                 x    = pixels[0].x;
                 y    = pixels[0].y;
                 if(fabs(detector->getYRotation(false)) > 10) xErr = tilted25ChargeSharing/sqrt(12.);
                 else xErr = (pixels[0].xPitch-2*chargeSharing)/sqrt(12.);
                 if(fabs(detector->getXRotation(false)) > 10) yErr = tilted25ChargeSharing/sqrt(12.);
                 else yErr = (pixels[0].yPitch-2*chargeSharing)/sqrt(12.);
-//                if(fabs(detector->getYRotation(false)) > 10) xErr = 3;
-//                else xErr = (pixels[0].xPitch)/sqrt(12.);
-//                if(fabs(detector->getXRotation(false)) > 10) yErr = 3;
-//                else yErr = (pixels[0].yPitch)/sqrt(12.);
-
+		//                if(fabs(detector->getYRotation(false)) > 10) xErr = 3;
+		//                else xErr = (pixels[0].xPitch)/sqrt(12.);
+		//                if(fabs(detector->getXRotation(false)) > 10) yErr = 3;
+		//                else yErr = (pixels[0].yPitch)/sqrt(12.);
                 //xErr = singleClusters;
                 //yErr = singleClusters;
-
-            }
-            else if(pixels.size() == 2)
-            {
+	      }
+            else if (pixels.size() == 2)
+	      {
                 double center;
-                // double pitch;
-                double sizeTwoErrorBase = 0.8;//from2.8
-                if(useEtaFunction_ && chargeAsymmetryPars_[det->first][roc->getID()]["X"] != 0 && chargeAsymmetryPars_[det->first][roc->getID()]["Y"] != 0)
-                {
-                    std::cout << __PRETTY_FUNCTION__ << "I shouldn't be here!" << std::endl;
-                    if(pixels[0].x == pixels[1].x)
-                    {
-                        x    = pixels[0].x;
-                        xErr = (pixels[0].xPitch-2*xChargeSharing)/sqrt(12.);
-                        if( pixels[0].y < pixels[1].y )
-                        {
-                            center = (pixels[0].y + pixels[0].yPitch/2. );
-                            // pitch = pixels[0].yPitch;
-                            double eta = (pixels[0].charge - pixels[1].charge)/charge;
-                            y = center + ((eta-chargeAsymmetryPars_[det->first][roc->getID()]["Y"][1])/chargeAsymmetryPars_[det->first][roc->getID()]["Y"][0])/10;
-                            /*
-                            double yW = (pixels[0].charge*(center - (yChargeSharing+chargeSharing)) + pixels[1].charge*(center + (yChargeSharing+chargeSharing)))/charge;
-                            std::cout << det->first
-                                      << " pixels[0].charge: " << pixels[0].charge
-                                      << " pixels[1].charge: " << pixels[1].charge
-                                      << " charge: " << charge
-                                      << " eta: " << eta
-                                      << " pixels[0].y: " << pixels[0].y
-                                      << " pixels[1].y: " << pixels[1].y
-                                      << " center: " << center
-                                      << " yw: " << yW
-                                      << " ye: " << y
-                                      << " mY: " << chargeAsymmetryPars_[det->first]["Y"][0]
-                                      << " mX: " << chargeAsymmetryPars_[det->first]["X"][0]
-                                      << " delta: " << 10*(yW-y)
-                                      << std::endl;
-*/
-                        }
-                        else
-                        {
-                            center = (pixels[1].y + pixels[1].yPitch/2. );
-                            double eta = (pixels[1].charge - pixels[0].charge)/charge;
-                            y = center + ((eta-chargeAsymmetryPars_[det->first][roc->getID()]["Y"][1])/chargeAsymmetryPars_[det->first][roc->getID()]["Y"][0])/10;
-                        }
-                        yErr = sizeTwoErrorBase+0.5*sin(fabs(detector->getXRotation(false))*pi/180);//2.7/sqrt(12.)+sin(fabs(detector->getXRotation(false))*pi/180)
-                    }
-                    if(pixels[0].y == pixels[1].y)
-                    {
-                        y    = pixels[0].y;
-                        yErr = (pixels[0].yPitch-2*yChargeSharing)/sqrt(12.);
-                        if( pixels[0].x < pixels[1].x )
-                        {
-                            center = (pixels[0].x + pixels[0].xPitch/2. );
-                            double eta = (pixels[0].charge - pixels[1].charge)/charge;
-                            x = center + ((eta-chargeAsymmetryPars_[det->first][roc->getID()]["X"][1])/chargeAsymmetryPars_[det->first][roc->getID()]["X"][0])/10;
-                        }
-                        else
-                        {
-                            center = (pixels[1].x + pixels[1].xPitch/2. );
-                            double eta = (pixels[1].charge - pixels[0].charge)/charge;
-                            x = center + ((eta-chargeAsymmetryPars_[det->first][roc->getID()]["X"][1])/chargeAsymmetryPars_[det->first][roc->getID()]["X"][0])/10;
-                        }
-                        xErr = sizeTwoErrorBase + 0.5*sin(fabs(detector->getYRotation(false))*pi/180);//2.7/sqrt(12.)+sin(fabs(detector->getYRotation(false))*pi/180)
-                        //xErr = sizeTwoErrorBase;//2.7/sqrt(12.)+sin(fabs(detector->getYRotation(false))*pi/180)
-                    }
-                }
-                else
-                {
+//                 // double pitch;
+//                 double sizeTwoErrorBase = 0.8;//from2.8
+//                 if(useEtaFunction_ && chargeAsymmetryPars_[det->first][roc->getID()]["X"] != 0 && chargeAsymmetryPars_[det->first][roc->getID()]["Y"] != 0)
+//                 {
+//                     std::cout << __PRETTY_FUNCTION__ << "I shouldn't be here!" << std::endl;
+//                     if(pixels[0].x == pixels[1].x)
+//                     {
+//                         x    = pixels[0].x;
+//                         xErr = (pixels[0].xPitch-2*xChargeSharing)/sqrt(12.);
+//                         if( pixels[0].y < pixels[1].y )
+//                         {
+//                             center = (pixels[0].y + pixels[0].yPitch/2. );
+//                             // pitch = pixels[0].yPitch;
+//                             double eta = (pixels[0].charge - pixels[1].charge)/charge;
+//                             y = center + ((eta-chargeAsymmetryPars_[det->first][roc->getID()]["Y"][1])/chargeAsymmetryPars_[det->first][roc->getID()]["Y"][0])/10;
+//                             /*
+//                             double yW = (pixels[0].charge*(center - (yChargeSharing+chargeSharing)) + pixels[1].charge*(center + (yChargeSharing+chargeSharing)))/charge;
+//                             std::cout << det->first
+//                                       << " pixels[0].charge: " << pixels[0].charge
+//                                       << " pixels[1].charge: " << pixels[1].charge
+//                                       << " charge: " << charge
+//                                       << " eta: " << eta
+//                                       << " pixels[0].y: " << pixels[0].y
+//                                       << " pixels[1].y: " << pixels[1].y
+//                                       << " center: " << center
+//                                       << " yw: " << yW
+//                                       << " ye: " << y
+//                                       << " mY: " << chargeAsymmetryPars_[det->first]["Y"][0]
+//                                       << " mX: " << chargeAsymmetryPars_[det->first]["X"][0]
+//                                       << " delta: " << 10*(yW-y)
+//                                       << std::endl;
+// */
+//                         }
+//                         else
+//                         {
+//                             center = (pixels[1].y + pixels[1].yPitch/2. );
+//                             double eta = (pixels[1].charge - pixels[0].charge)/charge;
+//                             y = center + ((eta-chargeAsymmetryPars_[det->first][roc->getID()]["Y"][1])/chargeAsymmetryPars_[det->first][roc->getID()]["Y"][0])/10;
+//                         }
+//                         yErr = sizeTwoErrorBase+0.5*sin(fabs(detector->getXRotation(false))*pi/180);//2.7/sqrt(12.)+sin(fabs(detector->getXRotation(false))*pi/180)
+//                     }
+//                     if(pixels[0].y == pixels[1].y)
+//                     {
+//                         y    = pixels[0].y;
+//                         yErr = (pixels[0].yPitch-2*yChargeSharing)/sqrt(12.);
+//                         if( pixels[0].x < pixels[1].x )
+//                         {
+//                             center = (pixels[0].x + pixels[0].xPitch/2. );
+//                             double eta = (pixels[0].charge - pixels[1].charge)/charge;
+//                             x = center + ((eta-chargeAsymmetryPars_[det->first][roc->getID()]["X"][1])/chargeAsymmetryPars_[det->first][roc->getID()]["X"][0])/10;
+//                         }
+//                         else
+//                         {
+//                             center = (pixels[1].x + pixels[1].xPitch/2. );
+//                             double eta = (pixels[1].charge - pixels[0].charge)/charge;
+//                             x = center + ((eta-chargeAsymmetryPars_[det->first][roc->getID()]["X"][1])/chargeAsymmetryPars_[det->first][roc->getID()]["X"][0])/10;
+//                         }
+//                         xErr = sizeTwoErrorBase + 0.5*sin(fabs(detector->getYRotation(false))*pi/180);//2.7/sqrt(12.)+sin(fabs(detector->getYRotation(false))*pi/180)
+//                         //xErr = sizeTwoErrorBase;//2.7/sqrt(12.)+sin(fabs(detector->getYRotation(false))*pi/180)
+//                     }
+//                 }
+//                 else
+//                {
                     //Charge weighting method
                     //                    std::stringstream ssk;
-                    if(pixels[0].x == pixels[1].x)
-                    {
-                        x    = pixels[0].x;
-                        if(fabs(detector->getYRotation(false)) > 10) xErr = tilted25ChargeSharing/sqrt(12.);
-                        else xErr = (pixels[0].xPitch-2*chargeSharing)/sqrt(12.);
-//                        if(fabs(detector->getYRotation(false)) > 10) xErr = 3;
-//                        else xErr = (pixels[0].xPitch)/sqrt(12.);
+                    if (pixels[0].x == pixels[1].x)
+		      {
+			// ##############################################
+			// # Assign to DUT the coordinate of the divide #
+			// ##############################################
+			if (TESTDIVIDE == true &&
+			    (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2"))
+			  {
+			    x = pixels[0].x;
+			    // xErr = pixels[0].xPitch / 2. / sqrt(12.);
 
-                        //if(fabs(detector->getYRotation(false)) > 10) xErr = doubleClusters;
-                        //else xErr = singleClusters;
+			    // ################
+			    // # Fixed errors #
+			    // ################
+			    xErr = 0.3;
+			    yErr = 0.3;
 
-                        //double c = (pixels[0].y + pixels[1].y)/2;
-                        if( pixels[0].y < pixels[1].y )
-                        {
-                            center = (pixels[0].y + pixels[0].yPitch/2. );
-                            // pitch = pixels[0].yPitch;
-                            y = (pixels[0].charge*(center - (yChargeSharing+chargeSharing)) + pixels[1].charge*(center + (yChargeSharing+chargeSharing)))/charge;
-                            //                            ssk << "Plaquette " << det->first << ", cluster along  y: " <<  pixels[0].y << "|" << pixels[0].charge << "-" << pixels[1].y << "|" << pixels[1].charge << " -> " << y;
-                            //                            STDLINE(ssk.str(), ACGreen);
-                        }
-                        else
-                        {
-                            center = (pixels[1].y + pixels[1].yPitch/2. );
-                            // pitch = pixels[1].yPitch;
-                            y = (pixels[1].charge*(center - (yChargeSharing+chargeSharing)) + pixels[0].charge*(center + (yChargeSharing+chargeSharing)))/charge;
-                            //                            ssk << "Plaquette " << det->first << ", cluster along  y: " <<  pixels[0].y << "-" << pixels[1].y << " -> " << y;
-                            //                            STDLINE(ssk.str(), ACGreen);
-                        }
-                        //2.7/sqrt(12.) -> indetermination of the charge
-                        //sin(fabs(detector->getXRotation(false))*pi/180) -> bigger charge sharing area
-                        //yErr = sizeTwoErrorBase+sin(fabs(detector->getXRotation(false))*pi/180);
-                        if(fabs(detector->getXRotation(false)) > 10) yErr = 1.35;
-                        else yErr = 0.65;
-//                        yErr = 1.44338;
-                        //if(fabs(detector->getXRotation(false)) > 10) yErr = doubleClusters;//yErr = 1.2
-                        //else yErr = doubleClusters;//yErr = 0.8
+			    if (pixels[0].yPitch == pixels[1].yPitch)
+			      {
+				y = (pixels[0].y + pixels[1].y) / 2.;
+				// yErr = pixels[0].yPitch / 2. / sqrt(12.);
+			      }
+			    else if (pixels[0].yPitch > pixels[1].yPitch)
+			      {
+				if (pixels[0].y > pixels[1].y) y = pixels[1].y + pixels[1].yPitch / 2.;
+				else                           y = pixels[1].y - pixels[1].yPitch / 2.;
+				// yErr = pixels[1].yPitch / 2. / sqrt(12.);
+			      }
+			    else
+			      {
+				if (pixels[0].y > pixels[1].y) y = pixels[0].y - pixels[0].yPitch / 2.;
+				else                           y = pixels[0].y + pixels[0].yPitch / 2.;
+				// yErr = pixels[0].yPitch / 2. / sqrt(12.);
+			      }
+			  }
+			else
+			  {
+			    x    = pixels[0].x;
+			    if(fabs(detector->getYRotation(false)) > 10) xErr = tilted25ChargeSharing/sqrt(12.);
+			    else xErr = (pixels[0].xPitch-2*chargeSharing)/sqrt(12.);
+			    //                        if(fabs(detector->getYRotation(false)) > 10) xErr = 3;
+			    //                        else xErr = (pixels[0].xPitch)/sqrt(12.);
 
-                    }
+			    //if(fabs(detector->getYRotation(false)) > 10) xErr = doubleClusters;
+			    //else xErr = singleClusters;
+
+			    //double c = (pixels[0].y + pixels[1].y)/2;
+			    if( pixels[0].y < pixels[1].y )
+			      {
+				center = (pixels[0].y + pixels[0].yPitch/2. );
+				// pitch = pixels[0].yPitch;
+				y = (pixels[0].charge*(center - (yChargeSharing+chargeSharing)) + pixels[1].charge*(center + (yChargeSharing+chargeSharing)))/charge;
+				//                            ssk << "Plaquette " << det->first << ", cluster along  y: " <<  pixels[0].y << "|" << pixels[0].charge << "-" << pixels[1].y << "|" << pixels[1].charge << " -> " << y;
+				//                            STDLINE(ssk.str(), ACGreen);
+			      }
+			    else
+			      {
+				center = (pixels[1].y + pixels[1].yPitch/2. );
+				// pitch = pixels[1].yPitch;
+				y = (pixels[1].charge*(center - (yChargeSharing+chargeSharing)) + pixels[0].charge*(center + (yChargeSharing+chargeSharing)))/charge;
+				//                            ssk << "Plaquette " << det->first << ", cluster along  y: " <<  pixels[0].y << "-" << pixels[1].y << " -> " << y;
+				//                            STDLINE(ssk.str(), ACGreen);
+			      }
+			    //2.7/sqrt(12.) -> indetermination of the charge
+			    //sin(fabs(detector->getXRotation(false))*pi/180) -> bigger charge sharing area
+			    //yErr = sizeTwoErrorBase+sin(fabs(detector->getXRotation(false))*pi/180);
+			    if(fabs(detector->getXRotation(false)) > 10) yErr = 1.35;
+			    else yErr = 0.65;
+			    //                        yErr = 1.44338;
+			    //if(fabs(detector->getXRotation(false)) > 10) yErr = doubleClusters;//yErr = 1.2
+			    //else yErr = doubleClusters;//yErr = 0.8
+
+			  }
+		      }
                     else if(pixels[0].y == pixels[1].y)//NEED to include the diagonals which must be treated separately
-                    {
-                        y    = pixels[0].y;
-                        //yErr = (pixels[0].yPitch-2*yChargeSharing)/sqrt(12.);
-                        if(fabs(detector->getXRotation(false)) > 10) yErr = tilted25ChargeSharing/sqrt(12.);
-                        else yErr = (pixels[0].yPitch-2*chargeSharing)/sqrt(12.);
-//                        if(fabs(detector->getXRotation(false)) > 10) yErr = 3;
-//                        else yErr = (pixels[0].yPitch)/sqrt(12.);
+		      {
+			// ##############################################
+			// # Assign to DUT the coordinate of the divide #
+			// ##############################################
+			if (TESTDIVIDE == true &&
+			    (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2"))
+			  {
+			    y = pixels[0].y;
+			    // yErr = pixels[0].yPitch / 2. / sqrt(12.);
 
-                        //if(fabs(detector->getXRotation(false)) > 10) yErr = doubleClusters;
-                        //else yErr = singleClusters;
+			    // ################
+			    // # Fixed errors #
+			    // ################
+			    xErr = 0.3;
+			    yErr = 0.3;
 
-                        //if(detector->getXRotation(false) == 0)
-                        //    yErr = (pixels[0].yPitch)/sqrt(12.);
-                        //else
-                        //    yErr = 0.55*(pixels[0].yPitch)/sqrt(12.);//25% of the cases are single pixels even when there is a rotation
-                        //yErr = (pixels[0].yPitch)/sqrt(12.);
-                        double center;
-                        if( pixels[0].x < pixels[1].x )
-                        {
-                            center = (pixels[0].x + pixels[0].xPitch/2. );
-                            x = (pixels[0].charge*(center - (xChargeSharing+chargeSharing)) + pixels[1].charge*(center + (xChargeSharing+chargeSharing)))/charge;
-                            //                            ssk << "Plaquette " << det->first << ", cluster along  x: " <<  pixels[0].x << "-" << pixels[1].x << " -> " << x;
-                            //                            STDLINE(ssk.str(), ACGreen);
-                        }
-                        else
-                        {
-                            center = (pixels[1].x + pixels[1].xPitch/2. );
-                            x = (pixels[1].charge*(center - (xChargeSharing+chargeSharing)) + pixels[0].charge*(center + (xChargeSharing+chargeSharing)))/charge;
-                            //                            ssk << "Plaquette " << det->first << ", cluster along  x: " <<  pixels[0].x << "-" << pixels[1].x << " -> " << x;
-                            //                            STDLINE(ssk.str(), ACGreen);
-                        }
-                        //2.7/sqrt(12.) -> indetermination of the charge
-                        //sin(fabs(detector->getYRotation(false))*pi/180) -> bigger charge sharing area
-                        //xErr = sizeTwoErrorBase+sin(fabs(detector->getYRotation(false))*pi/180);
-                        if(fabs(detector->getYRotation(false)) > 10) xErr = 1.35;
-                        else xErr = 0.65;
-//                        xErr = 1.44338;
-                        //if(fabs(detector->getYRotation(false)) > 10) xErr = doubleClusters;//xErr = 1.2
-                        //else xErr = doubleClusters;//xErr = 0.8
+			    if (pixels[0].xPitch == pixels[1].xPitch)
+                              {
+				x = (pixels[0].x + pixels[1].x) / 2.;
+				// xErr = pixels[0].xPitch / 2. / sqrt(12.);
+			      }
+			    else if (pixels[0].xPitch > pixels[1].xPitch)
+			      {
+				if (pixels[0].x > pixels[1].x) x = pixels[1].x + pixels[1].xPitch / 2.;
+				else                           x = pixels[1].x - pixels[1].xPitch / 2.;
+				// xErr = pixels[1].xPitch / 2. / sqrt(12.);
+			      }
+			    else
+			      {
+				if (pixels[0].x > pixels[1].x) x = pixels[0].x - pixels[0].xPitch / 2.;
+                                else                           x = pixels[0].x + pixels[0].xPitch / 2.;
+                                // xErr = pixels[0].xPitch / 2. / sqrt(12.);
+			      }
+			  }
+			else
+			  {
+			    y    = pixels[0].y;
+			    //yErr = (pixels[0].yPitch-2*yChargeSharing)/sqrt(12.);
+			    if(fabs(detector->getXRotation(false)) > 10) yErr = tilted25ChargeSharing/sqrt(12.);
+			    else yErr = (pixels[0].yPitch-2*chargeSharing)/sqrt(12.);
+			    //                        if(fabs(detector->getXRotation(false)) > 10) yErr = 3;
+			    //                        else yErr = (pixels[0].yPitch)/sqrt(12.);
 
-                    }
+			    //if(fabs(detector->getXRotation(false)) > 10) yErr = doubleClusters;
+			    //else yErr = singleClusters;
+
+			    //if(detector->getXRotation(false) == 0)
+			    //    yErr = (pixels[0].yPitch)/sqrt(12.);
+			    //else
+			    //    yErr = 0.55*(pixels[0].yPitch)/sqrt(12.);//25% of the cases are single pixels even when there is a rotation
+			    //yErr = (pixels[0].yPitch)/sqrt(12.);
+			    double center;
+			    if( pixels[0].x < pixels[1].x )
+			      {
+				center = (pixels[0].x + pixels[0].xPitch/2. );
+				x = (pixels[0].charge*(center - (xChargeSharing+chargeSharing)) + pixels[1].charge*(center + (xChargeSharing+chargeSharing)))/charge;
+				//                            ssk << "Plaquette " << det->first << ", cluster along  x: " <<  pixels[0].x << "-" << pixels[1].x << " -> " << x;
+				//                            STDLINE(ssk.str(), ACGreen);
+			      }
+			    else
+			      {
+				center = (pixels[1].x + pixels[1].xPitch/2. );
+				x = (pixels[1].charge*(center - (xChargeSharing+chargeSharing)) + pixels[0].charge*(center + (xChargeSharing+chargeSharing)))/charge;
+				//                            ssk << "Plaquette " << det->first << ", cluster along  x: " <<  pixels[0].x << "-" << pixels[1].x << " -> " << x;
+				//                            STDLINE(ssk.str(), ACGreen);
+			      }
+			    //2.7/sqrt(12.) -> indetermination of the charge
+			    //sin(fabs(detector->getYRotation(false))*pi/180) -> bigger charge sharing area
+			    //xErr = sizeTwoErrorBase+sin(fabs(detector->getYRotation(false))*pi/180);
+			    if(fabs(detector->getYRotation(false)) > 10) xErr = 1.35;
+			    else xErr = 0.65;
+			    //                        xErr = 1.44338;
+			    //if(fabs(detector->getYRotation(false)) > 10) xErr = doubleClusters;//xErr = 1.2
+			    //else xErr = doubleClusters;//xErr = 0.8
+
+			  }
+		      }
                     else    //this is for ***>>>>diagonal (yVet[0] != yVet[1] && xVet[0] != xVet[1]) <<<<<<<****
                     {       //cluster made of 2 hits that were discarded before the new changes
                         //STDLINE("Diagonal Cluster???", ACRed);
@@ -523,7 +599,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                         }
                         else  xErr = 2.887;
                     }
-                }
+                // }
             }
             /*
                 if ( cluster->second.size() == 1 )
