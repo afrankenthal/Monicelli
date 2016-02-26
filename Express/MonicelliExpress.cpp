@@ -34,15 +34,15 @@
 #include "trackFinder.h"
 #include "HManager.h"
 #include "Geometry.h"
-#include <TApplication.h>
+//#include <TApplication.h>
 
 #include <cstdlib>
 #include <string>
 #include <sstream>
 #include <vector>
+
+#include <QCoreApplication>
 #include <QDomDocument>
-//#include <QDomImplementation>
-//#include <QDomDocumentType>
 #include <QFile>
 #include <QString>
 #include <QDomNode>
@@ -111,20 +111,22 @@ private:
 int main(int argc, char** argv)
 {
   stringstream ss;
-  TApplication app("App",&argc,argv);
+
+  QCoreApplication app (argc, argv);
+  STDLINE("=== Using a QCoreApplication only =========" ,ACRed);
+
   XmlParser theXmlParser;
   std::string configFileName = "./xml/ExpressConfiguration.xml";
-//  std::cout << argc << " " << argv[1] << std::endl;
-//  return 1;
-  if(argc == 2)
+  
+  if (argc == 2)
     configFileName = std::string("./xml/") + argv[1];
-  else if(argc > 2)
-  {
-    ss.str("");
-    ss << "Usage: ./MonicelliExpress optional(configuration file)";
-    STDLINE(ss.str(),ACRed);
-    exit(EXIT_SUCCESS);
-  }
+  else if (argc > 2)
+    {
+      ss.str("");
+      ss << "Usage: ./MonicelliExpress optional(configuration file)";
+      STDLINE(ss.str(),ACRed);
+      exit(EXIT_SUCCESS);
+    }
   ss.str("");
   ss << "Using: " << configFileName << " configuration.";
   STDLINE(ss.str(),ACGreen);
