@@ -633,7 +633,7 @@ bool calibrationLoader::makeHistograms(std::string detector, ROC *roc, bool fit,
                     if( fitR.first!=NULL )
                     {
                         outputFile_ << detector << " " << roc->getID() << " " << (*r).first << " " << (*c).first << " ";
-                        for(int p=0; p < theFitter_->getCalibrationFitFunctionNPar(); p++)//FIXME THIS IS WRONG IF THE FUNCTION IN THE FITTER IS DIFFERENT THAN THE ONE IN THE FILE
+                        for(int p=0; p < theFitter_->getCalibrationFitFunctionNPar(); p++) //FIXME THIS IS WRONG IF THE FUNCTION IN THE FITTER IS DIFFERENT THAN THE ONE IN THE FILE
                         {
                             outputFile_ << fitR.first[p] << " ";
                         }
@@ -657,18 +657,6 @@ void calibrationLoader::writeGeometry(std::string detector, ROC *roc )
         for(std::map<int, std::pair<TH1I*,fitter::fitResultDef> >::iterator c=(*r).second.begin(); c!=(*r).second.end(); c++)
             roc->setCalibrationFunction((*r).first, (*c).first, c->second.second.first, c->second.second.second);
 }
-
-//==================================================================
-//void calibrationLoader::fitHistograms(std::string detector, ROC *roc, double xmin, double xmax)
-//{
-//    for(pixelPlotsMapDef::iterator r=calibrations_[detector][roc->getID()].begin(); r!=calibrations_[detector][roc->getID()].end(); r++)
-//    {
-//        for(std::map<int, std::pair<TH1I*,fitter::fitResultDef> >::iterator c=(*r).second.begin(); c!=(*r).second.end(); c++)
-//        {
-//            c->second.second = theFitter_->calibrationFit((*c).second.first, xmin, xmax);
-//        }
-//    }
-//}
 
 //==================================================================
 TH1* calibrationLoader::getHistogram(std::string detectorID, int rocID, int row, int col)
