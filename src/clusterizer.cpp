@@ -38,10 +38,11 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/regex.hpp>
 
-// ######################################################
-// # Use this flag in case of normal incidence on DUT   #
-// # and in case there are problems in aligning the DUT #
-// ######################################################
+
+// ###########################################################
+// # FIXME: use this flag in case of normal incidence on DUT #
+// # and in case there are problems in aligning the DUT      #
+// ###########################################################
 #define TESTDIVIDE false
 
 
