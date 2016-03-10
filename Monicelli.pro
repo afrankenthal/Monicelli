@@ -261,6 +261,8 @@ extraclean.commands  = rm -rf Makefile                          \
                        tmp/*                                    \
                        Express/MonicelliExpress                 \
 		       plugins/*/Makefile                       \
+		       plugins/*/moc_*.cpp                      \
+		       plugins/*/ui_*.h                         \
                        MakefileExpress
 
 distclean.depends    = extraclean

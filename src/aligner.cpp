@@ -851,7 +851,7 @@ bool aligner::alignDUT()
         {
             ss_.str("") ;
             ss_ << "Reading event: " << ev ;
-            STDLINE(ss_.str(),ACWhite);
+            STDSNAP(ss_.str(),ACWhite);
         }
 
         Event *theEvent = theFileEater_->getEvent(ev);
@@ -919,11 +919,11 @@ bool aligner::alignDUT()
                 yClusterSize.push_back(nRow.size());
             }
 
-            rxprime.push_back( clusters[DUT_][(int)tracks[tr][DUT_]["cluster ID"]]["x"] );
-            ryprime.push_back( clusters[DUT_][(int)tracks[tr][DUT_]["cluster ID"]]["y"] );
+            rxprime.push_back( clusters[DUT_][(int)tracks[tr][DUT_]["cluster ID"]]["x"]    );
+            ryprime.push_back( clusters[DUT_][(int)tracks[tr][DUT_]["cluster ID"]]["y"]    );
 
-            sigx.push_back( clusters[ DUT_ ][ (int)tracks[tr][DUT_]["cluster ID"] ]["xErr"] );
-            sigy.push_back( clusters[ DUT_ ][ (int)tracks[tr][DUT_]["cluster ID"] ]["yErr"] );
+            sigx.push_back(    clusters[DUT_][(int)tracks[tr][DUT_]["cluster ID"]]["xErr"] );
+            sigy.push_back(    clusters[DUT_][(int)tracks[tr][DUT_]["cluster ID"]]["yErr"] );
 
             dut->fromLocalToGlobalNoRotation(&rxprime[nPoints],&ryprime[nPoints],&sigx[nPoints],&sigy[nPoints]);
             ++nPoints;

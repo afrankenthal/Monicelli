@@ -1,11 +1,11 @@
 /*===============================================================================
  * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
- * 
- * Copyright (C) 2014 
+ *
+ * Copyright (C) 2014
  *
  * Authors:
  *
- * Dario Menasce      (INFN) 
+ * Dario Menasce      (INFN)
  * Luigi Moroni       (INFN)
  * Jennifer Ngadiuba  (INFN)
  * Stefano Terzo      (INFN)
@@ -27,7 +27,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ================================================================================*/
- 
+
 
 /*
 #include <iomanip>
@@ -68,99 +68,99 @@ fitter::~fitter(void)
 //================================================================================
 void fitter::gaussFit(TH1*  histo)
 {
-   double hiEdge  = histo->GetBinLowEdge( histo->FindLastBinAbove(0) );
-   double max     = hiEdge;
-   double loEdge  = histo->GetBinLowEdge( histo->FindFirstBinAbove(0));
-   double min     = loEdge;
-   double mean    = histo->GetMean()         ;
-   double rms     = histo->GetRMS()          ;
-   double height  = histo->GetMaximum()      ;
-   double nRMS    = 2                        ;
+    double hiEdge  = histo->GetBinLowEdge( histo->FindLastBinAbove(0) );
+    double max     = hiEdge;
+    double loEdge  = histo->GetBinLowEdge( histo->FindFirstBinAbove(0));
+    double min     = loEdge;
+    double mean    = histo->GetMean()         ;
+    double rms     = histo->GetRMS()          ;
+    double height  = histo->GetMaximum()      ;
+    double nRMS    = 2                        ;
 
-   //ss_.str("") ;ss_ << "Setting range user: " << loEdge << " - " << hiEdge << " for " << histo->GetName() ; STDLINE(ss_.str(),ACWhite) ;
+    //ss_.str("") ;ss_ << "Setting range user: " << loEdge << " - " << hiEdge << " for " << histo->GetName() ; STDLINE(ss_.str(),ACWhite) ;
 
-   TF1 *gaus = new TF1("gausFitFunc", "[2]*TMath::Gaus(x,[0],[1])", min, max) ;
-   gaus->SetLineColor(2);
-   gaus->SetParNames("Mean", "Sigma", "Height");
+    TF1 *gaus = new TF1("gausFitFunc", "[2]*TMath::Gaus(x,[0],[1])", min, max) ;
+    gaus->SetLineColor(2);
+    gaus->SetParNames("Mean", "Sigma", "Height");
 
-   for(int i=0; i<4; i++)
-   {
-     if ( (mean - nRMS*rms) > min ) min = mean - nRMS*rms ;
-     if ( (mean + nRMS*rms) < max ) max = mean + nRMS*rms;
+    for(int i=0; i<4; i++)
+    {
+        if ( (mean - nRMS*rms) > min ) min = mean - nRMS*rms ;
+        if ( (mean + nRMS*rms) < max ) max = mean + nRMS*rms;
 
-     //histo->GetXaxis()->SetRangeUser(loEdge, hiEdge);
-     gaus->SetRange(min, max);
-     gaus->SetParameters(mean, rms, height);
+        //histo->GetXaxis()->SetRangeUser(loEdge, hiEdge);
+        gaus->SetRange(min, max);
+        gaus->SetParameters(mean, rms, height);
 
-     ss_.str("") ; ss_ << "Gaussian fit to " << histo->GetName() ;
-     STDLINE(ss_.str(),ACYellow) ;
-     histo->Fit("gausFitFunc", "RLQ");
+        ss_.str("") ; ss_ << "Gaussian fit to " << histo->GetName() ;
+        STDLINE(ss_.str(),ACYellow) ;
+        histo->Fit("gausFitFunc", "RLQ");
 
-     mean_ = gaus->GetParameter(0);
-     sigma_= fabs( gaus->GetParameter(1) );
+        mean_ = gaus->GetParameter(0);
+        sigma_= fabs( gaus->GetParameter(1) );
 
-     if ( (mean_+sigma_*1.5) < hiEdge  ) hiEdge =  (mean_+sigma_*1.5);
-     if ( (mean_-sigma_*1.5) > loEdge  ) loEdge =  (mean_-sigma_*1.5);
+        if ( (mean_+sigma_*1.5) < hiEdge  ) hiEdge =  (mean_+sigma_*1.5);
+        if ( (mean_-sigma_*1.5) > loEdge  ) loEdge =  (mean_-sigma_*1.5);
 
-     //histo->GetXaxis()->SetRangeUser(loEdge, hiEdge);
+        //histo->GetXaxis()->SetRangeUser(loEdge, hiEdge);
 
-     mean = histo->GetMean();
-     rms  = fabs( histo->GetRMS() );
+        mean = histo->GetMean();
+        rms  = fabs( histo->GetRMS() );
 
-     gaus->SetRange(loEdge, hiEdge);
-     gaus->SetParameters(mean, rms, height);
-     histo->Fit("gausFitFunc", "RLQ");
+        gaus->SetRange(loEdge, hiEdge);
+        gaus->SetParameters(mean, rms, height);
+        histo->Fit("gausFitFunc", "RLQ");
 
-     mean_ = gaus->GetParameter(0);
-     sigma_= fabs( gaus->GetParameter(1) );
-   }
+        mean_ = gaus->GetParameter(0);
+        sigma_= fabs( gaus->GetParameter(1) );
+    }
 
-   //ss_.str(""); ss_  << "Chi2: " <<  gaus->GetChisquare()/gaus->GetNDF(); STDLINE(  ss_.str() ,ACGreen ) ;
+    //ss_.str(""); ss_  << "Chi2: " <<  gaus->GetChisquare()/gaus->GetNDF(); STDLINE(  ss_.str() ,ACGreen ) ;
 }
 
 //===============================================================================
 void fitter::gaussFit(TH1*  histo, double mean, double userRMS, double nRMS)
 {
-   double max    = histo->GetBinLowEdge( histo->FindLastBinAbove() );
-   double height = histo->GetMaximum()      ;
-   double rms = 0;
-   if ( nRMS     <= 0 ) nRMS = 2;
-   if ( userRMS  <= 0 ) rms = histo->GetRMS() ;
-   else                 rms = userRMS         ;
+    double max    = histo->GetBinLowEdge( histo->FindLastBinAbove() );
+    double height = histo->GetMaximum()      ;
+    double rms = 0;
+    if ( nRMS     <= 0 ) nRMS = 2;
+    if ( userRMS  <= 0 ) rms = histo->GetRMS() ;
+    else                 rms = userRMS         ;
 
-   ss_.str("") ; ss_ << "For " << histo->GetName() << " mean: " << mean << " userRMS: " << userRMS << " nRMS: " << nRMS << " rms: " << rms; STDLINE(ss_.str(),ACWhite) ;
+    ss_.str("") ; ss_ << "For " << histo->GetName() << " mean: " << mean << " userRMS: " << userRMS << " nRMS: " << nRMS << " rms: " << rms; STDLINE(ss_.str(),ACWhite) ;
 
-   double min = mean-nRMS*rms;
+    double min = mean-nRMS*rms;
 
-   if ( (mean - nRMS*rms) > min ) min = mean - nRMS*rms ;
-   if ( (mean + nRMS*rms) < max ) max = (mean + nRMS*rms);
+    if ( (mean - nRMS*rms) > min ) min = mean - nRMS*rms ;
+    if ( (mean + nRMS*rms) < max ) max = (mean + nRMS*rms);
 
-   TF1 *gaus = new TF1("gausFitFunc", "[2]*TMath::Gaus(x,[0],[1])",min , max) ;
-   gaus->SetParNames("Mean", "Sigma", "Height"  );
-   gaus->SetLineColor(2);
-   ss_.str("") ; ss_ << " min: " << min << " max: " << max ; STDLINE(ss_.str(),ACWhite) ;
-   gaus->SetParameters(mean, rms, height);
+    TF1 *gaus = new TF1("gausFitFunc", "[2]*TMath::Gaus(x,[0],[1])",min , max) ;
+    gaus->SetParNames("Mean", "Sigma", "Height"  );
+    gaus->SetLineColor(2);
+    ss_.str("") ; ss_ << " min: " << min << " max: " << max ; STDLINE(ss_.str(),ACWhite) ;
+    gaus->SetParameters(mean, rms, height);
 
-   histo->Fit("gausFitFunc", "RLQ");
+    histo->Fit("gausFitFunc", "RLQ");
 
-   mean_ = gaus->GetParameter(0);
-   sigma_= fabs( gaus->GetParameter(1) );
+    mean_ = gaus->GetParameter(0);
+    sigma_= fabs( gaus->GetParameter(1) );
 
-   ss_.str("");
-   ss_  << "Chi2: " <<  gaus->GetChisquare()/gaus->GetNDF();
-   STDLINE(  ss_.str() ,ACGreen ) ;
+    ss_.str("");
+    ss_  << "Chi2: " <<  gaus->GetChisquare()/gaus->GetNDF();
+    STDLINE(  ss_.str() ,ACGreen ) ;
 }
 
 //===============================================================================
 void fitter::chi2Fit(TH1* histo)
 {
-//    double hiEdge  = histo->GetBinLowEdge( histo->FindLastBinAbove(0) );
+    //    double hiEdge  = histo->GetBinLowEdge( histo->FindLastBinAbove(0) );
     double min     = 0;
     double max     = 20;
-//    double loEdge  = histo->GetBinLowEdge( histo->FindFirstBinAbove(0));
-//    double mean    = histo->GetMean()         ;
-//    double rms     = histo->GetRMS()          ;
-//    double height  = histo->GetMaximum()      ;
+    //    double loEdge  = histo->GetBinLowEdge( histo->FindFirstBinAbove(0));
+    //    double mean    = histo->GetMean()         ;
+    //    double rms     = histo->GetRMS()          ;
+    //    double height  = histo->GetMaximum()      ;
 
     //ss_.str("") ;ss_ << "Setting range user: " << loEdge << " - " << hiEdge << " for " << histo->GetName() ; STDLINE(ss_.str(),ACWhite) ;
 
@@ -171,7 +171,7 @@ void fitter::chi2Fit(TH1* histo)
     chi2->SetLineColor(4);
     chi2->SetParNames("DOF", "Amplitude");
     histo->Fit(chi2, "RLQ");
- /*
+    /*
     for(int i=0; i<4; i++)
     {
       if ( (mean - nRMS*rms) > min ) min = mean - nRMS*rms ;
@@ -206,15 +206,58 @@ void fitter::chi2Fit(TH1* histo)
 }
 
 //=================================================================
-void fitter::linearFit(TH1*  histo, double *slope, double *q, double xmin, double xmax)
+void fitter::linearFit(TH1*  histo, double *slope, double *q, double tolerance )
 {
-   TF1 *line = new TF1("linearFitFunc", "x*[0]+[1]", -1000, +1000) ;
-   line->SetLineColor(4);
-   line->SetParNames("Slope", "q");
-   line->SetParameters(*slope,*q );
+    double nsig = tolerance ;
 
+    ss_.str("") ; ss_ << "Fitting with a tolerance of " << nsig << " sigmas" ;
+    STDLINE(ss_.str(),ACGreen) ;
 
-   histo->Fit("linearFitFunc","Q","",xmin,xmax);
+    TH1D * t = (TH1D*)histo->Clone() ;
+    t->Reset() ;
+
+    for(int bin=1; bin<histo->GetNbinsX(); ++bin )
+    {
+        if( histo->GetBinContent(bin) == 0 &&
+            histo->GetBinError  (bin) == 0 ) continue ;
+        t->Fill(histo->GetBinContent(bin)) ;
+    }
+    double mea = t->GetMean() ;
+    double rms = t->GetRMS()  ;
+
+    int lowB =  5000 ;
+    int higB = -5000 ;
+    for(int bin=1; bin<histo->GetNbinsX(); ++bin )
+    {
+        if( histo->GetBinContent(bin) == 0 &&
+            histo->GetBinError(bin)   == 0 ) continue ;
+        if( histo->GetBinContent(bin) > mea-rms*nsig &&
+            histo->GetBinContent(bin) < mea+rms*nsig )
+        {
+            if( lowB > bin ) lowB = bin ;
+            if( higB < bin ) higB = bin ;
+            t->SetBinContent(bin,histo->GetBinContent(bin)) ;
+            t->SetBinError  (bin,histo->GetBinError  (bin)) ;
+        }
+    }
+    double low = t->GetBinCenter(lowB) ;
+    double hig = t->GetBinCenter(higB) ;
+
+    TF1  * f = new TF1("linearFitFunc", "x*[0]+[1]", low, hig) ;
+    f->SetLineColor(2) ;
+
+    f->SetParameters( *slope, *q );
+
+    histo->GetYaxis()->SetRangeUser(-2.5,2.5) ;
+    t    ->GetYaxis()->SetRangeUser(-2.5,2.5) ;
+    f->SetLineColor(4);
+    f->SetParNames("Slope", "q");
+    f->SetParameters(*slope,*q );
+
+    histo->GetXaxis()->SetRangeUser(-low-.1*low,hig+.1*hig) ;
+    histo->Fit("linearFitFunc","","",low,hig);
+
+    delete t ;
 }
 
 //==============================================================================

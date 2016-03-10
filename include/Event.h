@@ -231,25 +231,25 @@ public:
 
     //Setters
     void                                    setRawData                            (int                       trig,
-                                                                                   const plaqMapDef&         theRawData  );
-    void                                    setClustersHits                       (const clustersHitsMapDef& clustersHits);
-    void                                    setClusters                           (const clustersMapDef&     clusters    );
+                                                                                   const plaqMapDef&         theRawData     );
+    void                                    setClustersHits                       (const clustersHitsMapDef& clustersHits   );
+    void                                    setClusters                           (const clustersMapDef&     clusters       );
     void                                    addUnconstrainedFittedTrack           (unsigned int              trackN,
                                                                                    std::string               detector,
                                                                                    const vectorDef&          fittedTrack,
                                                                                    const matrixDef&          covarianceMatrix,
                                                                                    double                    fittedTrackChi2);
-    void                                    setFittedTrackResiduals              (const residualsMapDef&     residuals       ){fittedTrackResiduals_   = residuals   ;}
-    void                                    setFittedTrackDeviations             (const residualsMapDef&     residuals       ){fittedTrackDeviations_  = residuals   ;}
-    void                                    setFittedTrackPulls                  (const residualsMapDef&     pulls           ){fittedTrackPulls_       = pulls       ;}
-    void                                    setTrigger                           (int                        trigger         ){trig_                   = trigger     ;}
-    void                                    setUTC                               (long long                  utc             ){utc_                    = utc         ;}
-    void                                    setBCO                               (long long                  bco             ){bco_                    = bco         ;}
-    void                                    setTimestamp                         (unsigned int               timestamp       ){timestamp_              = timestamp   ;}
-    void                                    setBubbleSignal                      (bool                       bubbleSignal    ){bubbleSignal_           = bubbleSignal;}
-    void                                    setBubbleAltSignal                   (bool                       bubbleSignal    ){bubbleAltSignal_        = bubbleSignal;}
+    void                                    setFittedTrackResiduals               (const residualsMapDef&    residuals       ){fittedTrackResiduals_   = residuals   ;}
+    void                                    setFittedTrackDeviations              (const residualsMapDef&    residuals       ){fittedTrackDeviations_  = residuals   ;}
+    void                                    setFittedTrackPulls                   (const residualsMapDef&    pulls           ){fittedTrackPulls_       = pulls       ;}
+    void                                    setTrigger                            (int                       trigger         ){trig_                   = trigger     ;}
+    void                                    setUTC                                (long long                 utc             ){utc_                    = utc         ;}
+    void                                    setBCO                                (long long                 bco             ){bco_                    = bco         ;}
+    void                                    setTimestamp                          (unsigned int              timestamp       ){timestamp_              = timestamp   ;}
+    void                                    setBubbleSignal                       (bool                      bubbleSignal    ){bubbleSignal_           = bubbleSignal;}
+    void                                    setBubbleAltSignal                    (bool                      bubbleSignal    ){bubbleAltSignal_        = bubbleSignal;}
 
-    residualsMapDef                         makeFittedTrackDeviations            (int                        trackNumber = -1);
+    residualsMapDef                         makeFittedTrackDeviations             (int                       trackNumber = -1);
 
     //plaqMapDef & getTelescopeHits(void)            ;
     //hitsDef    & getPlaquetteHits(std::string)     ;

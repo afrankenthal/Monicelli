@@ -1224,7 +1224,7 @@ void mainTabs::advanceProgressBar2()
             theBenchmark_->Stop(theThreadProcess_.c_str());
             Float_t realTime = 0 ;
             Float_t CPUTime  = 0 ;
-            cout << "                      " ;
+//            cout << "                      " ;
             theBenchmark_->Summary(realTime, CPUTime);
             cout << endl ;
             ss_.str("") ; ss_ << "Process: " << theThreadProcess_ << "\t\t\tElapsed time: " << realTime << "\tCPU time: " << CPUTime << "\n";
@@ -2484,20 +2484,20 @@ void mainTabs::showResiduals()
     theHManager_->setResidualFilters   (
                                         type,
                                         chi2filter,
-				        maxTracksFilter,
-				        maxPlanePointsFilter,
-				        minTrackHitsFilter,
-				        maxClusterSizeFilter,
-				        onlyClusterSizeFilter
-				       );
-    theHManager_->setOperation        (
-                                       &HManager::eventsCycle,
-				       &HManager::makeResidualDistributions
-				      );
-    theHManager_->setRunSubDir        ( 
-                                       theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) 
-				      );
-    this->launchThread2(theHManager_);
+                                        maxTracksFilter,
+                                        maxPlanePointsFilter,
+                                        minTrackHitsFilter,
+                                        maxClusterSizeFilter,
+                                        onlyClusterSizeFilter
+                                       );
+    theHManager_->setOperation         (
+                                        &HManager::eventsCycle,
+                                        &HManager::makeResidualDistributions
+                                       );
+    theHManager_->setRunSubDir         (
+                                        theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString())
+                                       );
+    this->launchThread2                (theHManager_);
 }
 
 //==============================================================================
@@ -2629,6 +2629,7 @@ void mainTabs::showResiduals2()
         }
     }
     std::cout << std::endl;//After STDSNAP
+
 
     ui->passingEventsLE->setText(QString("%1/%2").arg(totalEventsWithTracksFound).arg(processedEvents));
     double tracksPerEvent = (1.*totalTracksFound) / (1.*totalEventsWithTracksFound);
@@ -3105,13 +3106,17 @@ void mainTabs::on_FitScatterResidualsPB_clicked()
 {
     theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
 
+    double tolerance = ui->linFitSigmasLE->text().toDouble() ;
+
+    ss_.str("") ; ss_ << "Tolerance is now " << tolerance; STDLINE(ss_.str(),ACWhite) ;
+
     for( Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it )
     {
         double slope = 0, q = 0;
-        theFitter_->linearFit((TH1*) theHManager_->getHistogram(X_RES_Y_POS_MEAN, (*it).first ),&slope,&q );
-        theFitter_->linearFit((TH1*) theHManager_->getHistogram(Y_RES_X_POS_MEAN, (*it).first ),&slope,&q );
-        theFitter_->linearFit((TH1*) theHManager_->getHistogram(X_RES_X_POS_MEAN, (*it).first ),&slope,&q );
-        theFitter_->linearFit((TH1*) theHManager_->getHistogram(Y_RES_Y_POS_MEAN, (*it).first ),&slope,&q );
+        theFitter_->linearFit((TH1*) theHManager_->getHistogram(X_RES_Y_POS_MEAN, (*it).first ),&slope,&q, tolerance);
+        theFitter_->linearFit((TH1*) theHManager_->getHistogram(Y_RES_X_POS_MEAN, (*it).first ),&slope,&q, tolerance);
+        theFitter_->linearFit((TH1*) theHManager_->getHistogram(X_RES_X_POS_MEAN, (*it).first ),&slope,&q, tolerance);
+        theFitter_->linearFit((TH1*) theHManager_->getHistogram(Y_RES_Y_POS_MEAN, (*it).first ),&slope,&q, tolerance);
     }
 
     //gStyle->SetOptFit (1111);

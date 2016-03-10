@@ -31,7 +31,10 @@
 #ifndef FITTER_H
 #define FITTER_H
 
+#include <iostream>
 #include <sstream>
+
+using namespace std;
 
 class TH1;
 class TF1;
@@ -45,16 +48,24 @@ public:
 
     typedef std::pair<double*,double*> fitResultDef;
 
-    fitResultDef    calibrationFit(TH1* histo, double xmin, double xmax, double* pars=0               );
-    void            linearFit     (TH1* histo, double* slope, double* q, double xmin=0, double xmax=0 );
-    void            gaussFit      (TH1* histo                                                         );
-    void            gaussFit      (TH1* histo, double mean, double rms, double nRMS                   );
-    void            chi2Fit       (TH1* histo                                                         );
-
-    double          getMean       (void               ){return mean_ ;}
-    double          getSigma      (void               ){return sigma_;}
-    const char*     getCalibrationFitFunctionName(void){return calibrationFitFunctionName_;}
-    int             getCalibrationFitFunctionNPar(void);
+    fitResultDef    calibrationFit               (TH1    * histo,
+                                                  double   xmin,
+                                                  double   xmax,
+                                                  double * pars=0      );
+    void            linearFit                    (TH1    * histo,
+                                                  double * slope,
+                                                  double * q,
+                                                  double   tolerance=2.5);
+    void            gaussFit                     (TH1    * histo        );
+    void            gaussFit                     (TH1    * histo,
+                                                  double   mean,
+                                                  double   rms,
+                                                  double   nRMS         );
+    void            chi2Fit                      (TH1* histo            );
+    double          getMean                      (void                  ){return mean_ ;}
+    double          getSigma                     (void                  ){return sigma_;}
+    const char*     getCalibrationFitFunctionName(void                  ){return calibrationFitFunctionName_;}
+    int             getCalibrationFitFunctionNPar(void                  );
 
 private:
     double            mean_ ;

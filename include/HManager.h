@@ -94,15 +94,22 @@ public:
                                                       double      resY            , double sigy2                        ,
                                                       double      xPrime          , double yPrime                       ,
                                                       bool        clear = false                                       ) ;
-    stringVDef             fillDeviations	         (Event*      theEvent        , int    trackNum    = -1             ,
-                                                      int         clusterSize = -1, bool   clear       = false        ) ;
-    stringVDef             fillPulls	    	     (Event*      theEvent        , int    trackNum    = -1             ,
-                                                      int         clusterSize = -1, bool   clear       = false        ) ;
-    stringVDef             fillResiduals	         (Event*      theEvent        , int    trackNum    = -1             ,
-                                                      int         clusterSize = -1, bool   clear       = false        ) ;
+    stringVDef             fillDeviations	         (Event*      theEvent           ,
+                                                      int         trackNum    = -1   ,
+                                                      int         clusterSize = -1   ,
+                                                      bool        clear       = false                                 ) ;
+    stringVDef             fillPulls	    	     (Event*      theEvent           ,
+                                                      int         trackNum    = -1   ,
+                                                      int         clusterSize = -1   ,
+                                                      bool        clear       = false                                 ) ;
+    stringVDef             fillResiduals	         (Event*      theEvent           ,
+                                                      int         trackNum    = -1   ,
+                                                      int         clusterSize = -1   ,
+                                                      bool        clear       = false                                 ) ;
     stringVDef             fillScatterResidual 	     (Event*      theEvent,
-                                                      int         trackNum    = -1, int    clusterSize = -1            ,
-                                                      bool        clear       = false  		                          ) ;
+                                                      int         trackNum    = -1   ,
+                                                      int         clusterSize = -1   ,
+                                                      bool        clear       = false                                 ) ;
 
     TFile*                 getFileHandle	         (std::string fullPath 		                                      ) ;
     TObject*               getHistogram	    	     (std::string histogramType, int         station    , int plaq    ) ;

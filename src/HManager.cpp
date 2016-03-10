@@ -1,11 +1,11 @@
 /*===============================================================================
  * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
- * 
- * Copyright (C) 2014 
+ *
+ * Copyright (C) 2014
  *
  * Authors:
  *
- * Dario Menasce      (INFN) 
+ * Dario Menasce      (INFN)
  * Luigi Moroni       (INFN)
  * Jennifer Ngadiuba  (INFN)
  * Stefano Terzo      (INFN)
@@ -27,7 +27,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ================================================================================*/
- 
+
 #include "HManager.h"
 
 //=============================================================================
@@ -53,14 +53,17 @@ HManager::HManager(fileEater *theFileEater)
 //=============================================================================
 HManager::~HManager(void)
 {
-//    STDLINE("HManager::~HManager",ACRed);
+    //    STDLINE("HManager::~HManager",ACRed);
     delete emptyTH2I_;
     delete emptyTH1I_;
-//    STDLINE("HManager::~HManager",ACGreen);
+    //    STDLINE("HManager::~HManager",ACGreen);
 }
 
 //=============================================================================
-HManager::stringVDef HManager::fillResiduals (Event* theEvent, int trackNum, int clusterSize, bool clear)
+HManager::stringVDef HManager::fillResiduals (Event* theEvent   ,
+                                              int    trackNum   ,
+                                              int    clusterSize,
+                                              bool   clear      )
 {
     stringVDef fullPaths ;
 
@@ -137,8 +140,10 @@ HManager::stringVDef HManager::fillResiduals (Event* theEvent, int trackNum, int
     return fullPaths;
 }
 //============================================================================
-HManager::stringVDef       HManager::fillDeviations (Event *theEvent, int trackNum ,
-                                                     int clusterSize, bool clear)
+HManager::stringVDef       HManager::fillDeviations (Event* theEvent   ,
+                                                     int    trackNum   ,
+                                                     int    clusterSize,
+                                                     bool   clear      )
 {
     stringVDef fullPaths ;
 
@@ -209,8 +214,10 @@ HManager::stringVDef       HManager::fillDeviations (Event *theEvent, int trackN
     return fullPaths;
 }
 //============================================================================
-HManager::stringVDef     HManager::fillScatterResidual  (Event *theEvent, int trackNum ,
-                                                         int clusterSize,     bool clear)
+HManager::stringVDef     HManager::fillScatterResidual  (Event *theEvent   ,
+                                                         int    trackNum   ,
+                                                         int    clusterSize,
+                                                         bool   clear      )
 {
     stringVDef fullPaths ;
 
@@ -224,13 +231,13 @@ HManager::stringVDef     HManager::fillScatterResidual  (Event *theEvent, int tr
         theGeometry_ = theFileEater_->getGeometry();
         for(Geometry::iterator git=theGeometry_->begin(); git!=theGeometry_->end(); git++)
         {
-            TH2* histo2= (TH2*)this->getHistogram(fullPaths[0] , (*git).first    );
+            TH2* histo2= (TH2*)this->getHistogram(fullPaths[0], (*git).first);
             histo2->Reset("M");
-            histo2     = (TH2*)this->getHistogram(fullPaths[1], (*git).first    );
+            histo2     = (TH2*)this->getHistogram(fullPaths[1], (*git).first);
             histo2->Reset("M");
-            histo2     = (TH2*)this->getHistogram(fullPaths[2] , (*git).first    );
+            histo2     = (TH2*)this->getHistogram(fullPaths[2], (*git).first);
             histo2->Reset("M");
-            histo2     = (TH2*)this->getHistogram(fullPaths[3], (*git).first    );
+            histo2     = (TH2*)this->getHistogram(fullPaths[3], (*git).first);
             histo2->Reset("M");
         }
     }
@@ -564,19 +571,19 @@ HManager::stringVDef HManager::fillAlignmentResults(std::string detector,
 
             ////////////////////////////////XY Correlation//////////////////////////////////////
 
-            XresYcoHistoAll =  new TH2D(detector.c_str(),(detector + ": X Residual vs Y Coordinate").c_str(), 400,-length,+length, 400,-0.1*CONVF,+0.1*CONVF);
+            XresYcoHistoAll =  new TH2D(detector.c_str(),(detector + ": X Residual vs Y Coordinate").c_str(), 400,-length,+length, 2000,-0.1*CONVF,+0.1*CONVF);
             XresYcoHistoAll->GetXaxis()->SetTitle("Y Coordinate (10um)");
             XresYcoHistoAll->GetYaxis()->SetTitle("X Residual (10um)");
             XresYcoHistoAll->SetDirectory(0);
             this->addItem(fullPaths[12],XresYcoHistoAll);
 
-            XresYcoHistoSize1 =  new TH2D(detector.c_str(),(detector + ": X Residual vs Y Coordinate cluster size 1").c_str(), 400,-length,+length, 400,-0.1*CONVF,+0.1*CONVF);
+            XresYcoHistoSize1 =  new TH2D(detector.c_str(),(detector + ": X Residual vs Y Coordinate cluster size 1").c_str(), 400,-length,+length, 2000,-0.1*CONVF,+0.1*CONVF);
             XresYcoHistoSize1->GetXaxis()->SetTitle("Y Coordinate (10um)");
             XresYcoHistoSize1->GetYaxis()->SetTitle("X Residual (10um)");
             XresYcoHistoSize1->SetDirectory(0);
             this->addItem(fullPaths[13],XresYcoHistoSize1);
 
-            XresYcoHistoSize2 =  new TH2D(detector.c_str(),(detector + ": X Residual vs Y Coordinate cluster size 2").c_str(), 400,-length,+length, 400,-0.1*CONVF,+0.1*CONVF);
+            XresYcoHistoSize2 =  new TH2D(detector.c_str(),(detector + ": X Residual vs Y Coordinate cluster size 2").c_str(), 400,-length,+length, 2000,-0.1*CONVF,+0.1*CONVF);
             XresYcoHistoSize2->GetXaxis()->SetTitle("Y Coordinate (10um)");
             XresYcoHistoSize2->GetYaxis()->SetTitle("X Residual (10um)");
             XresYcoHistoSize2->SetDirectory(0);
@@ -584,19 +591,19 @@ HManager::stringVDef HManager::fillAlignmentResults(std::string detector,
 
             ////////////////////////////////YX Correlation//////////////////////////////////////
 
-            YresXcoHistoAll =  new TH2D(detector.c_str(),(detector + ": Y Residual vs X Coordinate").c_str(), 400,-length,+length, 400,-0.1*CONVF,+0.1*CONVF);
+            YresXcoHistoAll =  new TH2D(detector.c_str(),(detector + ": Y Residual vs X Coordinate").c_str(), 400,-length,+length, 2000,-0.1*CONVF,+0.1*CONVF);
             YresXcoHistoAll->GetXaxis()->SetTitle("X Coordinate (10um)");
             YresXcoHistoAll->GetYaxis()->SetTitle("Y Residual (10um)")           ;
             YresXcoHistoAll->SetDirectory(0);
             this->addItem(fullPaths[15],YresXcoHistoAll);
 
-            YresXcoHistoSize1 =  new TH2D(detector.c_str(),(detector + ": Y Residual vs X Coordinate cluster size 1").c_str(), 400,-length,+length, 400,-0.1*CONVF,+0.1*CONVF);
+            YresXcoHistoSize1 =  new TH2D(detector.c_str(),(detector + ": Y Residual vs X Coordinate cluster size 1").c_str(), 400,-length,+length, 2000,-0.1*CONVF,+0.1*CONVF);
             YresXcoHistoSize1->GetXaxis()->SetTitle("X Coordinate (10um)");
             YresXcoHistoSize1->GetYaxis()->SetTitle("Y Residual (10um)")           ;
             YresXcoHistoSize1->SetDirectory(0);
             this->addItem(fullPaths[16],YresXcoHistoSize1);
 
-            YresXcoHistoSize2 =  new TH2D(detector.c_str(),(detector + ": Y Residual vs X Coordinate cluster size 2").c_str(), 400,-length,+length, 400,-0.1*CONVF,+0.1*CONVF);
+            YresXcoHistoSize2 =  new TH2D(detector.c_str(),(detector + ": Y Residual vs X Coordinate cluster size 2").c_str(), 400,-length,+length, 2000,-0.1*CONVF,+0.1*CONVF);
             YresXcoHistoSize2->GetXaxis()->SetTitle("X Coordinate (10um)");
             YresXcoHistoSize2->GetYaxis()->SetTitle("Y Residual (10um)")           ;
             YresXcoHistoSize2->SetDirectory(0);
@@ -604,19 +611,19 @@ HManager::stringVDef HManager::fillAlignmentResults(std::string detector,
 
             ////////////////////////////////XX Correlation//////////////////////////////////////
 
-            XresXcoHistoAll =  new TH2D(detector.c_str(),(detector + ": X Residual vs X Coordinate").c_str(), 400,-length,+length, 400,-0.1*CONVF,+0.1*CONVF);
+            XresXcoHistoAll =  new TH2D(detector.c_str(),(detector + ": X Residual vs X Coordinate").c_str(), 400,-length,+length, 2000,-0.1*CONVF,+0.1*CONVF);
             XresXcoHistoAll->GetXaxis()->SetTitle("X Coordinate (10um)");
             XresXcoHistoAll->GetYaxis()->SetTitle("X Residual (10um)")           ;
             XresXcoHistoAll->SetDirectory(0);
             this->addItem(fullPaths[18],XresXcoHistoAll);
 
-            XresXcoHistoSize1 =  new TH2D(detector.c_str(),(detector + ": X Residual vs X Coordinate cluster size 1").c_str(), 400,-length,+length, 400,-0.1*CONVF,+0.1*CONVF);
+            XresXcoHistoSize1 =  new TH2D(detector.c_str(),(detector + ": X Residual vs X Coordinate cluster size 1").c_str(), 400,-length,+length, 2000,-0.1*CONVF,+0.1*CONVF);
             XresXcoHistoSize1->GetXaxis()->SetTitle("X Coordinate (10um)");
             XresXcoHistoSize1->GetYaxis()->SetTitle("X Residual (10um)")           ;
             XresXcoHistoSize1->SetDirectory(0);
             this->addItem(fullPaths[19],XresXcoHistoSize1);
 
-            XresXcoHistoSize2 =  new TH2D(detector.c_str(),(detector + ": X Residual vs X Coordinate cluster size 2").c_str(), 400,-length,+length, 400,-0.1*CONVF,+0.1*CONVF);
+            XresXcoHistoSize2 =  new TH2D(detector.c_str(),(detector + ": X Residual vs X Coordinate cluster size 2").c_str(), 400,-length,+length, 2000,-0.1*CONVF,+0.1*CONVF);
             XresXcoHistoSize2->GetXaxis()->SetTitle("X Coordinate (10um)");
             XresXcoHistoSize2->GetYaxis()->SetTitle("X Residual (10um)")           ;
             XresXcoHistoSize2->SetDirectory(0);
@@ -624,19 +631,19 @@ HManager::stringVDef HManager::fillAlignmentResults(std::string detector,
 
             ////////////////////////////////YY Correlation//////////////////////////////////////
 
-            YresYcoHistoAll =  new TH2D(detector.c_str(),(detector + ": Y Residual vs Y Coordinate").c_str(), 400,-length,+length, 400,-0.1*CONVF,+0.1*CONVF);
+            YresYcoHistoAll =  new TH2D(detector.c_str(),(detector + ": Y Residual vs Y Coordinate").c_str(), 400,-length,+length, 2000,-0.1*CONVF,+0.1*CONVF);
             YresYcoHistoAll->GetXaxis()->SetTitle("Y Coordinate (10um)");
             YresYcoHistoAll->GetYaxis()->SetTitle("Y Residual (10um)")           ;
             YresYcoHistoAll->SetDirectory(0);
             this->addItem(fullPaths[21],YresYcoHistoAll);
 
-            YresYcoHistoSize1 =  new TH2D(detector.c_str(),(detector + ": Y Residual vs Y Coordinate cluster size 1").c_str(), 400,-length,+length, 400,-0.1*CONVF,+0.1*CONVF);
+            YresYcoHistoSize1 =  new TH2D(detector.c_str(),(detector + ": Y Residual vs Y Coordinate cluster size 1").c_str(), 400,-length,+length, 2000,-0.1*CONVF,+0.1*CONVF);
             YresYcoHistoSize1->GetXaxis()->SetTitle("Y Coordinate (10um)");
             YresYcoHistoSize1->GetYaxis()->SetTitle("Y Residual (10um)")           ;
             YresYcoHistoSize1->SetDirectory(0);
             this->addItem(fullPaths[22],YresYcoHistoSize1);
 
-            YresYcoHistoSize2 =  new TH2D(detector.c_str(),(detector + ": Y Residual vs Y Coordinate cluster size 2").c_str(), 400,-length,+length, 400,-0.1*CONVF,+0.1*CONVF);
+            YresYcoHistoSize2 =  new TH2D(detector.c_str(),(detector + ": Y Residual vs Y Coordinate cluster size 2").c_str(), 400,-length,+length, 2000,-0.1*CONVF,+0.1*CONVF);
             YresYcoHistoSize2->GetXaxis()->SetTitle("Y Coordinate (10um)");
             YresYcoHistoSize2->GetYaxis()->SetTitle("Y Residual (10um)")           ;
             YresYcoHistoSize2->SetDirectory(0);
@@ -750,8 +757,10 @@ HManager::stringVDef HManager::fillAlignmentResults(std::string detector,
     return fullPaths;
 }
 //===========================================================================
-HManager::stringVDef  HManager::fillPulls (Event *theEvent, int trackNum ,
-                                           int clusterSize, bool clear    )
+HManager::stringVDef  HManager::fillPulls (Event* theEvent   ,
+                                           int    trackNum   ,
+                                           int    clusterSize,
+                                           bool   clear      )
 {
     stringVDef fullPaths ;
 
@@ -1030,11 +1039,11 @@ HManager::stringVDef HManager::makeTrackEvent( Event *theEvent )
 
             ss_.str("");
             ss_ << "x prime: "  << clusters[(*it).first][(int)(*it).second["cluster ID"]]["x"] - theGeometry_->getDetector( (*it).first )->getXPosition()
-                << " y prime: " << clusters[(*it).first][(int)(*it).second["cluster ID"]]["y"] - theGeometry_->getDetector( (*it).first )->getYPosition()
-                << " z center: " << theGeometry_->getDetector( (*it).first )->getZPositionTotal()
-                << " x: "  << /*xtry*/(*it).second["x"]
-                << " y: "  << /*ytry*/(*it).second["y"]
-                << " z: "  << (*it).second["z"];
+                    << " y prime: " << clusters[(*it).first][(int)(*it).second["cluster ID"]]["y"] - theGeometry_->getDetector( (*it).first )->getYPosition()
+                    << " z center: " << theGeometry_->getDetector( (*it).first )->getZPositionTotal()
+                    << " x: "  << /*xtry*/(*it).second["x"]
+                    << " y: "  << /*ytry*/(*it).second["y"]
+                    << " z: "  << (*it).second["z"];
             STDLINE(ss_.str(),ACPurple);
 
 
@@ -1834,7 +1843,7 @@ HManager::stringVDef HManager::makeResidualDistributions(Event* theEvent, bool& 
             }
             int  clusterSizeSel = -1   ;
             if( onlyClusterSizeFilter_ > 0 )
-                clusterSizeSel = onlyClusterSizeFilter_;
+                clusterSizeSel  = onlyClusterSizeFilter_;
             if( residualsToPlot_ == "showScatterResiduals" )  fullPaths = this->fillScatterResidual( theEvent, (int)tr, clusterSizeSel);
             if( residualsToPlot_ == "showResiduals"        )  fullPaths = this->fillResiduals      ( theEvent, (int)tr, clusterSizeSel);
             if( residualsToPlot_ == "showDeviations"       )  fullPaths = this->fillDeviations     ( theEvent, (int)tr, clusterSizeSel);
@@ -1845,10 +1854,10 @@ HManager::stringVDef HManager::makeResidualDistributions(Event* theEvent, bool& 
         if(goodEvent)
         {
             ++totalEventsWithTracksFound_;
-//            ss_.str("");
-//            ss_ << ev;
-//            ui->eventDisplayTrackFitterEventsSelected->addItem( QString::fromStdString(ss_.str()) );
-//            selectedEvents_.push_back(ev);
+            //            ss_.str("");
+            //            ss_ << ev;
+            //            ui->eventDisplayTrackFitterEventsSelected->addItem( QString::fromStdString(ss_.str()) );
+            //            selectedEvents_.push_back(ev);
         }
     }
     else
@@ -2149,7 +2158,7 @@ HManager::stringVDef HManager::makeTrackErrorsOnDUTs2 (Event * theEvent, bool &a
             if(duts->first.c_str() == std::string("Station: 4 - Plaq: 1"))
             {
                 vetHx->Fill( 10*sqrt(covMat[tr](1,1)) );
-                vetHy->Fill( 10*sqrt(covMat[tr](3,3)) );
+                             vetHy->Fill( 10*sqrt(covMat[tr](3,3)) );
             }
             else
             {

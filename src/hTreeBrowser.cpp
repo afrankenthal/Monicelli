@@ -541,7 +541,6 @@ void hTreeBrowser::collectItems(QTreeWidgetItem                  * wItem,
         TFolder * targetFolder = (TFolder *)(gROOT->GetRootFolder()->FindObjectAny(dir.c_str())) ;
         TObject * obj = targetFolder->FindObject(wItem->text(0).toStdString().c_str()) ;
         selectedObjects[dir].push_back(obj) ;
-STDLINE("############################################################################",ACCyan) ;
     }
     else // Selected object resides on files
     {
