@@ -1,40 +1,11 @@
-/*===============================================================================
- * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
- * 
- * Copyright (C) 2014 
- *
- * Authors:
- *
- * Dario Menasce      (INFN) 
- * Luigi Moroni       (INFN)
- * Jennifer Ngadiuba  (INFN)
- * Stefano Terzo      (INFN)
- * Lorenzo Uplegger   (FNAL)
- * Luigi Vigani       (INFN)
- *
- * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ================================================================================*/
- 
 #include "fileEater.h"
 #include "clusterizer.h"
 #include "trackFitter.h"
 #include "trackFinder.h"
 #include "HManager.h"
 #include "Geometry.h"
-//#include <TApplication.h>
+#include "aligner.h"
+#include "threader.h"
 
 #include <cstdlib>
 #include <string>
@@ -47,79 +18,180 @@
 #include <QString>
 #include <QDomNode>
 
+
 using namespace std;
+
 
 class XmlDefaults;
 class XmlFile;
 
+
 class XmlParser
 {
 public:
-    XmlParser (void);
-    ~XmlParser(void);
-
-    void parseDocument(std::string fileName);
-
-    XmlDefaults*          getDefaults(void){return theDefaults_;}
-    std::vector<XmlFile*> getFileList(void){return theFileList_;}
-
+  XmlParser (void);
+  ~XmlParser(void);
+  
+  void parseDocument(std::string fileName);
+  
+  XmlDefaults*          getDefaults(void) {return theDefaults_;}
+  std::vector<XmlFile*> getFileList(void) {return theFileList_;}
+  
 private:
-    QDomDocument*  document_;
-    QDomNode       rootNode_;
-
-    XmlDefaults*          theDefaults_;
-    std::vector<XmlFile*> theFileList_;
-    stringstream ss_;
+  QDomDocument* document_;
+  QDomNode      rootNode_;
+  
+  XmlDefaults*          theDefaults_;
+  std::vector<XmlFile*> theFileList_;
+  stringstream          ss_;
 };
+
 
 class XmlDefaults
 {
 public:
-    XmlDefaults (QDomNode& node);
-    ~XmlDefaults(void){;}
-    QDomNode&   getNode(void){return thisNode_;}
-    std::string filesPath_;
-    std::string geometriesPath_;
-    std::string trackFindingAlgorithm_;
-    std::string trackFittingAlgorithm_;
-    int         numberOfEvents_;     
-    double      chi2Cut_;	       
-    int         trackPoints_;     
-    int         maxPlanePoints_;     
-    int         xTolerance_;         
-    int         yTolerance_;         
-    bool        findDut_;         
-    bool        useEtaFunction_;         
+  XmlDefaults (QDomNode& node);
+  ~XmlDefaults(void) {;}
 
+  QDomNode&   getNode(void) {return thisNode_;}
+
+  std::string filesPath_;
+  std::string geometriesPath_;
+  std::string trackFindingAlgorithm_;
+  std::string trackFittingAlgorithm_;
+  int         numberOfEvents_;     
+  double      chi2Cut_;	       
+  int         trackPoints_;     
+  int         maxPlanePoints_;     
+  int         xTolerance_;         
+  int         yTolerance_;         
+  bool        findDut_;         
+  bool        useEtaFunction_;         
+  bool        doFineAlignment_;
+  
 private:
-    QDomNode    thisNode_;
+  QDomNode thisNode_;
 };
+
 
 class XmlFile
 {
 public:
-    XmlFile (QDomNode& node);
-    ~XmlFile(void){;}
-    QDomNode&   getNode(void){return thisNode_;}
-    std::string fileName_;
-    std::string geometryName_;
+  XmlFile (QDomNode& node);
+  ~XmlFile(void) {;}
+  QDomNode&   getNode(void) {return thisNode_;}
 
+  std::string fileName_;
+  std::string geometryName_;
+  
 private:
-    QDomNode    thisNode_;
+  QDomNode thisNode_;
 };
 
-int main(int argc, char** argv)
+
+XmlParser::XmlParser(void) : document_(0)
 {
+}
+
+
+XmlParser::~XmlParser()
+{
+  if(document_) delete document_;
+}
+
+
+void XmlParser::parseDocument(std::string xmlFileName)
+{
+  if (document_) delete document_;
+  
+  document_ = new QDomDocument("ConfigurationFile");
+  QFile xmlFile(xmlFileName.c_str());
+
+  if (!xmlFile.open(QIODevice::ReadOnly | QIODevice::Text)) // Is this OK ???
+    {
+      STDLINE(std::string("Could not open ") + xmlFile.fileName().toStdString(),ACRed);
+      return;
+    }
+  
+  QString errMsg = "";
+  int line;
+  int col;
+
+  if (!document_->setContent( &xmlFile, true , &errMsg, &line, &col))
+    {
+      STDLINE(std::string("Could not access ") + xmlFile.fileName().toStdString(),ACRed);
+      ss_ << "Error: " << errMsg.toStdString() << " line: " << line << " col: " << col;
+      STDLINE(ss_.str(),ACGreen);
+      xmlFile.close();
+      return;
+    }
+  
+  STDLINE(std::string("Parsing ") + xmlFile.fileName().toStdString(),ACGreen);
+  
+  rootNode_ = document_->elementsByTagName("MonicelliExpressConfiguration").at(0);
+  
+  QDomNode defaults = document_->elementsByTagName("Defaults").at(0);
+  theDefaults_ = new XmlDefaults(defaults);
+
+  QDomNodeList fileList = document_->elementsByTagName("File");
+
+  for (int f = 0; f < fileList.size(); ++f)
+    {
+      QDomNode fileNode = fileList.at(f);
+
+      if (!fileNode.isComment()) theFileList_.push_back(new XmlFile(fileNode));
+    }
+  
+  xmlFile.close();
+}
+
+
+XmlDefaults::XmlDefaults(QDomNode& node)
+{
+  thisNode_       	 = node;
+  filesPath_      	 = node.toElement().attribute("FilesPath").toStdString();
+  geometriesPath_ 	 = node.toElement().attribute("GeometriesPath").toStdString();
+  trackFindingAlgorithm_ = node.toElement().attribute("TrackFindingAlgorithm").toStdString();
+  trackFittingAlgorithm_ = node.toElement().attribute("TrackFittingAlgorithm").toStdString();
+  numberOfEvents_        = node.toElement().attribute("NumberOfEvents").toInt();
+  chi2Cut_        	 = node.toElement().attribute("Chi2Cut").toInt();
+  trackPoints_    	 = node.toElement().attribute("TrackPoints").toInt();
+  maxPlanePoints_ 	 = node.toElement().attribute("MaxPlanePoints").toInt();
+  xTolerance_     	 = node.toElement().attribute("XTolerance").toInt();
+  yTolerance_     	 = node.toElement().attribute("YTolerance").toInt();
+  findDut_        	 = true;
+  useEtaFunction_        = true;
+  doFineAlignment_       = true;
+
+  if (node.toElement().attribute("FindDut") == "false" || node.toElement().attribute("FindDut") == "False")
+    findDut_ = false;
+  if (node.toElement().attribute("UseEtaFunction") == "false" || node.toElement().attribute("UseEtaFunction") == "False")
+    useEtaFunction_ = false;
+  if (node.toElement().attribute("FineAlignment") == "false" || node.toElement().attribute("FineAlignmente") == "False")
+    doFineAlignment_ = false;
+}
+
+
+XmlFile::XmlFile(QDomNode& node)
+{
+  thisNode_     = node;
+  fileName_     = node.toElement().attribute("Name")    .toStdString();
+  geometryName_ = node.toElement().attribute("Geometry").toStdString();
+}
+
+
+
+
+int main (int argc, char** argv)
+{
+  QCoreApplication app (argc, argv);
+
   stringstream ss;
 
-  QCoreApplication app (argc, argv);
-  STDLINE("=== Using a QCoreApplication only =========" ,ACRed);
-
   XmlParser theXmlParser;
-  std::string configFileName = "./xml/ExpressConfiguration.xml";
-  
-  if (argc == 2)
-    configFileName = std::string("./xml/") + argv[1];
+  std::string configFileName;
+
+  if (argc == 2) configFileName = std::string("./xml/") + argv[1];
   else if (argc > 2)
     {
       ss.str("");
@@ -127,209 +199,252 @@ int main(int argc, char** argv)
       STDLINE(ss.str(),ACRed);
       exit(EXIT_SUCCESS);
     }
+
   ss.str("");
   ss << "Using: " << configFileName << " configuration.";
   STDLINE(ss.str(),ACGreen);
-  
-  theXmlParser.parseDocument(configFileName.c_str());
 
-  const string filesPath            = theXmlParser.getDefaults()->filesPath_     ;
+  theXmlParser.parseDocument(configFileName.c_str());
+  
+  
+  const string filesPath            = theXmlParser.getDefaults()->filesPath_;
   const string geometriesPath       = theXmlParser.getDefaults()->geometriesPath_;
   std::string trackFindingAlgorithm = theXmlParser.getDefaults()->trackFindingAlgorithm_;
   std::string trackFittingAlgorithm = theXmlParser.getDefaults()->trackFittingAlgorithm_;
   int    numberOfEvents             = theXmlParser.getDefaults()->numberOfEvents_;
-  double chi2Cut                    = theXmlParser.getDefaults()->chi2Cut_       ;
-  int    trackPoints                = theXmlParser.getDefaults()->trackPoints_   ;
+  double chi2Cut                    = theXmlParser.getDefaults()->chi2Cut_;
+  int    trackPoints                = theXmlParser.getDefaults()->trackPoints_;
   int    maxPlanePoints             = theXmlParser.getDefaults()->maxPlanePoints_;
-  int	 xTolerance                 = theXmlParser.getDefaults()->xTolerance_    ;
-  int	 yTolerance                 = theXmlParser.getDefaults()->yTolerance_    ;
-  bool   findDut                    = theXmlParser.getDefaults()->findDut_       ;
+  int	 xTolerance                 = theXmlParser.getDefaults()->xTolerance_;
+  int	 yTolerance                 = theXmlParser.getDefaults()->yTolerance_;
+  bool   findDut                    = theXmlParser.getDefaults()->findDut_;
   bool   useEtaFunction             = theXmlParser.getDefaults()->useEtaFunction_;
-  std::cout << trackFindingAlgorithm << " " << trackPoints << std::endl;
-  for(unsigned int f=0; f<theXmlParser.getFileList().size(); f++)
-  {
-    string fileName    = filesPath      + theXmlParser.getFileList()[f]->fileName_;
-    string geoFileName = geometriesPath + theXmlParser.getFileList()[f]->geometryName_;
+  bool   doFineAlignment            = theXmlParser.getDefaults()->doFineAlignment_;
 
-    fileEater	theFileEater;
-    HManager    theHManager(&theFileEater);
-    theFileEater.setHManger(&theHManager);
-    clusterizer theClusterizer;
-    trackFitter theTrackFitter;
-    trackFinder theTrackFinder(&theTrackFitter);
 
-    //////////////////////////////////////////
-    //Parse and make events
-    if(theFileEater.openFile(geoFileName)=="Error!")
+  for (unsigned int f = 0; f < theXmlParser.getFileList().size(); f++)
     {
-       STDLINE("Error in geoFileName",ACRed);
-       continue;
-    }   
-    theFileEater.setInputFileName( fileName );
-    theFileEater.setEventsLimit( numberOfEvents );
-  
-    Geometry* theGeometry = theFileEater.getGeometry();
-    
-    if(!theFileEater.parse())
-    {
-       STDLINE("Error in parsing",ACRed);
-       continue;
+      string fileName    = filesPath      + theXmlParser.getFileList()[f]->fileName_;
+      string geoFileName = geometriesPath + theXmlParser.getFileList()[f]->geometryName_;
+      
+      fileEater	theFileEater;
+      clusterizer theClusterizer;
+      trackFitter theTrackFitter;
+      HManager theHManager(&theFileEater);
+      theFileEater.setHManger(&theHManager);
+      trackFinder theTrackFinder(&theTrackFitter);
+
+
+
+      // #########################
+      // # Parse and make events #
+      // #########################
+      cout << "Parse and make events\n";
+
+      if (theFileEater.openFile(geoFileName) == "Error!")
+  	{
+	  STDLINE("Error in geoFileName",ACRed);
+	  continue;
+  	}   
+      theFileEater.setInputFileName(fileName);
+      theFileEater.setEventsLimit(numberOfEvents);
+
+      Geometry* theGeometry = theFileEater.getGeometry();
+      
+      if (!theFileEater.parse())
+  	{
+	  STDLINE("Error in parsing",ACRed);
+	  continue;
+  	}
+      theHManager.setRunSubDir(theFileEater.openFile(theFileEater.getOutputTreeCompletePath()));
+      
+      theFileEater.populate();
+
+
+
+      // ###############
+      // # Clusterizer #
+      // ###############
+      cout << "Clusterizer\n";
+
+      if (useEtaFunction) theClusterizer.getChargeAsymmetryPlots(theGeometry);
+      else                theClusterizer.setUseEtaFunction(false);
+      theFileEater.setOperation(&fileEater::updateEvents2,&theClusterizer);
+      theFileEater.updateEvents2();
+
+
+
+      // ################
+      // # Track finder #
+      // ################
+      cout << "Track finder\n";
+
+      theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints); // Is this OK ???
+      theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);      
+      theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
+      theTrackFinder.setOperation(&trackFinder::findAndFitTracks);      
+      theFileEater.updateEvents2();
+
+
+
+      // ############################
+      // # Telescope fine alignment #
+      // ############################
+      cout << "Telescope Fine Alignment\n";
+
+      aligner *theAlignerTelescope = new aligner(&theFileEater,&theHManager);
+      theAlignerTelescope->setAlignmentFitMethodName("Simple");
+      theAlignerTelescope->setNumberOfIterations(0);
+      
+      for(Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); ++it)
+	{
+	   // Is this OK ???
+	  if (!(*it).second->isDUT()) theAlignerTelescope->setFixParMap((*it).first, 100000);
+	  else                        theAlignerTelescope->setFixParMap((*it).first, 111111);
+	}
+      theAlignerTelescope->setAlignmentPreferences(5, 0, 20., 2, 6, 1, true, "", -1); // Is this OK ???
+      theAlignerTelescope->setOperation(&aligner::align);
+      
+      
+      threader *theThreaderTelescopeAlignment = new threader();
+      theThreaderTelescopeAlignment->setProcess(theAlignerTelescope);
+      theThreaderTelescopeAlignment->start();
+      
+      while (theThreaderTelescopeAlignment->isRunning()) sleep(1);
+      delete theThreaderTelescopeAlignment;
+      
+      
+      aligner::alignmentResultsDef alignmentResultsTelescope = theAlignerTelescope->getAlignmentResults();
+      
+      for(Geometry::iterator geo = theGeometry->begin(); geo != theGeometry->end(); ++geo)
+	{
+	  Detector* theDetector = theGeometry->getDetector(geo->first);
+	  
+	  double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTx;
+	  double yPositionCorrection = theDetector->getYPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTy;
+	  double zPositionCorrection = theDetector->getZPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTz;
+	  double xRotationCorrection = theDetector->getXRotationCorrection() + alignmentResultsTelescope[geo->first].alpha;
+	  double yRotationCorrection = theDetector->getYRotationCorrection() + alignmentResultsTelescope[geo->first].beta;
+	  double zRotationCorrection = theDetector->getZRotationCorrection() + alignmentResultsTelescope[geo->first].gamma;
+	  
+	  theDetector->setXPositionCorrection(xPositionCorrection);
+	  theDetector->setYPositionCorrection(yPositionCorrection);
+	  theDetector->setZPositionCorrection(zPositionCorrection);
+	  theDetector->setXRotationCorrection(xRotationCorrection);
+	  theDetector->setYRotationCorrection(yRotationCorrection);
+	  theDetector->setZRotationCorrection(zRotationCorrection);
+	}
+      
+      delete theAlignerTelescope;    
+      theFileEater.updateGeometry("geometry");
+      
+      theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints); // Is this OK ???
+      theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
+      theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
+      theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
+      theFileEater.updateEvents2();
+
+
+
+      // ######################
+      // # Fine alignment DUT #
+      // ######################
+      if (doFineAlignment)
+	{
+	  cout << "Fine Alignment DUT\n";
+
+	  for (Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); it++)
+	    {
+	      if (!(*it).second->isDUT()) continue;
+	  
+	      string dut = it->first;
+	      aligner *theAligner = new aligner(&theFileEater,&theHManager);
+
+	      theAligner->setFixParMap(dut,100011); // Here is where I choose which parameters mist be kept constant
+	      theAligner->setAlignmentPreferences(10,8,20.0,2,8,1,true,dut,-1);  // Is this OK ???
+	      theAligner->setOperation(&aligner::alignDUT);
+	  
+	      threader *theThreader = new threader();
+	      theThreader->setProcess(theAligner);
+	      theThreader->start();
+
+	      while (theThreader->isRunning()) sleep(1);
+
+	      aligner::alignmentResultsDef alignmentResults = theAligner->getAlignmentResults();
+
+	      Detector * theDetector = theGeometry->getDetector(dut);
+
+	      double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResults[dut].deltaTx;
+	      double yPositionCorrection = theDetector->getYPositionCorrection() + alignmentResults[dut].deltaTy;
+	      double zPositionCorrection = theDetector->getZPositionCorrection() + alignmentResults[dut].deltaTz;
+	      double xRotationCorrection = theDetector->getXRotationCorrection() + alignmentResults[dut].alpha;
+	      double yRotationCorrection = theDetector->getYRotationCorrection() + alignmentResults[dut].beta;
+	      double zRotationCorrection = theDetector->getZRotationCorrection() + alignmentResults[dut].gamma;
+	  
+	      theDetector->setXPositionCorrection(xPositionCorrection);
+	      theDetector->setYPositionCorrection(yPositionCorrection);
+	      theDetector->setZPositionCorrection(zPositionCorrection);
+	      theDetector->setXRotationCorrection(xRotationCorrection);
+	      theDetector->setYRotationCorrection(yRotationCorrection);
+	      theDetector->setZRotationCorrection(zRotationCorrection);
+
+	      delete theAligner;
+	      delete theThreader;	  
+	    }
+
+
+
+	  // ###################
+	  // # Update geometry #
+	  // ###################	
+	  cout << "Update geometry\n";
+	  
+	  theFileEater.updateGeometry("geometry");
+	}
+
+
+
+      // #######################
+      // # Track finder on DUT #
+      // #######################
+       // Is this OK ???
+      cout << "Track finder on DUT\n";
+      
+      theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints); // Is this OK ???
+      theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
+      theTrackFinder.setOperation(&trackFinder::findDUTCandidates);      
+      theFileEater.updateEvents2();	
+
+
+
+      // #############
+      // # Residuals #
+      // #############
+      cout << "Residuals\n";
+
+      theTrackFitter.clearSelectedDetectorsList();      
+      theTrackFitter.setOperation(&trackFitter::makeFittedTracksResiduals);
+      theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFitter);
+      theFileEater.updateEvents2();
+
+
+
+      // ######################
+      // # Copy geometry file #
+      // ######################
+      cout << "Copy geometry file\n";
+
+      string outputFilePath = filesPath;
+      outputFilePath.erase(outputFilePath.length()-8,outputFilePath.length()).append("/MonicelliOutput/");
+
+      string newGeoName  = theXmlParser.getFileList()[f]->fileName_;
+      newGeoName.erase(newGeoName.length()-4,newGeoName.length()).append(".geo");
+
+      string copyGeometryCommand = "cp " + outputFilePath + newGeoName + " " + geometriesPath + newGeoName;
+      cout<<copyGeometryCommand<<endl;
+      system(copyGeometryCommand.c_str() ) ;
     }
-    theHManager.setRunSubDir( theFileEater.openFile(theFileEater.getOutputTreeCompletePath()));
-    ////////////////////////////////////////////////////////////
 
-
-    //////////////////////////////////////////
-    //Show beamspots
-    //theFileEater.populate();
-    
-    //////////////////////////////////////////
-    //////////////////////////////////////////
-    //Clusterize
-    if(useEtaFunction)
-        theClusterizer.getChargeAsymmetryPlots(theGeometry);
-    else
-        theClusterizer.setUseEtaFunction(false);
-    theFileEater.setOperation(&fileEater::updateEvents2,&theClusterizer);
-    theFileEater.updateEvents2();
-    //////////////////////////////////////////
-
-    //////////////////////////////////////////
-    //Track finder
-    theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF,
-    					    yTolerance*(1e-4)*CONVF,
-    					    chi2Cut,
-    					    trackPoints,
-    					    maxPlanePoints );
-
-
-    theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
-
-    theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
-    theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
-
-//     if(trackFindingAlgorithm == "FirstAndLast")
-//       if(findDut) 
-//         theTrackFinder.setOperation(&trackFinder::findAllFirstAndLast);
-//       else				  
-//         theTrackFinder.setOperation(&trackFinder::findFirstAndLastTrackCandidates);
-//     else if(trackFindingAlgorithm == "RoadSearch")
-//       if(findDut) 
-//         theTrackFinder.setOperation(&trackFinder::findAllRoadSearch);
-//       else				  
-//         theTrackFinder.setOperation(&trackFinder::findRoadSearchTrackCandidates);
-//     else
-//     {
-//       ss.str("");
-//       ss << "ERROR: Unknown algorithm name: " << trackFindingAlgorithm << ". Possible values are FirstAndLast or RoadSearch only.";
-//       STDLINE(ss.str(),ACRed);
-//       exit(EXIT_FAILURE);
-//     }
-    theFileEater.updateEvents2();
-
-    //////////////////////////////////////////
-    //Residuals
-    theTrackFitter.clearSelectedDetectorsList();
-
-    theTrackFitter.setOperation(&trackFitter::makeFittedTracksResiduals);
-    theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFitter);
-    theFileEater.updateEvents2();
-  }
   
   return EXIT_SUCCESS;
-}
-
-//================================================================================
-//================================================================================
-//================================================================================
-XmlParser::XmlParser(void) : document_(0)
-{
-}
-
-//================================================================================
-XmlParser::~XmlParser()
-{
-    if(document_)
-        delete document_ ;
-}
-
-//================================================================================
-void XmlParser::parseDocument(std::string xmlFileName)
-{
-    if(document_)
-        delete document_;
-
-//    QDomImplementation implementation;
-//    QDomDocumentType type = implementation.createDocumentType("ConfigurationFile","MonicelliExpressConfiguration","/home/uplegger/Programming/Monicelli/Express/xml/dtd/ExpressConfiguration.dtd");
-    document_ = new QDomDocument( "ConfigurationFile" );
-    QFile xmlFile(xmlFileName.c_str());
-    if (!xmlFile.open(QIODevice::ReadOnly | QIODevice::Text ))
-    {
-        STDLINE(std::string("Could not open ") + xmlFile.fileName().toStdString(),ACRed);
-        return;
-    }
-
-    QString errMsg = "";
-    int line;
-    int col;
-    if (!document_->setContent( &xmlFile, true , &errMsg, &line, &col))
-    {
-        STDLINE(std::string("Could not access ") + xmlFile.fileName().toStdString(),ACRed);
-        ss_ << "Error: " << errMsg.toStdString() << " line: " << line << " col: " << col;
-        STDLINE(ss_.str(),ACGreen);
-        xmlFile.close();
-        return;
-    }
-
-    STDLINE(std::string("Parsing ") + xmlFile.fileName().toStdString(),ACGreen);
-
-    rootNode_ = document_->elementsByTagName("MonicelliExpressConfiguration").at(0);
-
-    QDomNode defaults = document_->elementsByTagName("Defaults").at(0);
-    theDefaults_ = new XmlDefaults(defaults);
-
-    QDomNodeList fileList = document_->elementsByTagName("File");
-
-    for(int f=0; f<fileList.size(); ++f)
-    {
-        QDomNode fileNode = fileList.at(f);
-        if(!fileNode.isComment())
-	  theFileList_.push_back(new XmlFile(fileNode));
-    }
-
-    xmlFile.close();
-}
-
-//================================================================================
-//================================================================================
-//================================================================================
-XmlDefaults::XmlDefaults(QDomNode& node)
-{
-    thisNode_       	   = node;
-    filesPath_      	   = node.toElement().attribute("FilesPath")		.toStdString();
-    geometriesPath_ 	   = node.toElement().attribute("GeometriesPath")	.toStdString();
-    trackFindingAlgorithm_ = node.toElement().attribute("TrackFindingAlgorithm").toStdString();
-    trackFittingAlgorithm_ = node.toElement().attribute("TrackFittingAlgorithm").toStdString();
-    numberOfEvents_        = node.toElement().attribute("NumberOfEvents") 	.toInt();
-    chi2Cut_        	   = node.toElement().attribute("Chi2Cut")	 	.toInt();
-    trackPoints_    	   = node.toElement().attribute("TrackPoints")    	.toInt();
-    maxPlanePoints_ 	   = node.toElement().attribute("MaxPlanePoints") 	.toInt();
-    xTolerance_     	   = node.toElement().attribute("XTolerance")	 	.toInt();
-    yTolerance_     	   = node.toElement().attribute("YTolerance")	 	.toInt();
-    findDut_        	   = true;
-    useEtaFunction_        = true;
-    if(node.toElement().attribute("FindDut") == "false" || node.toElement().attribute("FindDut") == "False" )
-      findDut_ = false;
-    if(node.toElement().attribute("UseEtaFunction") == "false" || node.toElement().attribute("UseEtaFunction") == "False" )
-      useEtaFunction_ = false;
-}
-
-//================================================================================
-//================================================================================
-//================================================================================
-XmlFile::XmlFile(QDomNode& node)
-{
-    thisNode_       = node;
-    fileName_       = node.toElement().attribute("Name")    .toStdString();
-    geometryName_   = node.toElement().attribute("Geometry").toStdString();
 }
