@@ -159,14 +159,17 @@ XmlDefaults::XmlDefaults(QDomNode& node)
   maxPlanePoints_ 	 = node.toElement().attribute("MaxPlanePoints").toInt();
   xTolerance_     	 = node.toElement().attribute("XTolerance").toInt();
   yTolerance_     	 = node.toElement().attribute("YTolerance").toInt();
+
   findDut_        	 = true;
   useEtaFunction_        = true;
   doFineAlignment_       = true;
 
   if (node.toElement().attribute("FindDut") == "false" || node.toElement().attribute("FindDut") == "False")
     findDut_ = false;
+
   if (node.toElement().attribute("UseEtaFunction") == "false" || node.toElement().attribute("UseEtaFunction") == "False")
     useEtaFunction_ = false;
+
   if (node.toElement().attribute("FineAlignment") == "false" || node.toElement().attribute("FineAlignmente") == "False")
     doFineAlignment_ = false;
 }
@@ -191,8 +194,9 @@ int main (int argc, char** argv)
   XmlParser theXmlParser;
   std::string configFileName;
 
-  if (argc == 2) configFileName = std::string("./xml/") + argv[1];
-  else if (argc > 2)
+  if      (argc == 1) configFileName = std::string("./xml/ExpressConfiguration.xml");
+  else if (argc == 2) configFileName = std::string("./xml/") + argv[1];
+  else if (argc >  2)
     {
       ss.str("");
       ss << "Usage: ./MonicelliExpress optional(configuration file)";
@@ -298,7 +302,6 @@ int main (int argc, char** argv)
       
       for(Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); ++it)
 	{
-	   // Is this OK ???
 	  if (!(*it).second->isDUT()) theAlignerTelescope->setFixParMap((*it).first, 100000);
 	  else                        theAlignerTelescope->setFixParMap((*it).first, 111111);
 	}
@@ -361,7 +364,7 @@ int main (int argc, char** argv)
 	      aligner *theAligner = new aligner(&theFileEater,&theHManager);
 
 	      theAligner->setFixParMap(dut,100011); // Here is where I choose which parameters mist be kept constant
-	      theAligner->setAlignmentPreferences(10,8,20.0,2,8,1,true,dut,-1);  // Is this OK ???
+	      theAligner->setAlignmentPreferences(10, 8, 20., 2, 8, 1, true, dut, -1);  // Is this OK ???
 	      theAligner->setOperation(&aligner::alignDUT);
 	  
 	      threader *theThreader = new threader();
