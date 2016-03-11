@@ -243,7 +243,7 @@ int main (int argc, char** argv)
       // #########################
       // # Parse and make events #
       // #########################
-      cout << "Parse and make events\n";
+      STDLINE("Parse and make events",ACBlue);
 
       if (theFileEater.openFile(geoFileName) == "Error!")
   	{
@@ -269,7 +269,7 @@ int main (int argc, char** argv)
       // ###############
       // # Clusterizer #
       // ###############
-      cout << "Clusterizer\n";
+      STDLINE("Clusterizer",ACBlue);
 
       if (useEtaFunction) theClusterizer.getChargeAsymmetryPlots(theGeometry);
       else                theClusterizer.setUseEtaFunction(false);
@@ -281,7 +281,7 @@ int main (int argc, char** argv)
       // ################
       // # Track finder #
       // ################
-      cout << "Track finder\n";
+      STDLINE("Track finder",ACBlue);
 
       theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints); // Is this OK ???
       theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);      
@@ -294,7 +294,7 @@ int main (int argc, char** argv)
       // ############################
       // # Telescope fine alignment #
       // ############################
-      cout << "Telescope Fine Alignment\n";
+      STDLINE("Telescope Fine Alignment",ACBlue);
 
       aligner *theAlignerTelescope = new aligner(&theFileEater,&theHManager);
       theAlignerTelescope->setAlignmentFitMethodName("Simple");
@@ -354,7 +354,7 @@ int main (int argc, char** argv)
       // ######################
       if (doFineAlignment)
 	{
-	  cout << "Fine Alignment DUT\n";
+	  STDLINE("Fine Alignment DUT",ACBlue);
 
 	  for (Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); it++)
 	    {
@@ -400,7 +400,7 @@ int main (int argc, char** argv)
 	  // ###################
 	  // # Update geometry #
 	  // ###################	
-	  cout << "Update geometry\n";
+	  STDLINE("Update geometry",ACBlue);
 	  
 	  theFileEater.updateGeometry("geometry");
 	}
@@ -411,7 +411,7 @@ int main (int argc, char** argv)
       // # Track finder on DUT #
       // #######################
        // Is this OK ???
-      cout << "Track finder on DUT\n";
+      STDLINE("Track finder on DUT",ACBlue);
       
       theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints); // Is this OK ???
       theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
@@ -423,7 +423,7 @@ int main (int argc, char** argv)
       // #############
       // # Residuals #
       // #############
-      cout << "Residuals\n";
+      STDLINE("Residuals",ACBlue);
 
       theTrackFitter.clearSelectedDetectorsList();      
       theTrackFitter.setOperation(&trackFitter::makeFittedTracksResiduals);
@@ -435,7 +435,7 @@ int main (int argc, char** argv)
       // ######################
       // # Copy geometry file #
       // ######################
-      cout << "Copy geometry file\n";
+      STDLINE("Copy geometry file",ACBlue);
 
       string outputFilePath = filesPath;
       outputFilePath.erase(outputFilePath.length()-8,outputFilePath.length()).append("/MonicelliOutput/");
