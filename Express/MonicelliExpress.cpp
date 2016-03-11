@@ -399,20 +399,17 @@ int main (int argc, char** argv)
 		  string dut = it->first;
 		  aligner* theAligner = new aligner(&theFileEater,&theHManager);
 
-		  std::cout << "AAA " << CONVF << std::endl;
 		  theAligner->setFixParMap(dut,100011); // Here is where I choose which parameters must be kept constant
 		  theAligner->setAlignmentPreferences(5, 8, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
 		  theAligner->setOperation(&aligner::alignDUT);
 	  
 
-		  std::cout << "AAA BBB" << std::endl;
 		  threader* theThreader = new threader();
 		  theThreader->setProcess(theAligner);
 		  theThreader->start();
 		  while (theThreader->isRunning()) sleep(1);
 
 
-		  std::cout << "AAA CCC" << std::endl;
 		  aligner::alignmentResultsDef alignmentResults = theAligner->getAlignmentResults();
 		  Detector* theDetector = theGeometry->getDetector(dut);
 
@@ -442,19 +439,19 @@ int main (int argc, char** argv)
 	      STDLINE("Update Geometry",ACBlue);
 	  
 	      theFileEater.updateGeometry("geometry");
+
+
+
+	      // #######################
+	      // # Track finder on DUT #
+	      // #######################
+	      STDLINE("Track Finder on DUT",ACBlue);
+	      
+	      theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
+	      theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
+	      theTrackFinder.setOperation(&trackFinder::findDUTCandidates);      
+	      theFileEater.updateEvents2();	
 	    }
-
-
-
-	  // #######################
-	  // # Track finder on DUT #
-	  // #######################
-	  STDLINE("Track Finder on DUT",ACBlue);
-
-	  theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
-	  theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
-	  theTrackFinder.setOperation(&trackFinder::findDUTCandidates);      
-	  theFileEater.updateEvents2();	
 	}
 
 

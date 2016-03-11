@@ -5,7 +5,7 @@
             GeometriesPath="/raid2/data1/vtx1/dinardo/TestBeamData2015/Geometries/"
             TrackFindingAlgorithm="FirstAndLast"
             TrackFittingAlgorithm="Simple"
-	    NumberOfEvents="-1"
+	    NumberOfEvents="100"
 	    TrackPoints="8"
 	    MaxPlanePoints="5"
 	    Chi2Cut="-1"
@@ -14,5 +14,14 @@
 	    FindDut="true"
 	    FineAlignment="true"
             UseEtaFunction="true"/>
-  <File Name="Run270_Merged.dat" Geometry="Run270_Merged.geo" />
+  <File Name="Run272_Merged.dat" Geometry="Run270_Merged.geo" />
+  <File Name="Run273_Merged.dat" Geometry="Run270_Merged.geo" />
+  <File Name="Run274_Merged.dat" Geometry="Run270_Merged.geo" />
+  <File Name="Run276_Merged.dat" Geometry="Run270_Merged.geo" />
+  <File Name="Run277_Merged.dat" Geometry="Run270_Merged.geo" />
+  <File Name="Run282_Merged.dat" Geometry="Run270_Merged.geo" />
+  <File Name="Run283_Merged.dat" Geometry="Run270_Merged.geo" />
+  <File Name="Run284_Merged.dat" Geometry="Run270_Merged.geo" />
+  <File Name="Run285_Merged.dat" Geometry="Run270_Merged.geo" />
+  <File Name="Run288_Merged.dat" Geometry="Run270_Merged.geo" />
 </MonicelliExpressConfiguration>
