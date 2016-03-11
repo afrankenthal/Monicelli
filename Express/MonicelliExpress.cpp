@@ -109,7 +109,7 @@ void XmlParser::parseDocument(std::string xmlFileName)
   document_ = new QDomDocument("ConfigurationFile");
   QFile xmlFile(xmlFileName.c_str());
 
-  if (!xmlFile.open(QIODevice::ReadOnly | QIODevice::Text)) // Is this OK ???
+  if (!xmlFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
       STDLINE(std::string("Could not open ") + xmlFile.fileName().toStdString(),ACRed);
       return;
@@ -215,19 +215,19 @@ int main (int argc, char** argv)
   theXmlParser.parseDocument(configFileName.c_str());
   
   
-  const string filesPath            = theXmlParser.getDefaults()->filesPath_;
-  const string geometriesPath       = theXmlParser.getDefaults()->geometriesPath_;
-  std::string trackFindingAlgorithm = theXmlParser.getDefaults()->trackFindingAlgorithm_;
-  std::string trackFittingAlgorithm = theXmlParser.getDefaults()->trackFittingAlgorithm_;
-  int    numberOfEvents             = theXmlParser.getDefaults()->numberOfEvents_;
-  double chi2Cut                    = theXmlParser.getDefaults()->chi2Cut_;
-  int    trackPoints                = theXmlParser.getDefaults()->trackPoints_;
-  int    maxPlanePoints             = theXmlParser.getDefaults()->maxPlanePoints_;
-  int	 xTolerance                 = theXmlParser.getDefaults()->xTolerance_;
-  int	 yTolerance                 = theXmlParser.getDefaults()->yTolerance_;
-  bool   findDut                    = theXmlParser.getDefaults()->findDut_;
-  bool   useEtaFunction             = theXmlParser.getDefaults()->useEtaFunction_;
-  bool   doFineAlignment            = theXmlParser.getDefaults()->doFineAlignment_;
+  const string filesPath             = theXmlParser.getDefaults()->filesPath_;
+  const string geometriesPath        = theXmlParser.getDefaults()->geometriesPath_;
+  std::string  trackFindingAlgorithm = theXmlParser.getDefaults()->trackFindingAlgorithm_;
+  std::string  trackFittingAlgorithm = theXmlParser.getDefaults()->trackFittingAlgorithm_;
+  int          numberOfEvents        = theXmlParser.getDefaults()->numberOfEvents_;
+  double       chi2Cut               = theXmlParser.getDefaults()->chi2Cut_;
+  int          trackPoints           = theXmlParser.getDefaults()->trackPoints_;
+  int          maxPlanePoints        = theXmlParser.getDefaults()->maxPlanePoints_;
+  int	       xTolerance            = theXmlParser.getDefaults()->xTolerance_;
+  int	       yTolerance            = theXmlParser.getDefaults()->yTolerance_;
+  bool         findDut               = theXmlParser.getDefaults()->findDut_;
+  bool         useEtaFunction        = theXmlParser.getDefaults()->useEtaFunction_;
+  bool         doFineAlignment       = theXmlParser.getDefaults()->doFineAlignment_;
 
 
   for (unsigned int f = 0; f < theXmlParser.getFileList().size(); f++)
@@ -248,7 +248,7 @@ int main (int argc, char** argv)
       // # Parse and make events #
       // #########################
       STDLINE("",ACBlue);
-      STDLINE("Parse and make events",ACBlue);
+      STDLINE("Parse and Make Events",ACBlue);
 
       if (theFileEater.openFile(geoFileName) == "Error!")
   	{
@@ -286,9 +286,9 @@ int main (int argc, char** argv)
       // ################
       // # Track finder #
       // ################
-      STDLINE("Track finder",ACBlue);
+      STDLINE("Track Finder",ACBlue);
 
-      theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints); // Is this OK ???
+      theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
       theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);      
       theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
       theTrackFinder.setOperation(&trackFinder::findAndFitTracks);      
@@ -310,7 +310,19 @@ int main (int argc, char** argv)
 	  if (!(*it).second->isDUT()) theAlignerTelescope->setFixParMap((*it).first, 100000);
 	  else                        theAlignerTelescope->setFixParMap((*it).first, 111111);
 	}
-      theAlignerTelescope->setAlignmentPreferences(5, 0, 20., 2, 6, 1, true, "", -1); // Is this OK ???
+      theAlignerTelescope->setAlignmentPreferences(5, 0, 20., 2, trackPoints-2, 1, true, "", numberOfEvents);
+      // #############################
+      // # The parameter meaning is: #
+      // # - max trials              #
+      // # - fine alignment strategy #
+      // # - chi2cut                 #
+      // # - max cluster size        #
+      // # - min points              #
+      // # - max tracks / ev         #
+      // # - no diagonal clusters    #
+      // # - alignment select        #
+      // # - nEvents                 #
+      // #############################
       theAlignerTelescope->setOperation(&aligner::align);
       
       
@@ -340,7 +352,7 @@ int main (int argc, char** argv)
 	  theDetector->setYRotationCorrection(yRotationCorrection);
 	  theDetector->setZRotationCorrection(zRotationCorrection);
 	}
-      
+
       delete theAlignerTelescope;
       delete theThreaderTelescopeAlignment;
 
@@ -349,7 +361,7 @@ int main (int argc, char** argv)
       // ###################
       // # Update geometry #
       // ###################	
-      STDLINE("Update geometry",ACBlue);
+      STDLINE("Update Geometry",ACBlue);
 
       theFileEater.updateGeometry("geometry");
 
@@ -358,9 +370,9 @@ int main (int argc, char** argv)
       // ################
       // # Track finder #
       // ################
-      STDLINE("Track finder",ACBlue);
+      STDLINE("Track Finder",ACBlue);
 
-      theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints); // Is this OK ???
+      theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
       theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
       theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
       theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
@@ -377,7 +389,7 @@ int main (int argc, char** argv)
 	    {
 	      ss.clear();
 	      ss.str("");
-	      ss << "Fine Alignment DUT - step " << i;
+	      ss << "Fine Alignment DUT - Step " << i;
 	      STDLINE(ss.str().c_str(),ACBlue);
 
 	      for (Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); it++)
@@ -389,7 +401,7 @@ int main (int argc, char** argv)
 
 		  std::cout << "AAA " << CONVF << std::endl;
 		  theAligner->setFixParMap(dut,100011); // Here is where I choose which parameters must be kept constant
-		  theAligner->setAlignmentPreferences(10, 8, 20., 2, 8, 1, true, dut, -1);  // Is this OK ???
+		  theAligner->setAlignmentPreferences(5, 8, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
 		  theAligner->setOperation(&aligner::alignDUT);
 	  
 
@@ -427,7 +439,7 @@ int main (int argc, char** argv)
 	      // ###################
 	      // # Update geometry #
 	      // ###################	
-	      STDLINE("Update geometry",ACBlue);
+	      STDLINE("Update Geometry",ACBlue);
 	  
 	      theFileEater.updateGeometry("geometry");
 	    }
@@ -437,10 +449,9 @@ int main (int argc, char** argv)
 	  // #######################
 	  // # Track finder on DUT #
 	  // #######################
-	  // Is this OK ???
-	  STDLINE("Track finder on DUT",ACBlue);
+	  STDLINE("Track Finder on DUT",ACBlue);
 
-	  theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints); // Is this OK ???
+	  theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
 	  theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
 	  theTrackFinder.setOperation(&trackFinder::findDUTCandidates);      
 	  theFileEater.updateEvents2();	
@@ -463,7 +474,7 @@ int main (int argc, char** argv)
       // ######################
       // # Copy geometry file #
       // ######################
-      STDLINE("Copy geometry file",ACBlue);
+      STDLINE("Copy Geometry File",ACBlue);
 
       string outputFilePath = filesPath;
       outputFilePath.erase(outputFilePath.length()-8,outputFilePath.length()).append("/MonicelliOutput/");
