@@ -19,6 +19,11 @@
 #include <QDomNode>
 
 
+// @@@ Hard coded parameters @@@
+#define NdutITERATIONS 2 // Number of alignment iterations
+// ============================
+
+
 class XmlDefaults;
 class XmlFile;
 
@@ -175,7 +180,7 @@ XmlDefaults::XmlDefaults(QDomNode& node)
 XmlFile::XmlFile(QDomNode& node)
 {
   thisNode_     = node;
-  fileName_     = node.toElement().attribute("Name")    .toStdString();
+  fileName_     = node.toElement().attribute("Name").toStdString();
   geometryName_ = node.toElement().attribute("Geometry").toStdString();
 }
 
@@ -187,7 +192,6 @@ int main (int argc, char** argv)
   QCoreApplication app (argc, argv);
 
   stringstream ss;
-
   XmlParser theXmlParser;
   std::string configFileName;
 
@@ -195,12 +199,15 @@ int main (int argc, char** argv)
   else if (argc == 2) configFileName = std::string("./xml/") + argv[1];
   else if (argc >  2)
     {
+      ss.clear();
       ss.str("");
       ss << "Usage: ./MonicelliExpress optional(configuration file)";
       STDLINE(ss.str(),ACRed);
+
       exit(EXIT_SUCCESS);
     }
 
+  ss.clear();
   ss.str("");
   ss << "Using: " << configFileName << " configuration.";
   STDLINE(ss.str(),ACGreen);
@@ -229,10 +236,10 @@ int main (int argc, char** argv)
       string geoFileName = geometriesPath + theXmlParser.getFileList()[f]->geometryName_;
       
       fileEater	theFileEater;
-      clusterizer theClusterizer;
-      trackFitter theTrackFitter;
       HManager theHManager(&theFileEater);
       theFileEater.setHManger(&theHManager);
+      clusterizer theClusterizer;
+      trackFitter theTrackFitter;
       trackFinder theTrackFinder(&theTrackFitter);
 
 
@@ -240,6 +247,7 @@ int main (int argc, char** argv)
       // #########################
       // # Parse and make events #
       // #########################
+      STDLINE("",ACBlue);
       STDLINE("Parse and make events",ACBlue);
 
       if (theFileEater.openFile(geoFileName) == "Error!")
@@ -293,7 +301,7 @@ int main (int argc, char** argv)
       // ############################
       STDLINE("Telescope Fine Alignment",ACBlue);
 
-      aligner *theAlignerTelescope = new aligner(&theFileEater,&theHManager);
+      aligner* theAlignerTelescope = new aligner(&theFileEater,&theHManager);
       theAlignerTelescope->setAlignmentFitMethodName("Simple");
       theAlignerTelescope->setNumberOfIterations(0);
       
@@ -306,16 +314,14 @@ int main (int argc, char** argv)
       theAlignerTelescope->setOperation(&aligner::align);
       
       
-      threader *theThreaderTelescopeAlignment = new threader();
+      threader* theThreaderTelescopeAlignment = new threader();
       theThreaderTelescopeAlignment->setProcess(theAlignerTelescope);
       theThreaderTelescopeAlignment->start();
-      
       while (theThreaderTelescopeAlignment->isRunning()) sleep(1);
-      delete theThreaderTelescopeAlignment;
       
       
       aligner::alignmentResultsDef alignmentResultsTelescope = theAlignerTelescope->getAlignmentResults();
-      
+
       for (Geometry::iterator geo = theGeometry->begin(); geo != theGeometry->end(); geo++)
 	{
 	  Detector* theDetector = theGeometry->getDetector(geo->first);
@@ -335,14 +341,17 @@ int main (int argc, char** argv)
 	  theDetector->setZRotationCorrection(zRotationCorrection);
 	}
       
-      delete theAlignerTelescope;    
+      delete theAlignerTelescope;
+      delete theThreaderTelescopeAlignment;
+
+
+
+      // ###################
+      // # Update geometry #
+      // ###################	
+      STDLINE("Update geometry",ACBlue);
+
       theFileEater.updateGeometry("geometry");
-      
-      theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints); // Is this OK ???
-      theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
-      theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
-      theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
-      theFileEater.updateEvents2();
 
 
 
@@ -352,9 +361,9 @@ int main (int argc, char** argv)
       STDLINE("Track finder",ACBlue);
 
       theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints); // Is this OK ???
-      theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);      
+      theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
       theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
-      theTrackFinder.setOperation(&trackFinder::findAndFitTracks);      
+      theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
       theFileEater.updateEvents2();
 
 
@@ -364,11 +373,11 @@ int main (int argc, char** argv)
       // ######################
       if (doFineAlignment)
 	{
-	  for (unsigned int i = 0; i < 1; i++)
+	  for (unsigned int i = 0; i < NdutITERATIONS; i++)
 	    {
 	      ss.clear();
 	      ss.str("");
-	      ss << "Fine Alignment DUT - step" << i;
+	      ss << "Fine Alignment DUT - step " << i;
 	      STDLINE(ss.str().c_str(),ACBlue);
 
 	      for (Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); it++)
@@ -376,21 +385,24 @@ int main (int argc, char** argv)
 		  if (!(*it).second->isDUT()) continue;
 	  
 		  string dut = it->first;
-		  aligner *theAligner = new aligner(&theFileEater,&theHManager);
+		  aligner* theAligner = new aligner(&theFileEater,&theHManager);
 
+		  std::cout << "AAA " << CONVF << std::endl;
 		  theAligner->setFixParMap(dut,100011); // Here is where I choose which parameters must be kept constant
 		  theAligner->setAlignmentPreferences(10, 8, 20., 2, 8, 1, true, dut, -1);  // Is this OK ???
 		  theAligner->setOperation(&aligner::alignDUT);
 	  
-		  threader *theThreader = new threader();
+
+		  std::cout << "AAA BBB" << std::endl;
+		  threader* theThreader = new threader();
 		  theThreader->setProcess(theAligner);
 		  theThreader->start();
-
 		  while (theThreader->isRunning()) sleep(1);
 
-		  aligner::alignmentResultsDef alignmentResults = theAligner->getAlignmentResults();
 
-		  Detector * theDetector = theGeometry->getDetector(dut);
+		  std::cout << "AAA CCC" << std::endl;
+		  aligner::alignmentResultsDef alignmentResults = theAligner->getAlignmentResults();
+		  Detector* theDetector = theGeometry->getDetector(dut);
 
 		  double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResults[dut].deltaTx;
 		  double yPositionCorrection = theDetector->getYPositionCorrection() + alignmentResults[dut].deltaTy;
@@ -419,20 +431,20 @@ int main (int argc, char** argv)
 	  
 	      theFileEater.updateGeometry("geometry");
 	    }
+
+
+
+	  // #######################
+	  // # Track finder on DUT #
+	  // #######################
+	  // Is this OK ???
+	  STDLINE("Track finder on DUT",ACBlue);
+
+	  theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints); // Is this OK ???
+	  theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
+	  theTrackFinder.setOperation(&trackFinder::findDUTCandidates);      
+	  theFileEater.updateEvents2();	
 	}
-
-
-
-      // #######################
-      // # Track finder on DUT #
-      // #######################
-       // Is this OK ???
-      STDLINE("Track finder on DUT",ACBlue);
-      
-      theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints); // Is this OK ???
-      theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
-      theTrackFinder.setOperation(&trackFinder::findDUTCandidates);      
-      theFileEater.updateEvents2();	
 
 
 
@@ -456,7 +468,7 @@ int main (int argc, char** argv)
       string outputFilePath = filesPath;
       outputFilePath.erase(outputFilePath.length()-8,outputFilePath.length()).append("/MonicelliOutput/");
 
-      string newGeoName  = theXmlParser.getFileList()[f]->fileName_;
+      string newGeoName = theXmlParser.getFileList()[f]->fileName_;
       newGeoName.erase(newGeoName.length()-4,newGeoName.length()).append(".geo");
 
       string copyGeometryCommand = "cp " + outputFilePath + newGeoName + " " + geometriesPath + newGeoName;
