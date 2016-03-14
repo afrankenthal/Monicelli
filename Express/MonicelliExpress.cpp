@@ -312,7 +312,8 @@ int main (int argc, char** argv)
 	}
       theAlignerTelescope->setAlignmentPreferences(5, 0, 20., 2, trackPoints-2, 1, true, "", numberOfEvents);
       // #############################
-      // # The parameter meaning is: #
+      // # The parameter meaning:    #
+      // #############################
       // # - max trials              #
       // # - fine alignment strategy #
       // # - chi2cut                 #
@@ -400,7 +401,7 @@ int main (int argc, char** argv)
 		  aligner* theAligner = new aligner(&theFileEater,&theHManager);
 
 		  theAligner->setFixParMap(dut,100011); // Here is where I choose which parameters must be kept constant
-		  theAligner->setAlignmentPreferences(5, 8, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
+		  theAligner->setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
 		  theAligner->setOperation(&aligner::alignDUT);
 	  
 
