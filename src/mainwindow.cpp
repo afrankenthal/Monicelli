@@ -615,8 +615,10 @@ void MainWindow::createStatusBar()
 void MainWindow::readSettings()
 {
     QSettings settings("CMS", "Monicelli");
-    QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
-    QSize size = settings.value("size", QSize(400, 400)).toSize();
+    QPoint pos             = settings.value("pos",            QPoint(200, 200)).toPoint();
+    QSize  size            = settings.value("size",           QSize (400, 400)).toSize();
+    QPoint hNavigatorPos_  = settings.value("posHnavigator",  QSize (400, 400)).toSize();
+    QSize  hNavigatorSize_ = settings.value("sizeHnavigator", QSize (400, 400)).toSize();
     this->move(pos);
     this->resize(size);
 }
@@ -627,6 +629,28 @@ void MainWindow::writeSettings()
     QSettings settings("CMS", "Monicelli");
     settings.setValue("pos" , pos ());
     settings.setValue("size", size());
+    if( theHNavigator_ )
+    {
+        hNavigatorSize_ = QSize (
+                                 theHNavigator_->geometry().width(),
+                                 theHNavigator_->geometry().height()
+                                ) ;
+        hNavigatorPos_  = QPoint(
+                                 theHNavigator_->pos().x(),
+                                 theHNavigator_->pos().y()
+                                ) ;
+        settings.setValue("posHnavigator" ,  hNavigatorSize_) ;
+        settings.setValue("sizeHnavigator" , hNavigatorPos_ ) ;
+//        cout << "+_+_+_+_  W: " << theHNavigator_->geometry().width()
+//                      << " H: " << theHNavigator_->geometry().height()
+//                      << " x: " << theHNavigator_->pos().x()
+//                      << " y: " << theHNavigator_->pos().y() << endl ;
+    }
+    else
+    {
+        settings.setValue("posHnavigator" ,  hNavigatorSize_) ;
+        settings.setValue("sizeHnavigator" , hNavigatorPos_ ) ;
+    }
     STDLINE("Updating GUI geometry",ACCyan) ;
 }
 

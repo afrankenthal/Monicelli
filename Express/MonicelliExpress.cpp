@@ -22,7 +22,7 @@
 class XmlDefaults;
 class XmlFile;
 
-
+//=======================================================================
 class XmlParser
 {
 public:
@@ -43,7 +43,7 @@ private:
   stringstream          ss_;
 };
 
-
+//=======================================================================
 class XmlDefaults
 {
 public:
@@ -70,7 +70,7 @@ private:
   QDomNode thisNode_;
 };
 
-
+//=======================================================================
 class XmlFile
 {
 public:
@@ -85,18 +85,18 @@ private:
   QDomNode thisNode_;
 };
 
-
+//=======================================================================
 XmlParser::XmlParser(void) : document_(0)
 {
 }
 
-
+//=======================================================================
 XmlParser::~XmlParser()
 {
   if (document_) delete document_;
 }
 
-
+//=======================================================================
 void XmlParser::parseDocument(std::string xmlFileName)
 {
   if (document_) delete document_;

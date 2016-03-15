@@ -13,6 +13,7 @@
 	    YTolerance="500"
 	    FindDut="true"
 	    FineAlignment="true"
+	    FineTelescopeAlignment="true"
             UseEtaFunction="true"/>
   <File Name="Run272_Merged.dat" Geometry="Run270_Merged.geo" />
   <File Name="Run273_Merged.dat" Geometry="Run270_Merged.geo" />

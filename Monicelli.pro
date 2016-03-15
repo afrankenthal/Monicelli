@@ -219,7 +219,7 @@ contains(ROOTVERSION, "FIVE") {
                                    include/Geometry.h+           \
                                    include/Detector.h+           \
                                    include/ROC.h+             && \
-		       cp tmp/*.pcm .
+		                   cp tmp/*.pcm .
 }
 
 QMAKE_EXTRA_TARGETS += trees

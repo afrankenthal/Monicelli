@@ -34,6 +34,8 @@
 #include <sstream>
 
 #include <QMainWindow>
+#include <QPoint>
+#include <QSize>
 #include <QTimer> // ToROOT6
 
 #include "canvaswidget.h"
@@ -154,6 +156,10 @@ private:
     QAction       * tileAct          ;
     QMenu         * windowMenu       ;
     QSignalMapper * windowMapper     ;
+
+    QSize           hNavigatorSize_  ;
+    QPoint          hNavigatorPos_   ;
+
 
     int mainWindowW_ 	    	     ;
     int mainWindowH_ 	    	     ;

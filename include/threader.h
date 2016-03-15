@@ -52,27 +52,23 @@ class threader : public QThread
 
     template<class Class> void runTheMethod(Class * object, void (Class::*fn)()) ;
 
-    void      run		 (void  	       ) ;
-    void      execute		 (void  	       ) ;
-    int       getCurrentIteration(void  	       ) {return theProcess_->getCurrentIteration();}
-    process * getCurrentProcess  (void  	       ) ;
-    void      setProcess	 (process * theProcess ) ;
-    bool      isRunning 	 (void  	       ) ;
-    bool      isFinished	 (void  	       ) ;
-    void      terminate 	 (void  	       ) ;
-    void      setFuture 	 (QFuture<void>  future) {future_ = future;}
+    void      run		         (void  	           ) ;
+    void      execute		     (void  	           ) ;
+    int       getCurrentIteration(void  	           ) {return theProcess_->getCurrentIteration();}
+    process * getCurrentProcess  (void  	           ) ;
+    void      setProcess	     (process * theProcess ) ;
+    bool      isRunning 	     (void  	           ) ;
+    bool      isFinished	     (void  	           ) ;
+    void      terminate 	     (void  	           ) ;
+    void      setFuture 	     (QFuture<void>  future) {future_ = future;}
 
   signals:
     void processFinished(process*, bool success);
 
   private:
-
-    QFuture<void> future_;
-
-    std::stringstream ss_ ;
-
-    process * theProcess_ ;
-
+    QFuture<void>       future_;
+    std::stringstream   ss_ ;
+    process           * theProcess_ ;
 } ;
 
 #endif // THREADERCLASS_H

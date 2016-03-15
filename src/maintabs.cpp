@@ -872,6 +872,7 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
 
     if( currentProcess == theFileEater_ )
     {
+        STDLINE("","") ;
         if(theFileEater_->getOperation() == &fileEater::parse)
         {
             if(success)
@@ -901,9 +902,11 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
 
         if(theFileEater_->getOperation() == &fileEater::updateEvents2)
         {
+            STDLINE("","") ;
             fileEater::subProcessVDef currentSubProcess = theFileEater_->getCurrentSubProcess();
             for(unsigned int i=0; i<currentSubProcess.size(); i++)
             {
+                STDLINE("","") ;
                 if( currentSubProcess[i] == theClusterizer_ )
                 {
                     ui->clustersBuiltCB              ->setChecked(true) ;
@@ -954,8 +957,10 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
 
                 if( currentSubProcess[i] == theTrackFitter_ )
                 {
+                    STDLINE("","") ;
                     if(theTrackFitter_->getOperation() == &trackFitter::makeFittedTracksResiduals)
                     {
+                        STDLINE("Quaqquaraqua",ACYellow) ;
                         ui->onlyDetectorsToBeAlignedCB ->setChecked(false);
                         ui->trackFitterWriteAlignmentPB->setEnabled(true );
                     }
@@ -1259,7 +1264,7 @@ void mainTabs::on_abortActionPB_clicked()
 void mainTabs::on_parseFilePB_clicked()
 {
     theFileEater_->openFile        ( ui->loadedGeometryLE->text().toStdString() );
-    theFileEater_->setInputFileName( ui->loadedFileLE->text().toStdString()     );
+    theFileEater_->setInputFileName( ui->loadedFileLE    ->text().toStdString() );
     //theFileEater_->openFile( ui->loadedFileLE->text().toStdString() );
 
     if (ui->maxRawEventsCB->isChecked())
@@ -2095,7 +2100,9 @@ void mainTabs::launchThread2(process * theProcess)
     if(theThreader_->isRunning())
     {
         ss_.str("");
-        ss_ << "WARNING: action temporarily disabled, " << activeProcess->getLabel() << " is running";
+        ss_ << "WARNING: action temporarily disabled, "
+            << activeProcess->getLabel()
+            << " is running";
         STDLINE(ss_.str(),ACRed);
         return ;
     }

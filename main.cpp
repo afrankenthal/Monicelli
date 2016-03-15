@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
     STDLINE("|    at Fermi National Accelerator Laboratory      |",color);
     STDLINE("|                                                  |",color);
     STDLINE("|        D. Menasce, L. Moroni, S. Terzo           |",color);
-    STDLINE("|             J. Ngadiuba, L. Vigani               |",color);
+    STDLINE("|      J. Ngadiuba, L. Uplegger, L. Vigani         |",color);
     STDLINE("|                                                  |",color);
     STDLINE("+--------------------------------------------------+",color);
     STDLINE("",color);
