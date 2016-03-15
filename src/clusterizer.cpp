@@ -481,7 +481,6 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 //=============================================================================
 void clusterizer::clusterize(Event *theEvent, Geometry *theGeometry)
 {
-    //STDLINE("Staring clusterize", ACRed);
     this->makeClusters(theEvent,theGeometry);
     theEvent->setClustersHits( clustersHitsMap_ );
     theEvent->setClusters    ( clustersMap_     );
