@@ -22,6 +22,7 @@
 class XmlDefaults;
 class XmlFile;
 
+
 //=======================================================================
 class XmlParser
 {
@@ -42,6 +43,7 @@ private:
   std::vector<XmlFile*> theFileList_;
   stringstream          ss_;
 };
+
 
 //=======================================================================
 class XmlDefaults
@@ -64,11 +66,13 @@ public:
   int         yTolerance_;         
   bool        findDut_;         
   bool        useEtaFunction_;         
-  bool        doFineAlignment_;
+  bool        doDUTFineAlignment_;
+  bool        doTelescopeFineAlignment_;
   
 private:
   QDomNode thisNode_;
 };
+
 
 //=======================================================================
 class XmlFile
@@ -85,16 +89,19 @@ private:
   QDomNode thisNode_;
 };
 
+
 //=======================================================================
 XmlParser::XmlParser(void) : document_(0)
 {
 }
+
 
 //=======================================================================
 XmlParser::~XmlParser()
 {
   if (document_) delete document_;
 }
+
 
 //=======================================================================
 void XmlParser::parseDocument(std::string xmlFileName)
@@ -114,7 +121,7 @@ void XmlParser::parseDocument(std::string xmlFileName)
   int line;
   int col;
 
-  if (!document_->setContent( &xmlFile, true , &errMsg, &line, &col))
+  if (!document_->setContent(&xmlFile, true , &errMsg, &line, &col))
     {
       STDLINE(std::string("Could not access ") + xmlFile.fileName().toStdString(),ACRed);
       ss_ << "Error: " << errMsg.toStdString() << " line: " << line << " col: " << col;
@@ -143,6 +150,7 @@ void XmlParser::parseDocument(std::string xmlFileName)
 }
 
 
+//=======================================================================
 XmlDefaults::XmlDefaults(QDomNode& node)
 {
   thisNode_       	 = node;
@@ -157,9 +165,10 @@ XmlDefaults::XmlDefaults(QDomNode& node)
   xTolerance_     	 = node.toElement().attribute("XTolerance").toInt();
   yTolerance_     	 = node.toElement().attribute("YTolerance").toInt();
 
-  findDut_        	 = true;
-  useEtaFunction_        = true;
-  doFineAlignment_       = true;
+  findDut_        	    = true;
+  useEtaFunction_           = true;
+  doDUTFineAlignment_       = true;
+  doTelescopeFineAlignment_ = true;
 
   if (node.toElement().attribute("FindDut") == "false" || node.toElement().attribute("FindDut") == "False")
     findDut_ = false;
@@ -168,10 +177,14 @@ XmlDefaults::XmlDefaults(QDomNode& node)
     useEtaFunction_ = false;
 
   if (node.toElement().attribute("FineAlignment") == "false" || node.toElement().attribute("FineAlignmente") == "False")
-    doFineAlignment_ = false;
+    doDUTFineAlignment_ = false;
+
+  if (node.toElement().attribute("FineTelescopeAlignment") == "false" || node.toElement().attribute("FineTelescopeAlignmente") == "False")
+    doTelescopeFineAlignment_ = false;
 }
 
 
+//=======================================================================
 XmlFile::XmlFile(QDomNode& node)
 {
   thisNode_     = node;
@@ -182,6 +195,7 @@ XmlFile::XmlFile(QDomNode& node)
 
 
 
+//=======================================================================
 int main (int argc, char** argv)
 {
   QCoreApplication app (argc, argv);
@@ -210,19 +224,20 @@ int main (int argc, char** argv)
   theXmlParser.parseDocument(configFileName.c_str());
   
   
-  const string filesPath             = theXmlParser.getDefaults()->filesPath_;
-  const string geometriesPath        = theXmlParser.getDefaults()->geometriesPath_;
-  std::string  trackFindingAlgorithm = theXmlParser.getDefaults()->trackFindingAlgorithm_;
-  std::string  trackFittingAlgorithm = theXmlParser.getDefaults()->trackFittingAlgorithm_;
-  int          numberOfEvents        = theXmlParser.getDefaults()->numberOfEvents_;
-  double       chi2Cut               = theXmlParser.getDefaults()->chi2Cut_;
-  int          trackPoints           = theXmlParser.getDefaults()->trackPoints_;
-  int          maxPlanePoints        = theXmlParser.getDefaults()->maxPlanePoints_;
-  int	       xTolerance            = theXmlParser.getDefaults()->xTolerance_;
-  int	       yTolerance            = theXmlParser.getDefaults()->yTolerance_;
-  bool         findDut               = theXmlParser.getDefaults()->findDut_;
-  bool         useEtaFunction        = theXmlParser.getDefaults()->useEtaFunction_;
-  bool         doFineAlignment       = theXmlParser.getDefaults()->doFineAlignment_;
+  const string filesPath                = theXmlParser.getDefaults()->filesPath_;
+  const string geometriesPath           = theXmlParser.getDefaults()->geometriesPath_;
+  std::string  trackFindingAlgorithm    = theXmlParser.getDefaults()->trackFindingAlgorithm_;
+  std::string  trackFittingAlgorithm    = theXmlParser.getDefaults()->trackFittingAlgorithm_;
+  int          numberOfEvents           = theXmlParser.getDefaults()->numberOfEvents_;
+  double       chi2Cut                  = theXmlParser.getDefaults()->chi2Cut_;
+  int          trackPoints              = theXmlParser.getDefaults()->trackPoints_;
+  int          maxPlanePoints           = theXmlParser.getDefaults()->maxPlanePoints_;
+  int	       xTolerance               = theXmlParser.getDefaults()->xTolerance_;
+  int	       yTolerance               = theXmlParser.getDefaults()->yTolerance_;
+  bool         findDut                  = theXmlParser.getDefaults()->findDut_;
+  bool         useEtaFunction           = theXmlParser.getDefaults()->useEtaFunction_;
+  bool         doDUTFineAlignment       = theXmlParser.getDefaults()->doDUTFineAlignment_;
+  bool         doTelescopeFineAlignment = theXmlParser.getDefaults()->doTelescopeFineAlignment_;
 
 
   for (unsigned int f = 0; f < theXmlParser.getFileList().size(); f++)
@@ -294,91 +309,94 @@ int main (int argc, char** argv)
       // ############################
       // # Telescope fine alignment #
       // ############################
-      STDLINE("Telescope Fine Alignment",ACBlue);
+      if (doTelescopeFineAlignment == true)
+	{
+	  STDLINE("Telescope Fine Alignment",ACBlue);
 
-      aligner* theAlignerTelescope = new aligner(&theFileEater,&theHManager);
-      theAlignerTelescope->setAlignmentFitMethodName("Simple");
-      theAlignerTelescope->setNumberOfIterations(0);
+	  aligner* theAlignerTelescope = new aligner(&theFileEater,&theHManager);
+	  theAlignerTelescope->setAlignmentFitMethodName("Simple");
+	  theAlignerTelescope->setNumberOfIterations(0);
       
-      for (Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); it++)
-      	{
-      	  if (!(*it).second->isDUT()) theAlignerTelescope->setFixParMap((*it).first, 100000);
-      	  else                        theAlignerTelescope->setFixParMap((*it).first, 111111);
-      	}
-      theAlignerTelescope->setAlignmentPreferences(5, 0, 20., 2, trackPoints-2, 1, true, "", numberOfEvents);
-      // #############################
-      // # The parameter meaning:    #
-      // #############################
-      // # - max trials              #
-      // # - fine alignment strategy #
-      // # - chi2cut                 #
-      // # - max cluster size        #
-      // # - min points              #
-      // # - max tracks / ev         #
-      // # - no diagonal clusters    #
-      // # - alignment select        #
-      // # - nEvents                 #
-      // #############################
-      theAlignerTelescope->setOperation(&aligner::align);
-      
-      
-      threader* theThreaderTelescopeAlignment = new threader();
-      theThreaderTelescopeAlignment->setProcess(theAlignerTelescope);
-      theThreaderTelescopeAlignment->start();
-      while (theThreaderTelescopeAlignment->isRunning()) sleep(1);
+	  for (Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); it++)
+	    {
+	      if (!(*it).second->isDUT()) theAlignerTelescope->setFixParMap((*it).first, 100000);
+	      else                        theAlignerTelescope->setFixParMap((*it).first, 111111);
+	    }
+	  theAlignerTelescope->setAlignmentPreferences(5, 0, 20., 2, trackPoints-2, 1, true, "", numberOfEvents);
+	  // #############################
+	  // # The parameter meaning:    #
+	  // #############################
+	  // # - max trials              #
+	  // # - fine alignment strategy #
+	  // # - chi2cut                 #
+	  // # - max cluster size        #
+	  // # - min points              #
+	  // # - max tracks / ev         #
+	  // # - no diagonal clusters    #
+	  // # - alignment select        #
+	  // # - nEvents                 #
+	  // #############################
+	  theAlignerTelescope->setOperation(&aligner::align);
       
       
-      aligner::alignmentResultsDef alignmentResultsTelescope = theAlignerTelescope->getAlignmentResults();
-      for (Geometry::iterator geo = theGeometry->begin(); geo != theGeometry->end(); geo++)
-      	{
-      	  Detector* theDetector = theGeometry->getDetector(geo->first);
+	  threader* theThreaderTelescopeAlignment = new threader();
+	  theThreaderTelescopeAlignment->setProcess(theAlignerTelescope);
+	  theThreaderTelescopeAlignment->start();
+	  while (theThreaderTelescopeAlignment->isRunning()) sleep(1);
+      
+      
+	  aligner::alignmentResultsDef alignmentResultsTelescope = theAlignerTelescope->getAlignmentResults();
+	  for (Geometry::iterator geo = theGeometry->begin(); geo != theGeometry->end(); geo++)
+	    {
+	      Detector* theDetector = theGeometry->getDetector(geo->first);
 	  
-      	  double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTx;
-      	  double yPositionCorrection = theDetector->getYPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTy;
-      	  double zPositionCorrection = theDetector->getZPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTz;
-      	  double xRotationCorrection = theDetector->getXRotationCorrection() + alignmentResultsTelescope[geo->first].alpha;
-      	  double yRotationCorrection = theDetector->getYRotationCorrection() + alignmentResultsTelescope[geo->first].beta;
-      	  double zRotationCorrection = theDetector->getZRotationCorrection() + alignmentResultsTelescope[geo->first].gamma;
+	      double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTx;
+	      double yPositionCorrection = theDetector->getYPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTy;
+	      double zPositionCorrection = theDetector->getZPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTz;
+	      double xRotationCorrection = theDetector->getXRotationCorrection() + alignmentResultsTelescope[geo->first].alpha;
+	      double yRotationCorrection = theDetector->getYRotationCorrection() + alignmentResultsTelescope[geo->first].beta;
+	      double zRotationCorrection = theDetector->getZRotationCorrection() + alignmentResultsTelescope[geo->first].gamma;
 	  
-      	  theDetector->setXPositionCorrection(xPositionCorrection);
-      	  theDetector->setYPositionCorrection(yPositionCorrection);
-      	  theDetector->setZPositionCorrection(zPositionCorrection);
-      	  theDetector->setXRotationCorrection(xRotationCorrection);
-      	  theDetector->setYRotationCorrection(yRotationCorrection);
-      	  theDetector->setZRotationCorrection(zRotationCorrection);
-      	}
+	      theDetector->setXPositionCorrection(xPositionCorrection);
+	      theDetector->setYPositionCorrection(yPositionCorrection);
+	      theDetector->setZPositionCorrection(zPositionCorrection);
+	      theDetector->setXRotationCorrection(xRotationCorrection);
+	      theDetector->setYRotationCorrection(yRotationCorrection);
+	      theDetector->setZRotationCorrection(zRotationCorrection);
+	    }
 
-      delete theAlignerTelescope;
-      delete theThreaderTelescopeAlignment;
-
-
-
-      // ###################
-      // # Update geometry #
-      // ###################	
-      STDLINE("Update Geometry",ACBlue);
-
-      theFileEater.updateGeometry("geometry");
+	  delete theAlignerTelescope;
+	  delete theThreaderTelescopeAlignment;
 
 
 
-      // ################
-      // # Track finder #
-      // ################
-      STDLINE("Track Finder",ACBlue);
+	  // ###################
+	  // # Update geometry #
+	  // ###################	
+	  STDLINE("Update Geometry",ACBlue);
 
-      theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
-      theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
-      theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
-      theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
-      theFileEater.updateEvents2();
+	  theFileEater.updateGeometry("geometry");
+
+
+
+	  // ################
+	  // # Track finder #
+	  // ################
+	  STDLINE("Track Finder",ACBlue);
+
+	  theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
+	  theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
+	  theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
+	  theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
+	  theFileEater.updateEvents2();
+	}
 
 
 
       // ######################
       // # Fine alignment DUT #
       // ######################
-      if (doFineAlignment)
+      if (doDUTFineAlignment == true)
 	{
 	  STDLINE("Fine Alignment DUT",ACBlue);
 
