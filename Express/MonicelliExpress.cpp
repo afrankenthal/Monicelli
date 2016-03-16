@@ -322,7 +322,7 @@ int main (int argc, char** argv)
 	      if (!(*it).second->isDUT()) theAlignerTelescope->setFixParMap((*it).first, 100000);
 	      else                        theAlignerTelescope->setFixParMap((*it).first, 111111);
 	    }
-	  theAlignerTelescope->setAlignmentPreferences(5, 0, 20., 2, trackPoints-2, 1, true, "", numberOfEvents);
+	  theAlignerTelescope->setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, "", numberOfEvents);
 	  // #############################
 	  // # The parameter meaning:    #
 	  // #############################
@@ -454,11 +454,11 @@ int main (int argc, char** argv)
 	  // # Track finder on DUT #
 	  // #######################
 	  STDLINE("Track Finder on DUT",ACBlue);
-	      
+
 	  theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
 	  theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
-	  theTrackFinder.setOperation(&trackFinder::findDUTCandidates);      
-	  theFileEater.updateEvents2();	
+	  theTrackFinder.setOperation(&trackFinder::findDUTCandidates);
+	  theFileEater.updateEvents2();
 	}
 
 
