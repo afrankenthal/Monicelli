@@ -19,6 +19,9 @@
 #include <QDomNode>
 
 
+#define DUTfreePLANES 100011 // Define the fix [1] and free [0] parameters [z,y,x,gamma,beta,alpha]
+
+
 class XmlDefaults;
 class XmlFile;
 
@@ -407,7 +410,7 @@ int main (int argc, char** argv)
 	      string dut = it->first;
 	      aligner* theAligner = new aligner(&theFileEater,&theHManager);
 
-	      theAligner->setFixParMap(dut,100011); // Here is where I choose which parameters must be kept constant
+	      theAligner->setFixParMap(dut,DUTfreePLANES); // Here is where I choose which parameters must be kept constant
 	      theAligner->setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
 	      theAligner->setOperation(&aligner::alignDUT);
 	  
