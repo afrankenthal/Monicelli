@@ -40,8 +40,8 @@
 
 
 // @@@ Hard coded parameters @@@ 
-#define TESTDIVIDE false     // Use this flag in case of normal incidence on DUT and in case there are problems in aligning the DUT
-#define ONLYdoubleHITS false // Use this flag in order to align on cluster size = 2 only
+#define TESTDIVIDE false    // Use this flag in case of normal incidence on DUT and in case there are problems in aligning the DUT
+#define ONLYdoubleHITS true // Use this flag in order to align on cluster size = 2 only
 // ============================
 
 
@@ -204,7 +204,6 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
   this->clear();
   double pi = 3.1415;
 
-  clustersBuilt_   = true;
   clustersHitsMap_ = findClusters(theEvent);
 
   for (Event::clustersHitsMapDef::iterator det = clustersHitsMap_.begin(); det != clustersHitsMap_.end(); det++)
@@ -213,6 +212,19 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
       for (Event::aClusterHitsMapDef::iterator cluster = det->second.begin(); cluster != det->second.end(); cluster++)
         {
 	  if (cluster->second.size() == 0) continue;
+
+
+	  // #####################################
+	  // # Remove all clusters but of size 2 #
+	  // #####################################
+	  if ((ONLYdoubleHITS == true) && ((cluster->second.size() <= 1) || (cluster->second.size() > 2))) continue;
+	  if ((ONLYdoubleHITS == true) && (cluster->second.size() == 2))
+	    {
+	      Event::hitsDef::iterator hit0 = cluster->second.begin();
+	      Event::hitsDef::iterator hit1 = cluster->second.begin()+1;
+	      if ((*hit0)["col"] != (*hit1)["col"] && (*hit0)["row"] != (*hit1)["row"]) continue;
+	    }
+
 
 	  double& x        = clustersMap_[det->first][cluster->first]["x"];
 	  double& y        = clustersMap_[det->first][cluster->first]["y"];
@@ -271,9 +283,6 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	  // ####################
 	  if (pixels.size() == 1)
 	    {
-	      if (ONLYdoubleHITS == true) clustersBuilt_ = false;
-
-
 	      x = pixels[0].x;
 	      y = pixels[0].y;
 	      
@@ -295,9 +304,6 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	      // ###################
 	      if (pixels[0].x == pixels[1].x)
 		{
-		  if (ONLYdoubleHITS == true) clustersBuilt_ *= true;
-
-
 		  // ##############################################
 		  // # Assign to DUT the coordinate of the divide #
 		  // ##############################################
@@ -358,9 +364,6 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	      // ###################
 	      else if (pixels[0].y == pixels[1].y)
 		{
-		  if (ONLYdoubleHITS == true) clustersBuilt_ *= true;
-
-
 		  // ##############################################
 		  // # Assign to DUT the coordinate of the divide #
 		  // ##############################################
@@ -421,9 +424,6 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	      // ####################
 	      else
 		{
-		  if (ONLYdoubleHITS == true) clustersBuilt_ = false;
-
-
 		  if (pixels[0].y < pixels[1].y)
 		    {
 		      center = (pixels[0].y + pixels[0].yPitch/2.);
@@ -448,7 +448,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 
 		  if (detector->getXRotation(false) != 0) yErr = 1.4;
 		  else                                    yErr = 2.887;
-		  
+
 		  if (detector->getYRotation(false) != 0) xErr = 1.4;
 		  else                                    xErr = 2.887;
 		}
@@ -458,9 +458,6 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	  // ###############################
 	  else
 	    {
-	      if (ONLYdoubleHITS == true) clustersBuilt_ = false;
-
-
 	      row    = 0;
 	      col    = 0;
 	      x      = 0;
@@ -501,6 +498,8 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
         }
     }
 
+  
+  clustersBuilt_ = true;
   return clustersMap_;
 }
 
@@ -508,12 +507,8 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 void clusterizer::clusterize(Event* theEvent, Geometry* theGeometry)
 {
   this->makeClusters(theEvent,theGeometry);
-
-  if (clustersBuilt_ == true)
-    {
-      theEvent->setClustersHits( clustersHitsMap_ );
-      theEvent->setClusters    ( clustersMap_     );
-    }
+  theEvent->setClustersHits( clustersHitsMap_ );
+  theEvent->setClusters    ( clustersMap_     );
 }
 
 //=============================================================================
