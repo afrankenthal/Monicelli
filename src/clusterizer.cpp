@@ -195,6 +195,7 @@ void clusterizer::getChargeAsymmetryPlots(Geometry* theGeometry)
 	  file->Close();
         }
     }
+
   useEtaFunction_ = true;
 }
 
@@ -503,7 +504,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
     }
   
   clustersBuilt_ = true;
-  return  clustersMap_;
+  return clustersMap_;
 }
 
 //=============================================================================
