@@ -51,7 +51,7 @@ using namespace std;
 
 //===================================================================================
 clusterizer::clusterizer(void) :
-    clustersBuilt_ (false)
+  clustersBuilt_ (false)
   , useEtaFunction_(false)
 {
 }
@@ -77,7 +77,7 @@ struct pixelInfos
 };
 
 //===================================================================================
-void clusterizer::clear(void )
+void clusterizer::clear(void)
 {
   clustersHitsMap_.clear();
   clustersMap_    .clear();
@@ -206,10 +206,10 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 
   clustersHitsMap_ = findClusters(theEvent);
 
-  for ( Event::clustersHitsMapDef::iterator det=clustersHitsMap_.begin(); det!=clustersHitsMap_.end(); det++ )
+  for (Event::clustersHitsMapDef::iterator det = clustersHitsMap_.begin(); det != clustersHitsMap_.end(); det++)
     {
-      Detector* detector = theGeometry->getDetector( det->first );
-      for (Event::aClusterHitsMapDef::iterator cluster=det->second.begin(); cluster!=det->second.end(); cluster++)
+      Detector* detector = theGeometry->getDetector(det->first);
+      for (Event::aClusterHitsMapDef::iterator cluster = det->second.begin(); cluster != det->second.end(); cluster++)
         {
 	  if (cluster->second.size() == 0) continue;
 
@@ -228,7 +228,8 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	  std::vector<pixelInfos> pixels(cluster->second.size());
 	  int p = 0;
 	  ROC* roc = 0;
-	  for(Event::hitsDef::iterator hit=cluster->second.begin(); hit!=cluster->second.end(); hit++, p++)
+
+	  for (Event::hitsDef::iterator hit = cluster->second.begin(); hit != cluster->second.end(); hit++, p++)
             {
 	      pixels[p].x         = detector->getPixelCenterLocalX( (*hit)["col"] );
 	      pixels[p].y         = detector->getPixelCenterLocalY( (*hit)["row"] );
@@ -245,12 +246,12 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	      //FIXME ASSUMING THAT THE DUTs ARE ALL DIGITAL AND SO THEY USE A LINEAR FIT
 	      //FIXME ASSUMING THAT THE DUTs ARE ALL DIGITAL AND SO THEY USE A LINEAR FIT
 	      bool convert = false;
-	      if (det->first == "Station: 4 - Plaq: 0" ||  det->first == "Station: 4 - Plaq: 1" ||  det->first == "Station: 4 - Plaq: 2")
+	      if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2")
 		convert = true;
-	      bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"],convert);
+	      bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"], convert);
 
 
-	      if (isCalibrated)
+	      if (isCalibrated == true)
 		pixels[p].charge = abs( (*hit)["charge"] );
 	      else
 		pixels[p].charge = abs( (*hit)["charge"] );
@@ -259,26 +260,35 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	      dataType = pixels[p].dataType;
             }
 
-	  double chargeSharing  = 0.4;//20um charge sharing at 90 deg
-	  double tilted25ChargeSharing  = 7.5;//20um charge sharing at 90 deg
-	  double xChargeSharing = 4*tan(fabs(detector->getYRotation(false))*pi/180)+ chargeSharing;//5*tan(fabs(detector->getYRotation(false))*pi/180)//7*sin(fabs(detector->getYRotation(false))*pi/180);//at 25 deg it gives ~+-20+30um charge sharing region which is all pixel
-	  double yChargeSharing = 4*tan(fabs(detector->getXRotation(false))*pi/180)+ chargeSharing;//5*tan(fabs(detector->getXRotation(false))*pi/180)//7*sin(fabs(detector->getXRotation(false))*pi/180);
+	  double chargeSharing  = 0.4;        // 20um charge sharing at 90 deg
+	  double tilted25ChargeSharing = 7.5; // 20um charge sharing at 90 deg
+	  double xChargeSharing = 4*tan(fabs(detector->getYRotation(false))*pi/180) + chargeSharing ;//5*tan(fabs(detector->getYRotation(false))*pi/180)//7*sin(fabs(detector->getYRotation(false))*pi/180); //at 25 deg it gives ~+-20+30um charge sharing region which is all pixel
+	  double yChargeSharing = 4*tan(fabs(detector->getXRotation(false))*pi/180) + chargeSharing; //5*tan(fabs(detector->getXRotation(false))*pi/180)//7*sin(fabs(detector->getXRotation(false))*pi/180);
 
-	  if(pixels.size() == 1)
+	  // ####################
+	  // # Cluster size = 1 #
+	  // ####################
+	  if (pixels.size() == 1)
 	    {
 	      x = pixels[0].x;
 	      y = pixels[0].y;
-
-	      if(fabs(detector->getYRotation(false)) > 10) xErr = tilted25ChargeSharing/sqrt(12.);
-	      else xErr = (pixels[0].xPitch-2*chargeSharing)/sqrt(12.);
 	      
-	      if(fabs(detector->getXRotation(false)) > 10) yErr = tilted25ChargeSharing/sqrt(12.);
-	      else yErr = (pixels[0].yPitch-2*chargeSharing)/sqrt(12.);
+	      if (fabs(detector->getYRotation(false)) > 10) xErr = tilted25ChargeSharing / sqrt(12.);
+	      else                                          xErr = (pixels[0].xPitch - 2*chargeSharing) / sqrt(12.);
+	      
+	      if (fabs(detector->getXRotation(false)) > 10) yErr = tilted25ChargeSharing / sqrt(12.);
+	      else                                          yErr = (pixels[0].yPitch - 2*chargeSharing) / sqrt(12.);
 	    }
+	  // ####################
+	  // # Cluster size = 2 #
+	  // ####################
 	  else if (pixels.size() == 2)
 	    {
 	      double center;
 
+	      // ###################
+	      // # Cluster along y #
+	      // ###################
 	      if (pixels[0].x == pixels[1].x)
 		{
 		  // ##############################################
@@ -318,25 +328,32 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 		    {
 		      x = pixels[0].x;
 
-		      if(fabs(detector->getYRotation(false)) > 10) xErr = tilted25ChargeSharing/sqrt(12.);
-		      else xErr = (pixels[0].xPitch-2*chargeSharing)/sqrt(12.);
+		      if (fabs(detector->getYRotation(false)) > 10) xErr = tilted25ChargeSharing / sqrt(12.);
+		      else                                          xErr = (pixels[0].xPitch - 2*chargeSharing) / sqrt(12.);
 
-		      if( pixels[0].y < pixels[1].y )
+		      if (pixels[0].y < pixels[1].y)
 			{
-			  center = (pixels[0].y + pixels[0].yPitch/2. );
-			  y = (pixels[0].charge*(center - (yChargeSharing+chargeSharing)) + pixels[1].charge*(center + (yChargeSharing+chargeSharing)))/charge;
+			  center = (pixels[0].y + pixels[0].yPitch/2.);
+			  y = (pixels[0].charge*(center - (yChargeSharing+chargeSharing)) + pixels[1].charge*(center + (yChargeSharing+chargeSharing))) / charge;
 			}
 		      else
 			{
-			  center = (pixels[1].y + pixels[1].yPitch/2. );
+			  center = (pixels[1].y + pixels[1].yPitch/2.);
 			  y = (pixels[1].charge*(center - (yChargeSharing+chargeSharing)) + pixels[0].charge*(center + (yChargeSharing+chargeSharing)))/charge;
 			}
 
-		      if(fabs(detector->getXRotation(false)) > 10) yErr = 1.35;
-		      else yErr = 0.65;
+		      // @TMP@
+		      if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2")
+			yErr = 0.3;
+		      else
+			if (fabs(detector->getXRotation(false)) > 10) yErr = 1.2; // @TMP@ 1.3
+			else                                          yErr = 0.6; // @TMP@ 0.65
 		    }
 		}
-	      else if(pixels[0].y == pixels[1].y)//NEED to include the diagonals which must be treated separately
+	      // ###################
+	      // # Cluster along x #
+	      // ###################
+	      else if (pixels[0].y == pixels[1].y)
 		{
 		  // ##############################################
 		  // # Assign to DUT the coordinate of the divide #
@@ -346,7 +363,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 		    {
 		      y = pixels[0].y;
 		      // yErr = pixels[0].yPitch / 2. / sqrt(12.);
-
+		      
 		      // ################
 		      // # Fixed errors #
 		      // ################
@@ -374,61 +391,76 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 		  else
 		    {
 		      y = pixels[0].y;
-		      if(fabs(detector->getXRotation(false)) > 10) yErr = tilted25ChargeSharing/sqrt(12.);
-		      else yErr = (pixels[0].yPitch-2*chargeSharing)/sqrt(12.);
 
-		      if( pixels[0].x < pixels[1].x )
+		      if (fabs(detector->getXRotation(false)) > 10) yErr = tilted25ChargeSharing / sqrt(12.);
+		      else                                          yErr = (pixels[0].yPitch - 2*chargeSharing) / sqrt(12.);
+
+		      if (pixels[0].x < pixels[1].x)
 			{
-			  center = (pixels[0].x + pixels[0].xPitch/2. );
+			  center = (pixels[0].x + pixels[0].xPitch/2.);
 			  x = (pixels[0].charge*(center - (xChargeSharing+chargeSharing)) + pixels[1].charge*(center + (xChargeSharing+chargeSharing)))/charge;
 			}
 		      else
 			{
-			  center = (pixels[1].x + pixels[1].xPitch/2. );
+			  center = (pixels[1].x + pixels[1].xPitch/2.);
 			  x = (pixels[1].charge*(center - (xChargeSharing+chargeSharing)) + pixels[0].charge*(center + (xChargeSharing+chargeSharing)))/charge;
 			}
-		      if(fabs(detector->getYRotation(false)) > 10) xErr = 1.35;
-		      else xErr = 0.65;
+		      
+		      // @TMP@
+		      if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2")
+			xErr = 0.3;
+		      else
+			if (fabs(detector->getYRotation(false)) > 10) xErr = 1.2; // @TMP@ 1.35
+			else                                          xErr = 0.6; // @TMP@ 0.65
 		    }
 		}
+	      // ####################
+	      // # Diagonal cluster #
+	      // ####################
 	      else
 		{
-		  if( pixels[0].y < pixels[1].y )
+		  if (pixels[0].y < pixels[1].y)
 		    {
-		      center = (pixels[0].y + pixels[0].yPitch/2. );
+		      center = (pixels[0].y + pixels[0].yPitch/2.);
 		      y = (pixels[0].charge*(center - (yChargeSharing+chargeSharing)) + pixels[1].charge*(center + (yChargeSharing+chargeSharing)))/charge;
 		    }
 		  else
 		    {
-		      center = (pixels[1].y + pixels[1].yPitch/2. );
+		      center = (pixels[1].y + pixels[1].yPitch/2.);
 		      y = (pixels[1].charge*(center - (yChargeSharing+chargeSharing)) + pixels[0].charge*(center + (yChargeSharing+chargeSharing)))/charge;
 		    }
 
-		  if( pixels[0].x < pixels[1].x )
+		  if( pixels[0].x < pixels[1].x)
 		    {
-		      center = (pixels[0].x + pixels[0].xPitch/2. );
+		      center = (pixels[0].x + pixels[0].xPitch/2.);
 		      x = (pixels[0].charge*(center - (xChargeSharing+chargeSharing)) + pixels[1].charge*(center + (xChargeSharing+chargeSharing)))/charge;
 		    }
 		  else
 		    {
-		      center = (pixels[1].x + pixels[1].xPitch/2. );
+		      center = (pixels[1].x + pixels[1].xPitch/2.);
 		      x = (pixels[1].charge*(center - (xChargeSharing+chargeSharing)) + pixels[0].charge*(center + (xChargeSharing+chargeSharing)))/charge;
 		    }
 
-		  if( detector->getXRotation(false)!=0 )
+		  // @TMP@
+		  if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2")
 		    {
-		      yErr = 1.4;
+		      xErr = 0.3;
+		      yErr = 0.3;
 		    }
-		  else  yErr = 2.887;
-
-		  if( detector->getYRotation(false)!=0 )
+		  else
 		    {
-		      xErr = 1.4;
+		      if (detector->getXRotation(false) != 0) yErr = 1.2; // @TMP 1.4
+		      else                                    yErr = 2.4; // @TMP@ 2.887
+		      
+		      if (detector->getYRotation(false) != 0) xErr = 1.2; // @TMP@ 1.4
+		      else                                    xErr = 2.4; // @TMP@ 2.887
 		    }
-		  else  xErr = 2.887;
 		}
 	    }
-	  else //all other cluster types
+	  // ###############################
+	  // # Cluster size greater than 2 #
+	  // ###############################
+	  else
 	    {
 	      row    = 0;
 	      col    = 0;
@@ -438,7 +470,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	      yErr   = 0;
 	      charge = 0;
 
-	      for(Event::hitsDef::iterator hit=cluster->second.begin(); hit!=cluster->second.end(); hit++ )
+	      for (Event::hitsDef::iterator hit = cluster->second.begin(); hit != cluster->second.end(); hit++)
 		{
 		  row = (*hit)["row"];
 		  col = (*hit)["col"];
@@ -446,62 +478,58 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 		  xErr += detector->getPixelPitchLocalX ( col );
 		  y    += detector->getPixelCenterLocalY( row );
 		  yErr += detector->getPixelPitchLocalY ( row );
-
+		  
 		  ROC *roc = detector->convertPixelToROC(&row, &col);
 		  bool convert = false;
-
-
-		  if( det->first == "Station: 4 - Plaq: 0" ||  det->first == "Station: 4 - Plaq: 1" ||  det->first == "Station: 4 - Plaq: 2")
+		  
+		  
+		  if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2")
 		    convert = true;
 		  bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"],convert);
+		  
 
-
-		  if (isCalibrated)
-		    charge += (*hit)["charge"];  //Should be abs? Real charge. Should be fine since clusters of 3+ are used just for efficiencies
+		  if (isCalibrated == true)
+		    charge += (*hit)["charge"]; // Should be abs? Real charge. Should be fine since clusters of 3+ are used just for efficiencies
 		  else
-		    charge += 0; //Doesn't really matter, just for efficiencies
+		    charge += 0; // Doesn't really matter, just for efficiencies
 		}
-	      if (cluster->second.size() != 1)
-		{
-		  x    /= cluster->second.size();
-		  y    /= cluster->second.size();
-		  xErr /= cluster->second.size()*sqrt(12.);
-		  yErr /= cluster->second.size()*sqrt(12.);
-		}
-	      xErr /= sqrt(12.);
-	      yErr /= sqrt(12.);
+
+	      x    /= cluster->second.size();
+	      y    /= cluster->second.size();
+	      xErr /= cluster->second.size() * sqrt(12.);
+	      yErr /= cluster->second.size() * sqrt(12.);
 	    }
         }
     }
-    
+  
   clustersBuilt_ = true;
   return  clustersMap_;
 }
 
 //=============================================================================
-void clusterizer::clusterize(Event *theEvent, Geometry *theGeometry)
+void clusterizer::clusterize(Event* theEvent, Geometry* theGeometry)
 {
-    this->makeClusters(theEvent,theGeometry);
-    theEvent->setClustersHits( clustersHitsMap_ );
-    theEvent->setClusters    ( clustersMap_     );
+  this->makeClusters(theEvent,theGeometry);
+  theEvent->setClustersHits( clustersHitsMap_ );
+  theEvent->setClusters    ( clustersMap_     );
 }
 
 //=============================================================================
-void clusterizer::execute(Event * theEvent, Geometry * theGeometry)
+void clusterizer::execute(Event* theEvent, Geometry* theGeometry)
 {
-    this->clusterize  (theEvent,theGeometry);
+  this->clusterize(theEvent,theGeometry);
 }
 
 //=============================================================================
-std::string  clusterizer::getLabel (void )
+std::string clusterizer::getLabel(void)
 {
-    return "Reconstructing hit clusters";
+  return "Reconstructing hit clusters";
 }
 
 //=============================================================================
-std::string clusterizer::getPlaneID (int station, int plaquette)
+std::string clusterizer::getPlaneID(int station, int plaquette)
 {
-    std::stringstream ss;
-    ss << "Station: " << station << " - Plaq: " << plaquette;
-    return ss.str();
+  std::stringstream ss;
+  ss << "Station: " << station << " - Plaq: " << plaquette;
+  return ss.str();
 }
