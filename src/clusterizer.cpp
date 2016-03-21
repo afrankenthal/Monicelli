@@ -39,11 +39,10 @@
 #include <boost/regex.hpp>
 
 
-// ###########################################################
-// # FIXME: use this flag in case of normal incidence on DUT #
-// # and in case there are problems in aligning the DUT      #
-// ###########################################################
-#define TESTDIVIDE false
+// @@@ Hard coded parameters @@@ 
+#define TESTDIVIDE false     // Use this flag in case of normal incidence on DUT and in case there are problems in aligning the DUT
+#define ONLYdoubleHITS false // Use this flag in order to align on cluster size = 2 only
+// ============================
 
 
 using namespace std;
@@ -205,6 +204,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
   this->clear();
   double pi = 3.1415;
 
+  clustersBuilt_   = true;
   clustersHitsMap_ = findClusters(theEvent);
 
   for (Event::clustersHitsMapDef::iterator det = clustersHitsMap_.begin(); det != clustersHitsMap_.end(); det++)
@@ -271,6 +271,9 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	  // ####################
 	  if (pixels.size() == 1)
 	    {
+	      if (ONLYdoubleHITS == true) clustersBuilt_ = false;
+
+
 	      x = pixels[0].x;
 	      y = pixels[0].y;
 	      
@@ -292,6 +295,9 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	      // ###################
 	      if (pixels[0].x == pixels[1].x)
 		{
+		  if (ONLYdoubleHITS == true) clustersBuilt_ *= true;
+
+
 		  // ##############################################
 		  // # Assign to DUT the coordinate of the divide #
 		  // ##############################################
@@ -343,12 +349,8 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 			  y = (pixels[1].charge*(center - (yChargeSharing+chargeSharing)) + pixels[0].charge*(center + (yChargeSharing+chargeSharing)))/charge;
 			}
 
-		      // @TMP@
-		      if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2")
-			yErr = 0.3;
-		      else
-			if (fabs(detector->getXRotation(false)) > 10) yErr = 1.2; // @TMP@ 1.3
-			else                                          yErr = 0.6; // @TMP@ 0.65
+		      if (fabs(detector->getXRotation(false)) > 10) yErr = 1.35;
+		      else                                          yErr = 0.65;
 		    }
 		}
 	      // ###################
@@ -356,6 +358,9 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	      // ###################
 	      else if (pixels[0].y == pixels[1].y)
 		{
+		  if (ONLYdoubleHITS == true) clustersBuilt_ *= true;
+
+
 		  // ##############################################
 		  // # Assign to DUT the coordinate of the divide #
 		  // ##############################################
@@ -407,12 +412,8 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 			  x = (pixels[1].charge*(center - (xChargeSharing+chargeSharing)) + pixels[0].charge*(center + (xChargeSharing+chargeSharing)))/charge;
 			}
 		      
-		      // @TMP@
-		      if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2")
-			xErr = 0.3;
-		      else
-			if (fabs(detector->getYRotation(false)) > 10) xErr = 1.2; // @TMP@ 1.35
-			else                                          xErr = 0.6; // @TMP@ 0.65
+		      if (fabs(detector->getYRotation(false)) > 10) xErr = 1.35;
+		      else                                          xErr = 0.65;
 		    }
 		}
 	      // ####################
@@ -420,6 +421,9 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	      // ####################
 	      else
 		{
+		  if (ONLYdoubleHITS == true) clustersBuilt_ = false;
+
+
 		  if (pixels[0].y < pixels[1].y)
 		    {
 		      center = (pixels[0].y + pixels[0].yPitch/2.);
@@ -442,20 +446,11 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 		      x = (pixels[1].charge*(center - (xChargeSharing+chargeSharing)) + pixels[0].charge*(center + (xChargeSharing+chargeSharing)))/charge;
 		    }
 
-		  // @TMP@
-		  if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2")
-		    {
-		      xErr = 0.3;
-		      yErr = 0.3;
-		    }
-		  else
-		    {
-		      if (detector->getXRotation(false) != 0) yErr = 1.2; // @TMP 1.4
-		      else                                    yErr = 2.4; // @TMP@ 2.887
-		      
-		      if (detector->getYRotation(false) != 0) xErr = 1.2; // @TMP@ 1.4
-		      else                                    xErr = 2.4; // @TMP@ 2.887
-		    }
+		  if (detector->getXRotation(false) != 0) yErr = 1.4;
+		  else                                    yErr = 2.887;
+		  
+		  if (detector->getYRotation(false) != 0) xErr = 1.4;
+		  else                                    xErr = 2.887;
 		}
 	    }
 	  // ###############################
@@ -463,6 +458,9 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	  // ###############################
 	  else
 	    {
+	      if (ONLYdoubleHITS == true) clustersBuilt_ = false;
+
+
 	      row    = 0;
 	      col    = 0;
 	      x      = 0;
@@ -502,8 +500,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	    }
         }
     }
-  
-  clustersBuilt_ = true;
+
   return clustersMap_;
 }
 
@@ -511,8 +508,12 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 void clusterizer::clusterize(Event* theEvent, Geometry* theGeometry)
 {
   this->makeClusters(theEvent,theGeometry);
-  theEvent->setClustersHits( clustersHitsMap_ );
-  theEvent->setClusters    ( clustersMap_     );
+
+  if (clustersBuilt_ == true)
+    {
+      theEvent->setClustersHits( clustersHitsMap_ );
+      theEvent->setClusters    ( clustersMap_     );
+    }
 }
 
 //=============================================================================
