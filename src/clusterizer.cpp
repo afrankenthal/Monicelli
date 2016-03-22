@@ -40,8 +40,8 @@
 
 
 // @@@ Hard coded parameters @@@ 
-#define TESTDIVIDE false    // Use this flag in case of normal incidence on DUT and in case there are problems in aligning the DUT
-#define ONLYdoubleHITS true // Use this flag in order to align on cluster size = 2 only
+#define TESTDIVIDE false     // Use this flag in case of normal incidence on DUT and in case there are problems in aligning the DUT
+#define ONLYdoubleHITS false // Use this flag in order to align on cluster size = 2 only
 // ============================
 
 
