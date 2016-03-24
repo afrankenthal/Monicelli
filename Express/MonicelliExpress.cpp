@@ -19,7 +19,7 @@
 #include <QDomNode>
 
 
-#define DUTfreePLANES 100011 // Define the fix [1] and free [0] parameters [z,y,x,gamma,beta,alpha]
+#define DUTfreePLANES 100000 // Define the fix [1] and free [0] parameters [z,y,x,gamma,beta,alpha]
 
 
 class XmlDefaults;
@@ -401,7 +401,89 @@ int main (int argc, char** argv)
       // ######################
       if (doDUTFineAlignment == true)
 	{
-	  STDLINE("Fine Alignment DUT",ACBlue);
+	  // #########################################
+	  // # Track finder on DUT: large rod search #
+	  // #########################################
+	  STDLINE("Track Finder on DUT: large rod search",ACBlue);
+
+	  theTrackFinder.setTrackSearchParameters(10000.*(1e-4)*CONVF, 10000.*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
+	  theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
+	  theTrackFinder.setOperation(&trackFinder::findDUTCandidates);
+	  theFileEater.updateEvents2();
+
+
+
+	  // ###############################
+	  // # Fine alignment DUT: only XY #
+	  // ###############################
+	  STDLINE("Fine Alignment DUT: only XY",ACBlue);
+
+	  for (Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); it++)
+	    {
+	      if (!(*it).second->isDUT()) continue;
+	  
+	      string dut = it->first;
+	      aligner* theAligner = new aligner(&theFileEater,&theHManager);
+
+	      theAligner->setFixParMap(dut,100111); // Here is where I choose which parameters must be kept constant
+	      theAligner->setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
+	      theAligner->setOperation(&aligner::alignDUT);
+	  
+
+	      threader* theThreader = new threader();
+	      theThreader->setProcess(theAligner);
+	      theThreader->start();
+	      while (theThreader->isRunning()) sleep(1);
+
+
+	      aligner::alignmentResultsDef alignmentResults = theAligner->getAlignmentResults();
+	      Detector* theDetector = theGeometry->getDetector(dut);
+
+	      double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResults[dut].deltaTx;
+	      double yPositionCorrection = theDetector->getYPositionCorrection() + alignmentResults[dut].deltaTy;
+	      double zPositionCorrection = theDetector->getZPositionCorrection() + alignmentResults[dut].deltaTz;
+	      double xRotationCorrection = theDetector->getXRotationCorrection() + alignmentResults[dut].alpha;
+	      double yRotationCorrection = theDetector->getYRotationCorrection() + alignmentResults[dut].beta;
+	      double zRotationCorrection = theDetector->getZRotationCorrection() + alignmentResults[dut].gamma;
+	  
+	      theDetector->setXPositionCorrection(xPositionCorrection);
+	      theDetector->setYPositionCorrection(yPositionCorrection);
+	      theDetector->setZPositionCorrection(zPositionCorrection);
+	      theDetector->setXRotationCorrection(xRotationCorrection);
+	      theDetector->setYRotationCorrection(yRotationCorrection);
+	      theDetector->setZRotationCorrection(zRotationCorrection);
+
+	      delete theAligner;
+	      delete theThreader;	  
+	    }
+
+
+
+	  // ###################
+	  // # Update geometry #
+	  // ###################	
+	  STDLINE("Update Geometry",ACBlue);
+	  
+	  theFileEater.updateGeometry("geometry");
+
+
+
+	  // #######################
+	  // # Track finder on DUT #
+	  // #######################
+	  STDLINE("Track Finder on DUT",ACBlue);
+
+	  theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
+	  theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
+	  theTrackFinder.setOperation(&trackFinder::findDUTCandidates);
+	  theFileEater.updateEvents2();
+
+
+
+	  // ######################
+	  // # Fine alignment DUT #
+	  // ######################
+	  STDLINE("Fine Alignment DUT: intermediate",ACBlue);
 
 	  for (Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); it++)
 	    {
@@ -456,7 +538,7 @@ int main (int argc, char** argv)
 	  // #######################
 	  // # Track finder on DUT #
 	  // #######################
-	  STDLINE("Track Finder on DUT",ACBlue);
+	  STDLINE("Track Finder on DUT: final",ACBlue);
 
 	  theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
 	  theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
