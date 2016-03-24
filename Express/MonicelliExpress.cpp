@@ -19,7 +19,7 @@
 #include <QDomNode>
 
 
-#define DUTfreePLANES 100000 // Define the fix [1] and free [0] parameters [z,y,x,gamma,beta,alpha]
+#define DUTfreePLANES 100011 // Define the fix [1] and free [0] parameters [z,y,x,gamma,beta,alpha]
 
 
 class XmlDefaults;
@@ -379,6 +379,7 @@ int main (int argc, char** argv)
 	  STDLINE("Update Geometry",ACBlue);
 
 	  theFileEater.updateGeometry("geometry");
+	  theGeometry = theFileEater.getGeometry();
 
 
 
@@ -455,17 +456,18 @@ int main (int argc, char** argv)
 
 	      delete theAligner;
 	      delete theThreader;	  
+
+
+
+	      // ###################
+	      // # Update geometry #
+	      // ###################	
+	      STDLINE("Update Geometry",ACBlue);
+	      
+	      theFileEater.updateGeometry("geometry");
+	      theGeometry = theFileEater.getGeometry();
 	    }
-
-
-
-	  // ###################
-	  // # Update geometry #
-	  // ###################	
-	  STDLINE("Update Geometry",ACBlue);
 	  
-	  theFileEater.updateGeometry("geometry");
-
 
 
 	  // #######################
@@ -522,16 +524,17 @@ int main (int argc, char** argv)
 
 	      delete theAligner;
 	      delete theThreader;	  
+
+
+
+	      // ###################
+	      // # Update geometry #
+	      // ###################	
+	      STDLINE("Update Geometry",ACBlue);
+	      
+	      theFileEater.updateGeometry("geometry");
+	      theGeometry = theFileEater.getGeometry();
 	    }
-
-
-
-	  // ###################
-	  // # Update geometry #
-	  // ###################	
-	  STDLINE("Update Geometry",ACBlue);
-	  
-	  theFileEater.updateGeometry("geometry");
 
 
 
