@@ -89,6 +89,18 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
     qRegisterMetaType<threadEnd_Function>("threadEnd_Function"    );
     qRegisterMetaType<HManager::stringVDef>("HManager::stringVDef");
 
+    //Initializing map for SetLimits Tab in Residuals
+
+    folderMap_[0] = X_RES_Y_POS_MEAN;
+    folderMap_[1] = Y_RES_X_POS_MEAN;
+    folderMap_[2] = X_RES_X_POS_MEAN;
+    folderMap_[3] = Y_RES_Y_POS_MEAN;
+
+    tableMap_[0]  = ui->XResYPosTabW ;
+    tableMap_[1]  = ui->YResXPosTabW ;
+    tableMap_[2]  = ui->XResXPosTabW ;
+    tableMap_[3]  = ui->YResYPosTabW ;
+
     //widgets connections
     //    connect(this                                 , SIGNAL(makeHistos                     (threadEnd_Function, HManager::stringVDef) ),
     connect(this                                 , SIGNAL(processFinished                (threadEnd_Function, HManager::stringVDef) ),
@@ -252,8 +264,10 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
     residualsResidualsVsCoordinateRightCanvas_   = new QRootCanvas(ui->residualsResidualsVsCoordinateRightCanvas  ,"") ; // ToROOT6
     residualsSynopticViewLeftCanvas_	         = new QRootCanvas(ui->residualsSynopticViewLeftCanvas            ,"") ; // ToROOT6
     residualsSynopticViewRightCanvas_	         = new QRootCanvas(ui->residualsSynopticViewRightCanvas           ,"") ; // ToROOT6
+    setLimitsOnResidualsvsCoordinateCanvas_      = new QRootCanvas(ui->setLimitsOnResidualsvsCoordinateQW         ,"") ; // ToROOT6
     trackFinderLeftCanvas_                       = new QRootCanvas(ui->trackFinderLeftCanvas                      ,"") ; // ToROOT6
     trackFinderRightCanvas_                      = new QRootCanvas(ui->trackFinderRightCanvas                     ,"") ; // ToROOT6
+
 						 
 //    ui->trackFinderLeftCanvas ->EnableSignalEvents(kMouseReleaseEvent); // ToROOT6
 //    ui->trackFinderRightCanvas->EnableSignalEvents(kMouseReleaseEvent); // ToROOT6
@@ -1655,7 +1669,7 @@ void mainTabs::showBeamProfiles_end(HManager::stringVDef histoType)
                         Utils::toDouble( ui->yProfileSigmaLE->text().toStdString()  ),
                         ui->xProfileNsigmaSB->value()                                  );
         }
-        ui->writeAlignmentPB        ->setEnabled(true);
+        //ui->writeAlignmentPB        ->setEnabled(true);
         ui->rawAlignmentFitComparePB->setEnabled(true);
     }
 
@@ -2931,6 +2945,7 @@ void mainTabs::signalNewAction(std::string newAction)
 void mainTabs::on_unconstrainedResidualsPB_clicked()
 {
     //cout << __PRETTY_FUNCTION__ << "Button Clicked" << endl;
+
     this->ui->residualsMonitorTW->setCurrentIndex(0) ;
 
     if(ui->onlyDetectorsToBeAlignedCB->isChecked())
@@ -4339,4 +4354,128 @@ void mainTabs::on_clearBulkFilesPB_clicked()
 {
     ui->selectedFilesLW->clear() ;
     ui->geometryLE->clear() ;
+}
+
+//================================================================================
+void mainTabs::on_residualsMonitorTW_selected(const QString &tabTitle)
+{
+    if( !theGeometry_ )
+    {
+        STDLINE("No geometry has been loaded so far",ACRed) ;
+        return ;
+    }
+
+    if( tabTitle == "Set Limits")
+    {
+
+     map<int, string> orientation      ;
+     map<int, string> rowColOrien      ;
+//     double           positionMinMax[6];
+
+     orientation[0] = "y";
+     orientation[3] = "y";
+     orientation[1] = "x";
+     orientation[2] = "x";
+
+     QString s ;
+     for(unsigned int index=0; index<tableMap_.size(); ++index)
+     {
+         QTableWidget * w = tableMap_[index];
+         w->setSelectionMode(QAbstractItemView::SingleSelection);
+         w->setColumnCount(6);
+         w->setRowCount(theGeometry_->getDetectorsNumber());
+         w->setHorizontalHeaderItem(0,new QTableWidgetItem(QString::fromStdString("Detector")));
+         w->setHorizontalHeaderItem(1,new QTableWidgetItem(QString::fromStdString("Type"    )));
+         w->setHorizontalHeaderItem(4,new QTableWidgetItem(QString::fromStdString("Min"     )));
+         w->setHorizontalHeaderItem(5,new QTableWidgetItem(QString::fromStdString("Max"     )));
+
+         int currentRow = 0 ;
+
+         for(Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); it++)
+         {
+             string   currentDetector = it->first;
+             Double_t coordMin,coordMax;
+             QString  coordMinString,coordMaxString,minString,maxString;
+
+             TH1D * h = (TH1D*)theHManager_->getHistogram(folderMap_[index],currentDetector);
+             if( !h )
+             {
+                 STDLINE("No correlation histograms have been produced so far",ACRed) ;
+                 return ;
+             }
+             TF1  * f = (TF1*)h->GetListOfFunctions()->FindObject("linearFitFunc");
+             if( !f )
+             {
+                 STDLINE("Correlation histograms have not been fit yet",ACRed) ;
+                 return ;
+             }
+             coordMin = f->GetXmin();
+             coordMax = f->GetXmax();
+             coordMinString.setNum(coordMin);
+             coordMaxString.setNum(coordMax);
+             QTableWidgetItem * coordMinItem = new QTableWidgetItem(QString(coordMinString));
+             coordMinItem->setTextAlignment(Qt::AlignRight);
+             QTableWidgetItem * coordMaxItem = new QTableWidgetItem(QString(coordMaxString));
+             coordMaxItem->setTextAlignment(Qt::AlignRight);
+             w->setItem(currentRow,2,coordMinItem);
+             w->setItem(currentRow,3,coordMaxItem);
+
+             if(     theGeometry_->getDetector(currentDetector)->getZRotation() == 0)
+             {
+                 rowColOrien[0] = "ROW" ;
+                 rowColOrien[3] = "ROW" ;
+                 rowColOrien[1] = "COL" ;
+                 rowColOrien[2] = "COL" ;
+             }
+             else if(theGeometry_->getDetector(currentDetector)->getZRotation() == 90)
+             {
+                 rowColOrien[0] = "COL" ;
+                 rowColOrien[3] = "COL" ;
+                 rowColOrien[1] = "ROW" ;
+                 rowColOrien[2] = "ROW" ;
+             }
+
+             QTableWidgetItem * minItem = new QTableWidgetItem(QString(minString));
+             coordMinItem->setTextAlignment(Qt::AlignRight);
+             QTableWidgetItem * maxItem = new QTableWidgetItem(QString(maxString));
+             coordMaxItem->setTextAlignment(Qt::AlignRight);
+             w->setItem(currentRow,4,minItem);
+             w->setItem(currentRow,5,maxItem);
+
+
+             QTableWidgetItem * detectorItem = new QTableWidgetItem(QString(it->first.c_str()));
+             detectorItem->setFlags(detectorItem->flags() ^ Qt::ItemIsEditable);
+
+             QTableWidgetItem * typeItem = new QTableWidgetItem(QString(rowColOrien[index].c_str()));
+             typeItem->setFlags(typeItem->flags() ^ Qt::ItemIsEditable);
+             typeItem->setTextAlignment(Qt::AlignCenter);
+
+             w->setItem(currentRow,  1,typeItem) ;
+             w->setItem(currentRow++,0,detectorItem);
+         }
+
+         s = QString(orientation[index].c_str()) + QString("Min") ;
+         w->setHorizontalHeaderItem(2,new QTableWidgetItem(s)) ;
+         s = QString(orientation[index].c_str()) + QString("Max") ;
+         w->setHorizontalHeaderItem(3,new QTableWidgetItem(s)) ;
+
+         w->resizeColumnsToContents();
+         w->resizeRowsToContents();
+     }
+    }
+}
+
+//================================================================================
+void mainTabs::on_setLimitsMakePlotPB_clicked()
+{
+    int                currentIndex    = ui->plotTabW->currentIndex();
+    string             currentFolder   = folderMap_[currentIndex];
+    QTableWidget     * currentTable    = tableMap_[currentIndex];
+    string             currentDetector = currentTable->item(currentTable->currentRow(),0)->text().toStdString();
+
+    TH1D * h = (TH1D*)theHManager_->getHistogram(currentFolder,currentDetector);
+    setLimitsOnResidualsvsCoordinateCanvas_->GetCanvas()->cd();
+    h->Draw();
+    setLimitsOnResidualsvsCoordinateCanvas_->GetCanvas()->Update();
+
 }

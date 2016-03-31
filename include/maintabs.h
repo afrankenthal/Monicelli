@@ -55,6 +55,7 @@
 #include <QImage>
 #include <QScrollArea>
 #include <QString>
+#include <QTableWidget>
 
 #include <qtconcurrentrun.h>
 #include <QFutureWatcher>
@@ -175,6 +176,8 @@ private:
     bool                          redoChi2_              ;
     std::map<std::string,GeometryParameters*> geometryParameters_;
     int                           geometryDisplayShrinkFix_;
+    std::map< int,std::string>    folderMap_;
+    std::map< int,QTableWidget*>  tableMap_;
 
     TBenchmark     * theBenchmark_                            ;
 
@@ -252,6 +255,7 @@ private:
     QRootCanvas    * residualsResidualsVsCoordinateRightCanvas_   ; // ToROOT6
     QRootCanvas    * residualsSynopticViewLeftCanvas_		  ; // ToROOT6
     QRootCanvas    * residualsSynopticViewRightCanvas_  	  ; // ToROOT6
+    QRootCanvas    * setLimitsOnResidualsvsCoordinateCanvas_  ; //ToROOT6
     QRootCanvas    * trackFinderLeftCanvas_			  ; // ToROOT6
     QRootCanvas    * trackFinderRightCanvas_			  ; // ToROOT6
 
@@ -378,6 +382,8 @@ private slots:
     void on_geometryClearAllCorrectionsPB_clicked                 (                                  );
     void on_trackFitNameCB_currentIndexChanged                    (const QString   & arg1            );
     void on_clearBulkFilesPB_clicked                              (                                  );
+    void on_residualsMonitorTW_selected                           (const QString   &arg1             );
+    void on_setLimitsMakePlotPB_clicked                           (                                  );
 };
 
 #endif // MAINTABS_H

@@ -37,6 +37,7 @@
 # To run Monicelli do the following:
 #
 # scl enable devtoolset-2 tcsh
+# source ~/.tcshrc
 # source setup-6.csh
 # ./Monicelli
 
@@ -51,6 +52,8 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
    setenv BASEDATADIR ../data/2015_10_October/
   else if(${USER} == "dinardo") then
    setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamData2015
+  else if(${USER} == "dzuolo") then
+   setenv BASEDATADIR ../data/TestBeamData2015/
   endif
   
   setenv PATH /opt/rh/devtoolset-2/root/usr/bin:/bin:/usr/bin:/usr/local/bin:/usr/printmi/bin
