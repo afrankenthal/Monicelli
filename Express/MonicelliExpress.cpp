@@ -19,8 +19,10 @@
 #include <QDomNode>
 
 
+// @@@ Hard coded parameters @@@
 #define DUTfreePLANES 100011 // Define the fix [1] and free [0] parameters [z,y,x,gamma,beta,alpha]
 #define DUT2STEPS true       // Do DUT alignment in 2 steps: (1) only translations, (2) translations + angles
+// ============================
 
 
 class XmlDefaults;
