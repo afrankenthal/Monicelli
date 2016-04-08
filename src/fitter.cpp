@@ -210,20 +210,26 @@ void fitter::linearFit(TH1*  histo, double *slope, double *q, double tolerance )
 {
     double nsig = tolerance ;
 
-    ss_.str("") ; ss_ << "Fitting with a tolerance of " << nsig << " sigmas" ;
+    ss_.str("") ; ss_ << "Fitting "
+                      << histo->GetTitle()
+                      << " with a tolerance of "
+                      << nsig
+                      << " sigmas" ;
     STDLINE(ss_.str(),ACGreen) ;
 
     TH1D * t = (TH1D*)histo->Clone() ;
+    TH1F t1("t","t",100,-2.5,2.5) ;
     t->Reset() ;
 
     for(int bin=1; bin<histo->GetNbinsX(); ++bin )
     {
         if( histo->GetBinContent(bin) == 0 &&
             histo->GetBinError  (bin) == 0 ) continue ;
-        t->Fill(histo->GetBinContent(bin)) ;
+        t1.Fill(histo->GetBinContent(bin)) ;
     }
-    double mea = t->GetMean() ;
-    double rms = t->GetRMS()  ;
+    double mea = t1.GetMean() ;
+    double rms = t1.GetRMS()  ;
+    ss_.str("") ; ss_ << "Mean: " << mea << " +/- " << rms; STDLINE(ss_.str(),ACCyan) ;
 
     int lowB =  5000 ;
     int higB = -5000 ;
@@ -236,12 +242,13 @@ void fitter::linearFit(TH1*  histo, double *slope, double *q, double tolerance )
         {
             if( lowB > bin ) lowB = bin ;
             if( higB < bin ) higB = bin ;
-            t->SetBinContent(bin,histo->GetBinContent(bin)) ;
-            t->SetBinError  (bin,histo->GetBinError  (bin)) ;
+//            t->SetBinContent(bin,histo->GetBinContent(bin)) ;
+//            t->SetBinError  (bin,histo->GetBinError  (bin)) ;
         }
     }
-    double low = t->GetBinCenter(lowB) ;
-    double hig = t->GetBinCenter(higB) ;
+    double low = histo->GetBinCenter(lowB) ;
+    double hig = histo->GetBinCenter(higB) ;
+    ss_.str("") ; ss_ << "Cut: from " << low << " to " << hig; STDLINE(ss_.str(),ACCyan) ;
 
     TF1  * f = new TF1("linearFitFunc", "x*[0]+[1]", low, hig) ;
     f->SetLineColor(2) ;
@@ -249,7 +256,7 @@ void fitter::linearFit(TH1*  histo, double *slope, double *q, double tolerance )
     f->SetParameters( *slope, *q );
 
     histo->GetYaxis()->SetRangeUser(-2.5,2.5) ;
-    t    ->GetYaxis()->SetRangeUser(-2.5,2.5) ;
+//    t    ->GetYaxis()->SetRangeUser(-2.5,2.5) ;
     f->SetLineColor(4);
     f->SetParNames("Slope", "q");
     f->SetParameters(*slope,*q );

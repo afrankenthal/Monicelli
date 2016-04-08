@@ -62,22 +62,24 @@ public:
   typedef std::map<std::string, tFileVDef      > selectedObjectsDef ;
   typedef std::map<int,         canvasWidget * > canvasWidgetDef    ;
 
-                       hTreeBrowser    (QWidget         * parent,
-                                        MainWindow      * mainWindow      ) ;
-                      ~hTreeBrowser    (void                              ) ;
+                       hTreeBrowser     (QWidget         * parent,
+                                         MainWindow      * mainWindow      ) ;
+                      ~hTreeBrowser     (void                              ) ;
 
-    void               populate        (TDirectory      * currentDirectory) ;
-    void               populate        (TFolder         * currentFolder   ) ;
-    void               populate        (TDirectory      * currentDirectory,
-                                        QTreeWidgetItem * wItem           ) ;
-    void               populate        (TFolder         * currentFolder,
-                                        QTreeWidgetItem * wItem           ) ;
-    selectedObjectsDef getSelectedItems(void                              ) ;
-    void               setCurrentCanvas(int               currentCanvas   ) {currentCanvas_ = currentCanvas;}
-    void               setCanvasSize   (std::string       canvasSize      ) ;
-    int                getCurrentCanvas(void                              ) {return currentCanvas_         ;}
-    canvasWidgetDef    getCanvases     (void                              ) {return serviceCanvas_         ;}
-    void               unZoom          (void                              ) ;
+    void               populate         (TDirectory      * currentDirectory) ;
+    void               populate         (TFolder         * currentFolder   ) ;
+    void               populate         (TDirectory      * currentDirectory,
+                                         QTreeWidgetItem * wItem           ) ;
+    void               populate         (TFolder         * currentFolder,
+                                         QTreeWidgetItem * wItem           ) ;
+    selectedObjectsDef getSelectedItems (void                              ) ;
+    void               setCurrentCanvas (int               currentCanvas   ) {currentCanvas_ = currentCanvas;}
+    void               setCanvasSize    (std::string       canvasSize      ) ;
+    int                getCurrentCanvas (void                              ) {return currentCanvas_         ;}
+    canvasWidgetDef    getCanvases      (void                              ) {return serviceCanvas_         ;}
+    void               unZoom           (void                              ) ;
+    void               selectAllFromHere(QTreeWidgetItem * wi,
+                                         int               cl              ) {this->manipulateFolder(wi,cl) ;}
 
 public slots:
 
@@ -85,13 +87,13 @@ protected:
 
 private slots:
 
-     void       showContextMenu  (const QPoint                           & pos            ) ;
-     void       cleanDestroy     (void                                                    ) ;
-     void       resizeEvent      (      QResizeEvent                     *                ) ;
-     void       manipulateFolder (      QTreeWidgetItem                  *,
-                                        int                                               ) ;
-     void       showHint         (      QTreeWidgetItem                  *,
-                                        int                                               ) ;
+     void              showContextMenu  (const QPoint           & pos      ) ;
+     void              cleanDestroy     (void                              ) ;
+     void              resizeEvent      (      QResizeEvent     *          ) ;
+     void              manipulateFolder (      QTreeWidgetItem  *,
+                                         int                               ) ;
+     void              showHint         (      QTreeWidgetItem  *,
+                                         int                                ) ;
 private:
     typedef std::vector<std::string>                dirPathDef         ;
     typedef std::map<int,         QMdiSubWindow  *> cSwDef             ;

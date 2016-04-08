@@ -7096,7 +7096,7 @@ p, li { white-space: pre-wrap; }
           <string extracomment="Tolerance"/>
          </property>
          <property name="text">
-          <string>2.5</string>
+          <string>0.5</string>
          </property>
         </widget>
         <widget class="QLabel" name="linFitSigmasLB">

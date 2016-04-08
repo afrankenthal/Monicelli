@@ -121,12 +121,13 @@ void HNavigator::updateTree(QString currentFile)
 //===========================================================================
 void HNavigator::collectExistingWidgets(QWidget * parent)
 {
-  STDLINE("Collecting information about existing open widgets",ACYellow) ;
+//  STDLINE("Collecting information about existing open widgets",ACYellow) ;
 
   parent_ = (MainWindow*)parent ;
-
+//  STDLINE("",ACWhite) ;
   if( !theHTreeBrowser_ )
   {
+//      STDLINE("",ACWhite) ;
     // Create a tree-like folder-navigation tool
     //    this->setGeometry(this->x(),this->y(),this->width(),this->height()+120) ;
     this->show() ;
@@ -136,6 +137,7 @@ void HNavigator::collectExistingWidgets(QWidget * parent)
     theHTreeBrowser_->setGeometry(ui->hNavigatorTreeFrame->geometry()) ;
     theHTreeBrowser_->show() ;
   }
+//  STDLINE("",ACWhite) ;
 
   // Recover pointers to essential objects
   theHManager_  = parent_->getHManager()  ;
@@ -151,9 +153,12 @@ void HNavigator::collectExistingWidgets(QWidget * parent)
   {
     theFileEater_ = theTabWidget_->getFileEater() ;
   }
+//  STDLINE("",ACWhite) ;
 
   this->fillWidget()     ; // Fill the combo-box with the list of open files
+//  STDLINE("",ACWhite) ;
   this->fillWidgetTree() ; // Populate the tree widget with file structure content
+//  STDLINE("",ACWhite) ;
 }
 
 //===========================================================================
@@ -379,9 +384,11 @@ std::string HNavigator::twoDOption(void)
 void HNavigator::on_saveComponentsPB_clicked()
 {
   // Ask for output file name
+  QStringList tmp  = QString(theFileEater_->getInputFileName().c_str()).split(".root") ;
+  QString newName  = tmp.at(0) + "_histograms.root" ;
   QString fileName = QFileDialog::getSaveFileName(this,
                                                   tr("Save File"),
-                                                  "monicelli.root",
+                                                  newName,
                                                   tr("Root files (*.root)"));
   if(fileName.isEmpty()) return ;
 
@@ -389,43 +396,72 @@ void HNavigator::on_saveComponentsPB_clicked()
 
   // Get list of selected items to dump into new file
   hTreeBrowser::selectedObjectsDef selectedObjects = theHTreeBrowser_->getSelectedItems()  ;
-
+//  STDLINE(selectedObjects.size(),ACReverse) ;
   // Build the folder structure (if requested, otherwise dump a flat list)
   if( !ui->flattenHierarchyCB->isChecked())
   {
-    for(hTreeBrowser::selectedObjectsDef::iterator it=selectedObjects.begin(); it!=selectedObjects.end(); ++it)
-    {
-      tmpFile->cd() ; // Restart always from top directory
-      std::string slashTerminatedFullPath = it->first + std::string("/") ;
-      ss_.str("") ;
-      ss_ << "makeDir(" << slashTerminatedFullPath << ")" ;
-      STDLINE(ss_.str(),ACWhite) ;
-      this->makeDir(slashTerminatedFullPath) ;
-    }
+      for(hTreeBrowser::selectedObjectsDef::iterator it=selectedObjects.begin(); it!=selectedObjects.end(); ++it)
+      {
+//          STDLINE(it->first,ACWhite) ;
+          if( !(it->first == "" ))
+          {
+              tmpFile->cd() ; // Restart always from top directory
+              std::string slashTerminatedFullPath = it->first + std::string("/") ;
+              this->makeDir(slashTerminatedFullPath) ;
+//              STDLINE(slashTerminatedFullPath,ACCyan) ;
+          }
+      }
   }
 
   // Save each selected item (if requested, into the appropriate folder)
   for(hTreeBrowser::selectedObjectsDef::iterator it=selectedObjects.begin(); it!=selectedObjects.end(); ++it)
   {
-
-    for(hTreeBrowser::tFileVDef::iterator jt=it->second.begin(); jt!=it->second.end(); ++jt)
-    {
-      tmpFile->cd() ; // Restart always from top directory
-      if( !ui->flattenHierarchyCB->isChecked())
+//      STDLINE(it->first,ACCyan) ;
+      if(!(it->first == "" ))
       {
-        tmpFile->cd(it->first.c_str()) ;
+          for(hTreeBrowser::tFileVDef::iterator jt=it->second.begin(); jt!=it->second.end(); ++jt)
+          {
+              tmpFile->cd() ; // Restart always from top directory
+              if( !ui->flattenHierarchyCB->isChecked() )
+              {
+                  tmpFile->cd(it->first.c_str()) ;
+              }
+
+              if( (*jt)->IsA() == TFolder::Class() ) continue ;
+
+//              STDLINE((*jt)->GetName(),ACCyan) ;
+              (*jt)->Write() ;
+          }
       }
-
-      if( (*jt)->IsA() == TFolder::Class() ) continue ;
-
-      (*jt)->Write() ;
-    }
   }
 
   tmpFile->Close() ;
   delete tmpFile ;
 }
 
+//===========================================================================
+void HNavigator::saveAll(void)
+{
+    theHTreeBrowser_->selectAll() ;
+    this->on_saveComponentsPB_clicked() ;
+//    STDLINE(theHTreeBrowser_->invisibleRootItem()->text(0).toStdString(),ACYellow) ;
+//    QList<QTreeWidgetItem *> topItems = theHTreeBrowser_->selectedItems() ;
+//    if( topItems.size() == 0 )
+//    {
+//        STDLINE("No root item",ACRed) ;
+//    }
+//    else
+//    {
+//        QTreeWidgetItem * child = topItems.at(0)->child(0) ;
+//        if( !child ) return ;
+//        topItems.at(0)  ->setSelected(true) ;
+//        child           ->setSelected(true) ;
+//        theHTreeBrowser_->selectAllFromHere(child,0);
+//        this->on_saveComponentsPB_clicked() ;
+//    }
+    STDLINE("Saving all (not yet fully implemented)",ACRed) ;
+
+}
 //===========================================================================
 void HNavigator::makeDir(std::string dirName)
 {

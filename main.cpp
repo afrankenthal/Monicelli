@@ -125,7 +125,6 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
-    MainWindow window;
 
     std::string splashIcon = std::string(getenv("MonicelliDir")) + "/images/Monicelli.png" ;
 
@@ -135,19 +134,14 @@ int main(int argc, char *argv[])
 
     splash.setMask(pixmap.mask());
 
-    app.processEvents();
-
     splash.show();
-
-    app.processEvents();
-
-//    sleep(5) ;
-
-    window.show();
-
     splash.raise() ;
 
-    splash.finish(&window);
+    app.processEvents(QEventLoop::AllEvents);
+
+    MainWindow window;
+
+    window.show();
 
     std::string color = std::string(ACYellow)+std::string(ACBold)+std::string(ACReverse) ;
     STDLINE("",color);
@@ -164,6 +158,8 @@ int main(int argc, char *argv[])
     STDLINE("|                                                  |",color);
     STDLINE("+--------------------------------------------------+",color);
     STDLINE("",color);
+
+    splash.finish(&window);
 
     app.exec();
 

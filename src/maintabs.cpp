@@ -971,10 +971,8 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
 
                 if( currentSubProcess[i] == theTrackFitter_ )
                 {
-                    STDLINE("","") ;
                     if(theTrackFitter_->getOperation() == &trackFitter::makeFittedTracksResiduals)
                     {
-                        STDLINE("Quaqquaraqua",ACYellow) ;
                         ui->onlyDetectorsToBeAlignedCB ->setChecked(false);
                         ui->trackFitterWriteAlignmentPB->setEnabled(true );
                     }

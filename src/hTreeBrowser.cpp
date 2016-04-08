@@ -516,9 +516,18 @@ hTreeBrowser::selectedObjectsDef hTreeBrowser::getSelectedItems()
 
     for (int item = 0; item < selectedItems.size(); ++item)
     {
+//        if( selectedItems[item]->parent() )
+//        {
+//            STDLINE(selectedItems[item]->parent()->text(0).toStdString(),ACBlue) ;
+//            STDLINE(selectedItems[item]->text(0).toStdString(),ACWhite) ;
+//        }
+//        else
+//        {
+//            STDLINE(selectedItems[item]->text(0).toStdString(),ACCyan) ;
+//        }
         this->collectItems(selectedItems[item],selectedObjects) ;
     }
-
+    STDLINE(selectedObjects.size(),ACCyan) ;
     return selectedObjects ;
 }
 
@@ -528,53 +537,94 @@ void hTreeBrowser::collectItems(QTreeWidgetItem                  * wItem,
 {
     hTreeBrowser::dirPathDef dirPath = this->getFullPath(wItem) ;
 
-    std::string dir  = "";
+    if( dirPath.size() < 2 ) return ;
 
-    for(hTreeBrowser::dirPathDef::iterator ni=dirPath.begin()+1; ni!=dirPath.end()-1; ++ni)
+    std::string dir = "";
+
+    if( dirPath.size() > 2 )
     {
-        dir += *ni ;
-        if( ni != dirPath.end()-2) dir += "/" ;
+        for(hTreeBrowser::dirPathDef::iterator ni=dirPath.begin()+1; ni!=dirPath.end()-1; ++ni)
+        {
+//            STDLINE(*ni,ACWhite) ;
+            dir += *ni ;
+            if( ni != dirPath.end()-2) dir += "/" ;
+        }
     }
 
     if( dirPath[0] == "root" ) // Selected object is in memory only
     {
+//        STDLINE(dir,ACCyan) ;
         TFolder * targetFolder = (TFolder *)(gROOT->GetRootFolder()->FindObjectAny(dir.c_str())) ;
         TObject * obj = targetFolder->FindObject(wItem->text(0).toStdString().c_str()) ;
+        if( !obj ) {/*STDLINE("Not found",ACWhite)*/; return;}
+//        ss_.str(""); ss_<<obj->GetName()<< " in " << dir; STDLINE(ss_.str(),ACWhite) ;
         selectedObjects[dir].push_back(obj) ;
     }
     else // Selected object resides on files
     {
-        TFile * file  = theHManager_->getFileHandle(dirPath[0]) ;
+//        STDLINE(dirPath[0],ACYellow) ;
+        TFile * file = theHManager_->getFileHandle(dirPath[0]) ;
+//        STDLINE(file->GetName(),ACGreen) ;
 
+//        STDLINE(dirPath[1],ACBold) ;
         TObject * obj = file->FindObjectAny(dirPath[1].c_str()) ;
-
-        if( obj->IsA() == TFolder::Class() )
+        if( obj )
         {
-            for(hTreeBrowser::dirPathDef::iterator ni=dirPath.begin()+2; ni!=dirPath.end(); ++ni)
+//            STDLINE(obj->GetName(),ACRed) ;
+
+            if( obj->IsA() == TFolder::Class() )
             {
-                if( ni == dirPath.end() - 1 ) // Last is the histogram name
+                for(hTreeBrowser::dirPathDef::iterator ni=dirPath.begin()+2; ni!=dirPath.end(); ++ni)
                 {
-                    selectedObjects[dir].push_back(((TFolder*)obj)->FindObjectAny((*ni).c_str())) ;
-                }
-                else
-                {
-                    obj = ((TFolder*)obj)->FindObjectAny((*ni).c_str()) ;
+                    if( ni == dirPath.end() - 1 ) // Last is the histogram name
+                    {
+//                        ss_.str(""); ss_<<*ni<< " in " << dir; STDLINE(ss_.str(),ACWhite) ;
+                        selectedObjects[dir].push_back(((TFolder*)obj)->FindObjectAny((*ni).c_str())) ;
+                    }
+//                    else
+//                    {
+//                        STDLINE(*ni,ACReverse) ;
+//                        obj = ((TFolder*)obj)->FindObjectAny((*ni).c_str()) ;
+//                    }
                 }
             }
+//            else if(obj->IsA() == TDirectoryFile::Class())
+//            {
+//                file->cd(dir.c_str()) ;
+
+//                STDLINE(wItem->text(0).toStdString(),ACWhite) ;
+//                ss_.str(""); ss_<<*ni<< " in " << dirPath[1]; STDLINE(ss_.str(),ACWhite) ;
+//                selectedObjects[dirPath[0]].push_back(gDirectory->GetKey(wItem->text(0).toStdString().c_str())->ReadObj());
+
+//                if(selectedObjects[dirPath[0]].back()->IsA() == TDirectoryFile::Class())
+//                {
+//                    for(int i=0; i<wItem->childCount(); ++i)
+//                    {
+//                        this->collectItems(wItem->child(i),selectedObjects) ;
+//                    }
+//                }
+//            }
         }
-        else if(obj->IsA() == TDirectoryFile::Class())
+        else
         {
-            file->cd(dir.c_str()) ;
-
-            selectedObjects[dir].push_back(gDirectory->GetKey(wItem->text(0).toStdString().c_str())->ReadObj());
-
-            if(selectedObjects[dir].back()->IsA() == TDirectoryFile::Class())
+            TFolder * targetFolder = (TFolder *)(gROOT->GetRootFolder()->FindObjectAny(dirPath[1].c_str())) ;
+//            if(!targetFolder)
+//            {
+//                ss_.str(""); ss_ << "targetFolder " << dirPath[1] << " not found";
+//                STDLINE(ss_.str(),ACRed) ;
+//            }
+            TObject * obj = targetFolder->FindObjectAny(wItem->text(0).toStdString().c_str()) ;
+            if( obj )
             {
-                for(int i=0; i<wItem->childCount(); ++i)
-                {
-                    this->collectItems(wItem->child(i),selectedObjects) ;
-                }
+//                STDLINE(obj->GetName(),ACWhite)
+                ss_.str(""); ss_<<obj->GetName()<< " in " << dir; STDLINE(ss_.str(),ACWhite) ;
+                selectedObjects[dir].push_back(obj) ;
             }
+//            else
+//            {
+//                ss_.str(""); ss_ << "object " << wItem->text(0).toStdString() << " not found";
+//                STDLINE(ss_.str(),ACRed) ;
+//            }
         }
     }
 }
@@ -582,13 +632,13 @@ void hTreeBrowser::collectItems(QTreeWidgetItem                  * wItem,
 //===========================================================================
 void hTreeBrowser::manipulateFolder( QTreeWidgetItem * wItem, int )
 {
-    /*
+ /*
    Selection strategy for the current item:
    1) if it is a leaf just add it to the list of already selected items
    2) if it is a folder, deselect any explicitly selected child but add the
       folder to the list of already selected items.
-   */
-
+ */
+    STDLINE("",ACWhite) ;
     if( wItem->childCount() == 0 )
     {
         wItem->setSelected(true);

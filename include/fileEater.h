@@ -80,15 +80,17 @@ public:
     typedef std::vector<subProcess<Event,Geometry>*> subProcessVDef ;
     typedef std::map<std::string,TH2I*>              hMapDef	    ;
 
-    fileEater()                       ;
-    fileEater(int argc, char ** argv) ; // Call this for a stand-alone program
-   ~fileEater()                       ;
+                    fileEater                (void                                              ) ;
+                    fileEater                (int                          argc,
+                                              char                      ** argv                 ) ; // Call this for a stand-alone program
+                   ~fileEater                (void                                              ) ;
 
     void            addSubProcess            (subProcess<Event,Geometry> * theSubProcess        ) ;
     std::string     openFile                 (std::string                  inputFile            ) ;
     bool            openGeometryFile         (std::string                  geometryFileNae      ) ;
     void            closeFile                (void                                              ) ;
     std::string     currentAction            (void                                              ) {return currentAction_             ;}
+    std::string     getInputFileName         (void                                              ) {return inputFileName_             ;}
     void            defineAction             (std::string                  action               ) {currentAction_ = action           ;}
     void            setSubProcess            (subProcess<Event,Geometry> * theSubProcess        ) ;
     void            clearSubProcess          (void                                              ) ;

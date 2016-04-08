@@ -100,20 +100,22 @@ class mainTabs : public QWidget
 public:
     typedef void (mainTabs::*threadEnd_Function)(HManager::stringVDef );
 
-    explicit       mainTabs                 (MainWindow 	  * mainWindow = 0 );
-                  ~mainTabs                 (void				   );
+    explicit       mainTabs                 (MainWindow 	      * mainWindow = 0 );
+                  ~mainTabs                 (void				                   );
 
-    fileEater    * getFileEater             (void				   ) {return theFileEater_ ;}
-    void           collectExistingWidgets   (MainWindow 	  * mainWindow = 0 );
-    Ui::mainTabs * getUi                    (void				   ) {return ui;	   ;}
+    fileEater    * getFileEater             (void				                   ) {return theFileEater_ ;}
+    void           collectExistingWidgets   (MainWindow 	      * mainWindow = 0 );
+    Ui::mainTabs * getUi                    (void				                   ) {return ui;	   ;}
 
 private:
-    void        initializeSingletons        (void                                  );
-    void        getNxNy                     (int                    divider,
+    void           initializeSingletons     (void                                  );
+    void           getNxNy                  (int                    divider,
                                              int                  & nx,
                                              int                  & ny             );
-    QString     getEnvPath                  (QString                environmentName);
-    template<class Class> void launchThread3(process              * theProcess,
+    QString        getEnvPath               (QString                environmentName);
+
+    template<class Class>
+    void launchThread3                      (process              * theProcess,
                                              Class                * object    ,
                                              void (Class::*fn)()                   );
     void signalNewAction                    (std::string            newAction      );

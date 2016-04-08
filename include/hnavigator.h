@@ -33,6 +33,7 @@
 
 #include <sstream>
 
+#include <QList>
 #include <QTabWidget>
 #include <TBrowser.h>
 #include <TFolder.h>
@@ -60,29 +61,32 @@ class HNavigator : public QTabWidget
     Q_OBJECT
 
 public:
-    explicit     HNavigator            (QWidget       * parent = 0) ;
-                ~HNavigator            (void                      ) ;
+    explicit       HNavigator            (QWidget       * parent = 0) ;
+                  ~HNavigator            (void                      ) ;
 
-    void         collectExistingWidgets(QWidget       * parent = 0) ;
-    void         refresh               (void                      ) ;
-    std::string  twoDOption            (void                      ) ;
-    bool         plotStatBox           (void                      ) ;
-    bool         plotFitBox            (void                      ) ;
+    void           collectExistingWidgets(QWidget       * parent = 0) ;
+    void           refresh               (void                      ) ;
+    std::string    twoDOption            (void                      ) ;
+    bool           plotStatBox           (void                      ) ;
+    bool           plotFitBox            (void                      ) ;
+    void           saveAll               (void                      ) ;
+    hTreeBrowser * getTheHTreeBrowser    (void                      ) {return theHTreeBrowser_;}
 
-public slots:
-    void         addNewFile            (const QString & file      ) ;
+    public slots:
+    void           addNewFile            (const QString & file      ) ;
 
-    QMdiArea   * getMdiArea            (void                      ) ;
-    MainWindow * getMainWindow         (void                      ) ;
+    QMdiArea     * getMdiArea            (void                      ) ;
+    MainWindow   * getMainWindow         (void                      ) ;
 
 private:
 
-    void         fillWidget            (void                      ) ;
-    void         fillWidgetTree        (void                      ) ;
-    void         fillWidgetTree        (std::string    file       ) ;
-    void         resizeEvent           (QResizeEvent * event      ) ;
-    void         addItem               (std::string    item       ) ;
-    void         makeDir               (std::string    dirName    ) ;
+    void           fillWidget            (void                      ) ;
+    void           fillWidgetTree        (void                      ) ;
+    void           fillWidgetTree        (std::string    file       ) ;
+    void           resizeEvent           (QResizeEvent * event      ) ;
+    void           addItem               (std::string    item       ) ;
+    void           makeDir               (std::string    dirName    ) ;
+
 
     QString                 emptyFileLabel_     ;
     QString                 displayAllLabel_    ;
@@ -108,7 +112,7 @@ private slots:
     void on_unZoomPB_clicked        (void               );
     void on_canvasSizeCB_activated  (QString            );
     void on_hCanvasCB_activated     (int     index      );
-    void on_saveComponentsPB_clicked(                   );
+    void on_saveComponentsPB_clicked(void               );
     void updateTree                 (QString currentFile);
     void checkNewObjectsInMemory    (void               );
 };

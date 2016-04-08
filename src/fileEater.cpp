@@ -220,7 +220,12 @@ std::string fileEater::openFile(std::string inputFile)
                     STDLINE("ERROR: Problems occurring with the opening of geometry file: " + geometryFileName, ACRed);
                 }
             }
-            else STDLINE("No valid trees found in file " + inputFile, ACRed);
+            else
+            {
+                STDLINE("No valid trees found in file " + inputFile, ACRed);
+                STDLINE("A valid file name must be of the form: Run*_Merged.root ", ACGreen);
+                exit(0) ;
+            }
         }
         else if( fileFormat_=="geo" ) // =============== G E O  F I L E ======================
         {

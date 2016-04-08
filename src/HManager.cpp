@@ -1482,6 +1482,25 @@ int HManager::getMaxIterations()
 {
     return theFileEater_->getEventsNumber();
 }
+//================================================================================
+std::string HManager::getLabel (void )
+{
+    if(processOperation_   == &HManager::eventsCycle)
+    {
+     if(      subProcessFunction_ == &HManager::makeResidualDistributions)
+     {
+        return "Creating residual distributions" ;
+     }
+     else if( subProcessFunction_ == &HManager::makeAdcDistributions2    )
+     {
+        return "Creating charge distributions" ;
+     }
+    }
+    else
+    {
+        return "Histogramming" ;
+    }
+}
 //===============================================================================
 bool HManager::execute()
 {
@@ -1521,7 +1540,7 @@ HManager::stringVDef HManager::eventsCycle()
         else
             (this->*subProcessFunction_)(theEvent,add);
 
-        if(!add) break;
+        if(!add) {std::cout << std::endl ;break;}
     }
     std::cout << std::endl ;
 

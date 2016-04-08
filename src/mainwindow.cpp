@@ -30,6 +30,7 @@
  
 #include <iostream>
 
+#include <QApplication>
 #include <QBrush>
 #include <QtGui>
 
@@ -107,6 +108,8 @@ MainWindow::MainWindow()
     theFileEater_ = new fileEater();
     theHManager_  = new HManager(theFileEater_);
     theFileEater_->setHManger(theHManager_);
+
+    this->buildHNavigator() ;
 }
 
 //===========================================================================
@@ -124,8 +127,15 @@ void MainWindow::initialize()
 void MainWindow::cleanClose()
 {
     STDLINE("Closing everything",ACRed) ;
+    this->buildHNavigator() ;
+    theHNavigator_->getTheHTreeBrowser()->expandAll() ;
+    theHNavigator_->saveAll() ;
     writeSettings();
-    exit(0) ;
+    QApplication::processEvents(QEventLoop::AllEvents);
+    STDLINE("Going to sleep...................",ACRed) ;
+    sleep(150) ;
+//    qApp->exit() ;
+//    exit(0) ;
 }
 
 
@@ -134,7 +144,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     STDLINE("Closing everything",ACRed) ;
 
+    theHNavigator_->getTheHTreeBrowser()->expandAll() ;
+    theHNavigator_->saveAll() ;
+
     mdiArea->closeAllSubWindows();
+
     if (mdiArea->currentSubWindow())
     {
         event->ignore();
@@ -415,7 +429,7 @@ void MainWindow::createActions()
     iconPath += "/images/newCanvas.png" ;
     hNavigatorAct = new QAction(QIcon(iconPath), tr("Histogram Navigator"), this);
     hNavigatorAct->setStatusTip(tr("Create a Histogram Navigator")) ;
-    connect(hNavigatorAct,   SIGNAL(triggered()), this, SLOT(buildHNavigator()));
+    connect(hNavigatorAct,   SIGNAL(triggered()), this, SLOT(showHNavigator()));
 
     iconPath  = path_ ;
     iconPath += "/images/editXML.png" ;
@@ -448,8 +462,10 @@ void MainWindow::enableEditXMLButton()
 //===========================================================================
 void MainWindow::enableHNavigatorButton()
 {
+    STDLINE("HNavigator destroyed and rebuilt",ACGreen) ;
     hNavigatorAct->setEnabled(true) ;
     theHNavigator_ = NULL ;
+    this->buildHNavigator() ;
 }
 
 //===========================================================================
@@ -540,24 +556,32 @@ void MainWindow::buildMainPanel()
 //===========================================================================
 void MainWindow::buildHNavigator()
 {
+//    STDLINE("",ACWhite) ;
     if( !theHNavigator_)
     {
+//        STDLINE("",ACWhite) ;
         theHNavigator_ = new HNavigator(this) ;
 
-        cSw = (mdiSubWindow*)mdiArea->addSubWindow(theHNavigator_) ;
+        cSw_ = (mdiSubWindow*)mdiArea->addSubWindow(theHNavigator_) ;
 
-        connect(cSw, SIGNAL(destroyed()), this, SLOT(enableHNavigatorButton()));
+        connect(cSw_, SIGNAL(destroyed()), this, SLOT(enableHNavigatorButton()));
 
-        cSw->setGeometry(1015,5,theHNavigator_->width()+8,theHNavigator_->height()+40) ;
+        cSw_->setGeometry(1015,5,theHNavigator_->width()+8,theHNavigator_->height()+40) ;
 
-        cSw->show() ;
-
+//        cSw_->show() ;
+        cSw_->hide() ;
         return ;
     }
 
+//    STDLINE("",ACWhite) ;
     theHNavigator_->collectExistingWidgets(this);
+//    cSw_->show() ;
 }
-
+//===========================================================================
+void MainWindow::showHNavigator()
+{
+      cSw_->show() ;
+}
 //===========================================================================
 void MainWindow::createMenus()
 {

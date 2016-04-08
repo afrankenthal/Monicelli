@@ -62,18 +62,18 @@ class fileEater ;
 class HManager : public multiProcess< HManager,std::vector<std::string> >
 {
 
-public:
+  public:
 
     typedef std::pair  <std::string    , std::string        > xyStringPairDef ;
     typedef std::vector<std::string                         > stringVDef      ;
-
-    typedef stringVDef (HManager::*HManager_Make_function)(Event*,bool&);
+    typedef stringVDef (HManager::*HManager_Make_function)(Event*,bool&)      ;
 
                            HManager            	     (fileEater*    theFileEater) ;
                            ~HManager            	 (void		                ) ;
 
     bool                   execute                   (void                      ) ;
-    std::string            getLabel                  (void                      ) {return "Histogramming";}
+//    std::string            getLabel                  (void                      ) {return "Histogramming";}
+    std::string            getLabel                  (void                      ) ;
     int                    getMaxIterations          (void                      ) ;
     std::string            getName                   (void                      ) {return "HManager"     ;}
 
@@ -159,7 +159,7 @@ public:
 
     stringVDef             storeCustomTObject  	     (TObject*               object  , std::string objectType         ) ;
 
-private:
+  private:
 
     std::string	           addItem	                 (std::string            fullPath, TObject*    object             ) ;
     static stringVDef      splitPath                 (std::string            s		    	                     ) ;

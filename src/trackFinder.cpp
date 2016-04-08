@@ -81,13 +81,13 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
 //    }
     //Since all tracking is done in global coordinate first create alignedClusters from local clusters
     //Event::clustersMapDef alignedClusters;
+
     for(Event::clustersMapDef::const_iterator clustersIt=clusters.begin(); clustersIt!=clusters.end(); clustersIt++)
     {
         if ( theGeometry->getDetector(clustersIt->first)->isDUT() ) continue;
         //cout << __PRETTY_FUNCTION__ << dIt->second.size() << endl;
         for (Event::aClusterMapDef::const_iterator clusterIt=clustersIt->second.begin(); clusterIt!=clustersIt->second.end(); clusterIt++)
         {
-
             Event::aClusterDef& alignedCluster = (alignedClusters[ clustersIt->first ])[clusterIt->first];
             //cluster is a copy of the real clusters so I just change them to global coordinates
             alignedCluster["x"]          = clusterIt->second.find("x")->second     ;
@@ -119,6 +119,7 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
             //cout << __PRETTY_FUNCTION__ << "plaq: " << clustersIt->first << " z: " << alignedCluster["z"] << endl;
         }
     }
+
     //cout << __PRETTY_FUNCTION__ << "Number of clusters: " << alignedClusters.size() << endl;
     //std::cout << __PRETTY_FUNCTION__ << "Aligned clusters size1: " << alignedClusters.size()  << "<" << minPoints_ << endl;
     for (Event::clustersMapDef::iterator alignedClustersIt=alignedClusters.begin(); alignedClustersIt!=alignedClusters.end(); alignedClustersIt++)

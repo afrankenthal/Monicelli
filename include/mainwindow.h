@@ -68,20 +68,21 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
 
-    HManager   * getHManager        (void                ) {return theHManager_  ;}
-    HNavigator * getHNavigator      (void                ) {return theHNavigator_;}
-    mainTabs   * getTabWidget       (void                ) {return theTabWidget_ ;}
-    fileEater  * getFileEater       (void                ) {return theFileEater_ ;}
-    XMLEditor  * getXMLEditor       (void                ) {return theXMLEditor_ ;}
-    QMdiArea   * getMdiArea         (void                ) {return mdiArea;       }
-    void         editXMLPanel       (QString     fileName) ;
+    HManager      * getHManager           (void                    ) {return theHManager_  ;}
+    HNavigator    * getHNavigator         (void                    ) {return theHNavigator_;}
+    mainTabs      * getTabWidget          (void                    ) {return theTabWidget_ ;}
+    fileEater     * getFileEater          (void                    ) {return theFileEater_ ;}
+    XMLEditor     * getXMLEditor          (void                    ) {return theXMLEditor_ ;}
+    QMdiArea      * getMdiArea            (void                    ) {return mdiArea;       }
+    void            editXMLPanel          (QString     fileName    ) ;
 
 protected:
-    void closeEvent(QCloseEvent *event);
-    QTimer        * fRootTimer_; // ToROOT6
+    void            closeEvent            (QCloseEvent *event      ) ;
+    QTimer        * fRootTimer_;                                      // ToROOT6
 
 public slots:
     void            handle_root_events    (void                    ) ; // ToROOT6
+    void            showHNavigator        (void                    ) ;
 
 private slots:
     void            about                 (void                    ) ;
@@ -118,7 +119,7 @@ private:
 
     std::stringstream ss_            ;
 
-    mdiSubWindow  * cSw              ;
+    mdiSubWindow  * cSw_             ;
 
     canvasWidget  * theCanvasWidget_ ;
     fileEater     * theFileEater_    ;
