@@ -127,15 +127,12 @@ void MainWindow::initialize()
 void MainWindow::cleanClose()
 {
     STDLINE("Closing everything",ACRed) ;
-    this->buildHNavigator() ;
-    theHNavigator_->getTheHTreeBrowser()->expandAll() ;
-    theHNavigator_->saveAll() ;
-    writeSettings();
+//    this->buildHNavigator() ;
+//    theHNavigator_->getTheHTreeBrowser()->expandAll() ;
+//    theHNavigator_->saveAll() ;
+//    writeSettings();
     QApplication::processEvents(QEventLoop::AllEvents);
-    STDLINE("Going to sleep...................",ACRed) ;
-    sleep(150) ;
-//    qApp->exit() ;
-//    exit(0) ;
+    qApp->exit() ;
 }
 
 
@@ -556,10 +553,8 @@ void MainWindow::buildMainPanel()
 //===========================================================================
 void MainWindow::buildHNavigator()
 {
-//    STDLINE("",ACWhite) ;
     if( !theHNavigator_)
     {
-//        STDLINE("",ACWhite) ;
         theHNavigator_ = new HNavigator(this) ;
 
         cSw_ = (mdiSubWindow*)mdiArea->addSubWindow(theHNavigator_) ;
@@ -568,14 +563,11 @@ void MainWindow::buildHNavigator()
 
         cSw_->setGeometry(1015,5,theHNavigator_->width()+8,theHNavigator_->height()+40) ;
 
-//        cSw_->show() ;
         cSw_->hide() ;
         return ;
     }
 
-//    STDLINE("",ACWhite) ;
     theHNavigator_->collectExistingWidgets(this);
-//    cSw_->show() ;
 }
 //===========================================================================
 void MainWindow::showHNavigator()
@@ -586,19 +578,11 @@ void MainWindow::showHNavigator()
 void MainWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
-    //    fileMenu->addAction(newAct);
-    //    fileMenu->addAction(openAct);
-    //    fileMenu->addAction(saveAct);
-    //    fileMenu->addAction(saveAsAct);
-    //    fileMenu->addSeparator();
     QAction *action = fileMenu->addAction(tr("Switch layout direction"));
     connect(action, SIGNAL(triggered()), this, SLOT(switchLayoutDirection()));
     fileMenu->addAction(exitAct);
 
     editMenu = menuBar()->addMenu(tr("&Edit"));
-    //    editMenu->addAction(cutAct);
-    //    editMenu->addAction(copyAct);
-    //    editMenu->addAction(pasteAct);
 
     windowMenu = menuBar()->addMenu(tr("&Window"));
     updateWindowMenu();

@@ -384,6 +384,11 @@ std::string HNavigator::twoDOption(void)
 void HNavigator::on_saveComponentsPB_clicked()
 {
   // Ask for output file name
+  if(!theFileEater_)
+  {
+      STDLINE("No file is registered as open in input, there is nothing to save",ACRed) ;
+      return ;
+  }
   QStringList tmp  = QString(theFileEater_->getInputFileName().c_str()).split(".root") ;
   QString newName  = tmp.at(0) + "_histograms.root" ;
   QString fileName = QFileDialog::getSaveFileName(this,
@@ -442,25 +447,9 @@ void HNavigator::on_saveComponentsPB_clicked()
 //===========================================================================
 void HNavigator::saveAll(void)
 {
+    STDLINE("Saving all",ACRed) ;
     theHTreeBrowser_->selectAll() ;
     this->on_saveComponentsPB_clicked() ;
-//    STDLINE(theHTreeBrowser_->invisibleRootItem()->text(0).toStdString(),ACYellow) ;
-//    QList<QTreeWidgetItem *> topItems = theHTreeBrowser_->selectedItems() ;
-//    if( topItems.size() == 0 )
-//    {
-//        STDLINE("No root item",ACRed) ;
-//    }
-//    else
-//    {
-//        QTreeWidgetItem * child = topItems.at(0)->child(0) ;
-//        if( !child ) return ;
-//        topItems.at(0)  ->setSelected(true) ;
-//        child           ->setSelected(true) ;
-//        theHTreeBrowser_->selectAllFromHere(child,0);
-//        this->on_saveComponentsPB_clicked() ;
-//    }
-    STDLINE("Saving all (not yet fully implemented)",ACRed) ;
-
 }
 //===========================================================================
 void HNavigator::makeDir(std::string dirName)

@@ -68,9 +68,10 @@ fileEater::fileEater(void) :
   , currentVerbosity_   (kLOW)
   , currentAction_      ("Idle")
 {
+    inputFileName_    = "" ;
     emptyH_->SetName("emptyFileEater");
     //gROOT->Reset() ;
-    outputTreePath_ = getenv("MonicelliOutputDir");
+    outputTreePath_   = getenv("MonicelliOutputDir");
     //create directories
     beamSpots_        = histogramsFolder_->AddFolder("originalBeamSpots", "Beam spot (high resolution, 1 bin per pixel)");
     lowResBeamSpots_  = histogramsFolder_->AddFolder("lowResBeamSpots"  , "Beam spot (low resolution)"                  );
