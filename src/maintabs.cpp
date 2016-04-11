@@ -3133,9 +3133,13 @@ void mainTabs::on_FitScatterResidualsPB_clicked()
     for( Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it )
     {
         double slope = 0, q = 0;
+        STDLINE("Working on block X_RES_Y_POS_MEAN",ACWhite) ;
         theFitter_->linearFit((TH1*) theHManager_->getHistogram(X_RES_Y_POS_MEAN, (*it).first ),&slope,&q, tolerance);
+        STDLINE("Working on block Y_RES_X_POS_MEAN",ACWhite) ;
         theFitter_->linearFit((TH1*) theHManager_->getHistogram(Y_RES_X_POS_MEAN, (*it).first ),&slope,&q, tolerance);
+        STDLINE("Working on block X_RES_X_POS_MEAN",ACWhite) ;
         theFitter_->linearFit((TH1*) theHManager_->getHistogram(X_RES_X_POS_MEAN, (*it).first ),&slope,&q, tolerance);
+        STDLINE("Working on block Y_RES_Y_POS_MEAN",ACWhite) ;
         theFitter_->linearFit((TH1*) theHManager_->getHistogram(Y_RES_Y_POS_MEAN, (*it).first ),&slope,&q, tolerance);
     }
 
@@ -4366,9 +4370,8 @@ void mainTabs::on_residualsMonitorTW_selected(const QString &tabTitle)
     if( tabTitle == "Set Limits")
     {
 
-     map<int, string> orientation      ;
-     map<int, string> rowColOrien      ;
-//     double           positionMinMax[6];
+     map<int, string> orientation;
+     map<int, string> rowColOrien;
 
      orientation[0] = "y";
      orientation[3] = "y";
@@ -4376,16 +4379,16 @@ void mainTabs::on_residualsMonitorTW_selected(const QString &tabTitle)
      orientation[2] = "x";
 
      QString s ;
-     for(unsigned int index=0; index<tableMap_.size(); ++index)
+     for(unsigned int index=0; index<tableMap_.size(); index++)
      {
          QTableWidget * w = tableMap_[index];
          w->setSelectionMode(QAbstractItemView::SingleSelection);
-         w->setColumnCount(6);
+         w->setColumnCount(4);
          w->setRowCount(theGeometry_->getDetectorsNumber());
          w->setHorizontalHeaderItem(0,new QTableWidgetItem(QString::fromStdString("Detector")));
          w->setHorizontalHeaderItem(1,new QTableWidgetItem(QString::fromStdString("Type"    )));
-         w->setHorizontalHeaderItem(4,new QTableWidgetItem(QString::fromStdString("Min"     )));
-         w->setHorizontalHeaderItem(5,new QTableWidgetItem(QString::fromStdString("Max"     )));
+         //w->setHorizontalHeaderItem(4,new QTableWidgetItem(QString::fromStdString("Min"     )));
+         //w->setHorizontalHeaderItem(5,new QTableWidgetItem(QString::fromStdString("Max"     )));
 
          int currentRow = 0 ;
 
@@ -4393,18 +4396,25 @@ void mainTabs::on_residualsMonitorTW_selected(const QString &tabTitle)
          {
              string   currentDetector = it->first;
              Double_t coordMin,coordMax;
-             QString  coordMinString,coordMaxString,minString,maxString;
+             QString  coordMinString,coordMaxString;
+             //QString  minString,maxString;
 
              TH1D * h = (TH1D*)theHManager_->getHistogram(folderMap_[index],currentDetector);
              if( !h )
              {
                  STDLINE("No correlation histograms have been produced so far",ACRed) ;
+                 w->clear();
+                 w->setColumnCount(0);
+                 w->setRowCount(0);
                  return ;
              }
              TF1  * f = (TF1*)h->GetListOfFunctions()->FindObject("linearFitFunc");
              if( !f )
              {
                  STDLINE("Correlation histograms have not been fit yet",ACRed) ;
+                 w->clear();
+                 w->setColumnCount(0);
+                 w->setRowCount(0);
                  return ;
              }
              coordMin = f->GetXmin();
@@ -4433,12 +4443,12 @@ void mainTabs::on_residualsMonitorTW_selected(const QString &tabTitle)
                  rowColOrien[2] = "ROW" ;
              }
 
-             QTableWidgetItem * minItem = new QTableWidgetItem(QString(minString));
-             coordMinItem->setTextAlignment(Qt::AlignRight);
-             QTableWidgetItem * maxItem = new QTableWidgetItem(QString(maxString));
-             coordMaxItem->setTextAlignment(Qt::AlignRight);
-             w->setItem(currentRow,4,minItem);
-             w->setItem(currentRow,5,maxItem);
+//             QTableWidgetItem * minItem = new QTableWidgetItem(QString(minString));
+//             coordMinItem->setTextAlignment(Qt::AlignRight);
+//             QTableWidgetItem * maxItem = new QTableWidgetItem(QString(maxString));
+//             coordMaxItem->setTextAlignment(Qt::AlignRight);
+//             w->setItem(currentRow,4,minItem);
+//             w->setItem(currentRow,5,maxItem);
 
 
              QTableWidgetItem * detectorItem = new QTableWidgetItem(QString(it->first.c_str()));
