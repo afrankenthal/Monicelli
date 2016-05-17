@@ -173,54 +173,45 @@ bool clusterizer::isInRegion(int col, int row)
 //===================================================================================
 Event::clustersHitsMapDef clusterizer::findClusters(Event *theEvent)
 {
-
-    if ((theEvent->getClustersHits().empty())||(!usePartitions_))
+  if ((theEvent->getClustersHits().empty())||(!usePartitions_))
     {
-        this->clear();
-        int clusterID=0;
+      this->clear();
+      int clusterID=0;
 
-        Event::plaqMapDef plaqMap = theEvent->getRawData();
+      Event::plaqMapDef plaqMap = theEvent->getRawData();
 
-        for(Event::plaqMapDef::iterator hits=plaqMap.begin(); hits!=plaqMap.end(); ++hits)
+      for(Event::plaqMapDef::iterator hits=plaqMap.begin(); hits!=plaqMap.end(); ++hits)
         {
-            clusterID = 0;
+	  clusterID = 0;
 
-            while( hits->second.size() != 0 )
+	  while( hits->second.size() != 0 )
             {
-                Event::hitsDef& clusterHits = clustersHitsMap_[hits->first][clusterID];
-                clusterHits.push_back( hits->second[0] );
-                hits->second.erase( hits->second.begin() );
-                for(unsigned int c=0; c < clusterHits.size(); c++ )
+	      Event::hitsDef& clusterHits = clustersHitsMap_[hits->first][clusterID];
+	      clusterHits.push_back( hits->second[0] );
+	      hits->second.erase( hits->second.begin() );
+	      for(unsigned int c=0; c < clusterHits.size(); c++ )
                 {
-                    int& cRow = clusterHits[c]["row"];
-                    int& cCol = clusterHits[c]["col"];
+		  int& cRow = clusterHits[c]["row"];
+		  int& cCol = clusterHits[c]["col"];
 
-                    for(unsigned  int h=0; h < hits->second.size(); h++ )
-                    {
-                        int& hRow = hits->second[h]["row"];
-                        int& hCol = hits->second[h]["col"];
+		  for(unsigned  int h=0; h < hits->second.size(); h++ )
+		    {
+		      int& hRow = hits->second[h]["row"];
+		      int& hCol = hits->second[h]["col"];
 
-//                        if(hits->first=="Station: 4 - Plaq: 0")
-//                        {
-//                        ss_.str(""); ss_ <<"Hit Col: " << hCol << " Hit Row: " << hRow<<endl; STDLINE(ss_.str(),ACGray);
-//                        }
-
-                        if ( ( abs(cCol - hCol) <= 1 ) && ( abs(cRow - hRow) <= 1 ))
-                        {
-                            clusterHits.push_back( hits->second[h] );
-                            hits->second.erase( hits->second.begin()+h );
-                            h--;
-                        }
-
+		      if ((abs(cCol - hCol) <= 1 ) && ( abs(cRow - hRow) <= 1 ))
+			{
+			  clusterHits.push_back( hits->second[h] );
+			  hits->second.erase( hits->second.begin()+h );
+			  h--;
+			}			
                     }
                 }
-                ++clusterID;
-            }
-
+	      ++clusterID;
+            }	    
         }
-        return clustersHitsMap_;
+      return clustersHitsMap_;
     }
-
   else
     {
       return theEvent->getClustersHits();
@@ -239,6 +230,7 @@ void clusterizer::getChargeAsymmetryPlots(Geometry* theGeometry)
   monicelliPlaneToPlane["Station: 2 - Plaq: 1"] = "Telescope_Upstream1";
   monicelliPlaneToPlane["Station: 2 - Plaq: 2"] = "Telescope_Upstream2";
   monicelliPlaneToPlane["Station: 2 - Plaq: 3"] = "Telescope_Upstream3";
+  monicelliPlaneToPlane["Station: 4 - Plaq: 2"] = "Dut2";
   monicelliPlaneToPlane["Station: 4 - Plaq: 1"] = "Dut1";
   monicelliPlaneToPlane["Station: 4 - Plaq: 0"] = "Dut0";
 
@@ -308,19 +300,6 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
   clustersHitsMap_ = findClusters(theEvent);
 
   if(usePartitions_) repartClusters(clustersHitsMap_);
-
-  //next instructions are just for check
-
-// for(Event::aClusterHitsMapDef::iterator cluster = clustersHitsMap_["Station: 4 - Plaq: 0"].begin(); cluster!=clustersHitsMap_["Station: 4 - Plaq: 0"].end(); cluster++)
-// {
-//     for(Event::hitsDef::iterator hits = cluster->second.begin(); hits!= cluster->second.end(); hits++)
-//     {
-//         int hCol = (*hits)["col"];
-//         int hRow = (*hits)["row"];
-
-//         ss_.str(""); ss_ <<"Hit Col: " << hCol << " Hit Row: " << hRow<<endl; STDLINE(ss_.str(),ACGray);
-//     }
-// }
 
   for (Event::clustersHitsMapDef::iterator det = clustersHitsMap_.begin(); det != clustersHitsMap_.end(); det++)
     {
