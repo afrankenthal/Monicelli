@@ -46,9 +46,9 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
     //Event::fittedTracksDef                         &tracksFitted_         = theEvent->getFittedTracks()          ;
     //Event::fittedTracksCovarianceDef               &covMat_               = theEvent->getFittedTracksCovariance();
     //Event::chi2VectorDef                           &chi2_                 = theEvent->getFittedTracksChi2()      ;
-    Event::clustersMapDef                          &clusters              = theEvent->getClusters()              ;
-    Event::clustersMapDef                          &alignedClusters       = theEvent->getAlignedClusters()       ;
-    Event::trackCandidatesDef                      &alignedHitsCandidates = theEvent->getAlignedHitsCandidates() ;
+    Event::clustersMapDef                            &clusters              = theEvent->getClusters()              ;
+    Event::clustersMapDef                            &alignedClusters       = theEvent->getAlignedClusters()       ;
+    Event::trackCandidatesDef                        &alignedHitsCandidates = theEvent->getAlignedHitsCandidates() ;
     //std::vector<Event::alignedHitsCandidateMapDef> &alignedHitsCandidates = theEvent->getAlignedHitsCandidates() ;
 
     //cout << __PRETTY_FUNCTION__ << "First and Last track search" << endl;

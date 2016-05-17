@@ -41,9 +41,8 @@ MainWindow::MainWindow(QWidget *parent) :
 //==================================================================================
 MainWindow::~MainWindow()
 {
-    D("","") ;
+    STDLINE("Destructor",ACRed);
     delete ui;
-    D("","") ;
 }
 
 //==================================================================================
@@ -174,7 +173,7 @@ void MainWindow::onCustomContextMenu(const QPoint &)
 QString MainWindow::getSaveFileName(void)
 {
     return QFileDialog::getSaveFileName(NULL, "Save File",
-                                        "/user/gr1/e831/dzuolo/esercizio/conQt/extractor",
+                                        "/user/gr1/e831/dzuolo",
                                         "ROOTFile (*.root)"
                                         );
 }
@@ -265,7 +264,20 @@ void MainWindow::drawAll (void)
 //==================================================================================
 void MainWindow::saveAll (void)
 {
-    outputFile_ = new TFile(getSaveFileName().toStdString().c_str(),"RECREATE");
+    outputFile_ = new TFile((getSaveFileName()+".root").toStdString().c_str(),"RECREATE");
+
+    if(outputFile_->IsZombie())
+    {
+        D("No output file selected!",endl);
+        return;
+    }
+
+    if(!ui->recreateTreeCB->isChecked())
+    {
+        outputFile_->mkdir("Main_Folder");
+        outputFile_->cd("Main_Folder");
+    }
+
     string  folder;
     QString file;
 
@@ -277,6 +289,12 @@ void MainWindow::saveAll (void)
 
         TH1F * h1 = (TH1F*)inputFile_->Get(file.toStdString().c_str());
 
+        if(!h1)
+        {
+            D("Cannot access to histogram: ",file.toStdString());
+            return;
+        }
+
         if(ui->recreateTreeCB->isChecked())
         {
             folder.erase(0,1);
@@ -287,15 +305,15 @@ void MainWindow::saveAll (void)
         if(ui->recreateTreeCB->isChecked())
         {
             outputFile_->cd(folder.c_str());
-            h1->Write();
+            if(h1->Write()!=0) D3(" File: ",file.toStdString()," saved!");
         }
         else
-        {
-            outputFile_->cd();
-            h1->Write(file.toStdString().c_str());
+        {            
+            file.remove(0,1);
+            file.replace(QString("/"),QString("_"));
+            if(h1->Write(file.toStdString().c_str())!=0) D3(" File: ",file.toStdString()," saved!");
         }
 
-        D3(" File: ",file.toStdString()," saved!");
         file.clear();
     }
     outputFile_->Close();

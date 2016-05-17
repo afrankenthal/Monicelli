@@ -68,13 +68,18 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
 
-    HManager      * getHManager           (void                    ) {return theHManager_  ;}
-    HNavigator    * getHNavigator         (void                    ) {return theHNavigator_;}
-    mainTabs      * getTabWidget          (void                    ) {return theTabWidget_ ;}
-    fileEater     * getFileEater          (void                    ) {return theFileEater_ ;}
-    XMLEditor     * getXMLEditor          (void                    ) {return theXMLEditor_ ;}
-    QMdiArea      * getMdiArea            (void                    ) {return mdiArea;       }
-    void            editXMLPanel          (QString     fileName    ) ;
+    HManager      * getHManager           (void                    )   {return theHManager_  ;}
+    HNavigator    * getHNavigator         (void                    )   {return theHNavigator_;}
+    mainTabs      * getTabWidget          (void                    )   {return theTabWidget_ ;}
+    fileEater     * getFileEater          (void                    )   {return theFileEater_ ;}
+    XMLEditor     * getXMLEditor          (void                    )   {return theXMLEditor_ ;}
+    QMdiArea      * getMdiArea            (void                    )   {return mdiArea;       }
+    void            editXMLPanel          (QString     fileName    )   ;
+    void            getPartitionsInfos    (bool      usePartitions,
+                                           string    theCurrentDUT,
+                                           string    theCurrentSector) ;
+    void            getGeometryFileName   (string    geometryFileName) {geometryFileName_= geometryFileName;}
+    void            getInputFileName      (string    inputFileName)    {inputFileName_   = inputFileName   ;}
 
 protected:
     void            closeEvent            (QCloseEvent *event      ) ;
@@ -160,6 +165,12 @@ private:
 
     QSize           hNavigatorSize_  ;
     QPoint          hNavigatorPos_   ;
+
+    bool            usePartitions_   ;
+    string          theCurrentDUT_   ;
+    string          theCurrentSector_;
+    string          geometryFileName_;
+    string          inputFileName_   ;
 
 
     int mainWindowW_ 	    	     ;

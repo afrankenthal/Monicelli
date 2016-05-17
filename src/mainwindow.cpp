@@ -109,6 +109,8 @@ MainWindow::MainWindow()
     theHManager_  = new HManager(theFileEater_);
     theFileEater_->setHManger(theHManager_);
 
+    usePartitions_ = false;
+
     this->buildHNavigator() ;
 }
 
@@ -553,9 +555,17 @@ void MainWindow::buildMainPanel()
 //===========================================================================
 void MainWindow::buildHNavigator()
 {
+
     if( !theHNavigator_)
     {
         theHNavigator_ = new HNavigator(this) ;
+
+        theHNavigator_->getPartitionsInfos(usePartitions_  ,
+                                           theCurrentDUT_  ,
+                                           theCurrentSector_);
+
+        theHNavigator_->getGeometryFileName(geometryFileName_);
+        theHNavigator_->getInputFileName   (inputFileName_);
 
         cSw_ = (mdiSubWindow*)mdiArea->addSubWindow(theHNavigator_) ;
 
@@ -572,7 +582,7 @@ void MainWindow::buildHNavigator()
 //===========================================================================
 void MainWindow::showHNavigator()
 {
-      cSw_->show() ;
+    cSw_->show() ;
 }
 //===========================================================================
 void MainWindow::createMenus()
@@ -705,4 +715,13 @@ void MainWindow::handle_root_events()         // ToROOT6
 {                                             // ToROOT6
    //call the inner loop of ROOT              // ToROOT6
    gSystem->ProcessEvents();                  // ToROOT6
+}
+//===========================================================================
+void MainWindow::getPartitionsInfos(bool usePartitions, string theCurrentDUT, string theCurrentSector)
+{
+    usePartitions_    = usePartitions;
+    theCurrentDUT_    = theCurrentDUT;
+    theCurrentSector_ = theCurrentSector;
+
+    //ss_.str(""); ss_<<"Use Partitions is: "<<usePartitions_<<" DUT is:  "<<theCurrentDUT_<<" Sector is: "<<theCurrentSector_<<endl; STDLINE(ss_.str(),ACCyan);
 }

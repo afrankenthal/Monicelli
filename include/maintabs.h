@@ -386,6 +386,7 @@ private slots:
     void on_clearBulkFilesPB_clicked                              (                                  );
     void on_residualsMonitorTW_selected                           (const QString   &arg1             );
     void on_setLimitsMakePlotPB_clicked                           (                                  );
+    void on_GeometryTabW_selected                                 (const QString                    &);
 };
 
 #endif // MAINTABS_H

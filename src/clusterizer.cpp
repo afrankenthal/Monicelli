@@ -51,6 +51,8 @@ using namespace std;
 //===================================================================================
 clusterizer::clusterizer(void) : clustersBuilt_ (false), useEtaFunction_(false)
 {
+    usePartitions_    = false;
+    theGeometry_      = NULL ;
 }
 
 //===================================================================================
@@ -81,43 +83,144 @@ void clusterizer::clear(void)
 }
 
 //===================================================================================
-Event::clustersHitsMapDef clusterizer::findClusters(Event *theEvent)
+void clusterizer::getPartitionsInfos(vector<int> partitionsPoints, bool usePartitions, Detector *theCurrentDUT, string theCurrentSector)
 {
-  if ( theEvent->getClustersHits().empty() )
+    thePoints_          = partitionsPoints;
+    usePartitions_      = usePartitions;
+    theCurrentDUT_      = theCurrentDUT;
+    theCurrentSector_   = theCurrentSector;
+}
+
+//===================================================================================
+void clusterizer::repartClusters (Event::clustersHitsMapDef & clustersHitsMap)
+{
+    Event::aClusterHitsMapDef* DUTClusterHitsMapDef = &clustersHitsMap[theCurrentDUT_->getID()];
+
+    for(Event::aClusterHitsMapDef::iterator cluster = DUTClusterHitsMapDef->begin(); cluster!=DUTClusterHitsMapDef->end(); cluster++)
     {
-      this->clear();
-      int clusterID=0;
-      
-      Event::plaqMapDef plaqMap = theEvent->getRawData();
-      
-      for(Event::plaqMapDef::iterator hits=plaqMap.begin(); hits!=plaqMap.end(); ++hits)
+        bool hitsInRegion = false;
+
+        for(Event::hitsDef::iterator hits = cluster->second.begin(); hits!= cluster->second.end(); hits++)
         {
-	  clusterID = 0;
-	  while( hits->second.size() != 0 )
+            int hCol = (*hits)["col"];
+            int hRow = (*hits)["row"];
+
+            if(isInRegion(hCol,hRow))
             {
-	      Event::hitsDef& clusterHits = clustersHitsMap_[hits->first][clusterID];
-	      clusterHits.push_back( hits->second[0] );
-	      hits->second.erase( hits->second.begin() );
-	      for(unsigned int c=0; c < clusterHits.size(); c++ )
-                {
-		  int& cRow = clusterHits[c]["row"];
-		  int& cCol = clusterHits[c]["col"];
-		  
-		  for(unsigned  int h=0; h < hits->second.size(); h++ )
-                    {
-		      if ( ( abs(cCol - hits->second[h]["col"]) <= 1 ) && ( abs(cRow - hits->second[h]["row"]) <= 1 ))
-                        {
-			  clusterHits.push_back( hits->second[h] );
-			  hits->second.erase( hits->second.begin()+h );
-			  h--;
-                        }
-                    }
-                }
-	      ++clusterID;
+                hitsInRegion = true;
+                break;
             }
         }
-      return clustersHitsMap_;
+
+
+        if(!hitsInRegion)
+        {
+            //ss_.str(""); ss_<<"Erasing cluster: "<<cluster->first<<" From DUT: "<<theCurrentDUT_->getID()<<endl; STDLINE(ss_.str(),ACGreen);
+            DUTClusterHitsMapDef->erase(cluster->first);
+        }
     }
+}
+//===================================================================================
+bool clusterizer::isInRegion(int col, int row)
+{
+    int DUTCols = theCurrentDUT_->getNumberOfCols();
+    int DUTRows = theCurrentDUT_->getNumberOfRows();
+
+    map<string, vector<int> > sectorMap;
+
+    sectorMap["A"].push_back(thePoints_.at(3));
+    sectorMap["A"].push_back(thePoints_.at(1));
+    sectorMap["A"].push_back(thePoints_.at(0));
+    sectorMap["A"].push_back(thePoints_.at(2));
+
+    sectorMap["B"].push_back(thePoints_.at(1));
+    sectorMap["B"].push_back(thePoints_.at(5));
+    sectorMap["B"].push_back(thePoints_.at(0));
+    sectorMap["B"].push_back(thePoints_.at(2));
+
+    sectorMap["C"].push_back(thePoints_.at(1));
+    sectorMap["C"].push_back(thePoints_.at(5));
+    sectorMap["C"].push_back(thePoints_.at(4));
+    sectorMap["C"].push_back(thePoints_.at(0));
+
+    sectorMap["D"].push_back(thePoints_.at(3));
+    sectorMap["D"].push_back(thePoints_.at(1));
+    sectorMap["D"].push_back(thePoints_.at(4));
+    sectorMap["D"].push_back(thePoints_.at(0));
+
+    int minCol = sectorMap[theCurrentSector_].at(0);
+    int maxCol = sectorMap[theCurrentSector_].at(1);
+    int minRow = sectorMap[theCurrentSector_].at(2);
+    int maxRow = sectorMap[theCurrentSector_].at(3);
+
+    // "+1" takes in account hits next to the frontier ones
+
+    if(minCol!= 0)       minCol-=1;
+    if(maxCol!= DUTCols) maxCol+=1;
+    if(minRow!= 0)       minRow-=1;
+    if(maxRow!= DUTRows) maxRow+=1;
+
+    if((col > minCol)&&
+       (col < maxCol)&&
+       (row > minRow)&&
+       (row < maxRow))
+        return true;
+
+    else return false;
+
+}
+
+//===================================================================================
+Event::clustersHitsMapDef clusterizer::findClusters(Event *theEvent)
+{
+
+    if ((theEvent->getClustersHits().empty())||(!usePartitions_))
+    {
+        this->clear();
+        int clusterID=0;
+
+        Event::plaqMapDef plaqMap = theEvent->getRawData();
+
+        for(Event::plaqMapDef::iterator hits=plaqMap.begin(); hits!=plaqMap.end(); ++hits)
+        {
+            clusterID = 0;
+
+            while( hits->second.size() != 0 )
+            {
+                Event::hitsDef& clusterHits = clustersHitsMap_[hits->first][clusterID];
+                clusterHits.push_back( hits->second[0] );
+                hits->second.erase( hits->second.begin() );
+                for(unsigned int c=0; c < clusterHits.size(); c++ )
+                {
+                    int& cRow = clusterHits[c]["row"];
+                    int& cCol = clusterHits[c]["col"];
+
+                    for(unsigned  int h=0; h < hits->second.size(); h++ )
+                    {
+                        int& hRow = hits->second[h]["row"];
+                        int& hCol = hits->second[h]["col"];
+
+//                        if(hits->first=="Station: 4 - Plaq: 0")
+//                        {
+//                        ss_.str(""); ss_ <<"Hit Col: " << hCol << " Hit Row: " << hRow<<endl; STDLINE(ss_.str(),ACGray);
+//                        }
+
+                        if ( ( abs(cCol - hCol) <= 1 ) && ( abs(cRow - hRow) <= 1 ))
+                        {
+                            clusterHits.push_back( hits->second[h] );
+                            hits->second.erase( hits->second.begin()+h );
+                            h--;
+                        }
+
+                    }
+                }
+                ++clusterID;
+            }
+
+        }
+        return clustersHitsMap_;
+    }
+
   else
     {
       return theEvent->getClustersHits();
@@ -162,9 +265,9 @@ void clusterizer::getChargeAsymmetryPlots(Geometry* theGeometry)
 	      calibrationFileName =  calibrationsDir + what[1] + "_ChargeAsymmetry.root";
 	      if(!boost::filesystem::exists(calibrationFileName))
                 {
-		  STDLINE("ERROR: Can't find any Charge Asymmetry file named "
-			  + calibrationsDir + what[1] + "_" + what[2] + ".root"
-			  + " or " + calibrationFileName, ACRed);
+//		  STDLINE("ERROR: Can't find any Charge Asymmetry file named "
+//			  + calibrationsDir + what[1] + "_" + what[2] + ".root"
+//			  + " or " + calibrationFileName, ACRed);
 		  continue;
                 }
             }
@@ -203,6 +306,21 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
   double pi = 3.1415;
 
   clustersHitsMap_ = findClusters(theEvent);
+
+  if(usePartitions_) repartClusters(clustersHitsMap_);
+
+  //next instructions are just for check
+
+// for(Event::aClusterHitsMapDef::iterator cluster = clustersHitsMap_["Station: 4 - Plaq: 0"].begin(); cluster!=clustersHitsMap_["Station: 4 - Plaq: 0"].end(); cluster++)
+// {
+//     for(Event::hitsDef::iterator hits = cluster->second.begin(); hits!= cluster->second.end(); hits++)
+//     {
+//         int hCol = (*hits)["col"];
+//         int hRow = (*hits)["row"];
+
+//         ss_.str(""); ss_ <<"Hit Col: " << hCol << " Hit Row: " << hRow<<endl; STDLINE(ss_.str(),ACGray);
+//     }
+// }
 
   for (Event::clustersHitsMapDef::iterator det = clustersHitsMap_.begin(); det != clustersHitsMap_.end(); det++)
     {

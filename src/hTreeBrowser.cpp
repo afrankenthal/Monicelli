@@ -122,6 +122,13 @@ void hTreeBrowser::cleanDestroy(void)
 //=========================================================================
 void hTreeBrowser::populate(TDirectory * currentDirectory)
 {
+    if( ! currentDirectory )
+    {
+        ss_.str("");
+        ss_<<"Directory "<<currentDirectory->GetName()<<" not found!";
+        STDLINE(ss_.str(),ACRed) ;
+        return ;
+    }
     QTreeWidgetItem * wItem = NULL ;
     if( existingWItems_.find(std::string(currentDirectory->GetName())) == existingWItems_.end())
     {
@@ -134,12 +141,20 @@ void hTreeBrowser::populate(TDirectory * currentDirectory)
     {
         wItem = existingWItems_[std::string(currentDirectory->GetName())] ;
     }
+
     this->populate(currentDirectory, wItem) ;
 }
 
 //=========================================================================
 void hTreeBrowser::populate(TFolder * currentFolder)
 {
+    if( ! currentFolder )
+    {
+        ss_.str("");
+        ss_<<"Directory "<<currentFolder->GetName()<<" not found!";
+        STDLINE(ss_.str(),ACRed) ;
+        return ;
+    }
     QTreeWidgetItem * wItem = NULL ;
     if( existingWItems_.find(std::string(currentFolder->GetName())) == existingWItems_.end())
     {
@@ -159,6 +174,14 @@ void hTreeBrowser::populate(TFolder * currentFolder)
 //=========================================================================
 void hTreeBrowser::populate(TFolder * currentFolder, QTreeWidgetItem * parentWItem)
 {
+    if (!parentWItem || !currentFolder )
+    {
+        ss_.str("");
+        ss_<<"Item "<<parentWItem->text(0).toStdString()<<" or folder "<<currentFolder->GetName()<<" not found!";
+        STDLINE(ss_.str(),ACRed) ;
+        return ;
+    }
+
     QTreeWidgetItem * wItem   = NULL  ;
     TObject         * obj     = NULL  ;
     std::string       objPath = ""    ;
@@ -166,7 +189,6 @@ void hTreeBrowser::populate(TFolder * currentFolder, QTreeWidgetItem * parentWIt
     bool              create  = false ;
 
     TCollection * rootFoldersColl     = (TCollection *)currentFolder->GetListOfFolders() ;
-
     TIterator   * rootFoldersIterator = rootFoldersColl->MakeIterator() ;
 
     while((obj = rootFoldersIterator->Next()))
@@ -195,11 +217,10 @@ void hTreeBrowser::populate(TFolder * currentFolder, QTreeWidgetItem * parentWIt
 
         if( existingWItems_.find(objPath) == existingWItems_.end())
         {
-            wItem = new QTreeWidgetItem(parentWItem) ;
+            wItem = new QTreeWidgetItem(parentWItem,0) ;
             existingWItems_[objPath] = wItem ;
             create = true ;
-
-       }
+        }
         else
         {
             wItem  = existingWItems_[objPath] ;
@@ -216,6 +237,10 @@ void hTreeBrowser::populate(TFolder * currentFolder, QTreeWidgetItem * parentWIt
                 wItem->setText(1, tr("Folder")) ;
                 wItem->setIcon(0, folderIcon_);
             }
+//            ss_.str("");
+//            ss_<<"Folder: "<<obj->GetName()<<" Item: "<<wItem->text(0).toStdString();
+//            STDLINE(ss_.str(),ACRed) ;
+
             this->populate((TFolder*)obj,wItem) ;
         }
         else if( this->getObjectType(obj) == "TH1" )
@@ -262,6 +287,15 @@ void hTreeBrowser::populate(TDirectory * currentDirectory, QTreeWidgetItem * par
     bool              create  = false ;
 
     TKey * keyH = NULL ;
+
+    if( !parentWItem || !currentDirectory)
+    {
+        ss_.str("");
+        ss_<<"Item "<<parentWItem->text(0).toStdString()<<" or folder "<<currentDirectory->GetName()<<" not found!";
+        STDLINE(ss_.str(),ACRed) ;
+        return ;
+    }
+
     TIter hList(currentDirectory->GetListOfKeys());
 
     while((keyH = (TKey*)hList()))
@@ -335,7 +369,6 @@ void hTreeBrowser::populate(TDirectory * currentDirectory, QTreeWidgetItem * par
             }
         }
     }
-
 }
 
 //=========================================================================

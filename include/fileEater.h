@@ -148,8 +148,8 @@ public:
     hMapDef       & getHistograms            (void                                              )  ;
 
     void            setWriteOutASCII         (bool                         writeOutFile         ) {writeOutFile_    = writeOutFile   ;}
-    void            setInputFileName         (std::string                  inputFileName        ) {inputFileName_   =  inputFileName ;}
-    void            setInputFileNames        (fileVDef                     inputFileNames       ) {inputFileNames_  =  inputFileNames;}
+    void            setInputFileName         (std::string                  inputFileName        ) {inputFileName_   = inputFileName  ;}
+    void            setInputFileNames        (fileVDef                     inputFileNames       ) {inputFileNames_  = inputFileNames ;}
     void            setOutputFileName        (std::string                  outputFileName       ) {outputFileName_  = outputFileName ;}
     void            setOutputTreePath        (std::string                  outputTreePath       ) {outputTreePath_  = outputTreePath ;}
 

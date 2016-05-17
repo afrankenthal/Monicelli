@@ -39,9 +39,11 @@
 #include <vector>
 
 #include "Event.h"
-#include "Geometry.h"
 #include "EventHeader.h"
+#include "Geometry.h"
 #include "subProcess.h"
+
+using namespace std;
 
 class clusterizer : public subProcess<Event,Geometry>
 {
@@ -50,20 +52,26 @@ class clusterizer : public subProcess<Event,Geometry>
   clusterizer(void);
   ~clusterizer(void);
   
-  void                       clear           (void                                    );
-  Event::clustersHitsMapDef  findClusters    (Event * theEvent                        );
-  Event::clustersMapDef      makeClusters    (Event * theEvent, Geometry * theGeometry);
-  void                       clusterize      (Event * theEvent, Geometry * theGeometry);
-  void                       execute         (Event * theEvent, Geometry * theGeometry);
-  void                       setClustersBuilt(int     built                           ) {clustersBuilt_ = built;}
-  bool                       clustersBuilt   (void                                    ) {return clustersBuilt_ ;}
-  std::string                getLabel        (void                                    ) ;
-  std::string                getName         (void                                    ) {return "clusterizer"        ;}
-  void                       setHeader       (EventHeader * theHeader                 ) {theHeader->setClustersDone(clustersBuilt_);}
-  void                       getChargeAsymmetryPlots(Geometry * theGeometry);
-  void                       setUseEtaFunction(bool use                               ) {useEtaFunction_ = use;}
-  
- private:
+  void                       clear                  (void                               );
+  bool                       isInRegion             (int, int                           );
+  void                       repartClusters         (Event::clustersHitsMapDef &        );
+  Event::clustersHitsMapDef  findClusters           (Event       * theEvent             );
+  Event::clustersMapDef      makeClusters           (Event       * theEvent, Geometry * );
+  void                       clusterize             (Event       * theEvent, Geometry * );
+  void                       execute                (Event       * theEvent, Geometry * );
+  void                       setClustersBuilt       (int           built                ) {clustersBuilt_ = built;}
+  bool                       clustersBuilt          (void                               ) {return clustersBuilt_ ;}
+  std::string                getLabel               (void                               );
+  std::string                getName                (void                               ) {return "clusterizer"        ;}
+  void                       setHeader              (EventHeader * theHeader            ) {theHeader->setClustersDone(clustersBuilt_);}
+  void                       getChargeAsymmetryPlots(Geometry    * theGeometry          );
+  void                       setUseEtaFunction      (bool          use                  ) {useEtaFunction_ = use;}
+  void                       getPartitionsInfos     (vector <int>  partitionsPoints    ,
+                                                     bool          UsePartitions       ,
+                                                     Detector*     theCurrentDUT       ,
+                                                     string        theCurrentSector     );
+
+private:
   
   std::string getPlaneID (int station, int plaquette);
   
@@ -78,8 +86,14 @@ class clusterizer : public subProcess<Event,Geometry>
   
   bool                      clustersBuilt_       ;
   bool                      useEtaFunction_      ;
-  
+
+  std::vector<int>          thePoints_           ;
+  bool                      usePartitions_       ;
+  Detector*                 theCurrentDUT_       ;
+  string                    theCurrentSector_    ;
+
   std::stringstream         ss_                  ;
+
 };
 
 #endif // CLUSTERIZER_H

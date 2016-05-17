@@ -74,7 +74,7 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
     theClusterCanvas_[2] = ui->beamSpot2DCanvas    ;
     theClusterCanvas_[3] = ui->clustersCanvas      ;
 */
-    // Initialize owned classes
+    // Initialize owned classes   
     this->collectExistingWidgets(mainWindow) ;
     this->initializeSingletons()             ;
 
@@ -202,6 +202,9 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
     connect( ui->yRoadToleranceSB2               , SIGNAL(valueChanged                   (int                                     ) ),
              ui->yRoadToleranceSB                , SLOT  (setValue                       (int                                     ) ) );
 
+    //connect( ui->usePartitionsCB                 , SIGNAL(toggled                        (bool                                    ) ),
+      //       theClusterizer_                              , SLOT  (makePartitionsMainTabs         (void                                    ) ) );
+
     beamSpot2DCanvas_                            = new QRootCanvas(ui->beamSpot2DCanvas                      	  ,"") ; // ToROOT6
     beamSpotProjXCanvas_                         = new QRootCanvas(ui->beamSpotProjXCanvas                        ,"") ; // ToROOT6
     beamSpotProjYCanvas_                         = new QRootCanvas(ui->beamSpotProjYCanvas                        ,"") ; // ToROOT6
@@ -298,6 +301,11 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
     ui->parseFilePB->setCheckable  (true);
     ui->showAllPlaqPB->setCheckable(true);
 
+    ui->DUTSectorCB->addItem("A");
+    ui->DUTSectorCB->addItem("B");
+    ui->DUTSectorCB->addItem("C");
+    ui->DUTSectorCB->addItem("D");
+
 /*
     ui->rawAlignmentLeftCanvas ->EnableSignalEvents(kMousePressEvent       ); // ToROOT6
     ui->rawAlignmentLeftCanvas ->EnableSignalEvents(kMouseDoubleClickEvent ); // ToROOT6
@@ -332,8 +340,21 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
         assert(0);
     }
 
+    std::string partitionsPicture = path_.toStdString() + std::string("/images/partitions.png") ;
+    QImage partitionsImage(QString(partitionsPicture.c_str()));
+    if (partitionsImage.isNull())
+    {
+        ss_.str("");
+        ss_ << ACRed << ACBold << ACReverse
+            << "FATAL:"
+            << ACPlain
+            << " Image " << partitionsPicture
+            << " not found. Aborting" ;
+        STDLINE(ss_.str(),ACYellow) ;
+        assert(0);
+    }
     ui->pictureTelescopeLB->setPixmap(QPixmap::fromImage(image));
-
+    ui->partitionsLB      ->setPixmap(QPixmap::fromImage(partitionsImage)) ;
 }
 
 //===========================================================================
@@ -408,6 +429,8 @@ void mainTabs::openRootFile(QString fileName)
     theHManager_->setRunSubDir( theFileEater_->openFile(fileName.toStdString()) );
     theGeometry_ = theFileEater_->getGeometry();
     showGeometry();
+
+
 
     ui->loadedRootFileLE         ->setText(fileName);
     ui->geoFileLE                ->setText(fileName.replace(".root",".geo")) ;
@@ -1279,6 +1302,11 @@ void mainTabs::on_parseFilePB_clicked()
     theFileEater_->setInputFileName( ui->loadedFileLE    ->text().toStdString() );
     //theFileEater_->openFile( ui->loadedFileLE->text().toStdString() );
 
+    mainWindow_->getGeometryFileName(ui->loadedGeometryLE->text().toStdString());
+    mainWindow_->getInputFileName   (ui->loadedFileLE    ->text().toStdString());
+    theHNavigator_->getGeometryFileName(ui->loadedGeometryLE->text().toStdString());
+    theHNavigator_->getInputFileName   (ui->loadedFileLE    ->text().toStdString());
+
     if (ui->maxRawEventsCB->isChecked())
         theFileEater_->setEventsLimit( ui->maxRawEventsSB->value() );
     else
@@ -1581,6 +1609,29 @@ void mainTabs::on_showPixelCalibrationPB_clicked()
 //===========================================================================
 void mainTabs::on_findAndSolveClustersPB_clicked()
 {
+
+    vector<int> partitionsPoints;
+
+    partitionsPoints.push_back(ui->PartitionsR_0LE->text().toInt());
+    partitionsPoints.push_back(ui->PartitionsC_0LE->text().toInt());
+    partitionsPoints.push_back(ui->PartitionsR_1LE->text().toInt());
+    partitionsPoints.push_back(ui->PartitionsC_1LE->text().toInt());
+    partitionsPoints.push_back(ui->PartitionsR_2LE->text().toInt());
+    partitionsPoints.push_back(ui->PartitionsC_2LE->text().toInt());
+
+    theClusterizer_->getPartitionsInfos(partitionsPoints,
+                                        ui->usePartitionsCB->isChecked(),
+                                        theGeometry_->getDetector(ui->listOfDUTsCB->currentText().toStdString()),
+                                        ui->DUTSectorCB->currentText().toStdString());
+
+    mainWindow_->getPartitionsInfos(ui->usePartitionsCB->isChecked(),
+                                       ui->listOfDUTsCB->currentText().toStdString(),
+                                       ui->DUTSectorCB->currentText().toStdString());
+
+    theHNavigator_->getPartitionsInfos(ui->usePartitionsCB->isChecked(),
+                                       ui->listOfDUTsCB->currentText().toStdString(),
+                                       ui->DUTSectorCB->currentText().toStdString());
+
     if(ui->clustersUseEtaFunctionCB->isChecked())
         theClusterizer_->getChargeAsymmetryPlots(theGeometry_);
     else
@@ -4487,3 +4538,24 @@ void mainTabs::on_setLimitsMakePlotPB_clicked()
     setLimitsOnResidualsvsCoordinateCanvas_->GetCanvas()->Update();
 
 }
+//================================================================================
+void mainTabs::on_GeometryTabW_selected(const QString &tabTitle)
+{
+    if( !theGeometry_ )
+    {
+        STDLINE("No geometry has been loaded so far",ACRed) ;
+        return ;
+    }
+
+    if( tabTitle == "Partitions")
+    {
+        for(Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); it++)
+        {
+          string currentDetector = it->first;
+          if((theGeometry_->getDetector(currentDetector)->isDUT())&&(ui->listOfDUTsCB->findText(currentDetector.c_str())==-1))
+              ui->listOfDUTsCB->addItem(currentDetector.c_str());
+        }
+
+    }
+}
+

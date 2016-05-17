@@ -37,6 +37,7 @@
 #include <QTabWidget>
 #include <TBrowser.h>
 #include <TFolder.h>
+#include <QRegExp>
 
 #include "fileEater.h"
 #include "HManager.h"
@@ -78,6 +79,12 @@ public:
     QMdiArea     * getMdiArea            (void                      ) ;
     MainWindow   * getMainWindow         (void                      ) ;
 
+    void           getPartitionsInfos    (bool      usePartitions,
+                                          string    theCurrentDUT,
+                                          string    theCurrentSector) ;
+    void           getGeometryFileName   (string    geometryFileName) {geometryFileName_= geometryFileName;}
+    void           getInputFileName      (string    inputFileName)    {inputFileName_   = inputFileName   ;}
+
 private:
 
     void           fillWidget            (void                      ) ;
@@ -107,6 +114,14 @@ private:
     std::stringstream       ss_                 ;
 
     int                     counter_            ;
+
+    bool                    usePartitions_      ;
+    string                  theCurrentDUT_      ;
+    string                  theCurrentSector_   ;
+
+    string                  geometryFileName_   ;
+    string                  inputFileName_      ;
+    bool                    populating_         ;
 
 private slots:
     void on_unZoomPB_clicked        (void               );

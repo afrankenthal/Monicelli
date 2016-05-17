@@ -86,6 +86,8 @@ HNavigator::HNavigator(QWidget * parent) :
   ui->canvasSizeCB->addItem(QString("Large" ));
   ui->canvasSizeCB->addItem(QString("Huge"  ));
   ui->canvasSizeCB->setCurrentIndex(2);
+
+  usePartitions_ = false;
 }
 
 //===========================================================================
@@ -97,14 +99,14 @@ HNavigator::~HNavigator()
 
 //===========================================================================
 void HNavigator::checkNewObjectsInMemory(void)
-{
-  theHTreeBrowser_->populate(gROOT->GetRootFolder()) ;
+{    
+    theHTreeBrowser_->populate(gROOT->GetRootFolder()) ;    
 }
 
 //===========================================================================
 void HNavigator::updateTree(QString currentFile)
 {
-  theHTreeBrowser_->clear();
+  //theHTreeBrowser_->clear();
   if( currentFile != displayAllLabel_ )
   {
     this->fillWidgetTree(currentFile.toStdString());
@@ -121,44 +123,50 @@ void HNavigator::updateTree(QString currentFile)
 //===========================================================================
 void HNavigator::collectExistingWidgets(QWidget * parent)
 {
-//  STDLINE("Collecting information about existing open widgets",ACYellow) ;
+    //  STDLINE("Collecting information about existing open widgets",ACYellow) ;
+    if( ! parent )
+    {
+        STDLINE("No parent widget found (yet)",ACCyan) ;
+        return ;
+    }
 
-  parent_ = (MainWindow*)parent ;
-//  STDLINE("",ACWhite) ;
-  if( !theHTreeBrowser_ )
-  {
-//      STDLINE("",ACWhite) ;
-    // Create a tree-like folder-navigation tool
-    //    this->setGeometry(this->x(),this->y(),this->width(),this->height()+120) ;
-    this->show() ;
-    this->setCurrentIndex(0);
-    QWidget * input  = this->widget(0) ;
-    theHTreeBrowser_ = new hTreeBrowser(input, parent_) ;
-    theHTreeBrowser_->setGeometry(ui->hNavigatorTreeFrame->geometry()) ;
-    theHTreeBrowser_->show() ;
-  }
-//  STDLINE("",ACWhite) ;
+    parent_ = (MainWindow*)parent ;
+    //  STDLINE("",ACWhite) ;
+    if( !theHTreeBrowser_ )
+    {
+        //      STDLINE("",ACWhite) ;
+        // Create a tree-like folder-navigation tool
+        //    this->setGeometry(this->x(),this->y(),this->width(),this->height()+120) ;
+        this->show() ;
+        this->setCurrentIndex(0);
+        QWidget * input  = this->widget(0) ;
+        theHTreeBrowser_ = new hTreeBrowser(input, parent_) ;
+        theHTreeBrowser_->setGeometry(ui->hNavigatorTreeFrame->geometry()) ;
+        theHTreeBrowser_->show() ;
+    }
+    //  STDLINE("",ACWhite) ;
 
-  // Recover pointers to essential objects
-  theHManager_  = parent_->getHManager()  ;
-  theTabWidget_ = parent_->getTabWidget() ;
+    // Recover pointers to essential objects
+    theHManager_  = parent_->getHManager()  ;
+    theTabWidget_ = parent_->getTabWidget() ;
 
-  // Populate the folders navigation tool with the existing open files
-  // and their content and point to the current one
-  if( !theTabWidget_ ) // No mainTabs widget has been opened yet.
-  {
-    return ;
-  }
-  else
-  {
-    theFileEater_ = theTabWidget_->getFileEater() ;
-  }
-//  STDLINE("",ACWhite) ;
+    // Populate the folders navigation tool with the existing open files
+    // and their content and point to the current one
+    if( !theTabWidget_ ) // No mainTabs widget has been opened yet.
+    {
+        return ;
+    }
+    else
+    {
+        theFileEater_ = theTabWidget_->getFileEater() ;
+        if( !theFileEater_ ) return ;
+    }
+    //  STDLINE("",ACWhite) ;
 
-  this->fillWidget()     ; // Fill the combo-box with the list of open files
-//  STDLINE("",ACWhite) ;
-  this->fillWidgetTree() ; // Populate the tree widget with file structure content
-//  STDLINE("",ACWhite) ;
+    this->fillWidget()     ; // Fill the combo-box with the list of open files
+    //  STDLINE("",ACWhite) ;
+    this->fillWidgetTree() ; // Populate the tree widget with file structure content
+    //  STDLINE("",ACWhite) ;
 }
 
 //===========================================================================
@@ -181,7 +189,7 @@ void HNavigator::fillWidget()
 
   for(fileEater::fileMapDef::iterator it=openFiles_.begin(); it!=openFiles_.end(); ++it)
   {
-    this->addItem(it->first) ;
+      if(it->first.find(".root")!=-1) this->addItem(it->first) ;
   }
 }
 
@@ -389,8 +397,46 @@ void HNavigator::on_saveComponentsPB_clicked()
       STDLINE("No file is registered as open in input, there is nothing to save",ACRed) ;
       return ;
   }
-  QStringList tmp  = QString(theFileEater_->getInputFileName().c_str()).split(".root") ;
-  QString newName  = tmp.at(0) + "_histograms.root" ;
+
+  inputFileName_ = theFileEater_->getInputFileName();
+  QStringList tmpFileName  = QString(inputFileName_.c_str()).split(".root") ;
+  QString newName  = tmpFileName.at(0) + "_histograms.root" ;
+
+  if(usePartitions_)
+  {
+      QRegExp rx ("(.+)?:\\s+(\\d+)\\s+-\\s(.+)?:\\s+(\\d+)");
+      QString tempDUTName;
+
+      if(rx.indexIn(QString(theCurrentDUT_.c_str()))!= -1)
+      {
+         QStringList list = rx.capturedTexts();
+         for(int i = 1; i<list.size();i++)
+         {
+             tempDUTName.append(list.at(i));
+             tempDUTName.append("_");
+         }
+      }
+
+      QString partitionInfo = "_DUT_"                            +
+                              tempDUTName                        +
+                              "Sector_"                          +
+                              QString(theCurrentSector_.c_str()) ;
+
+      newName  = tmpFileName.at(0) + partitionInfo + "_histograms.root";
+      QString monicelliOutputFileNewName =tmpFileName.at(0) + partitionInfo + ".root" ;
+      QStringList tmpGeoName = QString(geometryFileName_.c_str()).split(".geo") ;
+      QString geometryFileNewName = tmpGeoName.at(0) + partitionInfo + ".geo" ;
+
+      ss_.str("");
+      ss_<<"cp "<<inputFileName_<<" "<<monicelliOutputFileNewName.toStdString()<<endl;
+      system(ss_.str().c_str());
+
+      ss_.str("");
+      ss_<<"cp "<<geometryFileName_<<" "<<geometryFileNewName.toStdString()<<endl;
+      system(ss_.str().c_str());
+  }
+
+
   QString fileName = QFileDialog::getSaveFileName(this,
                                                   tr("Save File"),
                                                   newName,
@@ -535,4 +581,13 @@ void HNavigator::on_unZoomPB_clicked()
 //  }
 
 //  theCanvases[theHTreeBrowser_->getCurrentCanvas()]->update() ;
+}
+//===========================================================================
+void HNavigator::getPartitionsInfos(bool usePartitions, string theCurrentDUT, string theCurrentSector)
+{
+    usePartitions_    = usePartitions;
+    theCurrentDUT_    = theCurrentDUT;
+    theCurrentSector_ = theCurrentSector;
+
+    //ss_.str(""); ss_<<"Use Partitions is: "<<usePartitions_<<" DUT is:  "<<theCurrentDUT_<<" Sector is: "<<theCurrentSector_<<endl; STDLINE(ss_.str(),ACCyan);
 }

@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
     QApplication::setStyle(new QPlastiqueStyle()) ;
 
     MainWindow w;
+    w.setWindowTitle("walden - ROOT File Navigator");
     w.show();
 
     std::string color = std::string(ACYellow)+std::string(ACBold)+std::string(ACReverse) ;
@@ -33,5 +34,5 @@ int main(int argc, char *argv[])
 
 TApplication::~TApplication()
 {
-    D("","") ;
+    STDLINE("Destructor",ACRed);
 }

@@ -25,7 +25,7 @@ Extractor::Extractor()
 QString Extractor::getFileName()
 {
     return QFileDialog::getOpenFileName(NULL, "Open File",
-                                        "/user/gr1/e831/dzuolo/esercizio/conQt/extractor",
+                                        "/user/gr1/e831/dzuolo",
                                         "ROOTFile (*.root)"
                                         );
 }

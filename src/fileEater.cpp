@@ -132,7 +132,7 @@ fileEater::fileEater(int argc, char ** argv)
 //=============================================================================
 std::string fileEater::openFile(std::string inputFile)
 {
-    std::string fileName = "No Such File: " + inputFile ;
+    std::string fileName = inputFile ;
     boost::cmatch what;
     static const boost::regex exp(".*?[\\/](\\w+)\\.(dat|txt|root|xml|nhd|geo)", boost::regex::perl);
 
@@ -142,7 +142,7 @@ std::string fileEater::openFile(std::string inputFile)
     {
         inputFileName_=fileName ;
         fileName      = what[1] ;
-        STDLINE(what[0] + " file name: " + fileName + " extention: " + what[2],ACCyan) ;
+        STDLINE(what[0] + " file name: " + fileName + " extension: " + what[2],ACCyan) ;
         fileFormat_ =  std::string(what[2]);
 
         if (fileFormat_=="root") // =============== R O O T  F I L E ======================
@@ -161,15 +161,22 @@ std::string fileEater::openFile(std::string inputFile)
                 exit(-1) ;
             }
 
+            QStringList inputFileNameList = (QString(fileName.c_str()).split("_"));
+            QString inputFileName = inputFileNameList.at(0) + "_" +inputFileNameList.at(1);
+            STDLINE(inputFileName.toStdString(),ACGreen);
+
             std::stringstream eventsTreeName;
             std::stringstream eventsHeaderName;
-            eventsTreeName   << fileName << ".root" << "Events";
-            eventsHeaderName << fileName << ".root" << "Header";
+            eventsTreeName   << inputFileName.toStdString() << ".root" << "Events";
+            eventsHeaderName << inputFileName.toStdString() << ".root" << "Header";
+
+
 
             //STDLINE(eventsTreeName.str(),  ACYellow) ;
 
             //get event root tree
-            inputEventTree_ = (TTree*)inputTreesMap_[inputFile]->Get(eventsTreeName.str().c_str()) ;
+           inputEventTree_ = (TTree*)inputTreesMap_[inputFile]->Get(eventsTreeName.str().c_str()) ;
+
             if ( inputEventTree_ )
             {
                 inputEventTree_    ->SetBranchAddress("EventBranch", &theEvent_      );
@@ -402,7 +409,7 @@ bool fileEater::growMagicTree2(bool BinaryFile)
 {
     //fill event tree file
     std::stringstream outputEventTreeCompletePath;
-    outputEventTreeCompletePath << outputTreePath_ << "/" << outputTreeFileName_ ;
+    outputEventTreeCompletePath << outputTreePath_ << "/" << outputTreeFileName_ ;    
 
     if ( inputTreesMap_.count(outputEventTreeCompletePath.str())!=0 )
     {
