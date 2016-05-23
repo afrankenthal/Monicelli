@@ -161,9 +161,7 @@ std::string fileEater::openFile(std::string inputFile)
                 exit(-1) ;
             }
 
-            QStringList inputFileNameList = (QString(fileName.c_str()).split("_"));
-            QString inputFileName = inputFileNameList.at(0) + "_" +inputFileNameList.at(1);
-            STDLINE(inputFileName.toStdString(),ACGreen);
+            QString inputFileName = fileName.c_str();
 
             std::stringstream eventsTreeName;
             std::stringstream eventsHeaderName;
