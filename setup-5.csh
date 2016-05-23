@@ -34,19 +34,17 @@
 # like mySetupQt.csh) and modify the copy to suit your needs. Please do NOT put bac in cvs  
 # a modified copy of the original setupQt.csh if you have by mistake accidentally edited it.
 
-
-alias do 'make -f MakefileAll '
+alias do 'make -f MakefileAll'
 setenv BASEDATADIR /user/gr1/e831/menasce/MonicelliNew/data/2015_10_October
 
 #===============   Personalized configuration on this computer   ==============================================
 if(${HOSTNAME} == "hal9000.mib.infn.it") then
 
   if(     ${USER} == "menasce") then
-   setenv BASEDATADIR ../data/2015_10_October/
+    setenv BASEDATADIR ../data/2015_10_October/
   else if(${USER} == "dinardo") then
-   setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamData2015
+    setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
   endif
-  
 
   #===== Local directories
   setenv MonicelliDir		   `pwd`

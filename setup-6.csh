@@ -35,7 +35,7 @@
 # a modified copy of the original setupQt.csh if you have by mistake accidentally edited it.
 
 # To run Monicelli do the following:
-#
+
 # scl enable devtoolset-2 tcsh
 # source ~/.tcshrc
 # source setup-6.csh
@@ -51,7 +51,7 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
   if(     ${USER} == "menasce") then
    setenv BASEDATADIR ../data/2015_10_October/
   else if(${USER} == "dinardo") then
-   setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamData2015
+   setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
   else if(${USER} == "dzuolo") then
    setenv BASEDATADIR ../data/TestBeamData2015
   endif
