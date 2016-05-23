@@ -34,16 +34,19 @@
 # like mySetupQt.csh) and modify the copy to suit your needs. Please do NOT put bac in cvs  
 # a modified copy of the original setupQt.csh if you have by mistake accidentally edited it.
 
-alias do='make -f MakefileAll'
-export BASEDATADIR /user/gr1/e831/menasce/MonicelliNew/data/2015_10_October
+alias do='make -f MakefileAll '
+alias cleanAll='make -f MakefileAll clean'
+alias distCleanAll='make -f MakefileAll distclean'
 
 #===============   Personalized configuration on this computer   ==============================================
 if [ ${HOSTNAME} == "hal9000.mib.infn.it" ]; then
-    
+
     if [ ${USER} == "menasce" ]; then
 	export BASEDATADIR=../data/2015_10_October/
     elif [ ${USER} == "dinardo" ]; then
 	export BASEDATADIR=/raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
+    elif [ ${USER} == "dzuolo" ]; then
+	export BASEDATADIR=../data/TestBeamData2015
     fi
 
     #===== Local directories
@@ -61,8 +64,8 @@ if [ ${HOSTNAME} == "hal9000.mib.infn.it" ]; then
     export ROOTLIB=$ROOTSYS/lib/root
     
     #===== Location of the Qt components
-    export QTDIR=/usr/local/Trolltech/Qt-4.8.0/
-    export QTCREATORDIR=$QTDIR/bin/
+    export QTDIR=/usr/local/Trolltech/Qt-4.8.5/
+    export QTCREATORDIR=/opt/local/qtcreator-2.7.1/bin
     
     #===== Location of the BOOST components
     export BOOSTINC=/usr/local/include/boost
@@ -77,10 +80,10 @@ if [ ${HOSTNAME} == "hal9000.mib.infn.it" ]; then
     
     export LD_LIBRARY_PATH	  
     
-    alias qtcreator=/opt/local/qtcreator-2.7.1/bin/qtcreator
+    alias qtcreator=${QTCREATORDIR}/qtcreator
     
 fi
 
 #===== Final PATH definitions
-export PATH=${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}/
+export PATH=${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}
 export LD_LIBRARY_PATH=${ROOTLIB}:${BOOSTLIB}:${QTDIR}/lib:${XERCESCLIB}/:${MonicelliDir}/plugins/libs/:${MonicelliDir}/test/customWidgets/libs:${LD_LIBRARY_PATH}

@@ -72,7 +72,7 @@ if [ ${HOSTNAME} == "hal9000.mib.infn.it" ]; then
     export ROOTLIB=$ROOTSYS/lib/root
     
     #===== Location of the Qt components
-    export QTDIR=/usr/local/Trolltech/Qt-4.8.5
+    export QTDIR=/usr/local/Trolltech/Qt-4.8.5/
     export QTCREATORDIR=/opt/local/qtcreator-2.7.1/bin
     
     #===== Location of the BOOST components
@@ -88,7 +88,7 @@ if [ ${HOSTNAME} == "hal9000.mib.infn.it" ]; then
    
     export LD_LIBRARY_PATH	   
     
-    alias  qtcreator=${QTCREATORDIR}/qtcreator
+    alias qtcreator=${QTCREATORDIR}/qtcreator
     
 fi
 	
