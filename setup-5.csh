@@ -34,16 +34,19 @@
 # like mySetupQt.csh) and modify the copy to suit your needs. Please do NOT put bac in cvs  
 # a modified copy of the original setupQt.csh if you have by mistake accidentally edited it.
 
-alias do 'make -f MakefileAll'
-setenv BASEDATADIR /user/gr1/e831/menasce/MonicelliNew/data/2015_10_October
+alias do           'make -f MakefileAll '
+alias cleanAll     'make -f MakefileAll clean'
+alias distCleanAll 'make -f MakefileAll distclean'
 
 #===============   Personalized configuration on this computer   ==============================================
 if(${HOSTNAME} == "hal9000.mib.infn.it") then
 
   if(     ${USER} == "menasce") then
-    setenv BASEDATADIR ../data/2015_10_October/
+   setenv BASEDATADIR ../data/2015_10_October/
   else if(${USER} == "dinardo") then
-    setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
+   setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
+  else if(${USER} == "dzuolo") then
+   setenv BASEDATADIR ../data/TestBeamData2015
   endif
 
   #===== Local directories
@@ -61,8 +64,8 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
   setenv ROOTLIB		   $ROOTSYS/lib/root
 
   #===== Location of the Qt components
-  setenv QTDIR  		   /usr/local/Trolltech/Qt-4.8.0/
-  setenv QTCREATORDIR		   $QTDIR/bin/
+  setenv QTDIR  		   /usr/local/Trolltech/Qt-4.8.5/
+  setenv QTCREATORDIR		   /opt/local/qtcreator-2.7.1/bin
 
   #===== Location of the BOOST components
   setenv BOOSTINC		   /usr/local/include/boost
@@ -77,10 +80,10 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
 
   setenv LD_LIBRARY_PATH	  
   
-  alias qtcreator /opt/local/qtcreator-2.7.1/bin/qtcreator
+  alias  qtcreator                 ${QTCREATORDIR}/qtcreator
     
 endif
 
 #===== Final PATH definitions
-setenv PATH	       ${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}/
+setenv PATH	       ${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}
 setenv LD_LIBRARY_PATH ${ROOTLIB}:${BOOSTLIB}:${QTDIR}/lib:${XERCESCLIB}/:${MonicelliDir}/plugins/libs/:${MonicelliDir}/test/customWidgets/libs:${LD_LIBRARY_PATH}

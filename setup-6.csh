@@ -73,7 +73,7 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
   setenv ROOTLIB		   $ROOTSYS/lib/root
 
   #===== Location of the Qt components
-  setenv QTDIR  		   /usr/local/Trolltech/Qt-4.8.5
+  setenv QTDIR  		   /usr/local/Trolltech/Qt-4.8.5/
   setenv QTCREATORDIR		   /opt/local/qtcreator-2.7.1/bin
 
   #===== Location of the BOOST components
@@ -94,5 +94,5 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
 endif
 
 #===== Final PATH definitions
-setenv PATH		${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}
-setenv LD_LIBRARY_PATH  ${ROOTLIB}:${BOOSTLIB}:${QTDIR}/lib:${XERCESCLIB}/:${MonicelliDir}/plugins/libs/:${MonicelliDir}/test/customWidgets/libs:${LD_LIBRARY_PATH}
+setenv PATH	       ${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}
+setenv LD_LIBRARY_PATH ${ROOTLIB}:${BOOSTLIB}:${QTDIR}/lib:${XERCESCLIB}/:${MonicelliDir}/plugins/libs/:${MonicelliDir}/test/customWidgets/libs:${LD_LIBRARY_PATH}
