@@ -406,12 +406,14 @@ int main (int argc, char** argv)
 	{
 	  if (DUT2STEPS == true)
 	    {
+	      double largeRod = 10000.
+
 	      // #########################################
 	      // # Track finder on DUT: large rod search #
 	      // #########################################
 	      STDLINE("Track Finder on DUT: large rod search",ACBlue);
 	      
-	      theTrackFinder.setTrackSearchParameters(10000.*(1e-4)*CONVF, 10000.*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
+	      theTrackFinder.setTrackSearchParameters(largeRod*(1e-4)*CONVF, largeRod*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
 	      theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
 	      theTrackFinder.setOperation(&trackFinder::findDUTCandidates);
 	      theFileEater.updateEvents2();
