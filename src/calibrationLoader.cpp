@@ -289,7 +289,8 @@ void  calibrationLoader::saveROOTcalibrationFiles(std::string fileDirectory)
             path += std::string("/") + calibrationFileRadix + ".root";
             if(boost::filesystem::exists(path))
             {
-                STDLINE(std::string("WARNING: File ") + path + " exists. Overwriting...", ACRed);
+                STDLINE(std::string("WARNING: File ") + path + " exists. Not overwriting...", ACRed);
+		continue;
             }
             else
             {
