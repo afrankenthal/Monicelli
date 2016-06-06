@@ -40,7 +40,7 @@
 # source setup-6.sh
 # ./Monicelli
 
-alias do='make -f MakefileAll '
+alias do='make -f MakefileAll'
 alias cleanAll='make -f MakefileAll clean'
 alias distCleanAll='make -f MakefileAll distclean'
 
@@ -54,7 +54,7 @@ if [ ${HOSTNAME} == "hal9000.mib.infn.it" ]; then
     elif [ ${USER} == "dzuolo" ]; then
 	export BASEDATADIR=../data/TestBeamData2015
     fi
-    
+
     export PATH=/opt/rh/devtoolset-2/root/usr/bin:/bin:/usr/bin:/usr/local/bin:/usr/printmi/bin
 
     #===== Local directories

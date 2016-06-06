@@ -41,7 +41,7 @@
 # source setup-6.csh
 # ./Monicelli
 
-alias do           'make -f MakefileAll '
+alias do           'make -f MakefileAll'
 alias cleanAll     'make -f MakefileAll clean'
 alias distCleanAll 'make -f MakefileAll distclean'
 
