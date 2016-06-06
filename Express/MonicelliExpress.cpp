@@ -406,7 +406,7 @@ int main (int argc, char** argv)
 	{
 	  if (DUT2STEPS == true)
 	    {
-	      double largeRod = 10000.
+	      double largeRod = 10000.;
 
 	      // #########################################
 	      // # Track finder on DUT: large rod search #
