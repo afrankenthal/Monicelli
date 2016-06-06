@@ -468,7 +468,7 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
                             //2000,
                             //50000,
                              2000,
-                            35000,
+                            25000,
                             NULL);
                     pars = fitR.first;
                 }
@@ -506,7 +506,7 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
                         //2000,
                         //50000,
                          2000,
-                        35000,
+                        25000,
                         rightPars);
 
                 if(calibNew[(*r).first][(*c).first]->GetEntries() !=0 && fitR.first == NULL)
