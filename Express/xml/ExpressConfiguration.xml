@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE MonicelliExpressConfiguration SYSTEM "./dtd/ExpressConfiguration.dtd">
 <MonicelliExpressConfiguration>
-  <Defaults FilesPath="/raid2/data1/user/gr1/e831/dzuolo/data/TestBeamData2015/Merged/"
-            GeometriesPath="/raid2/data1/user/gr1/e831/dzuolo/data/TestBeamData2015/Geometries/"
+  <Defaults FilesPath="/user/gr1/e831/dinardo/TestBeamFBKPlanarBeforeRad_Batch01/Merged/"
+            GeometriesPath="/user/gr1/e831/dinardo/TestBeamFBKPlanarBeforeRad_Batch01/Geometries/"
             TrackFindingAlgorithm="FirstAndLast"
             TrackFittingAlgorithm="Simple"
 	    NumberOfEvents="-1"
@@ -15,5 +15,5 @@
 	    FineAlignment="true"
 	    FineTelescopeAlignment="true"
             UseEtaFunction="true"/>
-  <File Name="Run217_Merged.dat" Geometry="Run217_Merged.geo" />
+  <File Name="Run217_Merged.dat" Geometry="Run217_Merged_Ref.geo" />
 </MonicelliExpressConfiguration>
