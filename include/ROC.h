@@ -75,7 +75,7 @@ class ROC : public TObject
 //   typedef   std::map< int, std::map<int, double> >                                  covMatMapDef                  ;
 //   typedef   std::pair<double*, ROC::covMatMapDef>                                   fitResultPairDef              ;
 
-   static double calibrationFitFunction   (double *x, double *par                         );
+   static double calibrationFitFunctionROOT(double *x, double *par                         );
           double calibrationFitFunction   (double *x, double *par, bool convert           );
           double calibrationFitFunctionInv(double *x, double *par, bool convert           );
    bool          calibratePixel           (int row, int col, int adc, int& charge         , bool convert=false);

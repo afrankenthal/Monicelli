@@ -32,10 +32,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->directoryTV->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     ui->plotWG->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     ui->maxNumOfHistSB->setValue(12);
-    ui->maxNumOfHistSB->setRange(1,50);    
+    ui->maxNumOfHistSB->setRange(1,144);
 
     connect(ui->splitter, SIGNAL(splitterMoved  (int, int)),
             this,         SLOT  (resizeChildrens(int, int))) ;
+
+    foldersInFile_=false;
 }
 
 //==================================================================================
@@ -67,6 +69,18 @@ void MainWindow::on_BrowsePB_clicked()
 
     if( !inputFile_->IsOpen() ) D("Cannot find file", fileName.toStdString()) ;
 
+    TIter nextItem(inputFile_->GetListOfKeys());
+    while(TKey * itemKey = (TKey*)nextItem())
+    {
+        if(itemKey->IsFolder())
+        {
+            foldersInFile_ = true;
+            break;
+        }
+    }
+
+    extract_->getFoldersInFile(foldersInFile_);
+
     extract_->searchFile(inputFile_,folderName.toStdString(),"");
     //extract_->printMap();
 
@@ -88,7 +102,7 @@ void MainWindow::searchReversedPath (const QModelIndex & index)
 {
     if(index.parent().data().toString().toStdString().size()==0)
     {
-        ssPath_ << index.data().toString().toStdString()<<"/"<<endl;
+        ssPath_ << index.data().toString().toStdString()<<endl;
         qStringPath_.append(ssPath_.str().c_str());
     }
 
@@ -227,14 +241,16 @@ void MainWindow::drawAll (void)
     if(histoMap_.size()>(unsigned int)maxPadNumber)
     {
         createStatusBar();
-        c_->DivideSquare(maxPadNumber);
+        if(maxPadNumber>12) c_->DivideSquare(maxPadNumber,0,0);
+        else c_->DivideSquare(maxPadNumber);
         c_->Modified();
         c_->Update();
     }
 
     else
     {
-        c_->DivideSquare(histoMap_.size());
+        if(maxPadNumber>12) c_->DivideSquare(histoMap_.size(),0,0);
+        else c_->DivideSquare(histoMap_.size());
         c_->Modified();
         c_->Update();
 
@@ -244,8 +260,9 @@ void MainWindow::drawAll (void)
     {
         if(histoNumber>maxPadNumber) return;
         folder = it->first;
-        file.append(folder.c_str());
+        if(foldersInFile_) file.append(folder.c_str());
         file.append((it->second).c_str());
+        file.remove('\n');
         TObject * h1 = inputFile_->Get(file.toStdString().c_str());
         if( !h1 )
         {
@@ -254,28 +271,27 @@ void MainWindow::drawAll (void)
         }
         c_->cd(histoNumber);
         h1->Draw("COLZ");
-        c_->Modified();
-        c_->Update();
         histoNumber++;
         file.clear();
     }
+
+    c_->Modified();
+    c_->Update();
 }
 
 //==================================================================================
 void MainWindow::saveAll (void)
 {
-    outputFile_ = new TFile((getSaveFileName()+".root").toStdString().c_str(),"RECREATE");
+    QString outputFileName;
+    outputFileName =getSaveFileName();
+    if(!outputFileName.contains(".root")) outputFileName.append(".root");
+
+    outputFile_ = new TFile(outputFileName.toStdString().c_str(),"RECREATE");
 
     if(outputFile_->IsZombie())
     {
         D("No output file selected!",endl);
         return;
-    }
-
-    if(!ui->recreateTreeCB->isChecked())
-    {
-        outputFile_->mkdir("Main_Folder");
-        outputFile_->cd("Main_Folder");
     }
 
     string  folder;
@@ -284,8 +300,9 @@ void MainWindow::saveAll (void)
     for (hMapIterDef_ it=histoMap_.begin(); it!=histoMap_.end(); ++it)
     {
         folder = it->first;
-        file.append(folder.c_str());
+        if(foldersInFile_)file.append(folder.c_str());
         file.append((it->second).c_str());
+        file.remove('\n');
 
         TH1F * h1 = (TH1F*)inputFile_->Get(file.toStdString().c_str());
 
@@ -297,7 +314,6 @@ void MainWindow::saveAll (void)
 
         if(ui->recreateTreeCB->isChecked())
         {
-            folder.erase(0,1);
             outputFile_->mkdir(folder.c_str());
         }
 
@@ -309,7 +325,6 @@ void MainWindow::saveAll (void)
         }
         else
         {            
-            file.remove(0,1);
             file.replace(QString("/"),QString("_"));
             if(h1->Write(file.toStdString().c_str())!=0) D3(" File: ",file.toStdString()," saved!");
         }

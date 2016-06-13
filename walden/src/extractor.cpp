@@ -42,6 +42,8 @@ void Extractor::searchFile(TDirectory *dir, string folder, string title)
     {
         string thisPlot = key->GetName() ;
 
+        plotName_<<thisPlot<<endl;
+
         if(key->IsFolder())
         {
             level_++;
@@ -82,7 +84,8 @@ QByteArray Extractor::getByteArray(void)
     QByteArray qArray;
     for(unsigned int i=0; i<ss_.str().size(); ++i)
     {
-        qArray.append(ss_.str()[i]) ;
+        if(foldersInFile_)qArray.append(ss_.str()[i]) ;
+        else qArray.append(plotName_.str()[i]);
     }
     return qArray ;
 }

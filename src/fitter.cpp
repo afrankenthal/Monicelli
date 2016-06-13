@@ -55,7 +55,7 @@ fitter::fitter(void) :
     mean_                      (0)
   , sigma_                     (0)
   , calibrationFitFunctionName_("calibrationFitFunction")
-  , calibrationFitFunction_    (new TF1(calibrationFitFunctionName_, ROC::calibrationFitFunction, 0, 800000,4))
+  , calibrationFitFunction_    (new TF1(calibrationFitFunctionName_, ROC::calibrationFitFunctionROOT, 0, 800000,4))
 {
 }
 
@@ -286,6 +286,7 @@ fitter::fitResultDef fitter::calibrationFit(TH1 *   histo,
             calibrationFitFunction_->SetParameters(pars);
 
         calibrationFitFunction_->SetRange(xmin,xmax);
+
         //*TEMP*/ TFitResultPtr r = histo->Fit(calibrationFitFunction_,"0+SQR","",xmin,xmax);
         TFitResultPtr fitResult = histo->Fit(calibrationFitFunction_,"SQR","",xmin,xmax);
 
@@ -296,7 +297,7 @@ fitter::fitResultDef fitter::calibrationFit(TH1 *   histo,
         else
         {
             ss_.str("");
-            ss_ << "WARNING: fit failed returned error: " << (int)fitResult;
+            ss_ << "WARNING: fit of " << histo->GetName() << " failed. Returned error: " << (int)fitResult;
             STDLINE(ss_.str(), ACRed);
         }
     }

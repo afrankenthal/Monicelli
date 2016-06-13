@@ -581,7 +581,7 @@ p, li { white-space: pre-wrap; }
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="rawDataProcessingTabPage">
       <attribute name="title">
@@ -2204,8 +2204,8 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>60</y>
-          <width>126</width>
+          <y>61</y>
+          <width>151</width>
           <height>21</height>
          </rect>
         </property>
@@ -2221,9 +2221,9 @@ p, li { white-space: pre-wrap; }
        <widget class="QLineEdit" name="loadedCalibrationFileLE">
         <property name="geometry">
          <rect>
-          <x>140</x>
+          <x>160</x>
           <y>60</y>
-          <width>341</width>
+          <width>321</width>
           <height>21</height>
          </rect>
         </property>
@@ -2350,7 +2350,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>7</x>
-          <y>60</y>
+          <y>61</y>
           <width>56</width>
           <height>21</height>
          </rect>
@@ -2384,7 +2384,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>405</x>
-          <y>60</y>
+          <y>61</y>
           <width>26</width>
           <height>21</height>
          </rect>
@@ -2402,7 +2402,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>235</x>
-          <y>60</y>
+          <y>61</y>
           <width>31</width>
           <height>21</height>
          </rect>
@@ -2420,7 +2420,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>320</x>
-          <y>60</y>
+          <y>61</y>
           <width>31</width>
           <height>21</height>
          </rect>
@@ -21974,12 +21974,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>272</x>
-     <y>218</y>
+     <x>276</x>
+     <y>239</y>
     </hint>
     <hint type="destinationlabel">
-     <x>402</x>
-     <y>218</y>
+     <x>406</x>
+     <y>242</y>
     </hint>
    </hints>
   </connection>
@@ -21990,12 +21990,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>272</x>
-     <y>238</y>
+     <x>276</x>
+     <y>259</y>
     </hint>
     <hint type="destinationlabel">
-     <x>402</x>
-     <y>238</y>
+     <x>406</x>
+     <y>262</y>
     </hint>
    </hints>
   </connection>
@@ -22214,8 +22214,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>430</x>
-     <y>304</y>
+     <x>434</x>
+     <y>329</y>
     </hint>
     <hint type="destinationlabel">
      <x>200</x>
@@ -22342,8 +22342,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>972</x>
-     <y>325</y>
+     <x>976</x>
+     <y>344</y>
     </hint>
     <hint type="destinationlabel">
      <x>896</x>
@@ -22358,12 +22358,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>974</x>
-     <y>325</y>
+     <x>978</x>
+     <y>344</y>
     </hint>
     <hint type="destinationlabel">
-     <x>947</x>
-     <y>346</y>
+     <x>951</x>
+     <y>368</y>
     </hint>
    </hints>
   </connection>
@@ -22391,11 +22391,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>62</x>
-     <y>271</y>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>138</x>
-     <y>271</y>
+     <y>290</y>
     </hint>
    </hints>
   </connection>

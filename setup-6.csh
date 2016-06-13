@@ -53,7 +53,7 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
   else if(${USER} == "dinardo") then
    setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
   else if(${USER} == "dzuolo") then
-   setenv BASEDATADIR ../data/TestBeamData2015
+   setenv BASEDATADIR ../data/TestBeamFBKPlanarAfterRad_Batch01_02
   endif
   
   setenv PATH /opt/rh/devtoolset-2/root/usr/bin:/bin:/usr/bin:/usr/local/bin:/usr/printmi/bin

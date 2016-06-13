@@ -19,6 +19,7 @@
 #include <TFile.h>
 #include <TFolder.h>
 #include <TH1F.h>
+#include <TKey.h>
 #include <TSystem.h>
 
 #include <extractor.h>
@@ -82,6 +83,7 @@ private:
     TCanvas                 * c_            ;
     QModelIndexList           clickedList_  ;
     QList<int>                splitterSizes_;
+    bool                      foldersInFile_;
 
 protected:
     QTimer                  * fRootTimer_ ; // ToROOT6

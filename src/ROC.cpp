@@ -51,13 +51,12 @@ ROC::ROC(unsigned int position, int chipID, unsigned int degrees) :
 }
 
 //===============================================================================
-double ROC::calibrationFitFunction(double *x, double *par)
+double ROC::calibrationFitFunctionROOT(double *x, double *par)
 {
-    //std::cout << __PRETTY_FUNCTION__ << "I should never be here!!!!!" << std::endl;
-    //If you want to make linear fits
-    return x[0]*par[0]+par[1];
     //If you want to make arctan fits
     return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);
+    //If you want to make linear fits
+    //return x[0]*par[0]+par[1];
 }
 
 //===============================================================================
@@ -68,7 +67,8 @@ double ROC::calibrationFitFunction(double *x, double *par, bool convert)
         return x[0]*par[0]+par[1];
     }
 
-    else {
+    else
+    {
         return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);
     }
 
@@ -78,8 +78,10 @@ double ROC::calibrationFitFunction(double *x, double *par, bool convert)
 double ROC::calibrationFitFunctionInv(double *x, double *par, bool convert )
 {
 
-    if (convert){
-        return (x[0]-par[1])/par[0];}
+    if (convert)
+    {
+        return (x[0]-par[1])/par[0];
+    }
 
     else
     {
@@ -332,17 +334,11 @@ bool ROC::calibratePixel(int row, int col, int adc, int& charge, bool convert)
 
         if(newAdc[0] > ROC::calibrationFitFunction(maxVCal, par,convert ))
             newAdc[0] = (int)ROC::calibrationFitFunction(maxVCal, par, convert);
-        //std::cout << __PRETTY_FUNCTION__ << newAdc[0] << " : " << par[0] << " : " << par[1] << " : " << par[2] << " : " << par[3] << std::endl;
         charge = (int)ROC::calibrationFitFunctionInv(newAdc, par, convert);
-//        if(convert)
-//            std::cout << __PRETTY_FUNCTION__ << newAdc[0] << " : " << par[0] << " : " << par[1] << " : " << par[2] << " : " << par[3] << " : " << charge << std::endl;
-
         return true;
     }
     else
     {
-        //newAdc[0] = abs(adc-400);
-        //charge = -999999;
         charge = adc;
         return false;
     }
@@ -365,15 +361,14 @@ void ROC::setCalibrationFunction(int row, int col, double *par, double */*cov*/)
 
     if(par != NULL)
     {
-        //std::cout << "Par:";
         for(int i=0; i < 4; i++)
-        //for(int i=0; i < 2; i++)
         {
-            //std::cout << " " << i << "->" << par[i];
             pixelCalibrationFunctionTmp_[row][col].push_back(par[i]);
- //           cov = 0;
         }
-        //std::cout << std::endl;
+//        for(unsigned int i=0; i <pixelCalibrationFunctionTmp_[row][col].size() ; i++)
+//        {
+//            ss_.str("") ; ss_ << "par[] " <<pixelCalibrationFunctionTmp_[row][col].at(i);STDLINE(ss_.str(),ACGreen) ;
+//        }
     }
 }
 
