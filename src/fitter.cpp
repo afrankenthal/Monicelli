@@ -293,7 +293,7 @@ fitter::fitResultDef fitter::calibrationFit(TH1 *   histo,
         if ((int)fitResult == 0 || (int)fitResult == 4)
 	  // fitResult == 0 --> fit converged and covariance matrix with positive determinant
 	  // fitResult == 4 --> fit converged and covariance matrix with negative determinant
-	  par = histo->GetFunction(calibrationFitFunctionName_)->GetParameters() ;
+            par = histo->GetFunction(calibrationFitFunctionName_)->GetParameters() ;
         else
         {
             ss_.str("");
@@ -309,6 +309,6 @@ fitter::fitResultDef fitter::calibrationFit(TH1 *   histo,
 //==============================================================================
 int fitter::getCalibrationFitFunctionNPar(void)
 {
-    return calibrationFitFunction_->GetNpar();
+  return calibrationFitFunction_->GetNpar();
 }
 

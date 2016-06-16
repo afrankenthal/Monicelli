@@ -135,6 +135,7 @@ void MainWindow::cleanClose()
 //    writeSettings();
     QApplication::processEvents(QEventLoop::AllEvents);
     qApp->exit() ;
+    exit(0) ;
 }
 
 

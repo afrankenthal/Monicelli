@@ -350,13 +350,8 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 	      roc = detector->convertPixelToROC(&row, &col);
 
 
-	      //FIXME ASSUMING THAT THE DUTs ARE ALL DIGITAL AND SO THEY USE A LINEAR FIT
-	      //FIXME ASSUMING THAT THE DUTs ARE ALL DIGITAL AND SO THEY USE A LINEAR FIT
-	      //FIXME ASSUMING THAT THE DUTs ARE ALL DIGITAL AND SO THEY USE A LINEAR FIT
-	      bool convert = false;
-	      if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2")
-		convert = true;
-	      bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"], convert);
+	      // if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2")
+	      bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"]);
 
 
 	      if (isCalibrated == true)
@@ -571,12 +566,10 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 		  yErr += detector->getPixelPitchLocalY ( row );
 		  
 		  ROC *roc = detector->convertPixelToROC(&row, &col);
-		  bool convert = false;
+
 		  
-		  
-		  if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2")
-		    convert = true;
-		  bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"],convert);
+		  // if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2")
+		  bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"]);
 		  
 
 		  if (isCalibrated == true)

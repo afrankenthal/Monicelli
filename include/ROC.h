@@ -76,13 +76,12 @@ class ROC : public TObject
 //   typedef   std::pair<double*, ROC::covMatMapDef>                                   fitResultPairDef              ;
 
    static double calibrationFitFunctionROOT(double *x, double *par                         );
-          double calibrationFitFunction   (double *x, double *par, bool convert           );
-          double calibrationFitFunctionInv(double *x, double *par, bool convert           );
-   bool          calibratePixel           (int row, int col, int adc, int& charge         , bool convert=false);
+          double calibrationFitFunction   (double *x, double *par);
+          double calibrationFitFunctionInv(double *x, double *par);
+   bool          calibratePixel           (int row, int col, int adc, int& charge);
 
    void         setCalibrationFilePath    (std::string path                               ) {calibrationFilePath_= path; }
    void         setCalibrationFunction    (int row, int col, double *par, double *cov) ;
-//   void         setCalibrationFunction    (int row, int col, double *par, double *cov) ;
    void         setStandardPixPitch       (double       raw_cm  , double col_cm           ) ;
    void         setOneRowPitch            (unsigned int raw     , double row_cm           ) ;
    void         setOneColPitch            (unsigned int col     , double col_cm           ) ;

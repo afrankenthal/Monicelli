@@ -31,6 +31,12 @@
 #include "ROC.h"
 #include <iostream>
 
+
+// @@@ Hard coded parameters @@@
+#define FITTYPE "lin" // "lin" or "tanh"
+// ============================
+
+
 using namespace std;
 
 ClassImp(ROC)
@@ -53,41 +59,22 @@ ROC::ROC(unsigned int position, int chipID, unsigned int degrees) :
 //===============================================================================
 double ROC::calibrationFitFunctionROOT(double *x, double *par)
 {
-    //If you want to make arctan fits
-    return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);
-    //If you want to make linear fits
-    //return x[0]*par[0]+par[1];
+  if      (strcmp(FITTYPE,"lin") == 0)  return x[0]*par[0]+par[1];
+  else if (strcmp(FITTYPE,"tanh") == 0) return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);
 }
 
 //===============================================================================
-double ROC::calibrationFitFunction(double *x, double *par, bool convert)
+double ROC::calibrationFitFunction(double *x, double *par)
 {
-    if(convert)
-    {
-        return x[0]*par[0]+par[1];
-    }
-
-    else
-    {
-        return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);
-    }
-
+  if      (strcmp(FITTYPE,"lin") == 0)  return x[0]*par[0]+par[1];
+  else if (strcmp(FITTYPE,"tanh") == 0) return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);  
 }
 
 //===============================================================================
-double ROC::calibrationFitFunctionInv(double *x, double *par, bool convert )
+double ROC::calibrationFitFunctionInv(double *x, double *par)
 {
-
-    if (convert)
-    {
-        return (x[0]-par[1])/par[0];
-    }
-
-    else
-    {
-        return (atanh((x[0]-par[0])/par[1]) - par[3])/par[2];
-    }
-
+  if      (strcmp(FITTYPE,"lin") == 0)  return (x[0]-par[1])/par[0];
+  else if (strcmp(FITTYPE,"tanh") == 0) return (atanh((x[0]-par[0])/par[1]) - par[3])/par[2];
 }
 
 //==========================================================================
@@ -311,36 +298,30 @@ double ROC::getLengthLocalX(void  )
 }
 
 //==========================================================================
-double ROC::getLengthLocalY(void  )
+double ROC::getLengthLocalY (void)
 {
-    return rocLengthY_;
+  return rocLengthY_;
 }
 
 //=============================================================================
-bool ROC::calibratePixel(int row, int col, int adc, int& charge, bool convert)
+bool ROC::calibratePixel(int row, int col, int adc, int& charge)
 {
-
-    //-----------------------WE GO BACK TO THE "ORIGINAL" ROWS AND COLUMNS TO CALIBRATE-------------------------------
-
-    double newAdc[1];
-    //double maxVCal[1] = {255*421};
-    double maxVCal[1] = {255*332};
-
-    newAdc[0] = adc;
-    double *par = this->getCalibrationFunction(row, col);
-    if(par != 0)
+  double newAdc[1];
+  double maxVCal[1] = {255*332};
+  
+  newAdc[0] = adc;
+  double *par = this->getCalibrationFunction(row, col);
+  if(par != 0)
     {
-        //std::cout << __PRETTY_FUNCTION__ << newAdc[0] << " : " << par[0] << " : " << par[1] << " : " << par[2] << " : " << par[3] << " : " << convert << std::endl;
-
-        if(newAdc[0] > ROC::calibrationFitFunction(maxVCal, par,convert ))
-            newAdc[0] = (int)ROC::calibrationFitFunction(maxVCal, par, convert);
-        charge = (int)ROC::calibrationFitFunctionInv(newAdc, par, convert);
-        return true;
+      if(newAdc[0] > ROC::calibrationFitFunction(maxVCal, par))
+	newAdc[0] = (int)ROC::calibrationFitFunction(maxVCal, par);
+      charge = (int)ROC::calibrationFitFunctionInv(newAdc, par);
+      return true;
     }
-    else
+  else
     {
-        charge = adc;
-        return false;
+      charge = adc;
+      return false;
     }
 }
 
