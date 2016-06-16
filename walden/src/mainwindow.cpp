@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->plotWG->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     ui->maxNumOfHistSB->setValue(12);
     ui->maxNumOfHistSB->setRange(1,144);
+    ui->openFileLE->setReadOnly(true);
 
     connect(ui->splitter, SIGNAL(splitterMoved  (int, int)),
             this,         SLOT  (resizeChildrens(int, int))) ;
@@ -62,6 +63,7 @@ void MainWindow::on_BrowsePB_clicked()
     extract_ = new Extractor() ;
 
     QString fileName   = extract_->getFileName();
+    ui->openFileLE->setText(fileName);
     QFileInfo fileInfo = (fileName);
     QString folderName = fileInfo.filePath();
 

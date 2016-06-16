@@ -236,9 +236,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>30</y>
+      <y>80</y>
       <width>901</width>
-      <height>621</height>
+      <height>571</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -275,6 +275,19 @@
       </sizepolicy>
      </property>
     </widget>
+   </widget>
+   <widget class="QLineEdit" name="openFileLE">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>791</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>No File Loaded...</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
