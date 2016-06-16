@@ -35,7 +35,12 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/regex.hpp>
 
+// ### Hard coded values ###
 #define SCALE_F 1000
+#define FITMINPOINTS 40
+#define MAXTHRESHOLD 10000 // [e-]
+#define DYNAMICRANGE 200
+// #########################
 
 //=========================================================
 calibrationLoader::calibrationLoader(fileEater *theFileEater, HManager *theHManager, fitter *theFitter) :
@@ -424,18 +429,10 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
         {
             bin = 1;
             nBins = calib[(*r).first][(*c).first]->GetNbinsX();
-            //while(bin<=nBins && calib[(*r).first][(*c).first]->GetBinContent(bin)==0)
-	    //bin++;
+            while(bin<=nBins && calib[(*r).first][(*c).first]->GetBinContent(bin)==0)
+                bin++;
+            firstBinHisto->Fill((*r).first,(*c).first,bin);
 
-	    for(int i = 1; i<nBins; i++)
-	    {
-	      if(calib[(*r).first][(*c).first]->GetBinContent(i)==0)continue;
-	      else
-	      {
-		firstBinHisto->Fill((*r).first,(*c).first,bin);
-		break;
-	      }
-	    }
         }
     }
 
@@ -444,17 +441,9 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
         for (std::map<int,aPixelDataMapDef>::iterator c=(*r).second.begin(); c!=(*r).second.end(); ++c)
         {
             bin = calib[(*r).first][(*c).first]->GetNbinsX();
-	    // while(bin>=1 && calib[(*r).first][(*c).first]->GetBinContent(bin)==0)
-	    //  bin--;
-	    while(bin >= 1)
-	    {
-	      if(calib[(*r).first][(*c).first]->GetBinContent(bin)==0)bin--;
-	      else
-	      {
-		lastBinHisto->Fill((*r).first,(*c).first,bin);
-		break;
-	      }
-	    }
+            while(bin>=1 && calib[(*r).first][(*c).first]->GetBinContent(bin)==0)
+                bin--;
+            lastBinHisto->Fill((*r).first,(*c).first,bin);
         }
     }
 
@@ -467,7 +456,7 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
     {
         for (std::map<int,aPixelDataMapDef>::iterator c=(*r).second.begin(); c!=(*r).second.end(); ++c)
         {
-	  lastBin  = (int)lastBinHisto ->GetBinContent(lastBinHisto ->GetXaxis()->FindBin((*r).first),lastBinHisto ->GetYaxis()->FindBin((*c).first));
+            lastBin  = (int)lastBinHisto ->GetBinContent(lastBinHisto ->GetXaxis()->FindBin((*r).first),lastBinHisto ->GetYaxis()->FindBin((*c).first));
             firstBin = (int)firstBinHisto->GetBinContent(firstBinHisto->GetXaxis()->FindBin((*r).first),firstBinHisto->GetYaxis()->FindBin((*c).first));
             precADC  = calib[(*r).first][(*c).first]->GetBinContent(lastBin);
             precBin = lastBin-1;
@@ -475,10 +464,10 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
             {
                 currentADC = calib[(*r).first][(*c).first]->GetBinContent(b);
                 if(std::abs(precADC-currentADC)>30*(precBin-b))continue;
-              //if(std::abs(precADC-currentADC)>30*(precBin - b) || currentADC == 0) continue;
+                //if(std::abs(precADC-currentADC)>30*(precBin - b) || currentADC == 0) continue;
                 else
                 {
-		    if(precADC==0) continue; //dzuolo
+                    if(precADC==0) continue; //dzuolo
                     calibNew[(*r).first][(*c).first]->SetBinContent(b,precADC);
                     calibNew[(*r).first][(*c).first]->SetBinError(b,2.5);
                     precADC = currentADC;
@@ -494,43 +483,29 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
     {
         fitter::fitResultDef fitR;
 
+        int firstBin, lastBin;
+        double minBin,maxBin;
+
         for (calibrationLoader::pixelDataMapDef::iterator r=pixels_.begin(); r!=pixels_.end(); ++r)
         {
             for (std::map<int,aPixelDataMapDef>::iterator c=(*r).second.begin(); c!=(*r).second.end(); ++c)
             {
 
-	      // bool binJumps = false;
-	      // int  maxJump =  (calibNew[(*r).first][(*c).first]->GetBinContent(lastBinHisto ->GetBin((*r).first,(*c).first))
-              //                  -calibNew[(*r).first][(*c).first]->GetBinContent(firstBinHisto->GetBin((*r).first,(*c).first)));
+                firstBin = (int)firstBinHisto->GetBinContent(firstBinHisto ->GetXaxis()->FindBin((*r).first),firstBinHisto ->GetYaxis()->FindBin((*c).first));
+                lastBin  = (int)lastBinHisto ->GetBinContent(lastBinHisto  ->GetXaxis()->FindBin((*r).first),lastBinHisto  ->GetYaxis()->FindBin((*c).first));
+                minBin = calibNew[(*r).first][(*c).first]->GetMinimum(1);
+                maxBin = calibNew[(*r).first][(*c).first]->GetBinContent(calibNew[(*r).first][(*c).first]->GetMaximumBin());
 
-	      // int jump;
-
-	      // for(int i = calibNew[(*r).first][(*c).first]->GetBinCenter(firstBinHisto->GetBin((*r).first,(*c).first));
-	      //        i < calibNew[(*r).first][(*c).first]->GetBinCenter(lastBinHisto ->GetBin((*r).first,(*c).first));
-	      //        i++)
-	      // {
-	      //    jump = calibNew[(*r).first][(*c).first]->GetBinContent(i+1)-calibNew[(*r).first][(*c).first]->GetBinContent(i);
-	      //    if(jump>0.2*maxJump)
-	      //    {
-	      //        binJumps = true;
-	      //        break;
-	      //    }
-	      // }
-                ss_.str("");
-                ss_<<"x max: "<<
-		     calibNew[(*r).first][(*c).first]->GetBinCenter((int)lastBinHisto ->GetBinContent(lastBinHisto ->GetXaxis()->FindBin((*r).first),lastBinHisto ->GetYaxis()->FindBin((*c).first)))<<
-                     " ---- x min: "<<
-		       calibNew[(*r).first][(*c).first]->GetBinCenter((int)firstBinHisto ->GetBinContent(lastBinHisto ->GetXaxis()->FindBin((*r).first),lastBinHisto ->GetYaxis()->FindBin((*c).first)));
-                STDLINE(ss_.str(),ACYellow);
-
-                if(calibNew[(*r).first][(*c).first]->GetEntries() >= 6 ) // dzuolo
+                if ((calibNew[(*r).first][(*c).first]->GetEntries() >= FITMINPOINTS) &&
+                    (calibNew[(*r).first][(*c).first]->GetBinCenter((int)firstBinHisto->GetBinContent(firstBinHisto->GetXaxis()->FindBin((*r).first),firstBinHisto ->GetYaxis()->FindBin((*c).first)))< MAXTHRESHOLD)&&
+                    (maxBin-minBin > DYNAMICRANGE))
                 {
                     fitR = theFitter_->calibrationFit(calibNew[(*r).first][(*c).first],
-                            //2000, //dzuolo
+                            //2000,
                             //25000,
-			      calibNew[(*r).first][(*c).first]->GetBinCenter((int)firstBinHisto ->GetBinContent(firstBinHisto ->GetXaxis()->FindBin((*r).first),firstBinHisto ->GetYaxis()->FindBin((*c).first))) ,
-		              calibNew[(*r).first][(*c).first]->GetBinCenter((int)lastBinHisto ->GetBinContent(lastBinHisto ->GetXaxis()->FindBin((*r).first),lastBinHisto ->GetYaxis()->FindBin((*c).first))),
-		              NULL);
+                            calibNew[(*r).first][(*c).first]->GetBinCenter(firstBin) ,
+                            calibNew[(*r).first][(*c).first]->GetBinCenter(lastBin),
+                            NULL);
                     pars = fitR.first;
                 }
                 else continue;
@@ -566,34 +541,23 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
         {
             for (std::map<int,aPixelDataMapDef>::iterator c=(*r).second.begin(); c!=(*r).second.end(); ++c)
             {
-	      // bool binJumps = false;
-	      // int  maxJump =  (calibNew[(*r).first][(*c).first]->GetBinContent((lastBinHisto ->GetBin((*r).first,(*c).first)))
-	      // -calibNew[(*r).first][(*c).first]->GetBinContent((firstBinHisto->GetBin((*r).first,(*c).first))));
+                firstBin = (int)firstBinHisto->GetBinContent(firstBinHisto ->GetXaxis()->FindBin((*r).first),firstBinHisto ->GetYaxis()->FindBin((*c).first));
+                lastBin  = (int)lastBinHisto ->GetBinContent(lastBinHisto  ->GetXaxis()->FindBin((*r).first),lastBinHisto  ->GetYaxis()->FindBin((*c).first));
+                minBin = calibNew[(*r).first][(*c).first]->GetMinimum(1);
+                maxBin = calibNew[(*r).first][(*c).first]->GetBinContent(calibNew[(*r).first][(*c).first]->GetMaximumBin());
 
-	    //int jump;
-
-	    // for(int i = calibNew[(*r).first][(*c).first]->GetBinCenter(firstBinHisto->GetBin((*r).first,(*c).first));
-	    //          i < calibNew[(*r).first][(*c).first]->GetBinCenter(lastBinHisto ->GetBin((*r).first,(*c).first));
-	    //          i++)
-	    //  {
-	    //      jump = calibNew[(*r).first][(*c).first]->GetBinContent(i+1)-calibNew[(*r).first][(*c).first]->GetBinContent(i);
-	    //      if(jump>0.2*maxJump)
-	    //      {
-	    //          binJumps = true;
-	    //          break;
-	      // }
-	      // }
-
-                if(calibNew[(*r).first][(*c).first]->GetEntries() >= 6)
-                   // dzuolo
+                if ((calibNew[(*r).first][(*c).first]->GetEntries() >= FITMINPOINTS) &&
+                    (calibNew[(*r).first][(*c).first]->GetBinCenter((int)firstBinHisto->GetBinContent(firstBinHisto->GetXaxis()->FindBin((*r).first),firstBinHisto ->GetYaxis()->FindBin((*c).first)))< MAXTHRESHOLD)&&
+                    ( maxBin-minBin > DYNAMICRANGE))
                 {
                         fitR  = theFitter_->calibrationFit(calibNew[(*r).first][(*c).first],
                         //2000,
                         //25000,
-	                calibNew[(*r).first][(*c).first]->GetBinCenter((int)firstBinHisto ->GetBinContent(firstBinHisto ->GetXaxis()->FindBin((*r).first),firstBinHisto ->GetYaxis()->FindBin((*c).first))) ,
-		        calibNew[(*r).first][(*c).first]->GetBinCenter((int)lastBinHisto ->GetBinContent(lastBinHisto ->GetXaxis()->FindBin((*r).first),lastBinHisto->GetYaxis()->FindBin((*c).first))) ,
+                        calibNew[(*r).first][(*c).first]->GetBinCenter(firstBin) ,
+                        calibNew[(*r).first][(*c).first]->GetBinCenter(lastBin) ,
                         rightPars);
                 }
+                else fitR.first = NULL;
 
                 if(calibNew[(*r).first][(*c).first]->GetEntries() !=0 && fitR.first == NULL)
                 {
@@ -605,9 +569,8 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
 
                 calibrations_[detector][roc->getID()][(*r).first][(*c).first].second = fitR;
 
-                if(writeGeometry)
-                    roc->setCalibrationFunction((*r).first, (*c).first, fitR.first, fitR.second);
-//                roc->setCalibrationFunction((*r).first, (*c).first, fitR.first, fitR.second,theFitter_->getCalibrationFitFunctionNPar());
+                if (writeGeometry)
+                   roc->setCalibrationFunction((*r).first, (*c).first, fitR.first, fitR.second);
 
                 if(writeASCII)
                 {
@@ -630,14 +593,6 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
     if(writeASCII) outputFile_.close();
 
     //calibrationsLoaded_ = true ;
-
-// dzuolo    for (calibrationLoader::pixelDataMapDef::iterator r=pixels_.begin(); r!=pixels_.end(); ++r)
-//    {
-//        for (std::map<int,aPixelDataMapDef>::iterator c=(*r).second.begin(); c!=(*r).second.end(); ++c)
-//        {
-//            calib[(*r).first][(*c).first]->Delete();
-//        }
-//    }
 
     for(int r=0; r<maxRows; r++)
     {
@@ -826,9 +781,9 @@ void calibrationLoader::makeChi2Histograms(void)
             ss_ << "Chi2 2D- " << detector->first << " - ROC: " << roc->second->getID() ;
             TH2F* chi2Scat = new TH2F(ss_.str().c_str(), ss_.str().c_str(), maxRows, 0, maxRows, maxCols, 0, maxCols);
             chi2Scat->SetMaximum(2) ;
-            ss_.str("") ; ss_ << CALIBRATIONS << "/Results/1D/" << detector->first ;
+            ss_.str("") ; ss_ << CALIBRATIONS << "/Results/1D" ; // << detector->first ;
             theHManager_->storeCustomTObject(chi2Hist,ss_.str()) ;
-            ss_.str("") ; ss_ << CALIBRATIONS << "/Results/2D/" << detector->first ;
+            ss_.str("") ; ss_ << CALIBRATIONS << "/Results/2D" ; // << detector->first ;
             theHManager_->storeCustomTObject(chi2Scat,ss_.str()) ;
             for(pixelPlotsMapDef::iterator r=calibrations_[detector->first][roc->second->getID()].begin(); r!=calibrations_[detector->first][roc->second->getID()].end(); r++)
                 for(std::map<int, std::pair<TH1I*,fitter::fitResultDef> >::iterator c=r->second.begin(); c!=r->second.end(); c++)
