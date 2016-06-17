@@ -34,7 +34,7 @@
 # like mySetupQt.csh) and modify the copy to suit your needs. Please do NOT put bac in cvs  
 # a modified copy of the original setupQt.csh if you have by mistake accidentally edited it.
 
-alias do           'make -f MakefileAll '
+alias do           'make -f MakefileAll'
 alias cleanAll     'make -f MakefileAll clean'
 alias distCleanAll 'make -f MakefileAll distclean'
 
