@@ -504,7 +504,8 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
                             //2000,
                             //25000,
                             calibNew[(*r).first][(*c).first]->GetBinCenter(firstBin) ,
-                            calibNew[(*r).first][(*c).first]->GetBinCenter(lastBin),
+                            25000, //linear fit
+                            //calibNew[(*r).first][(*c).first]->GetBinCenter(lastBin),
                             NULL);
                     pars = fitR.first;
                 }
@@ -554,7 +555,8 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
                         //2000,
                         //25000,
                         calibNew[(*r).first][(*c).first]->GetBinCenter(firstBin) ,
-                        calibNew[(*r).first][(*c).first]->GetBinCenter(lastBin) ,
+                        25000, //linear fit
+                        //calibNew[(*r).first][(*c).first]->GetBinCenter(lastBin) ,
                         rightPars);
                 }
                 else fitR.first = NULL;
