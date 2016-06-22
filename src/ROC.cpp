@@ -33,7 +33,8 @@
 
 
 // @@@ Hard coded parameters @@@
-#define FITTYPE "lin" // "lin" or "tanh"
+#define FITTYPE "lin" // "lin" or "tanh": use this to set which function you want to use for the calibrations
+                      // reading of previouslty fitted calibration histograms is implemented
 // ============================
 
 
@@ -43,7 +44,7 @@ ClassImp(ROC)
 
 //==========================================================================
 ROC::ROC(unsigned int position, int chipID, unsigned int degrees) :
-    rocLengthX_(0)
+   rocLengthX_(0)
   ,rocLengthY_(0)
   ,numberOfRows_(0)
   ,numberOfCols_(0)
@@ -59,22 +60,26 @@ ROC::ROC(unsigned int position, int chipID, unsigned int degrees) :
 //===============================================================================
 double ROC::calibrationFitFunctionROOT(double *x, double *par)
 {
-  if      (strcmp(FITTYPE,"lin") == 0)  return x[0]*par[0]+par[1];
-  else if (strcmp(FITTYPE,"tanh") == 0) return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);
+    if      (strcmp(FITTYPE,"lin")  == 0) return x[0]*par[0]+par[1];
+    else if (strcmp(FITTYPE,"tanh") == 0) return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);
 }
 
 //===============================================================================
-double ROC::calibrationFitFunction(double *x, double *par)
+double ROC::calibrationFitFunction(double *x, double *par, bool isDut)
 {
-  if      (strcmp(FITTYPE,"lin") == 0)  return x[0]*par[0]+par[1];
-  else if (strcmp(FITTYPE,"tanh") == 0) return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);  
+    if      (isDut                      ) return x[0]*par[0]+par[1];
+    else                                  return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);
+//    else if (strcmp(FITTYPE,"lin")  == 0) return x[0]*par[0]+par[1];
+//    else if (strcmp(FITTYPE,"tanh") == 0) return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);
 }
 
 //===============================================================================
-double ROC::calibrationFitFunctionInv(double *x, double *par)
+double ROC::calibrationFitFunctionInv(double *x, double *par, bool isDut)
 {
-  if      (strcmp(FITTYPE,"lin") == 0)  return (x[0]-par[1])/par[0];
-  else if (strcmp(FITTYPE,"tanh") == 0) return (atanh((x[0]-par[0])/par[1]) - par[3])/par[2];
+    if      (isDut                      ) return (x[0]-par[1])/par[0];
+    else                                  return (atanh((x[0]-par[0])/par[1]) - par[3])/par[2];
+//    else if (strcmp(FITTYPE,"lin")  == 0) return (x[0]-par[1])/par[0];
+//    else if (strcmp(FITTYPE,"tanh") == 0) return (atanh((x[0]-par[0])/par[1]) - par[3])/par[2];
 }
 
 //==========================================================================
@@ -304,24 +309,24 @@ double ROC::getLengthLocalY (void)
 }
 
 //=============================================================================
-bool ROC::calibratePixel(int row, int col, int adc, int& charge)
+bool ROC::calibratePixel(int row, int col, int adc, int& charge, bool isDut)
 {
-  double newAdc[1];
-  double maxVCal[1] = {255*332};
-  
-  newAdc[0] = adc;
-  double *par = this->getCalibrationFunction(row, col);
-  if(par != 0)
+    double newAdc[1];
+    double maxVCal[1] = {255*332};
+
+    newAdc[0] = adc;
+    double *par = this->getCalibrationFunction(row, col);
+    if(par != 0)
     {
-      if(newAdc[0] > ROC::calibrationFitFunction(maxVCal, par))
-	newAdc[0] = (int)ROC::calibrationFitFunction(maxVCal, par);
-      charge = (int)ROC::calibrationFitFunctionInv(newAdc, par);
-      return true;
+        if(newAdc[0] >      ROC::calibrationFitFunction   (maxVCal, par, isDut))
+           newAdc[0] = (int)ROC::calibrationFitFunction   (maxVCal, par, isDut);
+           charge    = (int)ROC::calibrationFitFunctionInv(newAdc , par, isDut);
+        return true;
     }
-  else
+    else
     {
-      charge = adc;
-      return false;
+        charge = adc;
+        return false;
     }
 }
 

@@ -76,9 +76,9 @@ class ROC : public TObject
 //   typedef   std::pair<double*, ROC::covMatMapDef>                                   fitResultPairDef              ;
 
    static double calibrationFitFunctionROOT(double *x, double *par                         );
-          double calibrationFitFunction   (double *x, double *par);
-          double calibrationFitFunctionInv(double *x, double *par);
-   bool          calibratePixel           (int row, int col, int adc, int& charge);
+          double calibrationFitFunction   (double *x, double *par, bool isDut              );
+          double calibrationFitFunctionInv(double *x, double *par, bool isDut              );
+   bool          calibratePixel           (int row, int col, int adc, int& charge, bool isDut = false);
 
    void         setCalibrationFilePath    (std::string path                               ) {calibrationFilePath_= path; }
    void         setCalibrationFunction    (int row, int col, double *par, double *cov) ;
@@ -147,7 +147,7 @@ class ROC : public TObject
    std::vector<double>           rowLowEdge_;
    std::vector<double>           colLowEdge_;
    double                        rocLengthX_;
-   double                         rocLengthY_;
+   double                        rocLengthY_;
 
    unsigned int                  numberOfRows_                        ;//the number of rows for a chip
                                                                        //it will be used to check merged data integrity
