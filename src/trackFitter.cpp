@@ -981,13 +981,6 @@ void trackFitter::makeDetectorTrackResiduals ( ROOT::Math::SVector<double,4>   &
 //================================================================
 void trackFitter::makeFittedTracksResiduals(Event *theEvent, Geometry *theGeometry)
 {
-
-    //    residualsMap_ = theEvent->getFittedTrackResiduals();
-    //    pullMap_      = theEvent->getFittedTrackPulls()    ;
-
-    //cout << " " << endl;
-    //cout << __PRETTY_FUNCTION__ << "Making residuals" << endl;
-
     residualsMap_.clear() ;
     pullMap_     .clear() ;
 
@@ -1003,21 +996,17 @@ void trackFitter::makeFittedTracksResiduals(Event *theEvent, Geometry *theGeomet
 
     for (; track!=trackCandidates.end(); track++, cov++, trackFit++, ++i)
     {
-        //cout << __PRETTY_FUNCTION__ << "Pars fed to res maker: x int = " << (*trackFit)[0] << " y int = " << (*trackFit)[1] << " x slope = " << (*trackFit)[2] << " y slope = " << (*trackFit)[3] << endl;//good
-
         Event::alignedHitsCandidateMapDef::iterator det = (*track).begin();
 
         for(; det!=(*track).end(); det++)//det++, cov++, trackFit++)
         {
-            //cout << __PRETTY_FUNCTION__ << "Pars 1: x int = " << (*trackFit)[0] << " y int = " << (*trackFit)[1] << " x slope = " << (*trackFit)[2] << " y slope = " << (*trackFit)[3] << endl;//bad
-
             if(!selectedDetectors_.empty())
             {
                 if( selectedDetectors_.find(det->first) ==  selectedDetectors_.end() )
-                    continue;
+                {
+                        continue;
+                }
             }
-
-            //cout << __PRETTY_FUNCTION__ << "Pars 2: x int = " << (*trackFit)[0] << " y int = " << (*trackFit)[1] << " x slope = " << (*trackFit)[2] << " y slope = " << (*trackFit)[3] << endl;//bad
 
             if(debug_)
             {
@@ -1027,31 +1016,21 @@ void trackFitter::makeFittedTracksResiduals(Event *theEvent, Geometry *theGeomet
                 STDLINE(ss_.str(),ACGreen);
             }
 
-            //cout << __PRETTY_FUNCTION__ << "Pars 3: x int = " << (*trackFit)[0] << " y int = " << (*trackFit)[1] << " x slope = " << (*trackFit)[2] << " y slope = " << (*trackFit)[3] << endl;//bad
-
             trackFitter::aFittedTrackDef aFittedTrack;
 
-            //cout << __PRETTY_FUNCTION__ << "Track: " << tracks[i] << " Pars:" << *trackFit << " Cov: " << *cov << " Det: " << det->first << endl;
-            //cout << __PRETTY_FUNCTION__ << "Pars fed to track fitter: x int = " << (*trackFit)[0] << " y int = " << (*trackFit)[1] << " x slope = " << (*trackFit)[2] << " y slope = " << (*trackFit)[3] << endl;//bad
-
-            //cout << __PRETTY_FUNCTION__ << fitMethodName_ << std::endl;
-            if(fitMethodName_=="Kalman") aFittedTrack = this->kalmanFitSingleTrack(*track, *trackFit, *cov, clusters, theGeometry, det->first);
+            if(      fitMethodName_=="Kalman") aFittedTrack = this->kalmanFitSingleTrack(*track, *trackFit, *cov, clusters, theGeometry, det->first);
             else if (fitMethodName_=="Simple") aFittedTrack = this->fitSingleTrack(*track, theGeometry, det->first);
-            else aFittedTrack = this->fitSingleTrack(*track, theGeometry, det->first);
+            else                               aFittedTrack = this->fitSingleTrack(*track, theGeometry, det->first);
 
-            //cout << __PRETTY_FUNCTION__ << "Pars after track fitter: x int = " << (*trackFit)[0] << " y int = " << (*trackFit)[1] << " x slope = " << (*trackFit)[2] << " y slope = " << (*trackFit)[3] << endl;//bad
 
             theEvent->addUnconstrainedFittedTrack(i,det->first,aFittedTrack.first.first,aFittedTrack.first.second,aFittedTrack.second);
 
-            //cout << __PRETTY_FUNCTION__ << "Pars after adding: x int = " << (*trackFit)[0] << " y int = " << (*trackFit)[1] << " x slope = " << (*trackFit)[2] << " y slope = " << (*trackFit)[3] << endl;//bad
 
             this->makeDetectorTrackResiduals(aFittedTrack.first.first, aFittedTrack.first.second,
                                              clusters                , trackCandidates                   ,
                                              theGeometry             , det->first               , i);
 
-            //cout << __PRETTY_FUNCTION__ << "Pars after res: x int = " << (*trackFit)[0] << " y int = " << (*trackFit)[1] << " x slope = " << (*trackFit)[2] << " y slope = " << (*trackFit)[3] << endl;//bad
         }
-        //cout << __PRETTY_FUNCTION__ << "Pars at end: x int = " << (*trackFit)[0] << " y int = " << (*trackFit)[1] << " x slope = " << (*trackFit)[2] << " y slope = " << (*trackFit)[3] << endl;//bad
     }
     theEvent->setFittedTrackResiduals(residualsMap_);
     theEvent->setFittedTrackPulls(pullMap_         );
