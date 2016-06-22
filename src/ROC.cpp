@@ -69,8 +69,6 @@ double ROC::calibrationFitFunction(double *x, double *par, bool isDut)
 {
     if      (isDut                      ) return x[0]*par[0]+par[1];
     else                                  return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);
-//    else if (strcmp(FITTYPE,"lin")  == 0) return x[0]*par[0]+par[1];
-//    else if (strcmp(FITTYPE,"tanh") == 0) return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);
 }
 
 //===============================================================================
@@ -78,8 +76,6 @@ double ROC::calibrationFitFunctionInv(double *x, double *par, bool isDut)
 {
     if      (isDut                      ) return (x[0]-par[1])/par[0];
     else                                  return (atanh((x[0]-par[0])/par[1]) - par[3])/par[2];
-//    else if (strcmp(FITTYPE,"lin")  == 0) return (x[0]-par[1])/par[0];
-//    else if (strcmp(FITTYPE,"tanh") == 0) return (atanh((x[0]-par[0])/par[1]) - par[3])/par[2];
 }
 
 //==========================================================================
