@@ -463,11 +463,10 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
             for(int b=lastBin-1; b>=firstBin; b--)
             {
                 currentADC = calib[(*r).first][(*c).first]->GetBinContent(b);
-                if(std::abs(precADC-currentADC)>30*(precBin-b))continue;
-                //if(std::abs(precADC-currentADC)>30*(precBin - b) || currentADC == 0) continue;
+                if (std::abs(precADC-currentADC)>30*(precBin-b)) continue;
                 else
                 {
-                    if(precADC==0) continue; //dzuolo
+                    if (precADC == 0) continue;
                     calibNew[(*r).first][(*c).first]->SetBinContent(b,precADC);
                     calibNew[(*r).first][(*c).first]->SetBinError(b,2.5);
                     precADC = currentADC;
@@ -488,51 +487,44 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
 
         for (calibrationLoader::pixelDataMapDef::iterator r=pixels_.begin(); r!=pixels_.end(); ++r)
         {
-            for (std::map<int,aPixelDataMapDef>::iterator c=(*r).second.begin(); c!=(*r).second.end(); ++c)
+	  for (std::map<int,aPixelDataMapDef>::iterator c=(*r).second.begin(); c!=(*r).second.end(); ++c)
             {
-
-                firstBin = (int)firstBinHisto->GetBinContent(firstBinHisto ->GetXaxis()->FindBin((*r).first),firstBinHisto ->GetYaxis()->FindBin((*c).first));
-                lastBin  = (int)lastBinHisto ->GetBinContent(lastBinHisto  ->GetXaxis()->FindBin((*r).first),lastBinHisto  ->GetYaxis()->FindBin((*c).first));
-                minBin = calibNew[(*r).first][(*c).first]->GetMinimum(1);
-                maxBin = calibNew[(*r).first][(*c).first]->GetBinContent(calibNew[(*r).first][(*c).first]->GetMaximumBin());
-
-                if ((calibNew[(*r).first][(*c).first]->GetEntries() >= FITMINPOINTS) &&
-                    (calibNew[(*r).first][(*c).first]->GetBinCenter((int)firstBinHisto->GetBinContent(firstBinHisto->GetXaxis()->FindBin((*r).first),firstBinHisto ->GetYaxis()->FindBin((*c).first)))< MAXTHRESHOLD)&&
-                    (maxBin-minBin > DYNAMICRANGE))
-                {
-                    fitR = theFitter_->calibrationFit(calibNew[(*r).first][(*c).first],
-                            //2000,
-                            //25000,
-                            calibNew[(*r).first][(*c).first]->GetBinCenter(firstBin) ,
-                            25000, //linear fit
-                            //calibNew[(*r).first][(*c).first]->GetBinCenter(lastBin),
-                            NULL);
-                    pars = fitR.first;
-                }
-                else continue;
-
-                if(fitR.first == NULL)
-                {
-                    //STDLINE("",ACWhite);
-                    ss_.str("") ;
-                    ss_ << "WARNING: first fit failed for detector " << detector << " - ROC: " << roc->getID() << " at row " << (*r).first << ", col " << (*c).first ;
-                    //STDLINE(ss_.str(),ACRed) ;
-                }
-                else
-                {
-                    for(int p=0; p<4; p++)
-                    {
-                        hPars[p]->Fill(pars[p]);
-                    }
-                }
+	      firstBin = (int)firstBinHisto->GetBinContent(firstBinHisto ->GetXaxis()->FindBin((*r).first),firstBinHisto ->GetYaxis()->FindBin((*c).first));
+	      lastBin  = (int)lastBinHisto ->GetBinContent(lastBinHisto  ->GetXaxis()->FindBin((*r).first),lastBinHisto  ->GetYaxis()->FindBin((*c).first));
+	      minBin = calibNew[(*r).first][(*c).first]->GetMinimum(1);
+	      maxBin = calibNew[(*r).first][(*c).first]->GetBinContent(calibNew[(*r).first][(*c).first]->GetMaximumBin());
+	      
+	      if ((calibNew[(*r).first][(*c).first]->GetEntries() >= FITMINPOINTS) &&
+		  (calibNew[(*r).first][(*c).first]->GetBinCenter((int)firstBinHisto->GetBinContent(firstBinHisto->GetXaxis()->FindBin((*r).first),firstBinHisto->GetYaxis()->FindBin((*c).first))) < MAXTHRESHOLD) &&
+		  (maxBin-minBin > DYNAMICRANGE))
+		{
+		  fitR = theFitter_->calibrationFit(calibNew[(*r).first][(*c).first],
+						    // 15000,
+						    calibNew[(*r).first][(*c).first]->GetBinCenter(firstBin),
+						    30000,
+						    NULL);
+		  pars = fitR.first;
+		}
+	      else continue;
+	      
+	      if (fitR.first == NULL)
+		{
+		  ss_.str("") ;
+		  ss_ << "WARNING: first fit failed for detector " << detector << " - ROC: " << roc->getID() << " at row " << (*r).first << ", col " << (*c).first ;
+		}
+	      else
+		{
+		  for (int p = 0; p < 4; p++)
+		    {
+		      hPars[p]->Fill(pars[p]);
+		    }
+		}
             }
         }
-
+	
         double rightPars[4];
         for(int p=0; p<4; p++) //Fit a second time with initial parameters equal to mean of the parameters found previously
         {
-            //dzuolo
-            //rightPars[p] = hPars[p]->GetBinCenter(hPars[p]->GetMaximumBin());
             rightPars[p] = hPars[p]->GetMean();
             ss_.str(""); ss_ << "Parameter " << p << ": " << rightPars[p];
             STDLINE(ss_.str(),ACGreen);
@@ -540,35 +532,33 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
 
         for (calibrationLoader::pixelDataMapDef::iterator r=pixels_.begin(); r!=pixels_.end(); ++r)
         {
-            for (std::map<int,aPixelDataMapDef>::iterator c=(*r).second.begin(); c!=(*r).second.end(); ++c)
+	  for (std::map<int,aPixelDataMapDef>::iterator c=(*r).second.begin(); c!=(*r).second.end(); ++c)
             {
-                firstBin = (int)firstBinHisto->GetBinContent(firstBinHisto ->GetXaxis()->FindBin((*r).first),firstBinHisto ->GetYaxis()->FindBin((*c).first));
-                lastBin  = (int)lastBinHisto ->GetBinContent(lastBinHisto  ->GetXaxis()->FindBin((*r).first),lastBinHisto  ->GetYaxis()->FindBin((*c).first));
-                minBin = calibNew[(*r).first][(*c).first]->GetMinimum(1);
-                maxBin = calibNew[(*r).first][(*c).first]->GetBinContent(calibNew[(*r).first][(*c).first]->GetMaximumBin());
-
-                if ((calibNew[(*r).first][(*c).first]->GetEntries() >= FITMINPOINTS) &&
-                    (calibNew[(*r).first][(*c).first]->GetBinCenter((int)firstBinHisto->GetBinContent(firstBinHisto->GetXaxis()->FindBin((*r).first),firstBinHisto ->GetYaxis()->FindBin((*c).first)))< MAXTHRESHOLD)&&
-                    ( maxBin-minBin > DYNAMICRANGE))
+	      firstBin = (int)firstBinHisto->GetBinContent(firstBinHisto ->GetXaxis()->FindBin((*r).first),firstBinHisto ->GetYaxis()->FindBin((*c).first));
+	      lastBin  = (int)lastBinHisto ->GetBinContent(lastBinHisto  ->GetXaxis()->FindBin((*r).first),lastBinHisto  ->GetYaxis()->FindBin((*c).first));
+	      minBin = calibNew[(*r).first][(*c).first]->GetMinimum(1);
+	      maxBin = calibNew[(*r).first][(*c).first]->GetBinContent(calibNew[(*r).first][(*c).first]->GetMaximumBin());
+	      
+	      if ((calibNew[(*r).first][(*c).first]->GetEntries() >= FITMINPOINTS) &&
+		  (calibNew[(*r).first][(*c).first]->GetBinCenter((int)firstBinHisto->GetBinContent(firstBinHisto->GetXaxis()->FindBin((*r).first),firstBinHisto->GetYaxis()->FindBin((*c).first))) < MAXTHRESHOLD) &&
+		  ( maxBin-minBin > DYNAMICRANGE))
+		{
+		  fitR = theFitter_->calibrationFit(calibNew[(*r).first][(*c).first],
+						    // 15000,
+						    calibNew[(*r).first][(*c).first]->GetBinCenter(firstBin),
+						    30000,
+						    rightPars);
+		}
+	      else fitR.first = NULL;
+	      
+	      if (calibNew[(*r).first][(*c).first]->GetEntries() !=0 && fitR.first == NULL)
                 {
-                        fitR  = theFitter_->calibrationFit(calibNew[(*r).first][(*c).first],
-                        //2000,
-                        //25000,
-                        calibNew[(*r).first][(*c).first]->GetBinCenter(firstBin) ,
-                        25000, //linear fit
-                        //calibNew[(*r).first][(*c).first]->GetBinCenter(lastBin) ,
-                        rightPars);
+		  STDLINE("",ACWhite);
+		  ss_.str("") ;
+		  ss_ << "WARNING: fit failed for detector " << detector << " - ROC: " << roc->getID() << " at row " << (*r).first << ", col " << (*c).first ;
+		  STDLINE(ss_.str(),ACRed) ;
                 }
-                else fitR.first = NULL;
-
-                if(calibNew[(*r).first][(*c).first]->GetEntries() !=0 && fitR.first == NULL)
-                {
-                    STDLINE("",ACWhite);
-                    ss_.str("") ;
-                    ss_ << "WARNING: fit failed for detector " << detector << " - ROC: " << roc->getID() << " at row " << (*r).first << ", col " << (*c).first ;
-                    STDLINE(ss_.str(),ACRed) ;
-                }
-
+	      
                 calibrations_[detector][roc->getID()][(*r).first][(*c).first].second = fitR;
 
                 if (writeGeometry)

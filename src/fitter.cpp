@@ -29,19 +29,6 @@
  ================================================================================*/
 
 
-/*
-#include <iomanip>
-#include <TMath.h>
-#include <TMatrixD.h>
-#include <TMatrixDSym.h>
-#include <TFitResult.h>
-#include <TFitResultPtr.h>
-#include <TVirtualFitter.h>
-
-#include "Geometry.h"
-#include "MessageTools.h"
-*/
-
 #include "fitter.h"
 #include "ROC.h"
 
