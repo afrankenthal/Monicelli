@@ -129,8 +129,7 @@ bool calibrationLoader::loadASCIIcalibrationFile(std::string fileName)
             }
             else if(boost::regex_match(line.c_str(), what, expRowColAdc, boost::match_extra)) //fill pixel
             {
-                //                 r                  c                 reg                                  h                      a
-                pixels_[Utils::toInt(what[1])][Utils::toInt(what[2])][currentReg] = std::make_pair(Utils::toInt(what[3]), Utils::toInt(what[4]));
+	      pixels_[Utils::toInt(what[1])][Utils::toInt(what[2])][currentReg] = std::make_pair(Utils::toInt(what[3]), Utils::toInt(what[4]));
             }
         }
         ++nLines ;
@@ -499,9 +498,9 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
 		  (maxBin-minBin > DYNAMICRANGE))
 		{
 		  fitR = theFitter_->calibrationFit(calibNew[(*r).first][(*c).first],
-						    // 15000,
+						    // 10000,
 						    calibNew[(*r).first][(*c).first]->GetBinCenter(firstBin),
-						    30000,
+						    25000,
 						    NULL);
 		  pars = fitR.first;
 		}
@@ -541,12 +540,12 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
 	      
 	      if ((calibNew[(*r).first][(*c).first]->GetEntries() >= FITMINPOINTS) &&
 		  (calibNew[(*r).first][(*c).first]->GetBinCenter((int)firstBinHisto->GetBinContent(firstBinHisto->GetXaxis()->FindBin((*r).first),firstBinHisto->GetYaxis()->FindBin((*c).first))) < MAXTHRESHOLD) &&
-		  ( maxBin-minBin > DYNAMICRANGE))
+		  (maxBin-minBin > DYNAMICRANGE))
 		{
 		  fitR = theFitter_->calibrationFit(calibNew[(*r).first][(*c).first],
-						    // 15000,
+						    // 10000,
 						    calibNew[(*r).first][(*c).first]->GetBinCenter(firstBin),
-						    30000,
+						    25000,
 						    rightPars);
 		}
 	      else fitR.first = NULL;
@@ -583,8 +582,6 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
     }
 
     if(writeASCII) outputFile_.close();
-
-    //calibrationsLoaded_ = true ;
 
     for(int r=0; r<maxRows; r++)
     {
