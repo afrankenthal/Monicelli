@@ -57,6 +57,7 @@ HEADERS              = include/aligner.h                         \
                        include/HManager.h                        \
                        include/hnavigator.h                      \
                        include/hTreeBrowser.h                    \
+                       include/KalmanPlaneInfo.h                 \
                        include/maintabs.h                        \
                        include/mainwindow.h                      \
                        include/mdichild.h                        \
@@ -88,7 +89,8 @@ HEADERS              = include/aligner.h                         \
                        plugins/customComboBox/customComboBox.h   \
                        plugins/customLineEdit/customLineEdit.h   \
                        plugins/customSpinBox/customSpinBox.h     \
-                       plugins/customTableView/customTableView.h 
+                       plugins/customTableView/customTableView.h
+
 
                                                                      
 SOURCES              = main.cpp                                  \
@@ -111,6 +113,7 @@ SOURCES              = main.cpp                                  \
                        src/HManager.cpp                          \
                        src/hnavigator.cpp                        \
                        src/hTreeBrowser.cpp                      \
+                       src/KalmanPlaneInfo.cpp                   \
                        src/mainwindow.cpp                        \
                        src/maintabs.cpp                          \
                        src/mdichild.cpp                          \	 		
@@ -133,6 +136,7 @@ SOURCES              = main.cpp                                  \
                        src/xmlParser.cpp                         \
                        tmp/EventDict.C                           \
                        tmp/EventHeaderDict.C
+
 
 RESOURCES            = Monicelli.qrc
 
@@ -211,7 +215,7 @@ contains(ROOTVERSION, "FIVE") {
                                 -c include/Event.h+              \
                                    include/Geometry.h+           \
                                    include/Detector.h+           \
-                                   include/ROC.h+           
+                                   include/ROC.h+
 } else {
  trees.commands      = @echo "------ ROOT6 commands --------" && \
                        rootcint -f tmp/EventDict.C               \
@@ -219,7 +223,7 @@ contains(ROOTVERSION, "FIVE") {
                                    include/Geometry.h+           \
                                    include/Detector.h+           \
                                    include/ROC.h+             && \
-		                   cp tmp/*.pcm .
+                                   cp tmp/*.pcm .
 }
 
 QMAKE_EXTRA_TARGETS += trees

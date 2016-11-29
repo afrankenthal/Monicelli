@@ -1304,8 +1304,8 @@ TObject* HManager::getHistogram(std::string histogramType, std::string detectorI
 {
     if ( !runSubFolder_->FindObject( histogramType.c_str() ) )
     {
-        ss_.str("") ; ss_ << histogramType << " folder not found" ;
-        STDLINE(ss_.str(),ACRed) ;
+        //ss_.str("") ; ss_ << histogramType << " folder not found" ;
+        //STDLINE(ss_.str(),ACRed) ;
         return emptyTH1I_;
     }
     currentFolder_ = (TFolder*)runSubFolder_->FindObject( histogramType.c_str() );
@@ -2153,7 +2153,7 @@ HManager::stringVDef HManager::makeTrackErrorsOnDUTs2 (Event * theEvent, bool &a
             if( (vetHx = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str())) == 0 )
             {
                 vetHx = new TH1D(duts->first.c_str(), duts->first.c_str(), 400, 0, 20 );
-                vetHx->GetXaxis()->SetTitle("X Track Errors on Dut (#mum)");
+                vetHx->GetXaxis()->SetTitle("X Track Errors on DUT (#mum)");
                 vetHx->GetYaxis()->SetTitle("# of tracks" );
                 vetHx->GetXaxis()->SetRangeUser(0,10);
                 vetHx->SetDirectory(0);
@@ -2165,7 +2165,7 @@ HManager::stringVDef HManager::makeTrackErrorsOnDUTs2 (Event * theEvent, bool &a
             if( (vetHy = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str())) == 0 )
             {
                 vetHy = new TH1D(duts->first.c_str(), duts->first.c_str(), 400, 0, 20 );
-                vetHy->GetXaxis()->SetTitle("Y Track Errors on Dut (#mum)");
+                vetHy->GetXaxis()->SetTitle("Y Track Errors on DUT (#mum)");
                 vetHy->GetYaxis()->SetTitle("# of tracks" );
                 vetHy->GetXaxis()->SetRangeUser(0,10);
                 vetHy->SetDirectory(0);
@@ -2177,7 +2177,7 @@ HManager::stringVDef HManager::makeTrackErrorsOnDUTs2 (Event * theEvent, bool &a
             if(duts->first.c_str() == std::string("Station: 4 - Plaq: 1"))
             {
                 vetHx->Fill( 10*sqrt(covMat[tr](1,1)) );
-                             vetHy->Fill( 10*sqrt(covMat[tr](3,3)) );
+                vetHy->Fill( 10*sqrt(covMat[tr](3,3)) );
             }
             else
             {

@@ -122,6 +122,7 @@ private:
     std::string findMethod_   ;
     std::string fitMethod_      ;
     bool        findDUT_        ;
+    bool        clusterCorrected_ ;
 
     std::stringstream ss_;
 };

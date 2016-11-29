@@ -1,11 +1,11 @@
 /*===============================================================================
  * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
- * 
- * Copyright (C) 2014 
+ *
+ * Copyright (C) 2014
  *
  * Authors:
  *
- * Dario Menasce      (INFN) 
+ * Dario Menasce      (INFN)
  * Luigi Moroni       (INFN)
  * Jennifer Ngadiuba  (INFN)
  * Stefano Terzo      (INFN)
@@ -27,10 +27,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ================================================================================*/
- 
+#include <algorithm>
 #include "trackFitter.h"
-#include <TVectorT.h>
-#include <TMatrixTSym.h>
 
 //===============================================================================
 trackFitter::trackFitter(void)
@@ -103,9 +101,9 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
         double z     = hit["z"];
         sigmaXY(0,0) = hit["xErr"] * hit["xErr"];
         sigmaXY(0,1) = hit["xyErr"];
-//        sigmaXY(0,1) = 0;
+        //        sigmaXY(0,1) = 0;
         sigmaXY(1,0) = hit["xyErr"];
-//        sigmaXY(1,0) = 0;
+        //        sigmaXY(1,0) = 0;
         sigmaXY(1,1) = hit["yErr"] * hit["yErr"];
 
         int ifail;
@@ -136,10 +134,10 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
 
             ss_.str("");
             ss_ << "x prime: "  << clusters_[(*tr).first][(int)hit["cluster ID"]]["x"] - theGeometry->getDetector( (*tr).first )->getXPosition()
-                << "+-" << clusters_[(*tr).first][(int)hit["cluster ID"]]["xErr"]
-                << " y prime: " << clusters_[(*tr).first][(int)hit["cluster ID"]]["y"] - theGeometry->getDetector( (*tr).first )->getYPosition()
-                << "+-" << clusters_[(*tr).first][(int)hit["cluster ID"]]["yErr"]
-                << " z center: " << theGeometry->getDetector( (*tr).first )->getZPositionTotal();
+                    << "+-" << clusters_[(*tr).first][(int)hit["cluster ID"]]["xErr"]
+                    << " y prime: " << clusters_[(*tr).first][(int)hit["cluster ID"]]["y"] - theGeometry->getDetector( (*tr).first )->getYPosition()
+                    << "+-" << clusters_[(*tr).first][(int)hit["cluster ID"]]["yErr"]
+                    << " z center: " << theGeometry->getDetector( (*tr).first )->getZPositionTotal();
             STDLINE(ss_.str(),ACPurple);
 
             ss_.str("");
@@ -194,8 +192,8 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
         chi2 += pow( hit["x"] - pars[0]*hit["z"] - pars[1], 2 )/(hit["xErr"]*hit["xErr"]) +
                 pow( hit["y"] - pars[2]*hit["z"] - pars[3], 2 )/(hit["yErr"]*hit["yErr"])  ;
 
-       //local coordinates
-/*       xPredLoc = pars[0]*hit["z"] + pars[1];
+        //local coordinates
+        /*       xPredLoc = pars[0]*hit["z"] + pars[1];
        yPredLoc = pars[2]*hit["z"] + pars[3];
        zPredLoc = theGeometry->getDetector( tr->first )->getZPosition();
        theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
@@ -212,11 +210,11 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
         if (nIterations_ == 0)
             continue;
 
-//        xPredLoc = pars[0]*hit["z"] + pars[1];
-//        yPredLoc = pars[2]*hit["z"] + pars[3];
+        //        xPredLoc = pars[0]*hit["z"] + pars[1];
+        //        yPredLoc = pars[2]*hit["z"] + pars[3];
         theGeometry->getDetector(tr->first)->getPredictedLocal(pars, xPredLoc, yPredLoc);
-//        zPredLoc = theGeometry->getDetector( tr->first )->getZPosition();
-//        theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
+        //        zPredLoc = theGeometry->getDetector( tr->first )->getZPosition();
+        //        theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
         xHitLoc = hit["x"];
         yHitLoc = hit["y"];
         zHitLoc = hit["z"];
@@ -248,14 +246,14 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
             chi2 += pow( hit["x"] - pars[0]*hit["z"] - pars[1], 2 )/(hit["xErr"]*hit["xErr"]) +
                     pow( hit["y"] - pars[2]*hit["z"] - pars[3], 2 )/(hit["yErr"]*hit["yErr"])  ;
 
-//            if (iter == nIterations_-1)
-//                continue;
+            //            if (iter == nIterations_-1)
+            //                continue;
 
-//            xPredLoc = pars[0]*hit["z"] + pars[1];
-//            yPredLoc = pars[2]*hit["z"] + pars[3];
+            //            xPredLoc = pars[0]*hit["z"] + pars[1];
+            //            yPredLoc = pars[2]*hit["z"] + pars[3];
             theGeometry->getDetector(tr->first)->getPredictedLocal(pars, xPredLoc, yPredLoc);
-//            zPredLoc = theGeometry->getDetector( tr->first )->getZPosition();
-//            theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
+            //            zPredLoc = theGeometry->getDetector( tr->first )->getZPosition();
+            //            theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
             xHitLoc = hit["x"];
             yHitLoc = hit["y"];
             zHitLoc = hit["z"];
@@ -269,6 +267,7 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
                 resMap[tr->first] = std::make_pair(yHitLoc - yPredLoc, yErrLoc); // ToROOT6
         }
     }
+
 
     if(debug_)
     {
@@ -289,8 +288,13 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
     trackFitter::aFittedTrackDef aFittedTrack;
     aFittedTrack.first.first = pars          ;
     aFittedTrack.first.second= AtVAInv         ;
+//    cout << __PRETTY_FUNCTION__ << "Initial: x int = " << pars[1] << " y int = " << pars[3] << " x slope = " << pars[0] << " y slope = " << pars[2] << endl;
+//    for ( int i=0; i<4; i++ )
+//    {
+//        std::cout << __PRETTY_FUNCTION__ << "Initial covMat line " << i << ": " << AtVAInv[i][0] << " "<< AtVAInv[i][1] << " "<<AtVAInv[i][2] << " "<< AtVAInv[i][3] <<std::endl;
+//    }
     aFittedTrack.second      = chi2/(alignedHits.size()*2 - 4)          ; //pixels
-//    aFittedTrack.second      = chi2/(alignedHits.size() - 2)          ; //strips
+    //    aFittedTrack.second      = chi2/(alignedHits.size() - 2)          ; //strips
 
     return aFittedTrack;
 }
@@ -303,7 +307,7 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
 
     //cout << __PRETTY_FUNCTION__ << "Kalman Track Fit" << endl;
 
-  //Use existing trackPars and covMat
+    //Use existing trackPars and covMat
     TVectorT<double> trackPars(4);
     TMatrixTSym<double> estCov(4);
     for ( int i=0; i<4; i++ )
@@ -317,191 +321,85 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
             estCov[i][j] = cov[i][j];
         }
     }
-    /*estCov[0][0] = 1e-8;
-    estCov[1][1] = 100;
-    estCov[2][2] = 1e-8;
-    estCov[3][3] = 100;*/
 
-    //cout << __PRETTY_FUNCTION__ << "Initial: x int = " << trackPars[1] << " y int = " << trackPars[3] << " x slope = " << trackPars[0] << " y slope = " << trackPars[2] << endl;
-    //cout << __PRETTY_FUNCTION__ << "Initial Chi 2: " << chi2 << endl;
-    for ( int i=0; i<4; i++ )
+//        cout << __PRETTY_FUNCTION__ << "Initial: x int = " << trackPars[1] << " y int = " << trackPars[3] << " x slope = " << trackPars[0] << " y slope = " << trackPars[2] << endl;
+//    //    cout << __PRETTY_FUNCTION__ << "Initial Chi 2: " << chi2 << endl;
+//        for ( int i=0; i<4; i++ )
+//        {
+//            std::cout << __PRETTY_FUNCTION__ << "Initial covMat line " << i << ": " << estCov[i][0] << " "<< estCov[i][1] << " "<<estCov[i][2] << " "<< estCov[i][3] <<std::endl;
+//        }
+
+    //plaqByZ is a private variable which is a vector of planes ordered from z = 0 position, corresponding to DUT
+
+//                for(unsigned int i = 0; i<theKalmanPlaneInfo_.getKalmanFilterOrder().size();i++)
+//                {
+//                    std::cout<<__PRETTY_FUNCTION__<<theKalmanPlaneInfo_.getKalmanFilterOrder().at(i).first<<" "
+//                             <<theKalmanPlaneInfo_.getKalmanFilterOrder().at(i).second<<std::endl;
+//                    //std::cout<<__PRETTY_FUNCTION__<<"posPlane: "<<posPlane_<<" negPlane: "<<negPlane_<<std::endl;
+//                }
+
+//                assert(0);
+
+
+    //Now loop over all plaqs
+    for (unsigned int plane = 0; plane < theKalmanPlaneInfo_.getKalmanFilterOrder().size(); plane++)
     {
-        //std::cout << __PRETTY_FUNCTION__ << "Initial Track par " << i << ": " << fitpar[i] << std::endl;
-        //std::cout << __PRETTY_FUNCTION__ << "Initial covMat line " << i << ": " << estCov[i][0] << " "<< estCov[i][1] << " "<<estCov[i][2] << " "<< estCov[i][3] <<std::endl;
-    }
-    //std::cout << __PRETTY_FUNCTION__ << "Initial covMat " << ": " << estCov[0][0] << " "<< estCov[1][1] << " "<<estCov[2][2] << " "<< estCov[3][3] <<std::endl;
+        std::string plaqID = theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).second;
+        if(plaqID == excludedDetector) excludedDetectorFound_ = true;
 
-  //Change loop so it runs in order of z instead of plaqID
-    std::map<double, std::string> plaqByZ;
-    for (Event::alignedHitsCandidateMapDef::const_iterator itTrackCandidate=trackCandidate.begin(); itTrackCandidate!=trackCandidate.end(); itTrackCandidate++)
-    {
-        std::string plaqID = itTrackCandidate->first;
-        //double x = itTrackCandidate->second.find("x")->second;
-        //double y = itTrackCandidate->second.find("y")->second;
-        double z = itTrackCandidate->second.find("z")->second;
-
-        //Detector* detector = theGeometry->getDetector(plaqID);
-        //detector->fromLocalToGlobal(&x, &y, &z);
-
-        plaqByZ[z] = plaqID;
-    }
-
-    double firstZ = plaqByZ.begin()->first;
-    //cout << __PRETTY_FUNCTION__ << "firstZ: " << firstZ << endl;
-
-  //Now loop over all plaqs
-    //std::map<double, string>::iterator itZ=plaqByZ.begin();
-    //for (std::map<double, std::string>::reverse_iterator itZ=plaqByZ.rbegin(); itZ!=plaqByZ.rend(); itZ++)
-    for (std::map<double, std::string>::iterator itZ=plaqByZ.begin(); itZ!=plaqByZ.end(); itZ++)
-    {
-        std::string plaqID = itZ->second;
-        double zValue = itZ->first;
-        //double zValue = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("z")->second;
-        //double xValue = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;
-        //double yValue = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("y")->second;
-        //cout << __PRETTY_FUNCTION__ << " x: " << xValue << endl;
-        //cout << __PRETTY_FUNCTION__ << " y: " << yValue << endl;
-        //cout << __PRETTY_FUNCTION__ << "plaq: " << plaqID << " z: " << itZ->first << endl;
-
-        if( theGeometry->getDetector( plaqID )->isDUT() ) continue;
-
-      //Use Kalman fit method to improve fit
-
-      //Define variables
-        Detector* detector = theGeometry->getDetector(plaqID);
-        TVectorT<double> sensorOrigin(4);
-        TVectorT<double> upVector(4);
-        TVectorT<double> rightVector(4);
-        TVectorT<double> beamVector(4);
-        TVectorT<double> h(4);
-        TVectorT<double> hx(4);
-        TVectorT<double> hy(4);
         TVectorT<double> k(4);
         TVectorT<double> kx(4);
         TVectorT<double> ky(4);
-        TMatrixTSym<double> trackCov(4);
-        TMatrixTSym<double> trackCovx(4);
-        TMatrixTSym<double> trackCovy(4);
         TMatrixTSym<double> a(4);
         TMatrixTSym<double> ax(4);
         TMatrixTSym<double> ay(4);
-        double multipleScattering = 0;//4.37e-6;
-        double dataType = trackCandidate.find(plaqID)->second.find("dataType")->second;
 
-      //Test residual
-        //double xPred, yPred, zPred;
-        //detector->getPredictedGlobal(track, xPred, yPred, zPred);
-        //detector->fromGlobalToLocal(&xPred, &yPred, &zPred);
-        //double resxTest = trackCandidate.find(plaqID)->second.find("x")->second - xPred;
-        //double resyTest = trackCandidate.find(plaqID)->second.find("y")->second - yPred;
+        TVectorT<double> h            = theKalmanPlaneInfo_.getH(plaqID) ;
+        TVectorT<double> hx           = theKalmanPlaneInfo_.getHx(plaqID);
+        TVectorT<double> hy           = theKalmanPlaneInfo_.getHy(plaqID);
+        TMatrixTSym<double> trackCov  = theKalmanPlaneInfo_.getTrackCov(plaqID);
+        TMatrixTSym<double> trackCovx = theKalmanPlaneInfo_.getTrackCovx(plaqID);
+        TMatrixTSym<double> trackCovy = theKalmanPlaneInfo_.getTrackCovy(plaqID);
+        double offset                 = theKalmanPlaneInfo_.getOffset(plaqID);
+        double offsetx                = theKalmanPlaneInfo_.getOffsetx(plaqID);
+        double offsety                = theKalmanPlaneInfo_.getOffsety(plaqID);
 
-      //Define local coordinates
-        sensorOrigin[0] = 0; sensorOrigin[1] = 0; sensorOrigin[2] = 0;
-        upVector[0]     = 0; upVector[1]     = 1; upVector[2]     = 0;
-        rightVector[0]  = 1; rightVector[1]  = 0; rightVector[2]  = 0;
-        beamVector[0]   = 0; beamVector[1]   = 0; beamVector[2]   = 1;
-
-      //Change to global coordinates
-        detector->fromLocalToGlobal(&sensorOrigin[0], &sensorOrigin[1], &sensorOrigin[2]);
-        detector->fromLocalToGlobal(&upVector[0],     &upVector[1],     &upVector[2]);
-        detector->fromLocalToGlobal(&rightVector[0],  &rightVector[1],  &rightVector[2]);
-        detector->fromLocalToGlobal(&beamVector[0],   &beamVector[1],   &beamVector[2]);
-
-      //Get z value of point in global
-        //detector->fromLocalToGlobal(&xValue, &yValue, &zValue);
-        //cout << __PRETTY_FUNCTION__ << "zValue after global: " << zValue << endl;
-        zValue -= firstZ;
-        //cout << __PRETTY_FUNCTION__ << "zValue after subtraction: " << zValue << endl;
-        //cout << __PRETTY_FUNCTION__ << "plaq: " << plaqID << " z: " << zValue << endl;// << " sensorOrigin: " << sensorOrigin[2] << endl;
-
-      //Normalize vectors
-        upVector[0]    -= sensorOrigin[0]; upVector[1]    -= sensorOrigin[1]; upVector[2]    -= sensorOrigin[2];
-        rightVector[0] -= sensorOrigin[0]; rightVector[1] -= sensorOrigin[1]; rightVector[2] -= sensorOrigin[2];
-        beamVector[0]  -= sensorOrigin[0]; beamVector[1]  -= sensorOrigin[1]; beamVector[2]  -= sensorOrigin[2];
+        //if(abs(theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).first))>
 
 
-      //"Compute"
-        //Uses 'our' element assignment. Inlcludes xy correlation for pixels.
-        if ( dataType==1 ) //strip data
-        {
-            double den = upVector[1]*rightVector[0]-upVector[0]*rightVector[1];
-            double offset = -sensorOrigin[0]*rightVector[0] - sensorOrigin[1]*rightVector[1]+
-                      rightVector[2]*(-sensorOrigin[2]+(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                      sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                      sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))/den);
-            h[1] = rightVector[0]+rightVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
-            h[3] = rightVector[1]+rightVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
-            h[0] =(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                   sensorOrigin[1]*(upVector[0]*rightVector[2]-rightVector[0]*upVector[2])+
-                   sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                  (upVector[1]*(rightVector[0]*rightVector[0]+rightVector[2]*rightVector[2])-
-                   rightVector[1]*(upVector[0]*rightVector[0]+upVector[2]*rightVector[2]))/(den*den);
-            h[2] =(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                   sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                   sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                  (rightVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
-                   upVector[0]*(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
-
-            /*trackCov[0][0] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                        trackCov[1][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                        trackCov[2][2] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                        trackCov[3][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                        trackCov[0][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                        trackCov[1][1] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                        trackCov[2][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-                        trackCov[3][3] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);*/
-
-            trackCov[1][1] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[1][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[3][3] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[3][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[0][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[2][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-
-
-            /*trackCov[1][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[1][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[3][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[3][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[0][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[2][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);*/
-
-            for ( int i=0; i<4; i++ )
+        //"Compute"
+        if ( theGeometry->getDetector(plaqID)->isStrip() ) //strip data
+        {            
+            if(trackCandidate.find(plaqID) != trackCandidate.end())
             {
-                for ( int j=0; j<4; j++ )
+
+                for ( int i=0; i<4; i++ )
                 {
-                    a[i][j] = h[i]*h[j];
+                    for ( int j=0; j<4; j++ )
+                    {
+                        a[i][j] = h[i]*h[j];
+                    }
                 }
+                //Residual of prediction
+                double dist    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;//distance of the hit from origin of the sensor
+                double distErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
+                double res = dist - trackPars*h - offset;
+
+//                std::cout<<__PRETTY_FUNCTION__<<" trackPars: "<<trackPars[0]<<" "<<trackPars[1]<<" "<<trackPars[2]<<" "<<trackPars[3]
+//                                              <<" h: "        <<h[0]<<" "<<h[1]<<" "<<h[2]<< " "<<h[3]
+//                                              <<" offset: "   <<offset<<std::endl;
+
+                //Calculate gain matrix
+                double r = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
+                k = (1/r)*(estCov*h);
+                estCov -= (1/r)*a.Similarity(estCov);// (1/rrr)*c*a*c^t
+                chi2 += (res*res/r)/(trackCandidate.size() - 2);
+                if(!excludedDetectorFound_) trackPars += res*k;
             }
 
-          //Residual of prediction
-            double dist    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;//distance of the hit from origin of the sensor
-            double distErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
-            double res = dist - trackPars*h - offset;
-
-          //Calculate gain matrix
-            double r = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
-            k = (1/r)*(estCov*h);
-            estCov -= (1/r)*a.Similarity(estCov);// (1/rrr)*c*a*c^t
-            //cout << __PRETTY_FUNCTION__ << "Strip chi addition:  " << (res*res/r) << endl;
-            chi2 += (res*res/r)/(trackCandidate.size() - 2);
-            //cout << __PRETTY_FUNCTION__ << "New Strip chi:  " << chi2 << endl;
-
-            //cout << __PRETTY_FUNCTION__ << trackCandidate.size() << endl;
-            //cout << __PRETTY_FUNCTION__ << "Strip:  " << res - resxTest << endl;
-            //cout << __PRETTY_FUNCTION__ << "Strip:  " << res << endl;
-
-            if( plaqID == excludedDetector )//don't update track parameters for the excluded plaq
+            if(((plane%2 != 0)||(plane>(2*std::min(theKalmanPlaneInfo_.getPosPlane(),theKalmanPlaneInfo_.getNegPlane()) -1 )))&&(!excludedDetectorFound_))
             {
-                excludedDetectorFound_ = true;
-            }
-            else
-            {
-                trackPars += res*k;
+                //STDLINE(plaqID,ACRed);
                 for ( int i=0; i<4; i++ )
                 {
                     for ( int j=0; j<4; j++ )
@@ -509,319 +407,65 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                         estCov[i][j] += trackCov[i][j];
                     }
                 }
-
             }
-            //std::cout << __PRETTY_FUNCTION__ << "Strip trackC " << ": " << trackCov[0][0] << " "<< trackCov[1][1] << " "<< trackCov[2][2] << " "<< trackCov[3][3] <<std::endl;
-            //std::cout << __PRETTY_FUNCTION__ << "Strip covMat " << ": " << estCov[0][0] << " "<< estCov[1][1] << " "<<estCov[2][2] << " "<< estCov[3][3] <<std::endl;
+
         }
         else //not strip data (pixels)
         {
-            continue;
-
-            double den = upVector[1]*rightVector[0]-upVector[0]*rightVector[1];
-            double offsetx = -sensorOrigin[0]*rightVector[0] - sensorOrigin[1]*rightVector[1]+
-                      rightVector[2]*(-sensorOrigin[2]+(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                      sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                      sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))/den);
-            double offsety = -sensorOrigin[0]*upVector[0] - sensorOrigin[1]*upVector[1]+
-                      upVector[2]*(-sensorOrigin[2]+(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                      sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                      sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))/den);
-            hx[1]  = rightVector[0]+rightVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
-            hy[1] = upVector[0]+upVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
-            hx[3]  = rightVector[1]+rightVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
-            hy[3] = upVector[1]+upVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
-            hx[0]  = (sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                   sensorOrigin[1]*(upVector[0]*rightVector[2]-rightVector[0]*upVector[2])+
-                   sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                  (upVector[1]*(rightVector[0]*rightVector[0]+rightVector[2]*rightVector[2])-
-                   rightVector[1]*(upVector[0]*rightVector[0]+upVector[2]*rightVector[2]))/(den*den);
-            hy[0] = (-sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])
-                     -sensorOrigin[1]*(upVector[0]*rightVector[2]-rightVector[0]*upVector[2])
-                     -sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                   (rightVector[1]*(upVector[0]*upVector[0]+upVector[2]*upVector[2])-
-                    upVector[1]*(upVector[0]*rightVector[0]+upVector[2]*rightVector[2]))/(den*den);
-            hx[2]  = (sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                   sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                   sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                  (rightVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
-                   upVector[0]*(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
-            hy[2] = (-sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])
-                    -sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])
-                    -sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                   (upVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
-                    rightVector[0]*(upVector[1]*upVector[1]+upVector[2]*upVector[2]))/(den*den);
-
-
-            /*trackCovx[0][0] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[1][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[0][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[1][1] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-
-            trackCovx[2][2] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[3][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[2][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[3][3] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-
-            trackCovy[2][0] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[3][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[2][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[3][1] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-
-            trackCovy[1][3] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[1][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[0][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[0][2] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);*/
-
-            trackCovx[1][1] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[1][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[0][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-
-            trackCovx[3][3] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[3][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[2][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-
-            trackCovy[3][1] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[3][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[2][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[2][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-
-            trackCovy[0][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[1][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[0][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[1][3] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-
-            /*trackCovx[1][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[1][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[0][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-
-            trackCovx[3][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[3][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[2][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-
-            trackCovy[3][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[3][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[2][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[2][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-
-            trackCovy[0][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[1][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[0][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[1][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);*/
-
-            //cout << __PRETTY_FUNCTION__ << trackCovy[1][3] << " " <<trackCovy[1][2] << " " <<trackCovy[2][0] << " " << endl;
-
-            for ( int i=0; i<4; i++ )
+            if(trackCandidate.find(plaqID) != trackCandidate.end())
             {
-                for ( int j=0; j<4; j++ )
-                {
-                    ax[i][j] = hx[i]*hx[j];
-                }
-            }
-            for ( int i=0; i<4; i++ )
-            {
-                for ( int j=0; j<4; j++ )
-                {
-                    ay[i][j] = hy[i]*hy[j];
-                }
-            }
-
-          //Residual of prediction
-            double x    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;
-            double xErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
-            double resx = x - trackPars*hx - offsetx;
-
-            //Calculate gain matrix for x
-            double rx = estCov.Similarity(hx) + xErr*xErr;
-            kx = (1/rx)*(estCov*hx);
-            estCov -= (1/rx)*ax.Similarity(estCov);
-            //cout << __PRETTY_FUNCTION__ << "Pixel chi x addition:  " << (resx*resx/rx) << endl;
-            chi2 += (resx*resx/rx)/(trackCandidate.size()*2 - 4);
-
-            if( plaqID == excludedDetector )//don't update track parameters for the excluded plaq
-            {
-                    excludedDetectorFound_ = true;
-            }
-            else
-            {
-                trackPars += resx*kx;
                 for ( int i=0; i<4; i++ )
                 {
                     for ( int j=0; j<4; j++ )
                     {
-                        estCov[i][j] += trackCovx[i][j];
+                        ax[i][j] = hx[i]*hx[j];
                     }
                 }
-
-            }
-
-            double y    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("y")->second;
-            double yErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("yErr")->second;
-            double resy = y - trackPars*hy - offsety;
-
-            //Calculate gain matrix for y
-            double ry = estCov.Similarity(hy) + yErr*yErr;
-            ky = (1/ry)*(estCov*hy);
-            estCov -= (1/ry)*ay.Similarity(estCov);
-            //cout << __PRETTY_FUNCTION__ << "Pixel chi y addition:  " << (resy*resy/ry) << endl;
-            chi2 += (resy*resy/ry)/(trackCandidate.size()*2 - 4);
-
-            if( plaqID == excludedDetector )//don't update track parameters for the excluded plaq
-            {
-                    excludedDetectorFound_ = true;
-            }
-            else
-            {
-                trackPars += resy*ky;
                 for ( int i=0; i<4; i++ )
                 {
                     for ( int j=0; j<4; j++ )
                     {
-                        estCov[i][j] += trackCovy[i][j];
+                        ay[i][j] = hy[i]*hy[j];
                     }
                 }
 
+
+                double x    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;
+                double xErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
+                double resx = x - trackPars*hx - offsetx;
+
+                double rx = estCov.Similarity(hx) + xErr*xErr;
+                kx = (1/rx)*(estCov*hx);
+
+                double y    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("y")->second;
+                double yErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("yErr")->second;
+                double resy = y - trackPars*hy - offsety;
+
+
+                double ry = estCov.Similarity(hy) + yErr*yErr;
+                ky = (1/ry)*(estCov*hy);
+
+                estCov -= ((1/rx)*ax.Similarity(estCov)+(1/ry)*ay.Similarity(estCov));
+                chi2   += ((resx*resx/rx)/(trackCandidate.size()*2 - 4)+(resy*resy/ry)/(trackCandidate.size()*2 - 4));
+                if(!excludedDetectorFound_) trackPars += (resx*kx+resy*ky);
             }
 
-            //std::cout << __PRETTY_FUNCTION__ << "Pixel trackC " << ": " << trackCovx[0][0] << " "<< trackCovx[1][1] << " "<< trackCovx[2][2] << " "<< trackCovx[3][3] <<std::endl;
-            //std::cout << __PRETTY_FUNCTION__ << "Pixel covMat " << ": " << estCov[0][0] << " "<< estCov[1][1] << " "<<estCov[2][2] << " "<< estCov[3][3] <<std::endl;
-            //cout << __PRETTY_FUNCTION__ << "New Pixel chi2:  " << chi2 << endl;
-            //cout << __PRETTY_FUNCTION__ << "Pixel:  " << resx - resxTest << " | " << resy - resyTest << endl;
-            //cout << __PRETTY_FUNCTION__ << "Pixel:  " << resx << " | " << resy << endl;
-        }
 
-/*       //Uses 'our' element assignment. Inlcludes xy correlation for pixels.
-        if ( dataType==1 )
-        {
-            double den = upVector[1]*rightVector[0]-upVector[0]*rightVector[1];
-            offset = -sensorOrigin[0]*rightVector[0] - sensorOrigin[1]*rightVector[1]+
-                      rightVector[2]*(-sensorOrigin[2]+(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                      sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                      sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))/den);
-            h[1] = rightVector[0]+rightVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
-            h[3] = rightVector[1]+rightVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
-            h[0] =(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                   sensorOrigin[1]*(upVector[0]*rightVector[2]-rightVector[0]*upVector[2])+
-                   sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                  (upVector[1]*(rightVector[0]*rightVector[0]+rightVector[2]*rightVector[2])-
-                   rightVector[1]*(upVector[0]*rightVector[0]+upVector[2]*rightVector[2]))/(den*den);
-            h[2] =(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                   sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                   sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                  (rightVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
-                   upVector[0]*(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
-            trackCov[1][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[1][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[3][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[3][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[0][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[2][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-        }
-        else
-        {
-            double den = upVector[1]*rightVector[0]-upVector[0]*rightVector[1];
-            offset = -sensorOrigin[0]*rightVector[0] - sensorOrigin[1]*rightVector[1]+
-                      rightVector[2]*(-sensorOrigin[2]+(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                      sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                      sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))/den);
-            h[1] = rightVector[0]+rightVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
-            h[3] = rightVector[1]+rightVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
-            h[0] =(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                   sensorOrigin[1]*(upVector[0]*rightVector[2]-rightVector[0]*upVector[2])+
-                   sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                  (upVector[1]*(rightVector[0]*rightVector[0]+rightVector[2]*rightVector[2])-
-                   rightVector[1]*(upVector[0]*rightVector[0]+upVector[2]*rightVector[2]))/(den*den);
-            h[2] =(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                   sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                   sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                  (rightVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
-                   upVector[0]*(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
-            trackCov[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[1][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[0][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[1][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-
-            trackCov[0][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[1][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[0][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[1][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-
-            trackCov[2][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[2][1] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[3][0] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[3][1] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-
-            trackCov[3][3] = sensorOrigin[2]*sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[3][2] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[2][3] = -sensorOrigin[2]*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-        }
-*/
-/*        for ( int i=0; i<4; i++ )
-        {
-            for ( int j=0; j<4; j++ )
+            if(((plane%2 != 0)||(plane>(2*std::min(theKalmanPlaneInfo_.getPosPlane(),theKalmanPlaneInfo_.getNegPlane()) -1 )))&&(!excludedDetectorFound_))
             {
-                a[i][j] = h[i]*h[j];
-            }
-        }
-
-      //Residual of prediction
-        double dist    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;//distance of the hit from origin of the sensor
-        double distErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;//distance of the hit from origin of the sensor
-
-        //double distErr = trackCandidate.find(plaqID)->second.find("xErr")->second;
-        double res = dist - trackPars*h - offset;*/
-
-        //cout << __PRETTY_FUNCTION__
-        //     << "dist: " << dist
-        //     << " product: " << trackPars*h
-        //     << " offset: " << offset
-        //     << " predicted: " << xPred
-        //     << " delta: " << xPred - trackPars*h
-        //     << " residual: " << res << endl;
-
-        //cout << __PRETTY_FUNCTION__ << "Theirs: " << res << " Ours: " << resTest << endl;
-
-/*      //Calculate gain matrix
-        double r = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
-        TVectorT<double> k(4);
-        k = (1/r)*(estCov*h);
-        estCov = estCov - (1/r)*a.Similarity(estCov);// (1/rrr)*c*a*c^t
-        chi2 += res*res/r;
-
-      //Update track parameters
-        for ( int i=0; i<4; i++ )
-        {
-            for ( int j=0; j<4; j++ )
-            {
-                cov[i][j] = estCov[i][j]+trackCov[i][j];
-            }
-        }
-        if( plaqID == excludedDetector )//don't update track parameters for the excluded plaq
-        {
-            excludedDetectorFound_ = true;
-        }
-        else
-        {
-            trackPars += res*k;
-            for ( int i=0; i<4; i++ )
-            {
-                for ( int j=0; j<4; j++ )
+                //STDLINE(plaqID,ACRed);
+                for ( int i=0; i<4; i++ )
                 {
-                    cov[i][j] = estCov[i][j]+trackCov[i][j];
+                    for ( int j=0; j<4; j++ )
+                    {
+                        estCov[i][j] += (trackCovx[i][j]+ trackCovy[i][j]);
+                    }
                 }
             }
 
-        }*/
+        }
     }
-
-  //Switch trackPars back to our array type
+    //Switch trackPars back to our array type
     for ( int i=0; i<4; i++ )
     {
         //std::cout << __PRETTY_FUNCTION__ << "Track par " << i << ": " << trackPars[i] << std::endl;
@@ -844,6 +488,7 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
     //aFittedTrack.second             = chi2/(alignedHits.size() - 2)   ; //strips
 
     return aKalmanFittedTrack;
+
 }
 
 //===============================================================================
@@ -912,13 +557,13 @@ void trackFitter::makeDetectorTrackResiduals ( ROOT::Math::SVector<double,4>   &
     double ym    = cluster["y"];
     double xmErr = cluster["xErr"];
     double ymErr = cluster["yErr"];
-//    double zm    = 0;
-//    double zmErr = 0;
-//    det->fromLocalToGlobal(&xm,&ym,&zm,&xmErr,&ymErr,&zmErr);
+    //    double zm    = 0;
+    //    double zmErr = 0;
+    //    det->fromLocalToGlobal(&xm,&ym,&zm,&xmErr,&ymErr,&zmErr);
 
     double xp     = 0;
     double yp     = 0;
-//    double zp     = 0;
+    //    double zp     = 0;
     double xpErr  = 0;
     double ypErr  = 0;
     //double zpErr  = 0;
@@ -930,10 +575,11 @@ void trackFitter::makeDetectorTrackResiduals ( ROOT::Math::SVector<double,4>   &
     det->flipPositionLocal(&xp, &yp, &xpErr, &ypErr);
 
     //for global resiudals, not to be done
-//    det->getPredictedGlobal(fittedTrack, xp, yp, zp);
+    //    det->getPredictedGlobal(fittedTrack, xp, yp, zp);
 
-    double resX  = ( xm - xp );
-    double resY  = ( ym - yp );
+        double resX  = ( xm - xp );
+        double resY  = ( ym - yp );
+
 
     //cout << __PRETTY_FUNCTION__ << "resX: " << resX << " resY: " << resY << endl;
 
@@ -970,11 +616,11 @@ void trackFitter::makeDetectorTrackResiduals ( ROOT::Math::SVector<double,4>   &
     double zmErr = 0;
     det->test(&xm,&ym,&zm,&xmErr,&ymErr,&zmErr);
 */
-//    xp = 0;
-//    yp = 0;
-//    double zp = 0;
+    //    xp = 0;
+    //    yp = 0;
+    //    double zp = 0;
     //std::cout << "[makeDetectorTrackResiduals()]" << "Number of clusters: " << clusters.size() << std::endl;
-//    det->getPredictedGlobal(fittedTrack, xp, yp, zp);
+    //    det->getPredictedGlobal(fittedTrack, xp, yp, zp);
 
 }
 
@@ -1004,7 +650,7 @@ void trackFitter::makeFittedTracksResiduals(Event *theEvent, Geometry *theGeomet
             {
                 if( selectedDetectors_.find(det->first) ==  selectedDetectors_.end() )
                 {
-                        continue;
+                    continue;
                 }
             }
 
@@ -1122,7 +768,7 @@ ROOT::Math::SVector<double,4> trackFitter::calculateParCorrections (ROOT::Math::
         int fail;
         Detector::matrix33Def RM = geo->getDetector(it->first)->getRotationMatrix().Inverse(fail);
         double z = geo->getDetector(it->first)->getZPosition();
-/*        std::cout << "Matrix for plane " << it->first << std::endl;
+        /*        std::cout << "Matrix for plane " << it->first << std::endl;
         for (int r = 0; r < 3; ++r)
         {
             for (int c = 0; c < 3; ++c)
@@ -1134,27 +780,27 @@ ROOT::Math::SVector<double,4> trackFitter::calculateParCorrections (ROOT::Math::
         if (geo->getDetectorModule(it->first)%2 == 0)
         {
             N = (pars(0)*z + pars(1))*(RM(1,1) - pars(2)*RM(2,1)) -
-                (pars(2)*z + pars(3))*(RM(0,1) - pars(0)*RM(2,1));
+                    (pars(2)*z + pars(3))*(RM(0,1) - pars(0)*RM(2,1));
             D = (RM(0,0) - pars(0)*RM(2,0))*(RM(1,1) - pars(2)*RM(2,1)) -
-                (RM(1,0) - pars(2)*RM(2,0))*(RM(0,1) - pars(0)*RM(2,1));
+                    (RM(1,0) - pars(2)*RM(2,0))*(RM(0,1) - pars(0)*RM(2,1));
             dmq(0) = ((z*(RM(1,1) - pars(2)*RM(2,1)) + RM(2,1)*(pars(2)*z + pars(3)))*D -
-                 (-RM(2,0)*(RM(1,1) - pars(2)*RM(2,1)) + RM(2,1)*(RM(1,0) - pars(2)*RM(2,0)))*N)/(D*D);
+                      (-RM(2,0)*(RM(1,1) - pars(2)*RM(2,1)) + RM(2,1)*(RM(1,0) - pars(2)*RM(2,0)))*N)/(D*D);
             dmq(1) = (RM(1,1) - pars(2)*RM(2,1))/(D);
             dmq(2) = ((-z*(RM(0,1) - pars(0)*RM(2,1)) -RM(2,1)*(pars(0)*z + pars(1)))*D -
-                 (RM(2,0)*(RM(0,1) - pars(0)*RM(2,1)) - RM(2,1)*(RM(0,0) - pars(0)*RM(2,0)))*N)/(D*D);
+                      (RM(2,0)*(RM(0,1) - pars(0)*RM(2,1)) - RM(2,1)*(RM(0,0) - pars(0)*RM(2,0)))*N)/(D*D);
             dmq(3) = -(RM(0,1) - pars(0)*RM(2,1))/(D);
         }
         else
         {
             N = (pars(2)*z + pars(3))*(RM(0,0) - pars(0)*RM(2,0)) -
-                (pars(0)*z + pars(1))*(RM(1,0) - pars(2)*RM(2,0));
+                    (pars(0)*z + pars(1))*(RM(1,0) - pars(2)*RM(2,0));
             D = (RM(1,1) - pars(2)*RM(2,1))*(RM(0,0) - pars(0)*RM(2,0)) -
-                (RM(0,1) - pars(0)*RM(2,1))*(RM(1,0) - pars(2)*RM(2,0));
+                    (RM(0,1) - pars(0)*RM(2,1))*(RM(1,0) - pars(2)*RM(2,0));
             dmq(2) = ((z*(RM(0,0) - pars(0)*RM(2,0)) + RM(2,0)*(pars(0)*z + pars(1)))*D -
-                 (-RM(2,1)*(RM(0,0) - pars(0)*RM(2,0)) + RM(2,0)*(RM(0,1) - pars(0)*RM(2,1)))*N)/(D*D);
+                      (-RM(2,1)*(RM(0,0) - pars(0)*RM(2,0)) + RM(2,0)*(RM(0,1) - pars(0)*RM(2,1)))*N)/(D*D);
             dmq(3) = (RM(0,0) - pars(0)*RM(2,0))/(D);
             dmq(0) = ((-z*(RM(1,0) - pars(2)*RM(2,0)) -RM(2,0)*(pars(2)*z + pars(3)))*D -
-                 (RM(2,1)*(RM(1,0) - pars(2)*RM(2,0)) - RM(2,0)*(RM(1,1) - pars(2)*RM(2,1)))*N)/(D*D);
+                      (RM(2,1)*(RM(1,0) - pars(2)*RM(2,0)) - RM(2,0)*(RM(1,1) - pars(2)*RM(2,1)))*N)/(D*D);
             dmq(1) = -(RM(1,0) - pars(2)*RM(2,0))/(D);
         }
 
@@ -1178,4 +824,3 @@ ROOT::Math::SVector<double,4> trackFitter::calculateParCorrections (ROOT::Math::
     corr = AtVAInv*AtVmq;
     return corr;
 }
-//=======================================================================================

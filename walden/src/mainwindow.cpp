@@ -243,16 +243,20 @@ void MainWindow::drawAll (void)
     if(histoMap_.size()>(unsigned int)maxPadNumber)
     {
         createStatusBar();
-        if(maxPadNumber>12) c_->DivideSquare(maxPadNumber,0,0);
-        else c_->DivideSquare(maxPadNumber);
+//        if(maxPadNumber>12) c_->DivideSquare(maxPadNumber,0,0);
+//        else c_->DivideSquare(maxPadNumber);
+        if(maxPadNumber>12) c_->Divide(maxPadNumber/2,maxPadNumber/2,0,0);
+        else c_->Divide(maxPadNumber/2,maxPadNumber/2);
         c_->Modified();
         c_->Update();
     }
 
     else
     {
-        if(maxPadNumber>12) c_->DivideSquare(histoMap_.size(),0,0);
-        else c_->DivideSquare(histoMap_.size());
+//        if(maxPadNumber>12) c_->DivideSquare(histoMap_.size(),0,0);
+//        else c_->DivideSquare(histoMap_.size());
+        if(maxPadNumber>12) c_->Divide(histoMap_.size()/2,histoMap_.size()/2,0,0);
+        else c_->Divide(histoMap_.size()/2,histoMap_.size()/2);
         c_->Modified();
         c_->Update();
 
@@ -272,7 +276,8 @@ void MainWindow::drawAll (void)
             return ;
         }
         c_->cd(histoNumber);
-        h1->Draw("COLZ");
+        if(string(h1->ClassName()) == "TH2F") h1->Draw("COLZ");
+        else h1->Draw();
         histoNumber++;
         file.clear();
     }

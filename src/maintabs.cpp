@@ -428,9 +428,11 @@ void mainTabs::openRootFile(QString fileName)
 
     theHManager_->setRunSubDir( theFileEater_->openFile(fileName.toStdString()) );
     theGeometry_ = theFileEater_->getGeometry();
+    theGeometry_->orderPlanes();
+    theGeometry_->calculatePlaneMCS();
+    theTrackFitter_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
+    theAligner_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
     showGeometry();
-
-
 
     ui->loadedRootFileLE         ->setText(fileName);
     ui->geoFileLE                ->setText(fileName.replace(".root",".geo")) ;
@@ -1043,7 +1045,7 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
                 this->drawAll(fineAlignmentResidualsSize2CanvasLeft_ , histoTypeV[2] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
                 this->drawAll(fineAlignmentResidualsSize2CanvasRight_, histoTypeV[5] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
-                this->drawAll(fineAlignmentPullsCanvasLeft_	     , histoTypeV[6] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
+                this->drawAll(fineAlignmentPullsCanvasLeft_	         , histoTypeV[6] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
                 this->drawAll(fineAlignmentPullsCanvasRight_	     , histoTypeV[9] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
 
                 this->drawAll(fineAlignmentPullsSize1CanvasLeft_     , histoTypeV[7] , geo->first, "", 0, 0, xPlots, yPlots, tPad);
@@ -1416,6 +1418,10 @@ bool mainTabs::loadGeometry(QString type)
 
     theFileEater_->openFile(fileName.toStdString());
     theGeometry_ = theFileEater_->getGeometry();
+    theGeometry_->orderPlanes();
+    theGeometry_->calculatePlaneMCS();
+    theTrackFitter_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
+    theAligner_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
     showGeometry();
     theGeometry_->dump();
 
@@ -1539,7 +1545,7 @@ bool mainTabs::loadGeometry(QString type)
         STDLINE("type == geo",ACRed);
         if(ui->loadedRootFileLE->text().contains(".root"))
             theFileEater_->makeGeometryTreeFile(ui->loadedRootFileLE->text().toStdString());
-    }
+    }   
     return true ;
 }
 
@@ -3361,22 +3367,37 @@ void mainTabs::on_geometrySetPB_clicked()
     {
         if(!it->second->isEnabled()) continue;
         Detector* det = theGeometry_->getDetector( it->first );
+//        det->dump();
+//       if(double(det->getXRotation()-it->second->getDetectorParBase(0)) != 0)std::cout << __PRETTY_FUNCTION__ << "X: " << det->getXRotation() << "=" << it->second->getDetectorParBase(0) << " delta=" << double(det->getXRotation()-it->second->getDetectorParBase(0)) << std::endl;
         det->setXRotation          (it->second->getDetectorParBase      (0));
         det->setXRotationCorrection(it->second->getDetectorParCorrection(0));
+//        if(double(det->getYRotation()-it->second->getDetectorParBase(1)) != 0)std::cout << __PRETTY_FUNCTION__ << "Y: " << det->getYRotation() << "=" << it->second->getDetectorParBase(1) << " delta=" << double(det->getYRotation()-it->second->getDetectorParBase(1)) << std::endl;
         det->setYRotation          (it->second->getDetectorParBase      (1));
         det->setYRotationCorrection(it->second->getDetectorParCorrection(1));
+//        if(double(det->getZRotation()-it->second->getDetectorParBase(2)) != 0)std::cout << __PRETTY_FUNCTION__ << "Z: " << det->getZRotation() << "=" << it->second->getDetectorParBase(2) << " delta=" << double(det->getZRotation()-it->second->getDetectorParBase(2)) << std::endl;
         det->setZRotation          (it->second->getDetectorParBase      (2));
         det->setZRotationCorrection(it->second->getDetectorParCorrection(2));
+//        if(double(det->getXPosition()-it->second->getDetectorParBase(3)) != 0)std::cout << __PRETTY_FUNCTION__ << "X: " << det->getXPosition() << "=" << it->second->getDetectorParBase(3) << " delta=" << double(det->getXPosition()-it->second->getDetectorParBase(3)) << std::endl;
         det->setXPosition          (it->second->getDetectorParBase      (3));
         det->setXPositionCorrection(it->second->getDetectorParCorrection(3));
+//        if(double(det->getYPosition()-it->second->getDetectorParBase(4)) != 0)std::cout << __PRETTY_FUNCTION__ << "Y: " << det->getYPosition() << "=" << it->second->getDetectorParBase(4) << " delta=" << double(det->getYPosition()-it->second->getDetectorParBase(4)) << std::endl;
         det->setYPosition          (it->second->getDetectorParBase      (4));
         det->setYPositionCorrection(it->second->getDetectorParCorrection(4));
+//        if(double(det->getZPosition()-it->second->getDetectorParBase(5)) != 0)std::cout << __PRETTY_FUNCTION__ << "Z: " << det->getZPosition() << "=" << it->second->getDetectorParBase(5) << " delta=" << double(det->getZPosition()-it->second->getDetectorParBase(5)) << std::endl;
         det->setZPosition          (it->second->getDetectorParBase      (5));
         det->setZPositionCorrection(it->second->getDetectorParCorrection(5));
+
+
+//        std::cout << __PRETTY_FUNCTION__ << "AFTER THE CORRECTIONS!" << std::endl;
         det->dump();
     }
 
     theFileEater_->updateGeometry("geometry");
+//    theGeometry_->orderPlanes();
+//    theGeometry_->calculatePlaneMCS();
+//    theTrackFitter_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
+//    theAligner_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
+
 }
 //===================================================================================
 void mainTabs::on_fineAlignmentPB_clicked()
@@ -4375,7 +4396,9 @@ void mainTabs::fixStrips(int state)
         std::string plaqID = ui->detectorsTableView->indexAt(QPoint(0,row * ui->detectorsTableView->rowHeight(row))).data().toString().toUtf8().constData();
         //std::cout << __PRETTY_FUNCTION__ << plaqID << std::endl;
         Detector * theDetector = theGeometry_->getDetector(plaqID);
+        //std::cout << __PRETTY_FUNCTION__ << theDetector << std::endl;
         //std::cout << __PRETTY_FUNCTION__ << theDetector->isStrip() << std::endl;
+        //std::cout << __PRETTY_FUNCTION__ << "Never here!" << std::endl;
         if(theDetector->isStrip())
         {
                 if (theGeometry_->getDetectorModule(plaqID)%2 == 0) ui->detectorsTableView->fixXStrip(state, row);

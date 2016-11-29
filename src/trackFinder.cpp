@@ -1,11 +1,11 @@
 /*===============================================================================
  * Monicelli: the FERMILAB MTEST geometry builder and track reconstruction tool
- * 
- * Copyright (C) 2014 
+ *
+ * Copyright (C) 2014
  *
  * Authors:
  *
- * Dario Menasce      (INFN) 
+ * Dario Menasce      (INFN)
  * Luigi Moroni       (INFN)
  * Jennifer Ngadiuba  (INFN)
  * Stefano Terzo      (INFN)
@@ -27,15 +27,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ================================================================================*/
- 
+
 #include "trackFinder.h"
 #include <iostream>
 #include <TVectorT.h>
 #include <TMatrixTSym.h>
 using namespace std;
 
-#define MINIMUM_TRACK_POINTS 3
+#define MINIMUM_TRACK_POINTS 4
 #define CHI2DOF_CUT 1e8
+#define PLANE_NUMBER 8
 
 //ClassImp(trackFinder)
 
@@ -50,6 +51,7 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
     Event::clustersMapDef                            &alignedClusters       = theEvent->getAlignedClusters()       ;
     Event::trackCandidatesDef                        &alignedHitsCandidates = theEvent->getAlignedHitsCandidates() ;
     //std::vector<Event::alignedHitsCandidateMapDef> &alignedHitsCandidates = theEvent->getAlignedHitsCandidates() ;
+
 
     //cout << __PRETTY_FUNCTION__ << "First and Last track search" << endl;
     //cout << __PRETTY_FUNCTION__ << "Event number: " << theEvent->getTrigger() << endl;
@@ -67,101 +69,83 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
     if( minPoints_ < MINIMUM_TRACK_POINTS )
         minPoints_ = MINIMUM_TRACK_POINTS;
 
-    minPoints_ = 8;//Hardcoded to be removed!!!!!!!!!!!!!!!!!!!!!
-//    maxPlanePoints_ = 1;
-//    for(Event::clustersMapDef::const_iterator clustersIt=clusters.begin(); clustersIt!=clusters.end(); clustersIt++)
-//    {
-//        if(maxPlanePoints_ > 0 && clustersIt->second.size() > maxPlanePoints_)
-//            return;
-//        for (Event::aClusterMapDef::const_iterator clusterIt=clustersIt->second.begin(); clusterIt!=clustersIt->second.end(); clusterIt++)
-//        {
-//            if(clusterIt->second.find("size")->second != 2)
-//                return;
-//        }
-//    }
-    //Since all tracking is done in global coordinate first create alignedClusters from local clusters
-    //Event::clustersMapDef alignedClusters;
+    //dzuolo
+    //When using strip telescope it is better to uncomment this lines in order to modify the parameters from the GUI
+
+    //minPoints_ = PLANE_NUMBER;
+    //Using different values does not improve the quality of the tracks and hardcoding the parameter book-keeping is easier
 
     for(Event::clustersMapDef::const_iterator clustersIt=clusters.begin(); clustersIt!=clusters.end(); clustersIt++)
     {
-        if ( theGeometry->getDetector(clustersIt->first)->isDUT() ) continue;
-        //cout << __PRETTY_FUNCTION__ << dIt->second.size() << endl;
-        for (Event::aClusterMapDef::const_iterator clusterIt=clustersIt->second.begin(); clusterIt!=clustersIt->second.end(); clusterIt++)
-        {
-            Event::aClusterDef& alignedCluster = (alignedClusters[ clustersIt->first ])[clusterIt->first];
-            //cluster is a copy of the real clusters so I just change them to global coordinates
-            alignedCluster["x"]          = clusterIt->second.find("x")->second     ;
-            alignedCluster["y"]          = clusterIt->second.find("y")->second     ;
-            alignedCluster["z"]          = 0;
-            alignedCluster["xErr"]       = clusterIt->second.find("xErr")->second  ;
-            alignedCluster["yErr"]       = clusterIt->second.find("yErr")->second  ;
-            alignedCluster["zErr"]       = 0;
-            alignedCluster["size"]       = clusterIt->second.find("size")->second  ;
-            alignedCluster["charge"]     = clusterIt->second.find("charge")->second;
-            alignedCluster["dataType"]   = clusterIt->second.find("dataType")->second;
-            alignedCluster["cluster ID"] = clusterIt->first;
-
-            //std::cout << __PRETTY_FUNCTION__ << "data type: " << alignedCluster["dataType"] << endl;
-            //std::cout << __PRETTY_FUNCTION__ << "clusters size: " << alignedCluster.size() << endl;
-
-            //std::stringstream ssk;
-            //ssk << dIt->first << ": hit in (" << alignedCluster["x"] << ", " << alignedCluster["y"] << ")";
-            //STDLINE("In local coordinates before equalization: " + ssk.str(), ACGreen);
-
-            alignedCluster["xyErr"]  = theGeometry->getDetector( clustersIt->first )->fromLocalToGlobal( &alignedCluster["x"], &alignedCluster["y"], &alignedCluster["z"], &alignedCluster["xErr"], &alignedCluster["yErr"], &alignedCluster["zErr"] ) ;
-            //cout << __PRETTY_FUNCTION__
-            //     << "Plane: " << clustersIt->first
-            //     << " cluster id: " << clusterIt->first
-            //     << " id again: " << alignedCluster["cluster ID"]
-            //     << " xyErr: " << alignedCluster["xyErr"]
-            //     << endl;
-
-            //cout << __PRETTY_FUNCTION__ << "plaq: " << clustersIt->first << " z: " << alignedCluster["z"] << endl;
-        }
+        if(maxPlanePoints_ > 0 && clustersIt->second.size() > maxPlanePoints_) return;
+        //        for (Event::aClusterMapDef::const_iterator clusterIt=clustersIt->second.begin(); clusterIt!=clustersIt->second.end(); clusterIt++)
+        //        {
+        //            if(clusterIt->second.find("size")->second != 2) return;
+        //        }
     }
 
-    //cout << __PRETTY_FUNCTION__ << "Number of clusters: " << alignedClusters.size() << endl;
-    //std::cout << __PRETTY_FUNCTION__ << "Aligned clusters size1: " << alignedClusters.size()  << "<" << minPoints_ << endl;
-    for (Event::clustersMapDef::iterator alignedClustersIt=alignedClusters.begin(); alignedClustersIt!=alignedClusters.end(); alignedClustersIt++)
-    {
-        int station = theGeometry->getDetectorStation(alignedClustersIt->first);
-        int module  = theGeometry->getDetectorModule(alignedClustersIt->first);
+    //Since all tracking is done in global coordinate first create alignedClusters from local clusters
 
-        //if(station == 5 || station == 6 || station == 7)
-        //{
-        for (Event::aClusterMapDef::iterator clusterIt=alignedClustersIt->second.begin(); clusterIt!=alignedClustersIt->second.end(); clusterIt++)
+    const unsigned int clusterCorrectionIterations = 4;
+    for(unsigned int i = 0; i<clusterCorrectionIterations; i++)
+    {
+
+        for(Event::clustersMapDef::const_iterator clustersIt=clusters.begin(); clustersIt!=clusters.end(); clustersIt++)
         {
-            int dataType = clusterIt->second["dataType"];
-            //std::cout << __PRETTY_FUNCTION__ << "Data type: " << dataType << endl;
-            //cout << __PRETTY_FUNCTION__ << "Station: " << station << " Module: " << module << endl;
-            if (dataType==1) //Strip data
+            if ( theGeometry->getDetector(clustersIt->first)->isDUT() ) continue;
+            for (Event::aClusterMapDef::const_iterator clusterIt=clustersIt->second.begin(); clusterIt!=clustersIt->second.end(); clusterIt++)
             {
-                if (module%2 == 0) //first plaquette of the pair
+                Event::aClusterDef& alignedCluster = (alignedClusters[ clustersIt->first ])[clusterIt->first];
+                //cluster is a copy of the real clusters so I just change them to global coordinates
+                alignedCluster["x"]          = clusterIt->second.find("x")->second     ;
+                alignedCluster["y"]          = clusterIt->second.find("y")->second     ;
+                alignedCluster["z"]          = 0;
+                alignedCluster["xErr"]       = clusterIt->second.find("xErr")->second  ;
+                alignedCluster["yErr"]       = clusterIt->second.find("yErr")->second  ;
+                alignedCluster["zErr"]       = 0;
+                alignedCluster["size"]       = clusterIt->second.find("size")->second  ;
+                alignedCluster["charge"]     = clusterIt->second.find("charge")->second;
+                alignedCluster["dataType"]   = clusterIt->second.find("dataType")->second;
+                alignedCluster["cluster ID"] = clusterIt->first;
+                alignedCluster["xyErr"]      = theGeometry->getDetector( clustersIt->first )->fromLocalToGlobal( &alignedCluster["x"], &alignedCluster["y"], &alignedCluster["z"], &alignedCluster["xErr"], &alignedCluster["yErr"], &alignedCluster["zErr"] ) ;
+
+            }
+        }
+
+        for (Event::clustersMapDef::iterator alignedClustersIt=alignedClusters.begin(); alignedClustersIt!=alignedClusters.end(); alignedClustersIt++)
+        {
+            int station = theGeometry->getDetectorStation(alignedClustersIt->first);
+            int module  = theGeometry->getDetectorModule(alignedClustersIt->first);
+
+            for (Event::aClusterMapDef::iterator clusterIt=alignedClustersIt->second.begin(); clusterIt!=alignedClustersIt->second.end(); clusterIt++)
+            {
+                int dataType = clusterIt->second["dataType"];
+                if (dataType==1) //Strip data
                 {
-                    //cout << __PRETTY_FUNCTION__ << "# of clusters (1): " << alignedClustersIt->second.size()  << endl;
-                    //cout << __PRETTY_FUNCTION__ << "# of clusters (2): " << alignedClusters[getPlaneID(station, module)].size()  << endl;
-                    if (alignedClusters[getPlaneID(station, module+1)].size() != 0 )
+                    if (module%2 == 0) //first plaquette of the pair
                     {
-                        for (Event::aClusterMapDef::iterator nextClusterIt=alignedClusters[getPlaneID(station, module+1)].begin(); nextClusterIt!=alignedClusters[getPlaneID(station, module+1)].end(); nextClusterIt++)
+                        if (alignedClusters[getPlaneID(station, module+1)].size() != 0 )
+                        {
+                            for (Event::aClusterMapDef::iterator nextClusterIt=alignedClusters[getPlaneID(station, module+1)].begin(); nextClusterIt!=alignedClusters[getPlaneID(station, module+1)].end(); nextClusterIt++)
+                            {
+                                //cout << "  " << endl;
+                                //cout << "First" << endl;
+                                //cout << (alignedClusters[getPlaneID(station, module+1)][cluster->first]["y"]!=(alignedClusters[getPlaneID(station, module+1)][cluster->first]["y"])) << endl;
+                                //cout << "     Current: " <<  (alignedClusters[getPlaneID(station, module)].find(cluster->first)!=alignedClusters[getPlaneID(station, module)].end()) << endl;
+                                //cout << "     Stolen:  " <<  (alignedClusters[getPlaneID(station, module+1)].find(cluster->first)!=alignedClusters[getPlaneID(station, module+1)].end()) << endl;
+                                //cout << "     x-value: " << alignedClusters[getPlaneID(station, module)][clusterIt->first]["x"] << endl;
+                                //cout << "     y-value: " << alignedClusters[getPlaneID(station, module)][clusterIt->first]["y"] << endl;
+                                //cout << "New  y-value: " << alignedClusters[getPlaneID(station, module+1)][clusterIt->first]["y"] << endl;
+                                clusterIt->second["y"]     = nextClusterIt->second["y"];
+                                clusterIt->second["yErr"]  = nextClusterIt->second["yErr"];
+                                clusterIt->second["xyErr"] = 0;
+
+                                //cout << "Stole y-value from partner module. y = " << alignedClusters[getPlaneID(station, module+1)][cluster->first]["y"] << " and yErr = " << alignedClusters[getPlaneID(station, module+1)][cluster->first]["yErr"] << endl;
+                            }
+                        }
+                        else //Otherwise, delete the whole point (both strips)
                         {
                             /*cout << "  " << endl;
-                        cout << "First" << endl;
-                        //cout << (alignedClusters[getPlaneID(station, module+1)][cluster->first]["y"]!=(alignedClusters[getPlaneID(station, module+1)][cluster->first]["y"])) << endl;
-                        //cout << "     Current: " <<  (alignedClusters[getPlaneID(station, module)].find(cluster->first)!=alignedClusters[getPlaneID(station, module)].end()) << endl;
-                        //cout << "     Stolen:  " <<  (alignedClusters[getPlaneID(station, module+1)].find(cluster->first)!=alignedClusters[getPlaneID(station, module+1)].end()) << endl;
-                        cout << "     x-value: " << alignedClusters[getPlaneID(station, module)][cluster->first]["x"] << endl;
-                        cout << "     y-value: " << alignedClusters[getPlaneID(station, module)][cluster->first]["y"] << endl;
-                        cout << "New  y-value: " << alignedClusters[getPlaneID(station, module+1)][cluster->first]["y"] << endl;*/
-                            clusterIt->second["y"]     = nextClusterIt->second["y"];
-                            clusterIt->second["yErr"]  = nextClusterIt->second["yErr"];
-                            clusterIt->second["xyErr"] = 0;
-
-                            //cout << "Stole y-value from partner module. y = " << alignedClusters[getPlaneID(station, module+1)][cluster->first]["y"] << " and yErr = " << alignedClusters[getPlaneID(station, module+1)][cluster->first]["yErr"] << endl;
-                        }
-                    }
-                    else //Otherwise, delete the whole point (both strips)
-                    {
-                        /*cout << "  " << endl;
                        cout << "First" << endl;
                        cout << "Bad set - erased data" << endl;
                        //cout << (alignedClusters[getPlaneID(station, module+1)][cluster->first]["y"]!=(alignedClusters[getPlaneID(station, module+1)][cluster->first]["y"])) << endl;
@@ -180,47 +164,36 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
                        cout << "New  x-value: " << alignedClusters[getPlaneID(station, module)][cluster->first]["x"] << endl;
                        cout << "     y-value: " << alignedClusters[getPlaneID(station, module+1)][cluster->first]["y"] << endl;*/
 
-                        alignedClusters[getPlaneID(station, module)].clear();
-                        break;
-
-                        /*
-                        if ( alignedClusters[getPlaneID(station, module+1)].size()==0 || alignedClusters[getPlaneID(station, module)].size()==0 )
-                        {
-                            std::cout << __PRETTY_FUNCTION__ << "Dectector clusters size: " << alignedClusters[getPlaneID(station, module)].size() << endl;
-                            std::cout << __PRETTY_FUNCTION__ << "Dectector +1 clusters size: " << alignedClusters[getPlaneID(station, module+1)].size() << endl;
-                            alignedClusters.erase(getPlaneID(station, module+1));
-                            alignedClusters.erase(getPlaneID(station, module));
-                        }*/
-                    }
-                }
-
-                else //second plaquette of the pair
-                {
-                    //ensures data exists by using the find function (statment returns false if the data doesn't exist)                             ensures data exists by testing for NaN (returns false if stolen data is NaN)                                                               make sure there are the same number of points on each plaq
-                    //if (alignedClusters[getPlaneID(station, module-1)].find(cluster->first) != alignedClusters[getPlaneID(station, module-1)].end() && !(alignedClusters[getPlaneID(station, module-1)][cluster->first]["x"]!=alignedClusters[getPlaneID(station, module-1)][cluster->first]["x"]) && alignedClusters[getPlaneID(station, module)].size()==alignedClusters[getPlaneID(station, module-1)].size())
-                    if (alignedClusters[getPlaneID(station, module-1)].size() != 0 )
-                    {
-                        for (Event::aClusterMapDef::iterator nextClusterIt=alignedClusters[getPlaneID(station, module-1)].begin(); nextClusterIt!=alignedClusters[getPlaneID(station, module-1)].end(); nextClusterIt++)
-                        {
-                            /*cout << "  " << endl;
-                        cout << "Second" << endl;
-                        //cout << (alignedClusters[getPlaneID(station, module-1)][cluster->first]["x"]!=(alignedClusters[getPlaneID(station, module-1)][cluster->first]["x"])) << endl;
-                        //cout << "     Current: " <<  (alignedClusters[getPlaneID(station, module)].find(cluster->first)!=alignedClusters[getPlaneID(station, module)].end()) << endl;
-                        //cout << "     Stolen:  " <<  (alignedClusters[getPlaneID(station, module-1)].find(cluster->first)!=alignedClusters[getPlaneID(station, module-1)].end()) << endl;
-                        cout << "     x-value: " << alignedClusters[getPlaneID(station, module)][cluster->first]["x"] << endl;
-                        cout << "New  x-value: " << alignedClusters[getPlaneID(station, module-1)][cluster->first]["x"] << endl;
-                        cout << "     y-value: " << alignedClusters[getPlaneID(station, module)][cluster->first]["y"] << endl;*/
-
-                            clusterIt->second["x"]     = nextClusterIt->second["x"];
-                            clusterIt->second["xErr"]  = nextClusterIt->second["xErr"];
-                            clusterIt->second["xyErr"] = 0;
-
-                            //cout << "Stole x-value from partner module. x = " << alignedClusters[getPlaneID(station, module-1)][cluster->first]["x"] << " and xErr = " << alignedClusters[getPlaneID(station, module-1)][cluster->first]["xErr"] << endl;
+                            alignedClusters[getPlaneID(station, module)].clear();
+                            break;
                         }
                     }
-                    else //Otherwise, delete the whole point (both strips)
+
+                    else //second plaquette of the pair
                     {
-                        /*cout << "  " << endl;
+                        if (alignedClusters[getPlaneID(station, module-1)].size() != 0 )
+                        {
+                            for (Event::aClusterMapDef::iterator nextClusterIt=alignedClusters[getPlaneID(station, module-1)].begin(); nextClusterIt!=alignedClusters[getPlaneID(station, module-1)].end(); nextClusterIt++)
+                            {
+                                //cout << "  " << endl;
+                                //cout << "Second" << endl;
+                                //cout << (alignedClusters[getPlaneID(station, module-1)][cluster->first]["x"]!=(alignedClusters[getPlaneID(station, module-1)][cluster->first]["x"])) << endl;
+                                //cout << "     Current: " <<  (alignedClusters[getPlaneID(station, module)].find(cluster->first)!=alignedClusters[getPlaneID(station, module)].end()) << endl;
+                                //cout << "     Stolen:  " <<  (alignedClusters[getPlaneID(station, module-1)].find(cluster->first)!=alignedClusters[getPlaneID(station, module-1)].end()) << endl;
+                                //cout << "     x-value: " << alignedClusters[getPlaneID(station, module)][clusterIt->first]["x"] << endl;
+                                //cout << "New  x-value: " << alignedClusters[getPlaneID(station, module-1)][clusterIt->first]["x"] << endl;
+                                //cout << "     y-value: " << alignedClusters[getPlaneID(station, module)][clusterIt->first]["y"] << endl;
+
+                                clusterIt->second["x"]     = nextClusterIt->second["x"];
+                                clusterIt->second["xErr"]  = nextClusterIt->second["xErr"];
+                                clusterIt->second["xyErr"] = 0;
+
+                                //cout << "Stole x-value from partner module. x = " << alignedClusters[getPlaneID(station, module-1)][cluster->first]["x"] << " and xErr = " << alignedClusters[getPlaneID(station, module-1)][cluster->first]["xErr"] << endl;
+                            }
+                        }
+                        else //Otherwise, delete the whole point (both strips)
+                        {
+                            /*cout << "  " << endl;
                         cout << "Second" << endl;
                         cout << "Bad set - erased data" << endl;
                         //cout << (alignedClusters[getPlaneID(station, module-1)][cluster->first]["x"]!=(alignedClusters[getPlaneID(station, module-1)][cluster->first]["x"])) << endl;
@@ -239,78 +212,68 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
                         cout << "     y-value: " << alignedClusters[getPlaneID(station, module-1)][cluster->first]["y"] << endl;
                         cout << "New  y-value: " << alignedClusters[getPlaneID(station, module)][cluster->first]["y"] << endl;*/
 
-                        alignedClusters[getPlaneID(station, module)].clear();
-                        break;
-                        /*
-                        //alignedClusters[getPlaneID(station, module)].erase(cluster->first);
-                        //alignedClusters[getPlaneID(station, module-1)].erase(cluster->first);
-                        // std::cout << __PRETTY_FUNCTION__ << "Dectector cluster size: " << alignedClusters[getPlaneID(station, module-1)].size() << endl;
-                        //if ( alignedClusters[getPlaneID(station, module)].size()==0 || alignedClusters[getPlaneID(station, module-1)].size()==0 )
-                        //{
-                        //std::cout << __PRETTY_FUNCTION__ << "Dectector clusters size: " << alignedClusters[getPlaneID(station, module)].size() << endl;
-                        //std::cout << __PRETTY_FUNCTION__ << "Dectector -1 clusters size: " << alignedClusters[getPlaneID(station, module-1)].size() << endl;
-                        //alignedClusters.erase(getPlaneID(station, module));
-                        //alignedClusters.erase(getPlaneID(station, module-1));
-                        //}*/
+                            alignedClusters[getPlaneID(station, module)].clear();
+                            break;
+                        }
                     }
                 }
             }
         }
-        //}
-        //            if (clustersMap_[getPlaneID(station, module)].size() > 1) clustersMap_[getPlaneID(station, module)].erase(clustersMap_[getPlaneID(station, module)].begin(), clustersMap_[getPlaneID(station, module)].end());
-    }
-    for (Event::clustersMapDef::iterator alignedClustersIt=alignedClusters.begin(); alignedClustersIt!=alignedClusters.end(); alignedClustersIt++)
-    {
-        if(alignedClustersIt->second.size() == 0)
-            alignedClusters.erase(alignedClustersIt--);
-    }
 
-    //std::cout << __PRETTY_FUNCTION__ << "Aligned clusters size2: " << alignedClusters.size()  << "<" << minPoints_ << endl;
-    //STDLINE("New track", ACYellow);
-    double xLoc, yLoc, zLoc;
-    for (Event::clustersMapDef::iterator alignedClustersIt=alignedClusters.begin(); alignedClustersIt!=alignedClusters.end(); alignedClustersIt++)
-    {
-        int station = theGeometry->getDetectorStation(alignedClustersIt->first);
-        int module  = theGeometry->getDetectorModule(alignedClustersIt->first);
-
-        //if(station == 5 || station == 6 || station == 7)
-        //{
-        for (Event::aClusterMapDef::iterator clusterIt=alignedClustersIt->second.begin(); clusterIt!=alignedClustersIt->second.end(); clusterIt++)
+        for (Event::clustersMapDef::iterator alignedClustersIt=alignedClusters.begin(); alignedClustersIt!=alignedClusters.end(); alignedClustersIt++)
         {
-            int dataType = clusterIt->second["dataType"];
-            //std::cout << __PRETTY_FUNCTION__ << "Data type: " << dataType << endl;
-            if (dataType==1) //strip data
+            if(alignedClustersIt->second.size() == 0)
+                alignedClusters.erase(alignedClustersIt--);
+        }
+
+        double xLoc, yLoc, zLoc;
+        //int print = 0;
+        for (Event::clustersMapDef::iterator alignedClustersIt=alignedClusters.begin(); alignedClustersIt!=alignedClusters.end(); alignedClustersIt++)
+        {
+            int station = theGeometry->getDetectorStation(alignedClustersIt->first);
+            int module  = theGeometry->getDetectorModule(alignedClustersIt->first);
+
+            for (Event::aClusterMapDef::iterator clusterIt=alignedClustersIt->second.begin(); clusterIt!=alignedClustersIt->second.end(); clusterIt++)
             {
-                //                std::stringstream ssl;
-                //                ssl << "Station: " << station << " module: " << module << " hit: " << clusterLocal->first <<  " in (" << clusters[getPlaneID(station, module)][clusterLocal->first]["x"] << ", " << clusters[getPlaneID(station, module)][clusterLocal->first]["y"] << ")";
-                //                STDLINE("Before returning to local: " + ssl.str(), ACRed);
-                xLoc = clusterIt->second["x"];
-                yLoc = clusterIt->second["y"];
-                zLoc = clusterIt->second["z"];
-                theGeometry->getDetector(station, module)->fromGlobalToLocal(&xLoc, &yLoc, &zLoc);
-                clusters[getPlaneID(station, module)][clusterIt->first]["x"] = xLoc;
-                clusters[getPlaneID(station, module)][clusterIt->first]["y"] = yLoc;
-                /*
-                if (module%2 == 0)
+                int dataType = clusterIt->second["dataType"];
+                if (dataType==1) //strip data
                 {
-                    clusters[getPlaneID(station, module)][clusterLocal->first]["y"] = yLoc;
+                    //                std::stringstream ssl;
+                    //                ssl << "Station: " << station << " module: " << module << " hit: " << clusterLocal->first <<  " in (" << clusters[getPlaneID(station, module)][clusterLocal->first]["x"] << ", " << clusters[getPlaneID(station, module)][clusterLocal->first]["y"] << ")";
+                    //                STDLINE("Before returning to local: " + ssl.str(), ACRed);
+                    xLoc = clusterIt->second["x"];
+                    yLoc = clusterIt->second["y"];
+                    zLoc = clusterIt->second["z"];
+                    theGeometry->getDetector(station, module)->fromGlobalToLocal(&xLoc, &yLoc, &zLoc);
+                    //                    if(module % 2 == 0)
+                    //                    {
+                    //                        //cout<<__PRETTY_FUNCTION__<<" y Before:"<<clusters[getPlaneID(station, module)][clusterIt->first]["y"]<<" y After: "<<yLoc<<endl;
+                    //                        clusters[getPlaneID(station, module)][clusterIt->first]["y"] = yLoc;
+                    //                    }
+                    //                    else
+                    //                    {
+                    //                        //cout<<__PRETTY_FUNCTION__<<" y Before:"<<clusters[getPlaneID(station, module)][clusterIt->first]["y"]<<" y After: "<<xLoc<<endl;
+                    //                        clusters[getPlaneID(station, module)][clusterIt->first]["y"] = xLoc;
+                    //                    }
+
+                    //cout<<__PRETTY_FUNCTION__<< "--------------------------------------------------" << std::endl;
+                    //cout<<__PRETTY_FUNCTION__<< i << std::endl;
+                    //cout<<__PRETTY_FUNCTION__<< " x Before:" << clusters[getPlaneID(station, module)][clusterIt->first]["x"] << " x After: " << xLoc << endl;
+                    //cout<<__PRETTY_FUNCTION__<< " y Before:" << clusters[getPlaneID(station, module)][clusterIt->first]["y"] << " y After: " << yLoc << endl;
+                    clusters[getPlaneID(station, module)][clusterIt->first]["y"] = yLoc;
+//                    clusters[getPlaneID(station, module)][clusterIt->first]["x"] = xLoc;
+                    //cout<<__PRETTY_FUNCTION__<< "--------------------------------------------------" << std::endl;
+
+                    //                    ssl.str("");
+                    //                    ssl << "Station: " << station << " module: " << module << " hit: " << clusterLocal->first <<  " in (" << clusters[getPlaneID(station, module)][clusterLocal->first]["x"] << ", " << clusters[getPlaneID(station, module)][clusterLocal->first]["y"] << ")";
+                    //                    STDLINE("After  returning to local: " + ssl.str(), ACGreen);
                 }
-                else
-                {
-                    clusters[getPlaneID(station, module)][clusterLocal->first]["x"] = xLoc;
-                }
-*/
-                //                ssl.str("");
-                //                ssl << "Station: " << station << " module: " << module << " hit: " << clusterLocal->first <<  " in (" << clusters[getPlaneID(station, module)][clusterLocal->first]["x"] << ", " << clusters[getPlaneID(station, module)][clusterLocal->first]["y"] << ")";
-                //                STDLINE("After  returning to local: " + ssl.str(), ACGreen);
             }
         }
-        //}
     }
 
-    //std::cout << __LINE__ << "] **************" << __PRETTY_FUNCTION__ << " Aligned clusters size3: " << alignedClusters.size()  << "<" << minPoints_ << endl;
+
     if ( alignedClusters.size() < minPoints_ ) return;
-    ////std::cout << __PRETTY_FUNCTION__ << "Aligned clusters size4: " << alignedClusters.size()  << "<" << minPoints_ << endl;
 
     Event::alignedHitsCandidateMapDef  alignedHitsCandidate ;
     //find first and last detector in space
@@ -326,11 +289,6 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
         //cout << __PRETTY_FUNCTION__ << "Hits: " << clusters[(*det).first].size() << endl;
     }
     if (firstDetector == lastDetector) return ;
-
-    //ss_.str("");
-    //ss_ << "clustersMap size " << alignedClusters.size();
-    //ss_ << " aClusterMap size " << clusters[firstDetector].size();
-    //STDLINE(ss_.str(),ACCyan);
 
     Event::aClusterMapDef& aClusterMapFirst = alignedClusters[firstDetector];
     Event::aClusterMapDef& aClusterMapLast  = alignedClusters[lastDetector];
@@ -385,7 +343,7 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
                 //cout << __PRETTY_FUNCTION__ << "break condition: " << theGeometry->getDetectorsNumber(true) - hitsLost << endl;
                 if ( (theGeometry->getDetectorsNumber(true) - hitsLost ) < minPoints_ )
                 {
-//                    STDLINE("Not enought points to make a track",ACRed)
+                    //                    STDLINE("Not enought points to make a track",ACRed)
                     break;
                 }
             }
@@ -465,8 +423,11 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
         }
 
     }
+
     //cleanUpTracks(alignedHitsCandidates, alignedClusters, theEvent, theGeometry);
     //return trackCandidates_;
+    //}
+
 }
 
 //================================================================
@@ -614,7 +575,6 @@ void trackFinder::fitKalmanTrackCandidates(Event* theEvent, Geometry* theGeometr
     for (; trackCandidate!=trackCandidates.end(); trackCandidate++, track++, cov++, itChi2++)
     {
         trackFitter::aFittedTrackDef aKalmanFittedTrack = theTrackFitter_->kalmanFitSingleTrack(*trackCandidate, *track, *cov, clusters, theGeometry);
-
         if ( aKalmanFittedTrack.second < chi2cut_ || (chi2cut_ < 0 && aKalmanFittedTrack.second < CHI2DOF_CUT) )
         {
             (*track)  = aKalmanFittedTrack.first.first ;
@@ -759,6 +719,24 @@ void trackFinder::cleanUpTracks(std::vector<Event::alignedHitsCandidateMapDef>& 
     std::vector<Event::alignedHitsCandidateMapDef> alignedHitsCandidatesCopy = alignedHitsCandidates;
     Event::clustersMapDef alignedClustersCopy = alignedClusters;
 
+    //    for(Event::clustersMapDef::iterator it = alignedClusters.begin();
+    //                                        it!= alignedClusters.end();
+    //                                      ++it                          )
+    //    {
+    //        for(Event::aClusterMapDef::iterator jt  = (it->second).begin();
+    //                                            jt != (it->second).end()  ;
+    //                                          ++jt                      )
+    //        {
+    //            cout<< "plaqID: " <<it->first
+    //            <<  "clusterNumber: "<<jt->first
+    //            << " x: "            <<(jt->second)["x"]
+    //            << " y: "            <<(jt->second)["y"]
+    //            << " z: "            <<(jt->second)["z"]
+    //            << " xErr: "         <<(jt->second)["xErr"]
+    //            << " yErr: "         <<(jt->second)["yErr"]
+    //            <<  "zErr: "         <<(jt->second)["zErr"]<<endl;
+    //        }
+    //    }
     //cout << "Initial Size: " << alignedHitsCandidates.size() << " Copy Size: " << alignedHitsCandidatesCopy.size() << endl;
 
     //cout << "cleanTracks begin" << endl;
@@ -1013,13 +991,13 @@ void trackFinder::findAndFitTracks(Event* theEvent, Geometry* theGeometry )
     {
         //if(findDUT_) findAllFirstAndLast            (theEvent, theGeometry);
         //else
-            findFirstAndLastTrackCandidates(theEvent, theGeometry);
+        findFirstAndLastTrackCandidates(theEvent, theGeometry);
     }
     else if(findMethod_ == "RoadSearch")
     {
         //if(findDUT_) findAllRoadSearch            (theEvent, theGeometry);
         //else
-            findRoadSearchTrackCandidates(theEvent, theGeometry);
+        findRoadSearchTrackCandidates(theEvent, theGeometry);
     }
     else if(findMethod_ != "")
     {

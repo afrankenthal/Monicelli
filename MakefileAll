@@ -142,9 +142,6 @@ clean:
 	cd plugins/customTableWidget  && make clean && cd ../ 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTextEdit =======================================<<$(ACPlain)'
 	cd plugins/customTextEdit && make clean && cd ../ 
-	rm -f tmp/*
-	rm -f *.pcm
-	rm -f Monicelli
 
 ###############################################################
 distclean:
@@ -153,23 +150,22 @@ distclean:
 	make distclean && qmake
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customCheckBox  =======================================<<$(ACPlain)'
-	cd plugins/customCheckBox    && qmake && make distclean && qmake
+	cd plugins/customCheckBox  && make distclean && qmake
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customComboBox =======================================<<$(ACPlain)'
-	cd plugins/customComboBox    && qmake && make distclean && qmake
+	cd plugins/customComboBox && make distclean && qmake
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customLineEdit =======================================<<$(ACPlain)'
-	cd plugins/customLineEdit    && qmake && make distclean && qmake
+	cd plugins/customLineEdit && make distclean && qmake
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customSpinBox  =======================================<<$(ACPlain)'
-	cd plugins/customSpinBox     && qmake && make distclean && qmake
+	cd plugins/customSpinBox  && make distclean && qmake
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTableView  =======================================<<$(ACPlain)'
-	cd plugins/customTableView   && qmake && make distclean && qmake
+	cd plugins/customTableView  && make distclean && qmake
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTableWidget  =======================================<<$(ACPlain)'
-	cd plugins/customTableWidget && qmake && make distclean && qmake
+	cd plugins/customTableWidget  && make distclean && qmake
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTextEdit =======================================<<$(ACPlain)'
-	cd plugins/customTextEdit    && qmake && make distclean && qmake
-	rm -f tmp/*
+	cd plugins/customTextEdit && make distclean && qmake

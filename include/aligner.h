@@ -140,13 +140,15 @@ class aligner : public multiProcess<aligner,bool>
     void                     setAlignmentFitMethodName   (std::string alignmentFitMethod              ){alignmentFitMethod_=alignmentFitMethod ;}
     //std::string              getAlignmentFitMethodName   (void                                        ){return fitMethodName_                  ;}
     void                     setNumberOfIterations       (int                   iterations            ){nIterations_ = iterations              ;}
+    void                     setKalmanPlaneInfo          (KalmanPlaneInfo      kalmanInfo             ){theKalmanPlaneInfo_ = kalmanInfo    ;}
 
-  private :
+private :
      fileEater                                  * theFileEater_    ;
      HManager                                   * theHManager_     ;
      alignmentResultsDef                          alignmentResults_;
      HManager::stringVDef                         outputPlots_     ;
      std::map< std::string, unsigned int >        parMap_          ;
+     KalmanPlaneInfo                              theKalmanPlaneInfo_;
 
      int          maxtrial_          ;
      int          strategy_          ;
@@ -159,6 +161,7 @@ class aligner : public multiProcess<aligner,bool>
      std::string  DUT_               ;
      std::string  alignmentFitMethod_;
      int          nIterations_       ;
+
 
      std::stringstream ss_ ;
 } ;

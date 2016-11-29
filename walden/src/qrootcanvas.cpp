@@ -120,7 +120,7 @@ void QRootCanvas::mousePressEvent( QMouseEvent *e )
             break;
          case Qt::RightButton :
             // does not work properly on Linux...
-            // ...adding setAttribute(Qt::WA_PaintOnScreen, true) 
+            // ...adding setAttribute(Qt::WA_PaintOnScreen, true)
             // seems to cure the problem
             fCanvas->HandleInput(kButton3Down, e->x(), e->y());
             break;
@@ -147,7 +147,7 @@ void QRootCanvas::mouseReleaseEvent( QMouseEvent *e )
             break;
          case Qt::RightButton :
             // does not work properly on Linux...
-            // ...adding setAttribute(Qt::WA_PaintOnScreen, true) 
+            // ...adding setAttribute(Qt::WA_PaintOnScreen, true)
             // seems to cure the problem
             fCanvas->HandleInput(kButton3Up, e->x(), e->y());
             break;

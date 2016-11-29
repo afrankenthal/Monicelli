@@ -39,6 +39,7 @@
 #include <TObject.h>
 
 #include "Detector.h"
+#include "KalmanPlaneInfo.h"
 
 #define CONVF 1000
 
@@ -52,9 +53,9 @@ class Geometry : public TObject
   typedef std::map< std::string , Detector* >   detectorsMapDef;
   typedef std::map< int , int >                 dataTypeMapDef ;
 
-  typedef std::map< std::string , Detector* >::iterator   iterator;
-  iterator                                                begin() {return detectorsMap_.begin() ;}
-  iterator                                                end()   {return detectorsMap_.end()   ;}
+  typedef detectorsMapDef::iterator   iterator;
+  const iterator                                               begin() {return detectorsMap_.begin() ;}
+  const iterator                                               end()   {return detectorsMap_.end()   ;}
 
   Detector                  * addDetector           (std::string  plaqID,
                                                      bool         isDUT   = false,
@@ -68,10 +69,10 @@ class Geometry : public TObject
                                                      int          plaq              );
   int                         getDetectorStation    (std::string  plaqID            );
   int                         getDetectorModule     (std::string  plaqID            );
-
+  const KalmanPlaneInfo &     getKalmanPlaneInfo    (void                           ) {return theKalmanPlaneInfo_     ;}
 
   std::vector<Detector*>      getDUTs               (void                           );
-  detectorsMapDef             getDetectors          (void                           ) {return detectorsMap_        ;}
+  const detectorsMapDef&      getDetectors          (void                           ) {return detectorsMap_        ;}
   std::string                 getDetectorID         (int          Station, int Plaq );
   unsigned int                getDetectorsNumber    (bool         excludeDUT = false);
   std::string                 getGeometryFileName   (void                           ) {return geometryFileName_    ;}
@@ -87,21 +88,24 @@ class Geometry : public TObject
                                                      int dataType                   ) {dataTypeMap_[station] = dataType;}
 
   void                        dump                  (void                           );
+  void                        orderPlanes           (void                           );
+  void                        calculatePlaneMCS     (void                           );
 
  private:
 
   bool compare_zPosition (std::string first, std::string second);
 
-  detectorsMapDef   detectorsMap_     ;
-  dataTypeMapDef    dataTypeMap_      ;
-  std::vector<int>  runNumbers_       ;
-  unsigned int      dutNumbers_       ;
-  std::string       geometryFileName_ ;
-  bool              calibrationDone_  ;
+  detectorsMapDef   detectorsMap_      ;
+  dataTypeMapDef    dataTypeMap_       ;
+  std::vector<int>  runNumbers_        ;
+  unsigned int      dutNumbers_        ;
+  std::string       geometryFileName_  ;
+  bool              calibrationDone_   ;
+  KalmanPlaneInfo   theKalmanPlaneInfo_;//! temporary state value
 
-  std::stringstream ss_               ;//! temporary state value
+  std::stringstream ss_                ;//! temporary state value
 
-  ClassDef(Geometry,1)
+  ClassDef(Geometry,2)
 
 } ;
 

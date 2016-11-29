@@ -36,25 +36,44 @@ INCLUDEPATH	      += ./inc                \
                          uiFiles              \
                          $(ROOTINC)
 
-LIBS                  += -L$(ROOTLIB)         \
-                         -lCore               \
-                         -lRIO                \
-                         -lNet		      \
-                         -lHist 	      \
-                         -lGraf 	      \
-                         -lGraf3d	      \
-                         -lGpad 	      \
-                         -lTree 	      \
-                         -lRint 	      \
-                         -lPostscript	      \
-                         -lMatrix	      \
-                         -lPhysics	      \
-                         -lMathCore	      \
-                         -lThread	      \
-                         -pthread	      \
-                         -lm		      \
-                         -ldl		      \
-                         -rdynamic
+LIBS                  += -L$(ROOTLIB)        \
+#                         -lCore               \
+#                         -lRIO                \
+#                         -lNet		      \
+#                         -lHist 	      \
+#                         -lGraf 	      \
+#                         -lGraf3d	      \
+#                         -lGpad 	      \
+#                         -lTree 	      \
+#                         -lRint 	      \
+#                         -lPostscript	      \
+#                         -lMatrix	      \
+#                         -lPhysics	      \
+#                         -lMathCore	      \
+#                         -lThread	      \
+#                         -pthread	      \
+#                         -lm		      \
+#                         -ldl		      \
+#                         -rdynamic
+                            -lCore \
+                            -lCint \
+                            -lRIO \
+                            -lNet \
+                            -lHist \
+                            -lGraf \
+                            -lGraf3d \
+                            -lGpad \
+                            -lTree \
+                            -lRint \
+                            -lPostscript \
+                            -lMatrix \
+                            -lPhysics\
+                            -lMathCore \
+                            -lThread \
+                            -pthread \
+                            -lm \
+                            -ldl \
+                            -rdynamic
 
 FORMS                 += uiFiles/mainwindow.ui
 

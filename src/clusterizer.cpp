@@ -42,6 +42,7 @@
 // @@@ Hard coded parameters @@@ 
 #define TESTDIVIDE false     // Use this flag in case of normal incidence on DUT and in case there are problems in aligning the DUT
 #define ONLYdoubleHITS false // Use this flag in order to align on cluster size 2 only
+#define CLUSTER_CORRECTION_ITERATIONS 1
 // ============================
 
 
@@ -364,81 +365,165 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                 dataType = pixels[p].dataType;
             }
 
-            double chargeSharing  = 0.4;        // 20um charge sharing at 90 deg
-            double tilted25ChargeSharing = 7.5; // 20um charge sharing at 90 deg
-            double xChargeSharing = 4*tan(fabs(detector->getYRotation(false))*pi/180) + chargeSharing ;//5*tan(fabs(detector->getYRotation(false))*pi/180)//7*sin(fabs(detector->getYRotation(false))*pi/180); //at 25 deg it gives ~+-20+30um charge sharing region which is all pixel
-            double yChargeSharing = 4*tan(fabs(detector->getXRotation(false))*pi/180) + chargeSharing; //5*tan(fabs(detector->getXRotation(false))*pi/180)//7*sin(fabs(detector->getXRotation(false))*pi/180);
-
-            // ####################
-            // # Cluster size = 1 #
-            // ####################
-            if (pixels.size() == 1)
+            double chargeSharing, tiltedChargeSharing,xChargeSharing,yChargeSharing;
+            if(dataType==0) //Pixel Data
             {
-                x = pixels[0].x;
-                y = pixels[0].y;
 
-                if (fabs(detector->getYRotation(false)) > 10) xErr = tilted25ChargeSharing / sqrt(12.);
-                else                                          xErr = (pixels[0].xPitch - 2*chargeSharing) / sqrt(12.);
+                chargeSharing       = 0.4; // 20um charge sharing at 90 deg for pixel ---> dal paper sarebbe solo il pitch
+                tiltedChargeSharing = 7.5; // 20um charge sharing at 25 deg for pixel ---> dal paper sarebbe 5.34
+                xChargeSharing = 4*tan(fabs(detector->getYRotation(false))*pi/180) + chargeSharing ;//5*tan(fabs(detector->getYRotation(false))*pi/180)//7*sin(fabs(detector->getYRotation(false))*pi/180); //at 25 deg it gives ~+-20+30um charge sharing region which is all pixel
+                yChargeSharing = 4*tan(fabs(detector->getXRotation(false))*pi/180) + chargeSharing; //5*tan(fabs(detector->getXRotation(false))*pi/180)//7*sin(fabs(detector->getXRotation(false))*pi/180);
 
-                if (fabs(detector->getXRotation(false)) > 10) yErr = tilted25ChargeSharing / sqrt(12.);
-                else                                          yErr = (pixels[0].yPitch - 2*chargeSharing) / sqrt(12.);
-            }
-            // ####################
-            // # Cluster size = 2 #
-            // ####################
-            else if (pixels.size() == 2)
-            {
-                double center;
-
-                // ###################
-                // # Cluster along y #
-                // ###################
-                if (pixels[0].x == pixels[1].x)
+                // ####################
+                // # Cluster size = 1 #
+                // ####################
+                if (pixels.size() == 1)
                 {
-                    // ##############################################
-                    // # Assign to DUT the coordinate of the divide #
-                    // ##############################################
-                    if (TESTDIVIDE == true &&
-                            (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2"))
+                    x = pixels[0].x;
+                    y = pixels[0].y;
+
+                    if (fabs(detector->getYRotation(false)) > 10) xErr = tiltedChargeSharing / sqrt(12.);
+                    else                                          xErr = (pixels[0].xPitch - 2*chargeSharing) / sqrt(12.);
+
+                    if (fabs(detector->getXRotation(false)) > 10) yErr = tiltedChargeSharing / sqrt(12.);
+                    else                                          yErr = (pixels[0].yPitch - 2*chargeSharing) / sqrt(12.);
+                }
+                // ####################
+                // # Cluster size = 2 #
+                // ####################
+                else if (pixels.size() == 2)
+                {
+                    double center;
+
+                    // ###################
+                    // # Cluster along y #
+                    // ###################
+                    if (pixels[0].x == pixels[1].x)
                     {
-                        x = pixels[0].x;
-                        // xErr = pixels[0].xPitch / 2. / sqrt(12.);
-
-                        // ################
-                        // # Fixed errors #
-                        // ################
-                        xErr = 0.3;
-                        yErr = 0.3;
-
-                        if (pixels[0].yPitch == pixels[1].yPitch)
+                        // ##############################################
+                        // # Assign to DUT the coordinate of the divide #
+                        // ##############################################
+                        if (TESTDIVIDE == true &&
+                                (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2"))
                         {
-                            y = (pixels[0].y + pixels[1].y) / 2.;
-                            // yErr = pixels[0].yPitch / 2. / sqrt(12.);
-                        }
-                        else if (pixels[0].yPitch > pixels[1].yPitch)
-                        {
-                            if (pixels[0].y > pixels[1].y) y = pixels[1].y + pixels[1].yPitch / 2.;
-                            else                           y = pixels[1].y - pixels[1].yPitch / 2.;
-                            // yErr = pixels[1].yPitch / 2. / sqrt(12.);
+                            x = pixels[0].x;
+                            // xErr = pixels[0].xPitch / 2. / sqrt(12.);
+
+                            // ################
+                            // # Fixed errors #
+                            // ################
+                            xErr = 0.3;
+                            yErr = 0.3;
+
+                            if (pixels[0].yPitch == pixels[1].yPitch)
+                            {
+                                y = (pixels[0].y + pixels[1].y) / 2.;
+                                // yErr = pixels[0].yPitch / 2. / sqrt(12.);
+                            }
+                            else if (pixels[0].yPitch > pixels[1].yPitch)
+                            {
+                                if (pixels[0].y > pixels[1].y) y = pixels[1].y + pixels[1].yPitch / 2.;
+                                else                           y = pixels[1].y - pixels[1].yPitch / 2.;
+                                // yErr = pixels[1].yPitch / 2. / sqrt(12.);
+                            }
+                            else
+                            {
+                                if (pixels[0].y > pixels[1].y) y = pixels[0].y - pixels[0].yPitch / 2.;
+                                else                           y = pixels[0].y + pixels[0].yPitch / 2.;
+                                // yErr = pixels[0].yPitch / 2. / sqrt(12.);
+                            }
                         }
                         else
                         {
-                            if (pixels[0].y > pixels[1].y) y = pixels[0].y - pixels[0].yPitch / 2.;
-                            else                           y = pixels[0].y + pixels[0].yPitch / 2.;
-                            // yErr = pixels[0].yPitch / 2. / sqrt(12.);
+                            x = pixels[0].x;
+
+                            if (fabs(detector->getYRotation(false)) > 10) xErr = tiltedChargeSharing / sqrt(12.);
+                            else                                          xErr = (pixels[0].xPitch - 2*chargeSharing) / sqrt(12.);
+
+                            if (pixels[0].y < pixels[1].y)
+                            {
+                                center = (pixels[0].y + pixels[0].yPitch/2.);
+                                y = (pixels[0].charge*(center - (yChargeSharing+chargeSharing)) + pixels[1].charge*(center + (yChargeSharing+chargeSharing))) / charge;
+                            }
+                            else
+                            {
+                                center = (pixels[1].y + pixels[1].yPitch/2.);
+                                y = (pixels[1].charge*(center - (yChargeSharing+chargeSharing)) + pixels[0].charge*(center + (yChargeSharing+chargeSharing)))/charge;
+                            }
+
+                            if (fabs(detector->getXRotation(false)) > 10) yErr = 1.35;
+                            else                                          yErr = 0.65;
                         }
                     }
+                    // ###################
+                    // # Cluster along x #
+                    // ###################
+                    else if (pixels[0].y == pixels[1].y)
+                    {
+                        // ##############################################
+                        // # Assign to DUT the coordinate of the divide #
+                        // ##############################################
+                        if (TESTDIVIDE == true &&
+                                (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2"))
+                        {
+                            y = pixels[0].y;
+                            // yErr = pixels[0].yPitch / 2. / sqrt(12.);
+
+                            // ################
+                            // # Fixed errors #
+                            // ################
+                            xErr = 0.3;
+                            yErr = 0.3;
+
+                            if (pixels[0].xPitch == pixels[1].xPitch)
+                            {
+                                x = (pixels[0].x + pixels[1].x) / 2.;
+                                // xErr = pixels[0].xPitch / 2. / sqrt(12.);
+                            }
+                            else if (pixels[0].xPitch > pixels[1].xPitch)
+                            {
+                                if (pixels[0].x > pixels[1].x) x = pixels[1].x + pixels[1].xPitch / 2.;
+                                else                           x = pixels[1].x - pixels[1].xPitch / 2.;
+                                // xErr = pixels[1].xPitch / 2. / sqrt(12.);
+                            }
+                            else
+                            {
+                                if (pixels[0].x > pixels[1].x) x = pixels[0].x - pixels[0].xPitch / 2.;
+                                else                           x = pixels[0].x + pixels[0].xPitch / 2.;
+                                // xErr = pixels[0].xPitch / 2. / sqrt(12.);
+                            }
+                        }
+                        else
+                        {
+                            y = pixels[0].y;
+
+                            if (fabs(detector->getXRotation(false)) > 10) yErr = tiltedChargeSharing / sqrt(12.);
+                            else                                          yErr = (pixels[0].yPitch - 2*chargeSharing) / sqrt(12.);
+
+                            if (pixels[0].x < pixels[1].x)
+                            {
+                                center = (pixels[0].x + pixels[0].xPitch/2.);
+                                x = (pixels[0].charge*(center - (xChargeSharing+chargeSharing)) + pixels[1].charge*(center + (xChargeSharing+chargeSharing)))/charge;
+                            }
+                            else
+                            {
+                                center = (pixels[1].x + pixels[1].xPitch/2.);
+                                x = (pixels[1].charge*(center - (xChargeSharing+chargeSharing)) + pixels[0].charge*(center + (xChargeSharing+chargeSharing)))/charge;
+                            }
+
+                            if (fabs(detector->getYRotation(false)) > 10) xErr = 1.35;
+                            else                                          xErr = 0.65;
+                        }
+                    }
+                    // ####################
+                    // # Diagonal cluster #
+                    // ####################
                     else
                     {
-                        x = pixels[0].x;
-
-                        if (fabs(detector->getYRotation(false)) > 10) xErr = tilted25ChargeSharing / sqrt(12.);
-                        else                                          xErr = (pixels[0].xPitch - 2*chargeSharing) / sqrt(12.);
-
                         if (pixels[0].y < pixels[1].y)
                         {
                             center = (pixels[0].y + pixels[0].yPitch/2.);
-                            y = (pixels[0].charge*(center - (yChargeSharing+chargeSharing)) + pixels[1].charge*(center + (yChargeSharing+chargeSharing))) / charge;
+                            y = (pixels[0].charge*(center - (yChargeSharing+chargeSharing)) + pixels[1].charge*(center + (yChargeSharing+chargeSharing)))/charge;
                         }
                         else
                         {
@@ -446,23 +531,102 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                             y = (pixels[1].charge*(center - (yChargeSharing+chargeSharing)) + pixels[0].charge*(center + (yChargeSharing+chargeSharing)))/charge;
                         }
 
-                        if (fabs(detector->getXRotation(false)) > 10) yErr = 1.35;
-                        else                                          yErr = 0.65;
+                        if( pixels[0].x < pixels[1].x)
+                        {
+                            center = (pixels[0].x + pixels[0].xPitch/2.);
+                            x = (pixels[0].charge*(center - (xChargeSharing+chargeSharing)) + pixels[1].charge*(center + (xChargeSharing+chargeSharing)))/charge;
+                        }
+                        else
+                        {
+                            center = (pixels[1].x + pixels[1].xPitch/2.);
+                            x = (pixels[1].charge*(center - (xChargeSharing+chargeSharing)) + pixels[0].charge*(center + (xChargeSharing+chargeSharing)))/charge;
+                        }
+
+                        if (detector->getXRotation(false) != 0) yErr = 1.4;
+                        else                                    yErr = 2.887;
+
+                        if (detector->getYRotation(false) != 0) xErr = 1.4;
+                        else                                    xErr = 2.887;
                     }
                 }
-                // ###################
-                // # Cluster along x #
-                // ###################
-                else if (pixels[0].y == pixels[1].y)
+                // ###############################
+                // # Cluster size greater than 2 #
+                // ###############################
+                else
                 {
+                    row    = 0;
+                    col    = 0;
+                    x      = 0;
+                    y      = 0;
+                    xErr   = 0;
+                    yErr   = 0;
+                    charge = 0;
+
+                    for (Event::hitsDef::iterator hit = cluster->second.begin(); hit != cluster->second.end(); hit++)
+                    {
+                        row = (*hit)["row"];
+                        col = (*hit)["col"];
+                        x    += detector->getPixelCenterLocalX( col );
+                        xErr += detector->getPixelPitchLocalX ( col );
+                        y    += detector->getPixelCenterLocalY( row );
+                        yErr += detector->getPixelPitchLocalY ( row );
+
+                        ROC *roc = detector->convertPixelToROC(&row, &col);
+
+                        bool isDut = false;
+
+                        if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2") isDut = true;
+                        bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"], isDut);
+
+
+                        if (isCalibrated == true)
+                            charge += (*hit)["charge"]; // Should be abs? Real charge. Should be fine since clusters of 3+ are used just for efficiencies
+                        else
+                            charge += 0; // Doesn't really matter, just for efficiencies
+                    }
+
+                    x    /= cluster->second.size();
+                    y    /= cluster->second.size();
+                    xErr /= cluster->second.size() * sqrt(12.);
+                    yErr /= cluster->second.size() * sqrt(12.);
+                }
+            }
+            else if(dataType==1) //Strip Data
+            {
+                chargeSharing       = 0.5;   // charge sharing at 90 deg for strip ---> dal paper sarebbe 0 (solo il pitch)
+                tiltedChargeSharing = 3.7; // charge sharing at 15 deg for strip ---> dal paper sarebbe 3.2
+                xChargeSharing = 4*tan(fabs(detector->getYRotation(false))*pi/180) + chargeSharing ;
+
+                // ####################
+                // # Cluster size = 1 #
+                // ####################
+                if (pixels.size() == 1)
+                {
+                    x = pixels[0].x;
+                    y = pixels[0].y;
+
+                    if (fabs(detector->getYRotation(false)) > 10) xErr = tiltedChargeSharing / sqrt(12.);
+                    else                                          xErr = (pixels[0].xPitch - 2*chargeSharing) / sqrt(12.);
+
+                    if (fabs(detector->getXRotation(false)) > 10) yErr = tiltedChargeSharing / sqrt(12.);
+                    else                                          yErr = (pixels[0].yPitch - 2*chargeSharing) / sqrt(12.);
+
+                    //cout<<__PRETTY_FUNCTION__<<"x: "<<x<<" y: "<<y<<" xErr: "<<xErr<<" yErr: "<<yErr<<endl;
+                }
+                // #################################################################
+                // # Cluster size = 2 ---> Using strip only double cluster along x #
+                // #################################################################
+                else if (pixels.size() == 2)
+                {
+                    y = pixels[0].y;
+
                     // ##############################################
                     // # Assign to DUT the coordinate of the divide #
                     // ##############################################
                     if (TESTDIVIDE == true &&
                             (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2"))
                     {
-                        y = pixels[0].y;
-                        // yErr = pixels[0].yPitch / 2. / sqrt(12.);
+
 
                         // ################
                         // # Fixed errors #
@@ -470,29 +634,25 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                         xErr = 0.3;
                         yErr = 0.3;
 
-                        if (pixels[0].xPitch == pixels[1].xPitch)
-                        {
-                            x = (pixels[0].x + pixels[1].x) / 2.;
-                            // xErr = pixels[0].xPitch / 2. / sqrt(12.);
-                        }
+                        if (pixels[0].xPitch == pixels[1].xPitch)x = (pixels[0].x + pixels[1].x) / 2.;
+
                         else if (pixels[0].xPitch > pixels[1].xPitch)
                         {
                             if (pixels[0].x > pixels[1].x) x = pixels[1].x + pixels[1].xPitch / 2.;
                             else                           x = pixels[1].x - pixels[1].xPitch / 2.;
-                            // xErr = pixels[1].xPitch / 2. / sqrt(12.);
                         }
                         else
                         {
                             if (pixels[0].x > pixels[1].x) x = pixels[0].x - pixels[0].xPitch / 2.;
                             else                           x = pixels[0].x + pixels[0].xPitch / 2.;
-                            // xErr = pixels[0].xPitch / 2. / sqrt(12.);
                         }
                     }
                     else
                     {
-                        y = pixels[0].y;
 
-                        if (fabs(detector->getXRotation(false)) > 10) yErr = tilted25ChargeSharing / sqrt(12.);
+                        double center;
+
+                        if (fabs(detector->getXRotation(false)) > 10) yErr = tiltedChargeSharing / sqrt(12.);
                         else                                          yErr = (pixels[0].yPitch - 2*chargeSharing) / sqrt(12.);
 
                         if (pixels[0].x < pixels[1].x)
@@ -506,89 +666,56 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                             x = (pixels[1].charge*(center - (xChargeSharing+chargeSharing)) + pixels[0].charge*(center + (xChargeSharing+chargeSharing)))/charge;
                         }
 
-                        if (fabs(detector->getYRotation(false)) > 10) xErr = 1.35;
-                        else                                          xErr = 0.65;
+                        if (fabs(detector->getYRotation(false)) > 10) xErr = 1.1;//0.7
+                        else                                          xErr = 0.7;//0.3
                     }
+
+                    //cout<<__PRETTY_FUNCTION__<<"x: "<<x<<" y: "<<y<<" xErr: "<<xErr<<" yErr: "<<yErr<<endl;
                 }
                 // ####################
-                // # Diagonal cluster #
+                // # Cluster size > 2 #
                 // ####################
                 else
                 {
-                    if (pixels[0].y < pixels[1].y)
+                    row    = 0;
+                    col    = 0;
+                    x      = 0;
+                    y      = 0;
+                    xErr   = 0;
+                    yErr   = 0;
+                    charge = 0;
+
+                    for (Event::hitsDef::iterator hit = cluster->second.begin(); hit != cluster->second.end(); hit++)
                     {
-                        center = (pixels[0].y + pixels[0].yPitch/2.);
-                        y = (pixels[0].charge*(center - (yChargeSharing+chargeSharing)) + pixels[1].charge*(center + (yChargeSharing+chargeSharing)))/charge;
-                    }
-                    else
-                    {
-                        center = (pixels[1].y + pixels[1].yPitch/2.);
-                        y = (pixels[1].charge*(center - (yChargeSharing+chargeSharing)) + pixels[0].charge*(center + (yChargeSharing+chargeSharing)))/charge;
+                        row = (*hit)["row"];
+                        col = (*hit)["col"];
+                        x    += detector->getPixelCenterLocalX( col );
+                        xErr += detector->getPixelPitchLocalX ( col );
+                        y    += detector->getPixelCenterLocalY( row );
+                        yErr += detector->getPixelPitchLocalY ( row );
+
+                        ROC *roc = detector->convertPixelToROC(&row, &col);
+
+                        bool isDut = false;
+
+                        if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2") isDut = true;
+                        bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"], isDut);
+
+
+                        if (isCalibrated == true)
+                            charge += (*hit)["charge"]; // Should be abs? Real charge. Should be fine since clusters of 3+ are used just for efficiencies
+                        else
+                            charge += 0; // Doesn't really matter, just for efficiencies
                     }
 
-                    if( pixels[0].x < pixels[1].x)
-                    {
-                        center = (pixels[0].x + pixels[0].xPitch/2.);
-                        x = (pixels[0].charge*(center - (xChargeSharing+chargeSharing)) + pixels[1].charge*(center + (xChargeSharing+chargeSharing)))/charge;
-                    }
-                    else
-                    {
-                        center = (pixels[1].x + pixels[1].xPitch/2.);
-                        x = (pixels[1].charge*(center - (xChargeSharing+chargeSharing)) + pixels[0].charge*(center + (xChargeSharing+chargeSharing)))/charge;
-                    }
-
-                    if (detector->getXRotation(false) != 0) yErr = 1.4;
-                    else                                    yErr = 2.887;
-
-                    if (detector->getYRotation(false) != 0) xErr = 1.4;
-                    else                                    xErr = 2.887;
+                    x    /= cluster->second.size();
+                    y    /= cluster->second.size();
+                    xErr /= cluster->second.size() * sqrt(12.);
+                    yErr /= cluster->second.size() * sqrt(12.);
                 }
-            }
-            // ###############################
-            // # Cluster size greater than 2 #
-            // ###############################
-            else
-            {
-                row    = 0;
-                col    = 0;
-                x      = 0;
-                y      = 0;
-                xErr   = 0;
-                yErr   = 0;
-                charge = 0;
-
-                for (Event::hitsDef::iterator hit = cluster->second.begin(); hit != cluster->second.end(); hit++)
-                {
-                    row = (*hit)["row"];
-                    col = (*hit)["col"];
-                    x    += detector->getPixelCenterLocalX( col );
-                    xErr += detector->getPixelPitchLocalX ( col );
-                    y    += detector->getPixelCenterLocalY( row );
-                    yErr += detector->getPixelPitchLocalY ( row );
-
-                    ROC *roc = detector->convertPixelToROC(&row, &col);
-
-                    bool isDut = false;
-
-                    if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2") isDut = true;
-                    bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"], isDut);
-
-
-                    if (isCalibrated == true)
-                        charge += (*hit)["charge"]; // Should be abs? Real charge. Should be fine since clusters of 3+ are used just for efficiencies
-                    else
-                        charge += 0; // Doesn't really matter, just for efficiencies
-                }
-
-                x    /= cluster->second.size();
-                y    /= cluster->second.size();
-                xErr /= cluster->second.size() * sqrt(12.);
-                yErr /= cluster->second.size() * sqrt(12.);
             }
         }
     }
-
-
     clustersBuilt_ = true;
     return clustersMap_;
 }

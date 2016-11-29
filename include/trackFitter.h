@@ -36,12 +36,15 @@
 #include <Math/SMatrix.h>
 #include <Math/SVector.h>
 #include <TMath.h>
+#include <TVectorT.h>
+#include <TMatrixTSym.h>
 #include <iostream>
 
 using namespace std;
 
 #include "Event.h"
 #include "Geometry.h"
+#include "KalmanPlaneInfo.h"
 //#include "maintabs.h"
 
 #include "subMultiProcess.h"
@@ -51,7 +54,7 @@ class trackFitter : public subMultiProcess<trackFitter,Event,Geometry>
 public:
     trackFitter(void)   ;
    ~trackFitter(void)  {this->clear();}
-   
+
    typedef ROOT::Math::SVector<double,4>                             SV4Def ;
    typedef std::pair< std::pair< SV4Def, Event::matrixDef >, double> aFittedTrackDef;
 
@@ -97,8 +100,8 @@ public:
    void                             setFitMethodName                (std::string fitMethodName                                       ){fitMethodName_=fitMethodName        ;}
    //std::string                      getFitMethodName                (void                                                            ){return fitMethodName_               ;}
    void                             setNumberOfIterations           (int                                       iterations            ){nIterations_ = iterations           ;}
-
-   static ROOT::Math::SVector<double,4> calculateParCorrections (ROOT::Math::SVector<double,4> pars, Geometry * geo, std::map<std::string, std::pair<double, double> > res);
+   void                             setKalmanPlaneInfo              (KalmanPlaneInfo                          kalmanInfo             ){theKalmanPlaneInfo_ = kalmanInfo    ;}
+   static ROOT::Math::SVector<double,4> calculateParCorrections     (ROOT::Math::SVector<double,4> pars, Geometry * geo, std::map<std::string, std::pair<double, double> > res);
 
 private:
 
@@ -121,7 +124,7 @@ private:
 
     std::string                      fitMethodName_        ;
     int                              nIterations_          ;
-
+    KalmanPlaneInfo                  theKalmanPlaneInfo_   ;
 };
 
 #endif // TRACKFITTER_H

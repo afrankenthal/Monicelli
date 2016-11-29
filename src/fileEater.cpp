@@ -326,6 +326,8 @@ bool fileEater::openGeometryFile(std::string geometryFileName)
         if(theGeometry_->calibrationDone()){STDLINE("Calibrations already performed and available",ACGreen);}
         else                               {STDLINE("No calibrations available so far",            ACRed  );}
 
+
+
         return true;
     }
     else
