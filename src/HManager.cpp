@@ -467,6 +467,7 @@ HManager::stringVDef HManager::fillAlignmentResults(std::string detector,
                 if(detector != "" && detector != (*git).first) continue;
                 TH1 *histo = (TH1*)this->getHistogram(fullPaths[i], (*git).first );
                 histo->Reset("M");
+                if(gPad!=NULL) histo->GetXaxis()->UnZoom();
             }
         }
     }
