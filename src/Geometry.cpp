@@ -35,7 +35,7 @@ struct sort_pred {
     bool operator()(const std::pair<double,std::string> &left, const std::pair<double,std::string> &right) {
         return fabs(left.first) < fabs(right.first);
     }
-}sorter_;
+}geoSorter_;
 
 ClassImp(Geometry);
 
@@ -87,7 +87,7 @@ Detector * Geometry::getDetector (std::string plaqID)
 {
   if( detectorsMap_.find( plaqID ) == detectorsMap_.end() )
   {
-    STDLINE("Warning: No detector: " + plaqID + " found",ACRed);
+    STDSNAP("Warning: No detector: " + plaqID + " found",ACRed);
     return  NULL                ;
   }
   else
@@ -246,8 +246,8 @@ void Geometry::orderPlanes(void)
         }
     }
 
-    std::sort(posPlaqByZ.begin(),posPlaqByZ.end(),sorter_);
-    std::sort(negPlaqByZ.begin(),negPlaqByZ.end(),sorter_);
+    std::sort(posPlaqByZ.begin(),posPlaqByZ.end(),geoSorter_);
+    std::sort(negPlaqByZ.begin(),negPlaqByZ.end(),geoSorter_);
 
     for(unsigned int i = 0 ; i< std::max(posPlaqByZ.size(),negPlaqByZ.size());i++)
     {
