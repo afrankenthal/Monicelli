@@ -7,16 +7,17 @@
 #include "aligner.h"
 #include "threader.h"
 
-#include <cstdlib>
-#include <string>
-#include <sstream>
-#include <vector>
+#include <TApplication.h>
 
-#include <QCoreApplication>
 #include <QDomDocument>
 #include <QFile>
 #include <QString>
 #include <QDomNode>
+
+#include <cstdlib>
+#include <string>
+#include <sstream>
+#include <vector>
 
 
 // @@@ Hard coded parameters @@@
@@ -204,9 +205,12 @@ XmlFile::XmlFile(QDomNode& node)
 //=======================================================================
 int main (int argc, char** argv)
 {
-  QCoreApplication app (argc, argv);
-
   stringstream ss;
+
+  gROOT->SetBatch(true);
+  TApplication tApp("App",&argc,argv);
+  STDLINE("=== Using a TApplication only ===" ,ACRed);
+
   XmlParser theXmlParser;
   std::string configFileName;
 
@@ -250,14 +254,13 @@ int main (int argc, char** argv)
     {
       string fileName    = filesPath      + theXmlParser.getFileList()[f]->fileName_;
       string geoFileName = geometriesPath + theXmlParser.getFileList()[f]->geometryName_;
-      
+
       fileEater	theFileEater;
       HManager theHManager(&theFileEater);
       theFileEater.setHManger(&theHManager);
       clusterizer theClusterizer;
       trackFitter theTrackFitter;
       trackFinder theTrackFinder(&theTrackFitter);
-
 
 
       // #########################
@@ -282,8 +285,6 @@ int main (int argc, char** argv)
 	  continue;
   	}
       theHManager.setRunSubDir(theFileEater.openFile(theFileEater.getOutputTreeCompletePath()));
-      
-      theFileEater.populate();
 
 
 
@@ -305,9 +306,9 @@ int main (int argc, char** argv)
       STDLINE("Track Finder",ACBlue);
 
       theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
-      theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);      
+      theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
       theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
-      theTrackFinder.setOperation(&trackFinder::findAndFitTracks);      
+      theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
       theFileEater.updateEvents2();
 
 
