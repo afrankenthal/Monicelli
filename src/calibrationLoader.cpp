@@ -481,7 +481,6 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
     {
         fitter::fitResultDef fitR;
 
-        int firstBin, lastBin;
         double minBin,maxBin;
 
         for (calibrationLoader::pixelDataMapDef::iterator r=pixels_.begin(); r!=pixels_.end(); ++r)

@@ -189,7 +189,7 @@ void HNavigator::fillWidget()
 
   for(fileEater::fileMapDef::iterator it=openFiles_.begin(); it!=openFiles_.end(); ++it)
   {
-      if(it->first.find(".root")!=-1) this->addItem(it->first) ;
+      if(it->first.find(".root")!=string::npos) this->addItem(it->first) ;
   }
 }
 

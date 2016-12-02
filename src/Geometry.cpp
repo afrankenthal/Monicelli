@@ -87,7 +87,7 @@ Detector * Geometry::getDetector (std::string plaqID)
 {
   if( detectorsMap_.find( plaqID ) == detectorsMap_.end() )
   {
-    STDSNAP("Warning: No detector: " + plaqID + " found",ACRed);
+    //STDSNAP("Warning: No detector: " + plaqID + " found",ACRed);
     return  NULL                ;
   }
   else
