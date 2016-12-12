@@ -285,7 +285,7 @@ void Geometry::calculatePlaneMCS(void)
         TVectorT<double> upVector(4);
         TVectorT<double> rightVector(4);
         TVectorT<double> beamVector(4);
-        double multipleScattering = 4.37e-6;
+        double multipleScattering = 6.18e-6;// 4.37e-6;
         bool dataType = detector->isStrip();
         TVectorT<double> h(4)             ;
         TVectorT<double> hx(4)            ;

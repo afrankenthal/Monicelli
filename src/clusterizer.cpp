@@ -369,8 +369,8 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
             if(dataType==0) //Pixel Data
             {
 
-                chargeSharing       = 0.4; // 20um charge sharing at 90 deg for pixel ---> dal paper sarebbe solo il pitch
-                tiltedChargeSharing = 7.5; // 20um charge sharing at 25 deg for pixel ---> dal paper sarebbe 5.34
+                chargeSharing       = 0.4; // 20um charge sharing at 90 deg for pixel
+                tiltedChargeSharing = 7.5; // 20um charge sharing at 25 deg for pixel
                 xChargeSharing = 4*tan(fabs(detector->getYRotation(false))*pi/180) + chargeSharing ;//5*tan(fabs(detector->getYRotation(false))*pi/180)//7*sin(fabs(detector->getYRotation(false))*pi/180); //at 25 deg it gives ~+-20+30um charge sharing region which is all pixel
                 yChargeSharing = 4*tan(fabs(detector->getXRotation(false))*pi/180) + chargeSharing; //5*tan(fabs(detector->getXRotation(false))*pi/180)//7*sin(fabs(detector->getXRotation(false))*pi/180);
 
@@ -591,10 +591,10 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                     yErr /= cluster->second.size() * sqrt(12.);
                 }
             }
-            else if(dataType==1) //Strip Data
+            else if(dataType==1) //Strip Data -> Still to be improved
             {
-                chargeSharing       = 0.5;   // charge sharing at 90 deg for strip ---> dal paper sarebbe 0 (solo il pitch)
-                tiltedChargeSharing = 3.7; // charge sharing at 15 deg for strip ---> dal paper sarebbe 3.2
+                chargeSharing       = 0.5; // charge sharing at 90 deg for strip
+                tiltedChargeSharing = (160*tan(fabs(detector->getYRotation(false))*(pi/180)))/10;; //3.7 charge sharing at 15 deg for strip
                 xChargeSharing = 4*tan(fabs(detector->getYRotation(false))*pi/180) + chargeSharing ;
 
                 // ####################
@@ -605,10 +605,16 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                     x = pixels[0].x;
                     y = pixels[0].y;
 
-                    if (fabs(detector->getYRotation(false)) > 10) xErr = tiltedChargeSharing / sqrt(12.);
+//                    if (fabs(detector->getYRotation(false)) > 10) xErr = tiltedChargeSharing / sqrt(12.);
+//                    else                                          xErr = (pixels[0].xPitch - 2*chargeSharing) / sqrt(12.);
+
+//                    if (fabs(detector->getXRotation(false)) > 10) yErr = tiltedChargeSharing / sqrt(12.);
+//                    else                                          yErr = (pixels[0].yPitch - 2*chargeSharing) / sqrt(12.);
+
+                    if (fabs(detector->getYRotation(false)) > 10) xErr = 3.7 / sqrt(12.);
                     else                                          xErr = (pixels[0].xPitch - 2*chargeSharing) / sqrt(12.);
 
-                    if (fabs(detector->getXRotation(false)) > 10) yErr = tiltedChargeSharing / sqrt(12.);
+                    if (fabs(detector->getXRotation(false)) > 10) yErr = 3.7 / sqrt(12.);
                     else                                          yErr = (pixels[0].yPitch - 2*chargeSharing) / sqrt(12.);
 
                     //cout<<__PRETTY_FUNCTION__<<"x: "<<x<<" y: "<<y<<" xErr: "<<xErr<<" yErr: "<<yErr<<endl;
@@ -649,25 +655,30 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                     }
                     else
                     {
-
-                        double center;
+                        double center;                        
 
                         if (fabs(detector->getXRotation(false)) > 10) yErr = tiltedChargeSharing / sqrt(12.);
                         else                                          yErr = (pixels[0].yPitch - 2*chargeSharing) / sqrt(12.);
 
+//                        if (fabs(detector->getXRotation(false)) > 10) yErr = 1.5;
+//                        else                                          yErr = 1.0;
+
+                        if (fabs(detector->getYRotation(false)) > 10) xErr = 1.1; // 1.5;
+                        else                                          xErr = 0.7; //1.0;
+
                         if (pixels[0].x < pixels[1].x)
                         {
                             center = (pixels[0].x + pixels[0].xPitch/2.);
-                            x = (pixels[0].charge*(center - (xChargeSharing+chargeSharing)) + pixels[1].charge*(center + (xChargeSharing+chargeSharing)))/charge;
+                            //x = (pixels[0].charge*(center - (xChargeSharing+chargeSharing)) + pixels[1].charge*(center + (xChargeSharing+chargeSharing)))/charge;
+                            x = (pixels[0].charge*(center-tiltedChargeSharing) + pixels[1].charge*(center+tiltedChargeSharing))/charge;
                         }
                         else
                         {
                             center = (pixels[1].x + pixels[1].xPitch/2.);
-                            x = (pixels[1].charge*(center - (xChargeSharing+chargeSharing)) + pixels[0].charge*(center + (xChargeSharing+chargeSharing)))/charge;
-                        }
+                            //x = (pixels[1].charge*(center - (xChargeSharing+chargeSharing)) + pixels[0].charge*(center + (xChargeSharing+chargeSharing)))/charge;
+                            x = (pixels[1].charge*(center-tiltedChargeSharing) + pixels[0].charge*(center+tiltedChargeSharing))/charge;                        }
 
-                        if (fabs(detector->getYRotation(false)) > 10) xErr = 1.1;//0.7
-                        else                                          xErr = 0.7;//0.3
+
                     }
 
                     //cout<<__PRETTY_FUNCTION__<<"x: "<<x<<" y: "<<y<<" xErr: "<<xErr<<" yErr: "<<yErr<<endl;

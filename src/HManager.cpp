@@ -104,13 +104,13 @@ HManager::stringVDef HManager::fillResiduals (Event* theEvent   ,
                 ss_.str(""); ss_ << fullPaths[0]  << "/" << (*res).first;
                 if ( !runSubFolder_->FindObject(ss_.str().c_str()) )
                 {
-                    histoDevX =  new TH1D((*res).first.c_str(),(*res).first.c_str(),8001,-4000,4000);
+                    histoDevX =  new TH1D((*res).first.c_str(),(*res).first.c_str(),1602,-400,400);
                     histoDevX->GetXaxis()->SetTitle("X Residual (10um)");
                     histoDevX->GetYaxis()->SetTitle("Counts")           ;
                     histoDevX->SetDirectory(0);
                     this->addItem(fullPaths[0],histoDevX);
 
-                    histoDevY =  new TH1D((*res).first.c_str(),(*res).first.c_str(),8001,-4000.,4000);
+                    histoDevY =  new TH1D((*res).first.c_str(),(*res).first.c_str(),1602,-400,400);
                     histoDevY->GetXaxis()->SetTitle("Y Residual (10um)");
                     histoDevY->GetYaxis()->SetTitle("Counts")           ;
                     histoDevY->SetDirectory(0);
@@ -527,19 +527,19 @@ HManager::stringVDef HManager::fillAlignmentResults(std::string detector,
 
             /////////////////////////////////////X Pulls//////////////////////////////
 
-            histoPullsXAll =  new TH1D(detector.c_str(),(detector + ": X Pull").c_str(), 1000, -20, 20);
+            histoPullsXAll =  new TH1D(detector.c_str(),(detector + ": X Pull").c_str(), 250, -5, 5);
             histoPullsXAll->GetXaxis()->SetTitle("X Pull");
             histoPullsXAll->GetYaxis()->SetTitle("tracks");
             histoPullsXAll->SetDirectory(0);
             this->addItem(fullPaths[6],histoPullsXAll);
 
-            histoPullsXSize1 =  new TH1D(detector.c_str(),(detector + ": X Pull clusters size 1").c_str(), 1000, -20, 20);
+            histoPullsXSize1 =  new TH1D(detector.c_str(),(detector + ": X Pull clusters size 1").c_str(),250, -5, 5 );
             histoPullsXSize1->GetXaxis()->SetTitle("X Pull");
             histoPullsXSize1->GetYaxis()->SetTitle("tracks");
             histoPullsXSize1->SetDirectory(0);
             this->addItem(fullPaths[7],histoPullsXSize1);
 
-            histoPullsXSize2 =  new TH1D(detector.c_str(),(detector + ": X Pull clusters size 2").c_str(), 1000, -20, 20);
+            histoPullsXSize2 =  new TH1D(detector.c_str(),(detector + ": X Pull clusters size 2").c_str(),250, -5, 5 );
             histoPullsXSize2->GetXaxis()->SetTitle("X Pull");
             histoPullsXSize2->GetYaxis()->SetTitle("tracks");
             histoPullsXSize2->SetDirectory(0);
@@ -547,19 +547,19 @@ HManager::stringVDef HManager::fillAlignmentResults(std::string detector,
 
             /////////////////////////////////////Y Pulls//////////////////////////////
 
-            histoPullsYAll =  new TH1D(detector.c_str(),(detector + ": Y Pull").c_str(), 1000, -20, 20);
+            histoPullsYAll =  new TH1D(detector.c_str(),(detector + ": Y Pull").c_str(),250, -5, 5 );
             histoPullsYAll->GetXaxis()->SetTitle("Y Pull");
             histoPullsYAll->GetYaxis()->SetTitle("tracks");
             histoPullsYAll->SetDirectory(0);
             this->addItem(fullPaths[9],histoPullsYAll);
 
-            histoPullsYSize1 =  new TH1D(detector.c_str(),(detector + ": Y Pull clusters size 1").c_str(), 1000, -20, 20);
+            histoPullsYSize1 =  new TH1D(detector.c_str(),(detector + ": Y Pull clusters size 1").c_str(),250, -5, 5 );
             histoPullsYSize1->GetXaxis()->SetTitle("Y Pull");
             histoPullsYSize1->GetYaxis()->SetTitle("tracks");
             histoPullsYSize1->SetDirectory(0);
             this->addItem(fullPaths[10],histoPullsYSize1);
 
-            histoPullsYSize2 =  new TH1D(detector.c_str(),(detector + ": Y Pull clusters size 2").c_str(), 1000, -20, 20);
+            histoPullsYSize2 =  new TH1D(detector.c_str(),(detector + ": Y Pull clusters size 2").c_str(),250, -5, 5 );
             histoPullsYSize2->GetXaxis()->SetTitle("Y Pull");
             histoPullsYSize2->GetYaxis()->SetTitle("tracks");
             histoPullsYSize2->SetDirectory(0);
@@ -803,13 +803,15 @@ HManager::stringVDef  HManager::fillPulls (Event* theEvent   ,
                 ss_ << fullPaths[0]  << "/" << pul->first;
                 if ( !runSubFolder_->FindObject(ss_.str().c_str()) )
                 {
-                    histoDevX =  new TH1D(pul->first.c_str(),pul->first.c_str(), 1000, -20, 20);
+                    //Locked pull distributions range to -5;5
+
+                    histoDevX =  new TH1D(pul->first.c_str(),pul->first.c_str(), 250, -5, 5);
                     histoDevX->GetXaxis()->SetTitle("X Pull");
                     histoDevX->GetYaxis()->SetTitle("tracks")           ;
                     histoDevX->SetDirectory(0);
                     this->addItem(fullPaths[0],histoDevX);
 
-                    histoDevY =  new TH1D(pul->first.c_str(),pul->first.c_str(), 1000, -20, 20);
+                    histoDevY =  new TH1D(pul->first.c_str(),pul->first.c_str(), 250, -5, 5);
                     histoDevY->GetXaxis()->SetTitle("Y Pull");
                     histoDevY->GetYaxis()->SetTitle("tracks")           ;
                     histoDevY->SetDirectory(0);
