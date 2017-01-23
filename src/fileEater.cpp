@@ -947,7 +947,7 @@ bool fileEater::updateEvents2(void)
     std::string fileName = ss_.str();
 
     ss_.str("");
-    ss_ << "./tmp/treeClassExpanded" <<  time(NULL) << ".root";
+    ss_ << "./tmp/TreeClassExpanded_" <<  time(NULL) << "_" << fileName.substr(fileName.find_last_of('/')+1);
     std::string  copyCacheFileName = ss_.str();
 
     TFile *copyCacheFile = new TFile(copyCacheFileName.c_str(),"recreate") ;

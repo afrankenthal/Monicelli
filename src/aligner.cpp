@@ -111,8 +111,7 @@ bool aligner::align(void)
 
         //std::cout << __PRETTY_FUNCTION__ << "C Size: " << clusters.size() << " CH Size: " << clustersHits.size() << " T Size: " << tracks.size() << " TC Size: " << tracksChi2.size() << std::endl;
 
-        if(maxTracks_ > 0 && (int)tracks.size() > maxTracks_)
-            continue;
+        if(maxTracks_ > 0 && (int)tracks.size() > maxTracks_) continue;
 
         //Tracks selection
         for(unsigned int tr=0; tr < tracks.size(); tr++)
@@ -126,9 +125,7 @@ bool aligner::align(void)
                 if(maxClusterSize_ > 0 && tracks[tr][(*git).first]["size"] <= maxClusterSize_ ) numberOfGoodTelescopeHits++;
             }
             if( numberOfTelescopeHits  < theGeometry->getDetectorsNumber(true) ) continue;//minumum 22 point per track hardcoded! (all detectors must be hit)
-
             if( maxClusterSize_ > 0 && numberOfGoodTelescopeHits < theGeometry->getDetectorsNumber(true) ) continue;
-
             if( chi2cut_ > 0 && tracksChi2[tr] > chi2cut_        ) continue;//chi2 cut
 
             if(noDiagonalClusters_)

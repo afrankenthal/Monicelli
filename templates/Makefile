@@ -1,5 +1,5 @@
 PROJECT = Utilities
-EXES     = bin/ReaderTemplate bin/Converter bin/GeometryConverter bin/T1037Converter bin/T958Converter bin/StripTestReader bin/AdamParaConverter bin/EventFilter
+EXES     = bin/ReaderTemplate bin/Converter bin/GeometryConverter bin/T1037Converter bin/T958Converter bin/StripTestReader bin/AdamParaConverter bin/EventFilter bin/MAPSAConverter
 
 PWD         = `pwd`
 ROOTCONFIG := root-config
@@ -13,8 +13,8 @@ SRCDIR      = src
 LIBDIR      = lib
 SRCEXT      = cpp
 
-$(shell cp -p ../include/Detector.h ../include/ROC.h ../include/Event.h ../include/EventHeader.h ../include/Geometry.h $(INCDIR))
-$(shell cp -p ../src/Detector.cpp ../src/ROC.cpp ../src/Event.cpp ../src/EventHeader.cpp ../src/Geometry.cpp $(SRCDIR))
+$(shell cp -p ../include/Detector.h ../include/ROC.h ../include/Event.h ../include/EventHeader.h ../include/Geometry.h ../include/KalmanPlaneInfo.h $(INCDIR))
+$(shell cp -p ../src/Detector.cpp ../src/ROC.cpp ../src/Event.cpp ../src/EventHeader.cpp ../src/Geometry.cpp ../src/KalmanPlaneInfo.cpp $(SRCDIR))
 
 OPTIMIZER_FLAGS = -g
 #OPTIMIZER_FLAGS = -O3

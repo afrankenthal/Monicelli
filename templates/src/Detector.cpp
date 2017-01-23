@@ -1249,7 +1249,7 @@ void Detector::test(double* x, double* y, double* z, double* xErr, double* yErr,
     double zErrc = *zErr;
 
 
-    Detector::matrix33Def R = this->getRotationMatrix();
+//    Detector::matrix33Def R = this->getRotationMatrix();
 
 
     ss.str("");
@@ -1384,10 +1384,10 @@ void Detector::test(double* x, double* y, double* z, double* xErr, double* yErr,
 void Detector::dump(void)
 {
     char buffer[128];
-    sprintf (buffer, "Alpha -> Total = %10.2f (%10.2f + %7.2f) deg", getXRotation() + getXRotationCorrection(), getXRotation(), getXRotationCorrection());STDLINE(buffer,ACCyan);
-    sprintf (buffer, "Beta  -> Total = %10.2f (%10.2f + %7.2f) deg", getYRotation() + getYRotationCorrection(), getYRotation(), getYRotationCorrection());STDLINE(buffer,ACCyan);
-    sprintf (buffer, "Gamma -> Total = %10.2f (%10.2f + %7.2f) deg", getZRotation() + getZRotationCorrection(), getZRotation(), getZRotationCorrection());STDLINE(buffer,ACCyan);
-    sprintf (buffer, "X     -> Total = %10.2f (%10.2f + %7.2f) um", 10*(getXPositionTotal()), 10*getXPosition(), 10*getXPositionCorrection());STDLINE(buffer,ACCyan);
-    sprintf (buffer, "Y     -> Total = %10.2f (%10.2f + %7.2f) um", 10*(getYPositionTotal()), 10*getYPosition(), 10*getYPositionCorrection());STDLINE(buffer,ACCyan);
-    sprintf (buffer, "Z     -> Total = %10.2f (%10.2f + %7.2f) um", 10*(getZPositionTotal()), 10*getZPosition(), 10*getZPositionCorrection());STDLINE(buffer,ACCyan);
+    sprintf (buffer, "Alpha -> Total = %10.2f (%10.2f + %10.2f) deg", getXRotation() + getXRotationCorrection(), getXRotation(), getXRotationCorrection());STDLINE(buffer,ACCyan);
+    sprintf (buffer, "Beta  -> Total = %10.2f (%10.2f + %10.2f) deg", getYRotation() + getYRotationCorrection(), getYRotation(), getYRotationCorrection());STDLINE(buffer,ACCyan);
+    sprintf (buffer, "Gamma -> Total = %10.2f (%10.2f + %10.2f) deg", getZRotation() + getZRotationCorrection(), getZRotation(), getZRotationCorrection());STDLINE(buffer,ACCyan);
+    sprintf (buffer, "X     -> Total = %10.2f (%10.2f + %10.2f) um", 10*(getXPositionTotal()), 10*getXPosition(), 10*getXPositionCorrection());STDLINE(buffer,ACCyan);
+    sprintf (buffer, "Y     -> Total = %10.2f (%10.2f + %10.2f) um", 10*(getYPositionTotal()), 10*getYPosition(), 10*getYPositionCorrection());STDLINE(buffer,ACCyan);
+    sprintf (buffer, "Z     -> Total = %10.2f (%10.2f + %10.2f) um", 10*(getZPositionTotal()), 10*getZPosition(), 10*getZPositionCorrection());STDLINE(buffer,ACCyan);
 }

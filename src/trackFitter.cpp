@@ -34,7 +34,7 @@
 trackFitter::trackFitter(void)
 {
     count=0;
-    STDLINE("Empty constructor",ACWhite);
+    //STDLINE("Empty constructor",ACWhite);
     debug_        = false;
     tracksFitted_ = false ;
     nIterations_  = 0;

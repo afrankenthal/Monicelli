@@ -2,6 +2,7 @@
 #include <helpers.h>
 #include "ui_mainwindow.h"
 #include <treemodel.h>
+#include <TStyle.h>
 
 //==================================================================================
 MainWindow::MainWindow(QWidget *parent) :
@@ -39,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this,         SLOT  (resizeChildrens(int, int))) ;
 
     foldersInFile_=false;
+
+    gStyle -> SetPalette(1); //To ROOT 5
 }
 
 //==================================================================================
@@ -243,7 +246,7 @@ void MainWindow::drawAll (void)
     if(histoMap_.size()>(unsigned int)maxPadNumber)
     {
         createStatusBar();
-//        if(maxPadNumber>12) c_->DivideSquare(maxPadNumber,0,0);
+//        if(maxPadNumber>12) c_->DivideSquare(maxPadNumber,0,0); TO ROOT 6
 //        else c_->DivideSquare(maxPadNumber);
         if(maxPadNumber>12) c_->Divide(maxPadNumber/2,maxPadNumber/2,0,0);
         else c_->Divide(maxPadNumber/2,maxPadNumber/2);
@@ -253,7 +256,7 @@ void MainWindow::drawAll (void)
 
     else
     {
-//        if(maxPadNumber>12) c_->DivideSquare(histoMap_.size(),0,0);
+//        if(maxPadNumber>12) c_->DivideSquare(histoMap_.size(),0,0); TO ROOT 6
 //        else c_->DivideSquare(histoMap_.size());
         if(maxPadNumber>12) c_->Divide(histoMap_.size()/2,histoMap_.size()/2,0,0);
         else c_->Divide(histoMap_.size()/2,histoMap_.size()/2);

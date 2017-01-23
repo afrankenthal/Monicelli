@@ -581,7 +581,7 @@ p, li { white-space: pre-wrap; }
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>6</number>
+      <number>7</number>
      </property>
      <widget class="QWidget" name="rawDataProcessingTabPage">
       <attribute name="title">
@@ -6524,7 +6524,7 @@ p, li { white-space: pre-wrap; }
         </rect>
        </property>
        <property name="currentIndex">
-        <number>4</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="residualsSynopticPage">
         <attribute name="title">
@@ -14449,7 +14449,7 @@ p, li { white-space: pre-wrap; }
         <cursorShape>PointingHandCursor</cursorShape>
        </property>
        <property name="currentIndex">
-        <number>10</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="residualsTab_2">
         <attribute name="title">

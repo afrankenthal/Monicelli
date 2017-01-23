@@ -37,7 +37,7 @@
 
 // ### Hard coded values ###
 #define SCALE_F 1000
-#define FITMINPOINTS 40
+#define FITMINPOINTS 10
 #define MAXTHRESHOLD 10000 // [e-]
 #define DYNAMICRANGE 200
 // #########################
