@@ -1,0 +1,280 @@
+<?xml version='1.0' encoding='iso-8859-1'?>
+<!DOCTYPE ChewieConfiguration SYSTEM './ChewieConfiguration.dtd'>
+<ChewieConfiguration>
+  <Converter Threads="4" MaxEvents="9999" IsToLimit="no"/>
+  <General PreAnalysisMaxEvents="400000" Threads="4" MaxEvents="5" AnalysesMaxEvents="1000" IsToLimit="no">
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Strip_Telescope_Upstream0" Name="Station: 5 - Plaq: 0" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>639</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>0</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Strip_Telescope_Upstream1" Name="Station: 5 - Plaq: 1" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>639</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>0</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Strip_Telescope_Upstream2" Name="Station: 5 - Plaq: 2" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>639</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>0</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Strip_Telescope_Upstream3" Name="Station: 5 - Plaq: 3" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>639</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>0</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Strip_Telescope_Upstream4" Name="Station: 6 - Plaq: 0" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>639</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>0</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Strip_Telescope_Upstream5" Name="Station: 6 - Plaq: 1" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>639</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>0</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Strip_Telescope_Upstream6" Name="Station: 6 - Plaq: 2" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>639</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>0</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Strip_Telescope_Upstream7" Name="Station: 6 - Plaq: 3" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>639</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>0</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Telescope_Upstream0" Name="Station: 2 - Plaq: 0" XRocs="3" YRocs="2">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>155</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>159</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Telescope_Upstream1" Name="Station: 2 - Plaq: 1" XRocs="3" YRocs="3">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>155</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>159</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Telescope_Upstream2" Name="Station: 2 - Plaq: 2" XRocs="4" YRocs="2">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>207</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>159</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Telescope_Upstream3" Name="Station: 2 - Plaq: 3" XRocs="4" YRocs="2">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>207</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>159</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Telescope_Downstream0" Name="Station: 0 - Plaq: 0" XRocs="4" YRocs="2">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>207</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>159</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Telescope_Downstream1" Name="Station: 0 - Plaq: 1" XRocs="4" YRocs="2">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>207</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>159</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Telescope_Downstream2" Name="Station: 0 - Plaq: 2" XRocs="3" YRocs="2">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>155</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>159</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Telescope_Downstream3" Name="Station: 0 - Plaq: 3" XRocs="3" YRocs="2">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>155</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>159</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Strip_Telescope_Downstream0" Name="Station: 7 - Plaq: 0" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>639</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>0</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Strip_Telescope_Downstream1" Name="Station: 7 - Plaq: 1" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>639</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>0</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Strip_Telescope_Downstream2" Name="Station: 7 - Plaq: 2" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>639</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>0</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Strip_Telescope_Downstream3" Name="Station: 7 - Plaq: 3" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>639</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>0</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Strip_Telescope_Downstream4" Name="Station: 7 - Plaq: 4" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>639</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>0</HigherRow>
+      </Window>
+    </Plane>
+    <Plane YPitch="100" Calibration="N.A." XPitch="150" Id="Strip_Telescope_Downstream5" Name="Station: 7 - Plaq: 5" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>0</LowerCol>
+        <HigherCol>639</HigherCol>
+        <LowerRow>0</LowerRow>
+        <HigherRow>0</HigherRow>
+      </Window>
+    </Plane>
+    <Plane ZPosition="6" YPitch="100" Calibration="N.A." XPitch="150" Id="Dut0" Name="Station: 4 - Plaq: 0" ZRotation="90" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>1</LowerCol>
+        <HigherCol>50</HigherCol>
+        <LowerRow>1</LowerRow>
+        <HigherRow>78</HigherRow>
+      </Window>
+      <Calibrations Use="no">
+        <File>/path_to_calibration/file_name.root</File>
+      </Calibrations>
+    </Plane>
+    <Plane ZPosition="5" YPitch="100" Calibration="N.A." XPitch="150" Id="Dut1" Name="Station: 4 - Plaq: 1" ZRotation="90" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>1</LowerCol>
+        <HigherCol>50</HigherCol>
+        <LowerRow>1</LowerRow>
+        <HigherRow>78</HigherRow>
+      </Window>
+      <Calibrations Use="no">
+        <File>/path_to_calibration/file_name.root</File>
+      </Calibrations>
+    </Plane>
+    <Plane ZPosition="-5" YPitch="100" Calibration="N.A." XPitch="150" Id="Dut2" Name="Station: 4 - Plaq: 2" ZRotation="90" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>1</LowerCol>
+        <HigherCol>50</HigherCol>
+        <LowerRow>1</LowerRow>
+        <HigherRow>78</HigherRow>
+      </Window>
+      <Calibrations Use="no">
+        <File>/path_to_calibration/file_name.root</File>
+      </Calibrations>
+    </Plane>
+    <Plane ZPosition="-5" YPitch="100" Calibration="N.A." XPitch="150" Id="Dut3" Name="Station: 4 - Plaq: 3" ZRotation="90" XRocs="1" YRocs="1">
+      <Window>
+        <LowerCol>1</LowerCol>
+        <HigherCol>50</HigherCol>
+        <LowerRow>1</LowerRow>
+        <HigherRow>78</HigherRow>
+      </Window>
+      <Calibrations Use="no">
+        <File>/path_to_calibration/file_name.root</File>
+      </Calibrations>
+    </Plane>
+    <Analysis Priority="0" IsToRun="yes" Type="Windows"/>
+    <Analysis StandardCut="yes" Priority="4" IsToRun="no" Type="Tracks" DoFits="no">
+      <MinHits>8</MinHits>
+    </Analysis>
+    <Analysis StandardCut="yes" Priority="5" IsToRun="no" Type="TracksAfter" DoFits="no">
+      <MinHits>8</MinHits>
+    </Analysis>
+    <Analysis StandardCut="yes" Priority="2" IsToRun="yes" Type="Efficiency" DoFits="no" Module="UniMiB">
+      <Cut CutString="numberOfTracks &lt;= 1 &amp;&amp; chi2/ndof &lt;= 5" CutType="main cut"/>
+      <Cut CutString="" CutType="cell efficiency"/>
+      <Cut CutString="yPixelResidualLocal[22] &lt;= 30 &amp;&amp; yPixelResidualLocal[22] >= -30 &amp;&amp; ySigmaIntercept &lt;= 8" CutType="cell efficiency X"/>
+      <Cut CutString="xPixelResidualLocal[22] &lt;= 55 &amp;&amp; xPixelResidualLocal[22] >= -55 &amp;&amp; xSigmaIntercept &lt;= 8" CutType="cell efficiency Y"/>
+      <MinHits>8</MinHits>
+    </Analysis>
+    <Analysis StandardCut="yes" Priority="1" IsToRun="yes" Type="Charge" DoFits="no" Module="UniMiB">
+      <PixelMinimumCharge>0</PixelMinimumCharge>
+      <PixelMaximumCharge>70000</PixelMaximumCharge>
+      <ClusterMinimumCharge>0</ClusterMinimumCharge>
+      <ClusterMaximumCharge>70000</ClusterMaximumCharge>
+      <Cut CutString="numberOfTracks &lt;= 1 &amp;&amp; chi2/ndof &lt;= 5" CutType="main cut" cutString="numberOfTracks &lt;= 1 &amp;&amp; chi2/ndof &lt;= 5"/>
+      <Cut CutString="" CutType="cluster Landau"/>
+      <Cut CutString="xPixelResidualLocal[22] &lt;= 55 &amp;&amp; xPixelResidualLocal[22] >= -55 &amp;&amp; yPixelResidualLocal[22] &lt;= 30 &amp;&amp; yPixelResidualLocal[22] >= -30" CutType="cell Landau"/>
+      <Cut CutString="" CutType="cell charge"/>
+      <Cut CutString="yPixelResidualLocal[22] &lt;= 30 &amp;&amp; yPixelResidualLocal[22] >= -30" CutType="cell charge X"/>
+      <Cut CutString="xPixelResidualLocal[22] &lt;= 55 &amp;&amp; xPixelResidualLocal[22] >= -55" CutType="cell charge Y"/>
+      <CalibCut>
+        <Par ParID="0">
+          <Min>X</Min>
+          <Max>X</Max>
+        </Par>
+        <Par ParID="1">
+          <Min>X</Min>
+          <Max>X</Max>
+        </Par>
+        <Par ParID="2">
+          <Min>X</Min>
+          <Max>X</Max>
+        </Par>
+        <Par ParID="3">
+          <Min>X</Min>
+          <Max>X</Max>
+        </Par>
+      </CalibCut>
+      <MinHits>8</MinHits>
+    </Analysis>
+    <Analysis StandardCut="yes" Priority="3" IsToRun="yes" Type="Resolution" DoFits="no" Module="UniMiB">
+      <Cut CutString="numberOfTracks &lt;= 1 &amp;&amp; chi2/ndof &lt;= 5" CutType="main cut"/>
+      <Cut CutString="" CutType="X resolution"/>
+      <Cut CutString="" CutType="Y resolution"/>
+      <Cut CutString="" CutType="errors"/>
+      <MinHits>8</MinHits>
+    </Analysis>
+  </General>
+  <Scan/>
+</ChewieConfiguration>
