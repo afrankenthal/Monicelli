@@ -261,6 +261,8 @@ int main (int argc, char** argv)
       clusterizer theClusterizer;
       trackFitter theTrackFitter;
       trackFinder theTrackFinder(&theTrackFitter);
+      aligner theTelescopeAligner(&theFileEater,&theHManager);
+      aligner theDUTAligner(&theFileEater,&theHManager);
 
 
       // #########################
@@ -312,7 +314,6 @@ int main (int argc, char** argv)
       theFileEater.updateEvents2();
 
 
-
       // ############################
       // # Telescope fine alignment #
       // ############################
@@ -320,16 +321,15 @@ int main (int argc, char** argv)
 	{
 	  STDLINE("Telescope Fine Alignment",ACBlue);
 
-	  aligner* theAlignerTelescope = new aligner(&theFileEater,&theHManager);
-	  theAlignerTelescope->setAlignmentFitMethodName("Simple");
-	  theAlignerTelescope->setNumberOfIterations(0);
+	  theTelescopeAligner.setAlignmentFitMethodName("Simple");
+	  theTelescopeAligner.setNumberOfIterations(0);
       
 	  for (Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); it++)
 	    {
-	      if (!(*it).second->isDUT()) theAlignerTelescope->setFixParMap((*it).first, 100000);
-	      else                        theAlignerTelescope->setFixParMap((*it).first, 111111);
+	      if (!(*it).second->isDUT()) theTelescopeAligner.setFixParMap((*it).first, 100000);
+	      else                        theTelescopeAligner.setFixParMap((*it).first, 111111);
 	    }
-	  theAlignerTelescope->setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, "", numberOfEvents);
+	  theTelescopeAligner.setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, "", numberOfEvents);
 	  // #############################
 	  // # The parameter meaning:    #
 	  // #############################
@@ -343,37 +343,37 @@ int main (int argc, char** argv)
 	  // # - alignment select        #
 	  // # - nEvents                 #
 	  // #############################
-	  theAlignerTelescope->setOperation(&aligner::align);
+	  theTelescopeAligner.setOperation(&aligner::align);
+	  theTelescopeAligner.align();
       
-      
-	  threader* theThreaderTelescopeAlignment = new threader();
-	  theThreaderTelescopeAlignment->setProcess(theAlignerTelescope);
-	  theThreaderTelescopeAlignment->start();
-	  while (theThreaderTelescopeAlignment->isRunning()) sleep(1);
-      
-      
-	  aligner::alignmentResultsDef alignmentResultsTelescope = theAlignerTelescope->getAlignmentResults();
+ 	  //threader* theThreaderTelescopeAlignment = new threader();
+ 	  //theThreaderTelescopeAlignment->setProcess(theAlignerTelescope);
+ 	  //theThreaderTelescopeAlignment->start();
+ 	  //while (theThreaderTelescopeAlignment->isRunning()) sleep(1);
+       
+       
+ 	  aligner::alignmentResultsDef alignmentResultsTelescope = theTelescopeAligner.getAlignmentResults();
 	  for (Geometry::iterator geo = theGeometry->begin(); geo != theGeometry->end(); geo++)
-	    {
-	      Detector* theDetector = theGeometry->getDetector(geo->first);
-	  
-	      double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTx;
-	      double yPositionCorrection = theDetector->getYPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTy;
-	      double zPositionCorrection = theDetector->getZPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTz;
-	      double xRotationCorrection = theDetector->getXRotationCorrection() + alignmentResultsTelescope[geo->first].alpha;
-	      double yRotationCorrection = theDetector->getYRotationCorrection() + alignmentResultsTelescope[geo->first].beta;
-	      double zRotationCorrection = theDetector->getZRotationCorrection() + alignmentResultsTelescope[geo->first].gamma;
-	  
-	      theDetector->setXPositionCorrection(xPositionCorrection);
-	      theDetector->setYPositionCorrection(yPositionCorrection);
-	      theDetector->setZPositionCorrection(zPositionCorrection);
-	      theDetector->setXRotationCorrection(xRotationCorrection);
-	      theDetector->setYRotationCorrection(yRotationCorrection);
-	      theDetector->setZRotationCorrection(zRotationCorrection);
-	    }
-
-	  delete theAlignerTelescope;
-	  delete theThreaderTelescopeAlignment;
+	  {
+	    Detector* theDetector = theGeometry->getDetector(geo->first);
+	
+	    double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTx;
+	    double yPositionCorrection = theDetector->getYPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTy;
+	    double zPositionCorrection = theDetector->getZPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTz;
+	    double xRotationCorrection = theDetector->getXRotationCorrection() + alignmentResultsTelescope[geo->first].alpha;
+	    double yRotationCorrection = theDetector->getYRotationCorrection() + alignmentResultsTelescope[geo->first].beta;
+	    double zRotationCorrection = theDetector->getZRotationCorrection() + alignmentResultsTelescope[geo->first].gamma;
+	
+	    theDetector->setXPositionCorrection(xPositionCorrection);
+	    theDetector->setYPositionCorrection(yPositionCorrection);
+	    theDetector->setZPositionCorrection(zPositionCorrection);
+	    theDetector->setXRotationCorrection(xRotationCorrection);
+	    theDetector->setYRotationCorrection(yRotationCorrection);
+	    theDetector->setZRotationCorrection(zRotationCorrection);
+	  }
+ 
+	  //delete theAlignerTelescope;
+	  //delete theThreaderTelescopeAlignment;
 
 
 
@@ -431,20 +431,21 @@ int main (int argc, char** argv)
 		  if (!(*it).second->isDUT()) continue;
 		  
 		  string dut = it->first;
-		  aligner* theAligner = new aligner(&theFileEater,&theHManager);
+		  //aligner* theAligner = new aligner(&theFileEater,&theHManager);
 		  
-		  theAligner->setFixParMap(dut,100111); // Here is where I choose which parameters must be kept constant
-		  theAligner->setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
-		  theAligner->setOperation(&aligner::alignDUT);
-		  
-		  
-		  threader* theThreader = new threader();
-		  theThreader->setProcess(theAligner);
-		  theThreader->start();
-		  while (theThreader->isRunning()) sleep(1);
+		  theDUTAligner.setFixParMap(dut,100111); // Here is where I choose which parameters must be kept constant
+		  theDUTAligner.setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
+		  theDUTAligner.setOperation(&aligner::alignDUT);
+	          theDUTAligner.align();
 		  
 		  
-		  aligner::alignmentResultsDef alignmentResults = theAligner->getAlignmentResults();
+		  //threader* theThreader = new threader();
+		  //theThreader->setProcess(theAligner);
+		  //theThreader->start();
+		  //while (theThreader->isRunning()) sleep(1);
+		  
+		  
+		  aligner::alignmentResultsDef alignmentResults = theDUTAligner.getAlignmentResults();
 		  Detector* theDetector = theGeometry->getDetector(dut);
 		  
 		  double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResults[dut].deltaTx;
@@ -461,8 +462,8 @@ int main (int argc, char** argv)
 		  theDetector->setYRotationCorrection(yRotationCorrection);
 		  theDetector->setZRotationCorrection(zRotationCorrection);
 		  
-		  delete theAligner;
-		  delete theThreader;	  
+		  //delete theAligner;
+		  //delete theThreader;	  
 		}
 
 
@@ -499,20 +500,21 @@ int main (int argc, char** argv)
 	      if (!(*it).second->isDUT()) continue;
 	  
 	      string dut = it->first;
-	      aligner* theAligner = new aligner(&theFileEater,&theHManager);
+	      //aligner* theAligner = new aligner(&theFileEater,&theHManager);
 
-	      theAligner->setFixParMap(dut,DUTfreePLANES); // Here is where I choose which parameters must be kept constant
-	      theAligner->setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
-	      theAligner->setOperation(&aligner::alignDUT);
+	      theDUTAligner.setFixParMap(dut,DUTfreePLANES); // Here is where I choose which parameters must be kept constant
+	      theDUTAligner.setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
+	      theDUTAligner.setOperation(&aligner::alignDUT);
+	      theDUTAligner.align();
 	  
 
-	      threader* theThreader = new threader();
-	      theThreader->setProcess(theAligner);
-	      theThreader->start();
-	      while (theThreader->isRunning()) sleep(1);
+	      //threader* theThreader = new threader();
+	      //theThreader->setProcess(theAligner);
+	      //theThreader->start();
+	      //while (theThreader->isRunning()) sleep(1);
 
 
-	      aligner::alignmentResultsDef alignmentResults = theAligner->getAlignmentResults();
+	      aligner::alignmentResultsDef alignmentResults = theDUTAligner.getAlignmentResults();
 	      Detector* theDetector = theGeometry->getDetector(dut);
 
 	      double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResults[dut].deltaTx;
@@ -529,8 +531,8 @@ int main (int argc, char** argv)
 	      theDetector->setYRotationCorrection(yRotationCorrection);
 	      theDetector->setZRotationCorrection(zRotationCorrection);
 
-	      delete theAligner;
-	      delete theThreader;	  
+	      //delete theAligner;
+	      //delete theThreader;	  
 	    }
 
 
@@ -584,7 +586,5 @@ int main (int argc, char** argv)
       STDLINE(copyGeometryCommand.c_str(),ACBlue);
       system(copyGeometryCommand.c_str());
     }
-
-
   return EXIT_SUCCESS;
 }

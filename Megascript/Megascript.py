@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys,os,commands,subprocess,time,datetime,string
+import sys,os,commands,subprocess,time,datetime,string, threading
 from email.mime.text import MIMEText
 
 maxThreads          = 8;
@@ -8,7 +8,7 @@ merge               = False;
 runChewie           = False;
 monicelliDir        = "/home/cmstestbeam/Programming/Monicelli/";
 chewieDir           = "/home/cmstestbeam/Programming/Chewie/";
-geometryFile        = "Run314_Merged.geo";
+geometryFile        = "Run512_Merged.geo";
 testBeamYear        = "2016";
 testBeamMonth       = "12";
 testBeamMonthName   = "December";
@@ -37,7 +37,7 @@ def makeMonicelliTemplate(fileOut):
     GeometriesPath        = geometriesDataDir; 
     TrackFindingAlgorithm = "FirstAndLast"; 
     TrackFittingAlgorithm = "Simple"; 
-    NumberOfEvents        = "-1";
+    NumberOfEvents        = "1000";
     TrackPoints           = "6"; 
     MaxPlanePoints        = "5"; 
     Chi2Cut               = "-1"; 
@@ -45,7 +45,7 @@ def makeMonicelliTemplate(fileOut):
     YTolerance            = "500";
     FindDut               = "false";
     FineAlignment         = "false";
-    FineTelescopeAlignment= "true";
+    FineTelescopeAlignment= "false";
     UseEtaFunction        = "false";
     
     outFile = open(fileOut,"w")
@@ -343,12 +343,29 @@ def is_ascii(s):
 
 ###########################################################################################
 def main():
-    if(len(sys.argv) < 3):
-        print "Usage: Megascript.py (From Run#) (To Run#)"
-        sys.exit()
+    if(len(sys.argv) != 2):
+        print "Usage: Megascript.py RunList"
+	print "Example of Runlist:"
+	print "1 -> only Run1"
+	print "1-10 -> from Run1 to Run10"
+	print "1-10,20,30-35 -> from Run1 to Run10, Run20, from Run30 to Run35"
+        sys.exit();
     option = '';
     exportVars();
 
+    rangedFileList = sys.argv[1].split(',');
+    print rangedFileList;
+    for runs in rangedFileList:
+        #print runs;
+	if(runs.find('-') != -1):
+	    begin,end = runs.split('-');
+        else:
+	    begin = end = runs;
+	#print "B: " + begin + " E: " + end; 
+	if(int(begin) > int(end)):
+	    print "Range " + runs + " is not valid since the starting run is greater than the end run!";
+	    sys.exit();
+    
     #Making source files list
     sourceHost, sourceDir = splitHostDir(remoteComputer + ':' + remoteDir + "Analysis/Merged/");
     print "Reading data from host: " + sourceHost
@@ -361,21 +378,32 @@ def main():
     print baseDataDir
 
     if(copyRawFiles):
-        rawCopy(int(sys.argv[1]), int(sys.argv[2]));
+    	for runs in rangedFileList:
+	    if(runs.find('-') != -1):
+		begin,end = runs.split('-');
+    	    else:
+		begin = end = runs;
+            rawCopy(int(begin), int(end));
+   
     if(merge):
-        cmd = baseDataDir + "../Exes/Merger/Merger " + sys.argv[1] + ' ' + sys.argv[2];
-        print "Running command: " + cmd;
+    	for runs in rangedFileList:
+	    if(runs.find('-') != -1):
+		begin,end = runs.split('-');
+    	    else:
+		begin = end = runs;
+            cmd = baseDataDir + "../Exes/Merger/Merger " + begin + ' ' + end;
+            print "Running command: " + cmd;
 
-        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE);
-        out,error = proc.communicate();
-        if(error != ''):
-            print error
-            subject = "FATAL: Raw copy error!"
-            sendEmail(mailList, subject, error);
-        print out;
-        print "Done Merging......";
-	time.sleep(2);
-        print "Done Sleeping......";
+            proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE);
+            out,error = proc.communicate();
+            if(error != ''):
+            	print error
+            	subject = "FATAL: Raw copy error!"
+            	sendEmail(mailList, subject, error);
+            print out;
+            print "Done Merging......";
+	    time.sleep(2);
+            print "Done Sleeping......";
 
     destinationList = makeFileList(destinationHost, destinationDir);
     #Copying files that are missing in the destination directory
@@ -391,9 +419,15 @@ def main():
 #    
 #    if(len(copiedFiles) == 0):
 #    	exit(0);
-
-    fileList = makeFileListToProcess(int(sys.argv[1]), int(sys.argv[2]));
+    fileList = [];
+    for runs in rangedFileList:
+    	if(runs.find('-') != -1):
+    	    begin,end = runs.split('-');
+    	else:
+    	    begin = end = runs;
+        fileList += makeFileListToProcess(int(begin), int(end));
     print fileList;
+
     tmpFileList = fileList;
 
     #print "List of files to process:";
@@ -449,9 +483,12 @@ def main():
         maxThreads = len(fileList);
     
     processes        = [None] * len(fileList);
+    output           = [""]   * len(fileList);
+    error            = [""]   * len(fileList);
     status           = [0]    * len(fileList);#0 ready, 1 running Monicelli, 2, done a, 3 running Chewie, 4 done
     nOfIncorrectData = [0]    * len(fileList);
     runName          = [""]   * len(fileList);
+    outFiles         = [None] * len(fileList);
     done = False;
     runningProcesses = 0;
     lastState = 4;#run Monicelli and Chewie
@@ -459,6 +496,7 @@ def main():
 	lastState = 2;#Only Monicelli
     while(not done):
     	for p in range (0, len(processes)):
+	    #print "Process: " +str(p) + " status: " + str(status[p]);
 	    if(status[p] == 0 and runningProcesses < maxThreads):
 		status[p] = 1;
 		################################################################################################################
@@ -468,87 +506,118 @@ def main():
  
  	    	#Create Express xml files from template
  	    	templateOutName = templateName.replace("template",runName[p]);
- 	    	print templateOutName;
+ 	    	#print templateOutName;
 
  	    	monicelliReplace(monicelliTemplateFileName, monicelliDir + "Express/xml/" + templateOutName, [fileList[p]], geometryFile);
  
  	    	#Run Monicelli express
- 	    	cmd = "cd " + monicelliDir + "Express" + ";./MonicelliExpress " + templateOutName;
+		cmd = "cd " + monicelliDir + "Express; ./MonicelliExpress " + templateOutName;
  	    	print "Running command: " + cmd;
- 	    	processes[p] = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE);
+                outFiles[p] = open("Monicelli_stdout_" + fileList[p], 'w');
+ 	    	processes[p] = subprocess.Popen(cmd, shell=True, stdout=outFiles[p], stderr=subprocess.PIPE);
 		runningProcesses += 1;
 	    
 	    elif(status[p] == 1):
-	        if not (processes[p].poll() is None):
+	        #print "Checking process " + str(p)
+		if not (processes[p].poll() is None):
+		    outFiles[p].close();
+	            #print "Communicating..."
+		    nada,error = processes[p].communicate();
 		    status[p] = 2;
-		    out,error = processes[p].communicate();
-		    #print out;
+		    outFiles[p] = open("Monicelli_stdout_" + fileList[p],'r');
+		    out = "";
+		    for line in iter(outFiles[p]):
+                        out += line;
+		    outFiles[p].close();
+		    #print "ERROR:" + error;
+		    print out;
+		    cmd = "rm Monicelli_stdout_" + fileList[p];
+ 	    	    subprocess.Popen(cmd, shell=True);
+		    
  		    if(error != ''):
  		       print error
  		       error = "FATAL: There was an error executing Monicelli!"
  		       sendEmail(mailList, runName[p], error);
- 		    #print out
  
  		    for line in out.split('\n'):
  		    	#print line;
 		    	if(line.find("Incorrect data at block") != -1):
 		    	    nOfIncorrectData[p] += 1;	    
                     if(not runChewie):
-		        runningProcesses -= 1;
-	    	        
+		    	runningProcesses -= 1;
+		    	print "Number of process running " + str(runningProcesses);
+#	    	    else:
+#	            	print "Reading out..."
+#		    	for line in processes[p].stdout:
+#		    	    output[p] += line;
+#	            	print "Reading err..."
+#		    	for line in processes[p].stderr:
+#		    	    error[p]  += line;
+		    
  	    elif(runChewie and status[p] == 2):
  		status[p] = 3;
  		#Run Chewie
  		print "Running Chewie..." ;
  		templateOutName = templateName.replace("template",runName[p]);
  		chewieReplace(chewieTemplateFileName, chewieDir + "/Express/xml/" + templateOutName, [fileList[p]]);
- 		cmd = "cd " + chewieDir + "Express;" + "./ChewieExpress " + templateOutName;
+ 		cmd = "cd " + chewieDir + "Express; ./ChewieExpress " + templateOutName;
  		print "Running command: " + cmd;
- 		processes[p] = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE);
+                outFiles[p] = open("Chewie_stdout_" + fileList[p], 'w');
+ 		processes[p] = subprocess.Popen(cmd, shell=True, stdout=outFiles[p], stderr=subprocess.PIPE);
  	    
  	    elif(status[p] == 3):
  		 #print "Checking chewie: " + str(p);
 		 if not (processes[p].poll() is None):
-  	    	     status[p] = 4;
-		     runningProcesses -= 1;
- 		     out,error = processes[p].communicate();
- 		     if(error != ''):
- 		       realError = '';
- 		       for line in error.split('\n'):
-		           #print ">-----------------------";
-			   #print "---" + line + "---";
-		           #print "<-----------------------";
- 			   #ignore a line like this!
-			   if(line.find("Warning") and line.find("no dictionary")):
- 			       continue;
- 			   if((line.find("Warning") == -1 and (error.find("Info") == -1 or error.find("Fit") or error.find("no dictionary")))):
-			       print line
-			       realError += line + '\n';
- 		       if(realError != '') and ("created default TCanvas with name" not in realError):
- 			   realError = "FATAL: There was an error executing Chewie! " + realError;
- 			   sendEmail(mailList, runName[p], realError);
- 		     #print out;
-		     #print error;
+		    outFiles[p].close();
+		    nada,error = processes[p].communicate();
+		    outFiles[p] = open("Chewie_stdout_" + fileList[p],'r');
+		    out = "";
+		    for line in iter(outFiles[p]):
+                        out += line;
+		    outFiles[p].close();
+		    print out;
+		    cmd = "rm Chewie_stdout_" + fileList[p];
+ 	    	    subprocess.Popen(cmd, shell=True);
+  	    	    status[p] = 4;
+		    runningProcesses -= 1;
+		    print "Number of process running " + str(runningProcesses);
+ 		    if(error != ''):
+ 		      realError = '';
+ 		      for line in error.split('\n'):
+		    	  #print ">-----------------------";
+		    	  #print "---" + line + "---";
+		    	  #print "<-----------------------";
+ 		    	  #ignore a line like this!
+		    	  if(line.find("Warning") and line.find("no dictionary")):
+ 		    	      continue;
+ 		    	  if((line.find("Warning") == -1 and (error.find("Info") == -1 or error.find("Fit") or error.find("no dictionary")))):
+		    	      print line
+		    	      realError += line + '\n';
+ 		      if(realError != '') and ("created default TCanvas with name" not in realError):
+ 		    	  realError = "FATAL: There was an error executing Chewie! " + realError;
+ 		    	  sendEmail(mailList, runName[p], realError);
+ 		    #print out;
+		    #print error;
  
- 		     emailBody = "";
- 		     for line in out.split('\n'):
- 			 if(line.find("Detector") != -1):
- 			     line = line[line.find("Detector"):len(line)-3];
- 			     for char in line:
- 				 if(is_ascii(char)):
- 				     emailBody += char;
- 			     emailBody += '\n';
- 			 if(line.find("Converting Run") != -1 and line.find("done") == -1):
- 			     emailBody += "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
- 			     line = line[line.find("Run"):len(line)-9];
- 			     for char in line:
- 				 if(is_ascii(char)):
- 				     emailBody += char;
- 			     emailBody += '\n\n';
- 			     emailBody += "There are " + str(nOfIncorrectData[p]) + " incorrect data while decoding the Merged file.\n\n";
- 		     emailBody += "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
- 		     print emailBody;
- 		     sendEmail(mailList, runName[p], emailBody);
+ 		    emailBody = "";
+ 		    for line in out.split('\n'):
+ 		    	if(line.find("Detector") != -1):
+ 		    	    line = line[line.find("Detector"):len(line)-3];
+ 		    	    for char in line:
+ 		    		if(is_ascii(char)):
+ 		    		    emailBody += char;
+ 		    	    emailBody += '\n';
+ 		    	if(line.find("Converting Run") != -1 and line.find("done") == -1):
+ 		    	    emailBody += "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+ 		    	    line = line[line.find("Run"):len(line)-9];
+ 		    	    for char in line:
+ 		    		if(is_ascii(char)):
+ 		    		    emailBody += char;
+ 		    	    emailBody += '\n\n';
+ 		    	    emailBody += "There are " + str(nOfIncorrectData[p]) + " incorrect data while decoding the Merged file.\n\n";
+ 		    emailBody += "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+ 		    print emailBody;
+ 		    sendEmail(mailList, runName[p], emailBody);
 
             done = True;
             for p in range (0, len(processes)):
@@ -557,6 +626,7 @@ def main():
 	    	    break;
             if(not done):
 	        time.sleep(1)
+    sendEmail(mailList, "Megascript Done!", "");
 ############################################################################################
 if __name__ == "__main__":
     main()
