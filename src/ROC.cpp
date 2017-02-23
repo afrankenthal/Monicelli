@@ -34,7 +34,6 @@
 
 // @@@ Hard coded parameters @@@
 #define FITTYPE "lin" // "lin" or "tanh": use this to set which function you want to use for the calibrations
-                      // reading of previouslty fitted calibration histograms is implemented
 // ============================
 
 
