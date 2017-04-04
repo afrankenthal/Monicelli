@@ -461,16 +461,12 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
             precBin = lastBin-1;
             for(int b=lastBin-1; b>=firstBin; b--)
             {
-                currentADC = calib[(*r).first][(*c).first]->GetBinContent(b);
-                if (std::abs(precADC-currentADC)>30*(precBin-b)) continue;
-                else
-                {
-                    if (precADC == 0) continue;
-                    calibNew[(*r).first][(*c).first]->SetBinContent(b,precADC);
-                    calibNew[(*r).first][(*c).first]->SetBinError(b,2.5);
-                    precADC = currentADC;
-                    precBin = b;
-                }
+	      currentADC = calib[(*r).first][(*c).first]->GetBinContent(b);
+	      if (precADC == 0) continue;
+	      calibNew[(*r).first][(*c).first]->SetBinContent(b,precADC);
+	      calibNew[(*r).first][(*c).first]->SetBinError(b,2.5);
+	      precADC = currentADC;
+	      precBin = b;
             }
         }
     }

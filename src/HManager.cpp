@@ -1948,7 +1948,7 @@ HManager::stringVDef HManager::makeAdcDistributions2(Event * theEvent, bool &add
                 unsigned int col = (*aClusterHit).second[i]["col"];
                 ROC *roc = theGeometry_->getDetector((*det).first)->convertPixelToROC(&row, &col);
                 int charge;
-                bool isCalibrated = roc->calibratePixel(row, col, (*aClusterHit).second[i]["adc"], charge);
+                bool isCalibrated = roc->calibratePixel(row, col, (*aClusterHit).second[i]["adc"], charge, theGeometry_->getDetector(det->first)->isDUT());
 
                 ss_.str("");
                 ss_ << "newAdc[0] " << charge;
