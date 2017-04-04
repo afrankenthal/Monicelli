@@ -57,7 +57,7 @@
 #include "process.h"
 
 //#define ELECTRONS_NUMBER 421
-#define ELECTRONS_NUMBER 332 // 1800/260*48
+#define ELECTRONS_NUMBER 350
 
 class calibrationLoader : public process
 {
