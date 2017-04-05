@@ -450,7 +450,6 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
     double currentADC;
     int    lastBin   ;
     int    firstBin  ;
-    int    precBin   ;
     for (calibrationLoader::pixelDataMapDef::iterator r=pixels_.begin(); r!=pixels_.end(); ++r)
     {
         for (std::map<int,aPixelDataMapDef>::iterator c=(*r).second.begin(); c!=(*r).second.end(); ++c)
@@ -458,7 +457,6 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
             lastBin  = (int)lastBinHisto ->GetBinContent(lastBinHisto ->GetXaxis()->FindBin((*r).first),lastBinHisto ->GetYaxis()->FindBin((*c).first));
             firstBin = (int)firstBinHisto->GetBinContent(firstBinHisto->GetXaxis()->FindBin((*r).first),firstBinHisto->GetYaxis()->FindBin((*c).first));
             precADC  = calib[(*r).first][(*c).first]->GetBinContent(lastBin);
-            precBin = lastBin-1;
             for(int b=lastBin-1; b>=firstBin; b--)
             {
 	      currentADC = calib[(*r).first][(*c).first]->GetBinContent(b);
@@ -466,7 +464,6 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
 	      calibNew[(*r).first][(*c).first]->SetBinContent(b,precADC);
 	      calibNew[(*r).first][(*c).first]->SetBinError(b,2.5);
 	      precADC = currentADC;
-	      precBin = b;
             }
         }
     }

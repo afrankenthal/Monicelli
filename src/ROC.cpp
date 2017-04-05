@@ -33,7 +33,7 @@
 
 
 // @@@ Hard coded parameters @@@
-#define FITTYPE "lin" // "lin" or "tanh": use this to set which function you want to use for the calibrations
+#define FITTYPE "prabol" // "lin", "parabol", or "tanh": use this to set which function you want to use for the calibrations
 // ============================
 
 
@@ -59,22 +59,31 @@ rocLengthX_(0)
 //===============================================================================
 double ROC::calibrationFitFunctionROOT(double *x, double *par)
 {
-  if      (strcmp(FITTYPE,"lin")  == 0) return x[0]*par[0]+par[1];
-  else if (strcmp(FITTYPE,"tanh") == 0) return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);
+  if      (strcmp(FITTYPE,"lin")     == 0) return x[0]*par[0] + par[1];
+  else if (strcmp(FITTYPE,"parabol") == 0) return x[0]*x[0]*par[0] + x[0]*par[1] + par[2];
+  else if (strcmp(FITTYPE,"tanh")    == 0) return par[0] + par[1]*tanh(par[2]*x[0] + par[3]);
 }
 
 //===============================================================================
 double ROC::calibrationFitFunction(double *x, double *par, bool isDut)
 {
-  if      (isDut                      ) return x[0]*par[0]+par[1];
-  else                                  return par[0]+par[1]*tanh(par[2]*x[0]+par[3]);
+  if      ((isDut) and (strcmp(FITTYPE,"lin")     == 0)) return x[0]*par[0] + par[1];
+  else if ((isDut) and (strcmp(FITTYPE,"parabol") == 0)) return x[0]*x[0]*par[0] + x[0]*par[1] + par[2];
+  else                                                   return par[0] + par[1]*tanh(par[2]*x[0] + par[3]);
 }
 
 //===============================================================================
 double ROC::calibrationFitFunctionInv(double *x, double *par, bool isDut)
 {
-  if      (isDut                      ) return (x[0]-par[1])/par[0];
-  else                                  return (atanh((x[0]-par[0])/par[1]) - par[3])/par[2];
+  if      ((isDut) and (strcmp(FITTYPE,"lin")     == 0)) return (x[0] - par[1]) / par[0];
+  else if ((isDut) and (strcmp(FITTYPE,"parabol") == 0))
+    {
+      if ((par[1]*par[1] - 4.*par[0]*(par[2] - x[0])) >= 0)
+	return -par[1] + sqrt(par[1]*par[1] - 4.*par[0]*(par[2] - x[0])) / (2.*par[0]);
+      else
+	return 0.;
+    }
+  else return (atanh((x[0] - par[0]) / par[1]) - par[3]) / par[2];
 }
 
 //==========================================================================
@@ -306,14 +315,16 @@ double ROC::getLengthLocalY (void)
 bool ROC::calibratePixel(int row, int col, int adc, int& charge, bool isDut)
 {
   double newAdc[1];
-  double maxVCal[1] = {255*332};
-  
+  double maxVCal[1] = {255*350};
+
   newAdc[0] = adc;
   double *par = this->getCalibrationFunction(row, col);
-  if(par != 0)
+
+  if (par != 0)
     {
-      if (newAdc[0] >      ROC::calibrationFitFunction   (maxVCal, par, isDut))
-	newAdc[0] = (int)ROC::calibrationFitFunction   (maxVCal, par, isDut);
+      if (newAdc[0] > ROC::calibrationFitFunction(maxVCal, par, isDut))
+	newAdc[0] = (int)ROC::calibrationFitFunction(maxVCal, par, isDut);
+
       charge = (int)ROC::calibrationFitFunctionInv(newAdc , par, isDut);
       return true;
     }
