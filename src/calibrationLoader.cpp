@@ -638,10 +638,8 @@ bool calibrationLoader::makeHistograms(std::string detector, ROC *roc, bool fit,
             if(fit)
             {
                 fitter::fitResultDef fitR = theFitter_->calibrationFit(calib,
-                                                                       //2000,
-                                                                       //50000,
-                                                                        2000,
-                                                                       35000,
+								       0,
+                                                                       22000,
                                                                        NULL);
                 if(calib->GetEntries() != 0 && fitR.first == NULL /*|| fitR.second == NULL*/)
                 {
