@@ -27,13 +27,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ================================================================================*/
+
  
 #include "ROC.h"
+
 #include <iostream>
 
 
 // @@@ Hard coded parameters @@@
-#define FITTYPE "prabol" // "lin", "parabol", or "tanh": use this to set which function you want to use for the calibrations
+#define FITTYPE "parabol" // "lin", "parabol", or "tanh": use this to set which function you want to use for the calibrations
 // ============================
 
 
@@ -61,7 +63,7 @@ double ROC::calibrationFitFunctionROOT(double *x, double *par)
 {
   if      (strcmp(FITTYPE,"lin")     == 0) return x[0]*par[0] + par[1];
   else if (strcmp(FITTYPE,"parabol") == 0) return x[0]*x[0]*par[0] + x[0]*par[1] + par[2];
-  else if (strcmp(FITTYPE,"tanh")    == 0) return par[0] + par[1]*tanh(par[2]*x[0] + par[3]);
+  else                                     return par[0] + par[1]*tanh(par[2]*x[0] + par[3]);
 }
 
 //===============================================================================
@@ -89,8 +91,7 @@ double ROC::calibrationFitFunctionInv(double *x, double *par, bool isDut)
 //==========================================================================
 void ROC::setOrientation(unsigned int degrees)
 {
-  if (degrees == 0 || degrees == 180)
-    orientation_ = degrees;
+  if (degrees == 0 || degrees == 180) orientation_ = degrees;
   else if(degrees == 90 || degrees == 270)
     {
       STDLINE("ERROR: Only 0 and 180 degrees rotations are supported for a ROC!", ACRed);
@@ -106,8 +107,7 @@ void ROC::setOrientation(unsigned int degrees)
 //==========================================================================
 bool ROC::goodRow(unsigned int row)
 {
-  if (row < numberOfRows_)
-    return true;
+  if (row < numberOfRows_) return true;
   else
     {
       ss_.str("");
@@ -120,8 +120,7 @@ bool ROC::goodRow(unsigned int row)
 //==========================================================================
 bool ROC::goodCol(unsigned int col)
 {
-  if (col < numberOfCols_)
-    return true;
+  if (col < numberOfCols_) return true;
   else
     {
       ss_.str("");
@@ -253,6 +252,7 @@ double ROC::getPixelLowEdgeLocalX(unsigned int pixelCol )
       return -1;
     }
 }
+
 //==========================================================================
 double ROC::getPixelLowEdgeLocalY(unsigned int pixelRow )
 {
@@ -316,15 +316,15 @@ bool ROC::calibratePixel(int row, int col, int adc, int& charge, bool isDut)
 {
   double newAdc[1];
   double maxVCal[1] = {255*350};
-
+  
   newAdc[0] = adc;
   double *par = this->getCalibrationFunction(row, col);
-
+  
   if (par != 0)
     {
       if (newAdc[0] > ROC::calibrationFitFunction(maxVCal, par, isDut))
 	newAdc[0] = (int)ROC::calibrationFitFunction(maxVCal, par, isDut);
-
+      
       charge = (int)ROC::calibrationFitFunctionInv(newAdc , par, isDut);
       return true;
     }
