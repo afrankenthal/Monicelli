@@ -427,7 +427,7 @@ int main (int argc, char** argv)
 		  theDUTAligner.setFixParMap(dut,100111); // Here is where I choose which parameters must be kept constant
 		  theDUTAligner.setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
 		  theDUTAligner.setOperation(&aligner::alignDUT);
-	          theDUTAligner.align();
+	          theDUTAligner.alignDUT();
 
 		  aligner::alignmentResultsDef alignmentResults = theDUTAligner.getAlignmentResults();
 		  Detector* theDetector = theGeometry->getDetector(dut);
@@ -485,7 +485,7 @@ int main (int argc, char** argv)
 	      theDUTAligner.setFixParMap(dut,DUTfreePLANES); // Here is where I choose which parameters must be kept constant
 	      theDUTAligner.setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
 	      theDUTAligner.setOperation(&aligner::alignDUT);
-	      theDUTAligner.align();
+	      theDUTAligner.alignDUT();
 
 	      aligner::alignmentResultsDef alignmentResults = theDUTAligner.getAlignmentResults();
 	      Detector* theDetector = theGeometry->getDetector(dut);
