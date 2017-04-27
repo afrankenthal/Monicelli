@@ -345,12 +345,7 @@ int main (int argc, char** argv)
 	  // #############################
 	  theTelescopeAligner.setOperation(&aligner::align);
 	  theTelescopeAligner.align();
-      
- 	  //threader* theThreaderTelescopeAlignment = new threader();
- 	  //theThreaderTelescopeAlignment->setProcess(theAlignerTelescope);
- 	  //theThreaderTelescopeAlignment->start();
- 	  //while (theThreaderTelescopeAlignment->isRunning()) sleep(1);
-       
+     
        
  	  aligner::alignmentResultsDef alignmentResultsTelescope = theTelescopeAligner.getAlignmentResults();
 	  for (Geometry::iterator geo = theGeometry->begin(); geo != theGeometry->end(); geo++)
@@ -371,9 +366,6 @@ int main (int argc, char** argv)
 	    theDetector->setYRotationCorrection(yRotationCorrection);
 	    theDetector->setZRotationCorrection(zRotationCorrection);
 	  }
- 
-	  //delete theAlignerTelescope;
-	  //delete theThreaderTelescopeAlignment;
 
 
 
@@ -431,20 +423,12 @@ int main (int argc, char** argv)
 		  if (!(*it).second->isDUT()) continue;
 		  
 		  string dut = it->first;
-		  //aligner* theAligner = new aligner(&theFileEater,&theHManager);
 		  
 		  theDUTAligner.setFixParMap(dut,100111); // Here is where I choose which parameters must be kept constant
 		  theDUTAligner.setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
 		  theDUTAligner.setOperation(&aligner::alignDUT);
 	          theDUTAligner.align();
-		  
-		  
-		  //threader* theThreader = new threader();
-		  //theThreader->setProcess(theAligner);
-		  //theThreader->start();
-		  //while (theThreader->isRunning()) sleep(1);
-		  
-		  
+
 		  aligner::alignmentResultsDef alignmentResults = theDUTAligner.getAlignmentResults();
 		  Detector* theDetector = theGeometry->getDetector(dut);
 		  
@@ -461,9 +445,6 @@ int main (int argc, char** argv)
 		  theDetector->setXRotationCorrection(xRotationCorrection);
 		  theDetector->setYRotationCorrection(yRotationCorrection);
 		  theDetector->setZRotationCorrection(zRotationCorrection);
-		  
-		  //delete theAligner;
-		  //delete theThreader;	  
 		}
 
 
@@ -472,7 +453,7 @@ int main (int argc, char** argv)
 	      // # Update geometry #
 	      // ###################	
 	      STDLINE("Update Geometry",ACBlue);
-	      
+
 	      theFileEater.updateGeometry("geometry");
 
 
@@ -500,19 +481,11 @@ int main (int argc, char** argv)
 	      if (!(*it).second->isDUT()) continue;
 	  
 	      string dut = it->first;
-	      //aligner* theAligner = new aligner(&theFileEater,&theHManager);
 
 	      theDUTAligner.setFixParMap(dut,DUTfreePLANES); // Here is where I choose which parameters must be kept constant
 	      theDUTAligner.setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
 	      theDUTAligner.setOperation(&aligner::alignDUT);
 	      theDUTAligner.align();
-	  
-
-	      //threader* theThreader = new threader();
-	      //theThreader->setProcess(theAligner);
-	      //theThreader->start();
-	      //while (theThreader->isRunning()) sleep(1);
-
 
 	      aligner::alignmentResultsDef alignmentResults = theDUTAligner.getAlignmentResults();
 	      Detector* theDetector = theGeometry->getDetector(dut);
@@ -530,9 +503,6 @@ int main (int argc, char** argv)
 	      theDetector->setXRotationCorrection(xRotationCorrection);
 	      theDetector->setYRotationCorrection(yRotationCorrection);
 	      theDetector->setZRotationCorrection(zRotationCorrection);
-
-	      //delete theAligner;
-	      //delete theThreader;	  
 	    }
 
 
