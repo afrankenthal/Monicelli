@@ -82,7 +82,7 @@ double ROC::calibrationFitFunctionInv(double *x, double *par, bool isDut)
   else if ((isDut) and (strcmp(FITTYPE,"parabol") == 0))
     {
       if ((par[1]*par[1] - 4.*par[0]*(par[2] - x[0])) >= 0)
-	return (-par[1] + (sqrt(par[1]*par[1] - 4.*par[0]*(par[2] - x[0])) / (2.*par[0])));
+	return ((-par[1] + sqrt(par[1]*par[1] - 4.*par[0]*(par[2] - x[0]))) / (2.*par[0]));
       else
 	return 0.;
     }
