@@ -43,11 +43,6 @@
 #include <TKey.h>
 #include <vector>
 
-/*
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/algorithm/string/case_conv.hpp>
-#include <boost/regex.hpp>
-*/
 #include "EventHeader.h"
 #include "Geometry.h"
 #include "fileEater.h"
@@ -56,17 +51,16 @@
 #include "MessageTools.h"
 #include "process.h"
 
-//#define ELECTRONS_NUMBER 421
-#define ELECTRONS_NUMBER 350
 
 class calibrationLoader : public process
 {
-public :
-    calibrationLoader(fileEater * theFileEater,
-                      HManager  * theHManager,
-                      fitter    * theFitter   ) ;
-    ~calibrationLoader(void                    ) ;
-
+ public :
+  calibrationLoader(fileEater * theFileEater,
+		    HManager  * theHManager,
+		    fitter    * theFitter);
+  
+  ~calibrationLoader(void);
+  
     //               row           col            plot     fitPar and covMat
     typedef std::map<int, std::map<int, std::pair<TH1I*, fitter::fitResultDef> > >   pixelPlotsMapDef      ;
     //               detectorID          rocID   pixel

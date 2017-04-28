@@ -36,6 +36,7 @@
 
 // @@@ Hard coded parameters @@@
 #define FITTYPE "parabol" // "lin", "parabol", or "tanh": use this to set which function you want to use for the calibrations
+#define ELECTRONS_NUMBER 350 // [e- / Vcal]
 // ============================
 
 
@@ -81,7 +82,7 @@ double ROC::calibrationFitFunctionInv(double *x, double *par, bool isDut)
   else if ((isDut) and (strcmp(FITTYPE,"parabol") == 0))
     {
       if ((par[1]*par[1] - 4.*par[0]*(par[2] - x[0])) >= 0)
-	return -par[1] + sqrt(par[1]*par[1] - 4.*par[0]*(par[2] - x[0])) / (2.*par[0]);
+	return (-par[1] + (sqrt(par[1]*par[1] - 4.*par[0]*(par[2] - x[0])) / (2.*par[0])));
       else
 	return 0.;
     }
@@ -138,7 +139,7 @@ void ROC::setRowPitchVector(void)
   rowLowEdge_.clear();
   rowPitches_.resize(numberOfRows_, standardPixelPitch_.first);
   rowLowEdge_.resize(numberOfRows_,0);
-  for (nonStandardPitchMapDef::iterator it=nonStandardRowPitch_.begin(); it != nonStandardRowPitch_.end(); it++)
+  for (nonStandardPitchMapDef::iterator it = nonStandardRowPitch_.begin(); it != nonStandardRowPitch_.end(); it++)
     {
       if(it->first < rowPitches_.size())
         {
@@ -161,7 +162,7 @@ void ROC::setColPitchVector(void)
   colLowEdge_.clear();
   colPitches_.resize(numberOfCols_, standardPixelPitch_.second);
   colLowEdge_.resize(numberOfCols_,0);
-  for (nonStandardPitchMapDef::iterator it=nonStandardColPitch_.begin(); it != nonStandardColPitch_.end(); it++)
+  for (nonStandardPitchMapDef::iterator it = nonStandardColPitch_.begin(); it != nonStandardColPitch_.end(); it++)
     {
       if(it->first < colPitches_.size())
         {
@@ -179,30 +180,30 @@ void ROC::setColPitchVector(void)
 //==========================================================================
 void ROC::setNumberOfRowsCols(unsigned int numberOfRows, unsigned int numberOfCols)
 {
-  numberOfRows_=numberOfRows;
+  numberOfRows_ = numberOfRows;
   setRowPitchVector();
-  numberOfCols_=numberOfCols;
+  numberOfCols_ = numberOfCols;
   setColPitchVector();
 }
 
 //==========================================================================
 void ROC::setNumberOfRows(unsigned int numberOfRows)
 {
-  numberOfRows_=numberOfRows;
+  numberOfRows_ = numberOfRows;
   setRowPitchVector();
 }
 
 //==========================================================================
 void ROC::setNumberOfCols(unsigned int numberOfCols)
 {
-  numberOfCols_=numberOfCols;
+  numberOfCols_ = numberOfCols;
   setColPitchVector();
 }
 
 //==========================================================================
 void ROC::setStandardPixPitch(double row_cm, double col_cm)
 {
-  standardPixelPitch_=std::make_pair(row_cm,col_cm);
+  standardPixelPitch_ = std::make_pair(row_cm,col_cm);
   setRowPitchVector();
   setColPitchVector();
 }
@@ -222,21 +223,21 @@ void ROC::setOneColPitch(unsigned int col, double col_cm)
 }
 
 //==========================================================================
-double ROC::getPixelCenterLocalX( unsigned int pixelCol )
+double ROC::getPixelCenterLocalX( unsigned int pixelCol)
 {
   if (!goodCol(pixelCol)) return -1;
   return (this->getPixelLowEdgeLocalX(pixelCol) + this->getPixelPitchLocalX(pixelCol)/2.);
 }
 
 //==========================================================================
-double ROC::getPixelCenterLocalY(unsigned int pixelRow )
+double ROC::getPixelCenterLocalY(unsigned int pixelRow)
 {
   if (!goodRow(pixelRow)) return -1;
   return (this->getPixelLowEdgeLocalY(pixelRow) + this->getPixelPitchLocalY(pixelRow)/2.);
 }
 
 //==========================================================================
-double ROC::getPixelLowEdgeLocalX(unsigned int pixelCol )
+double ROC::getPixelLowEdgeLocalX(unsigned int pixelCol)
 {
   if (!goodCol(pixelCol)) return -1;
   
@@ -254,7 +255,7 @@ double ROC::getPixelLowEdgeLocalX(unsigned int pixelCol )
 }
 
 //==========================================================================
-double ROC::getPixelLowEdgeLocalY(unsigned int pixelRow )
+double ROC::getPixelLowEdgeLocalY(unsigned int pixelRow)
 {
   if (!goodRow(pixelRow)) return -1;
   
@@ -272,35 +273,35 @@ double ROC::getPixelLowEdgeLocalY(unsigned int pixelRow )
 }
 
 //==========================================================================
-double ROC::getPixelHiEdgeLocalX(unsigned int pixelCol )
+double ROC::getPixelHiEdgeLocalX(unsigned int pixelCol)
 {
   if (!goodCol(pixelCol)) return -1;
   return (this->getPixelLowEdgeLocalX(pixelCol) + this->getPixelPitchLocalX(pixelCol));
 }
 
 //==========================================================================
-double ROC::getPixelHiEdgeLocalY(unsigned int pixelRow )
+double ROC::getPixelHiEdgeLocalY(unsigned int pixelRow)
 {
   if (!goodRow(pixelRow)) return -1;
   return (this->getPixelLowEdgeLocalY(pixelRow) + this->getPixelPitchLocalY(pixelRow));
 }
 
 //==========================================================================
-double ROC::getPixelPitchLocalX(unsigned int pixelCol )
+double ROC::getPixelPitchLocalX(unsigned int pixelCol)
 {
   if (!goodCol(pixelCol)) return -1;
   return colPitches_[pixelCol];
 }
 
 //==========================================================================
-double ROC::getPixelPitchLocalY(unsigned int pixelRow )
+double ROC::getPixelPitchLocalY(unsigned int pixelRow)
 {
   if (!goodRow(pixelRow)) return -1;
   return rowPitches_[pixelRow];
 }
 
 //==========================================================================
-double ROC::getLengthLocalX(void  )
+double ROC::getLengthLocalX(void)
 {
   return rocLengthX_;
 }
@@ -315,8 +316,8 @@ double ROC::getLengthLocalY (void)
 bool ROC::calibratePixel(int row, int col, int adc, int& charge, bool isDut)
 {
   double newAdc[1];
-  double maxVCal[1] = {255*350};
-  
+  double maxVCal[1] = {255*ELECTRONS_NUMBER};
+
   newAdc[0] = adc;
   double *par = this->getCalibrationFunction(row, col);
   
@@ -363,7 +364,7 @@ void ROC::setCalibrationFunction(int row, int col, double *par, double */*cov*/)
 double* ROC::getCalibrationFunction(int row, int col)
 {   
   if (pixelCalibrationFunctionTmp_.count(row) && pixelCalibrationFunctionTmp_[row].count(col))
-    for(unsigned int i=0; i < pixelCalibrationFunctionTmp_[row][col].size(); i++)
+    for(unsigned int i = 0; i < pixelCalibrationFunctionTmp_[row][col].size(); i++)
       par_[i] = pixelCalibrationFunctionTmp_[row][col][i] ;
   else
     return 0;

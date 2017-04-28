@@ -35,12 +35,15 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/regex.hpp>
 
-// ### Hard coded values ###
+
+// @@@ Hard coded parameters @@@
 #define SCALE_F 1000
 #define FITMINPOINTS 10
 #define MAXTHRESHOLD 10000 // [e-]
 #define DYNAMICRANGE 200
-// #########################
+#define ELECTRONS_NUMBER 350 // [e- / Vcal]
+// ============================
+
 
 //=========================================================
 calibrationLoader::calibrationLoader(fileEater *theFileEater, HManager *theHManager, fitter *theFitter) :
@@ -121,11 +124,11 @@ bool calibrationLoader::loadASCIIcalibrationFile(std::string fileName)
             {
 	      if( boost::regex_match(line.c_str(), what, expIteration, boost::match_extra) )
                 {
-		  currentReg = Utils::toInt(what[2])*ELECTRONS_NUMBER;  //reg
+		  currentReg = Utils::toInt(what[2])*ELECTRONS_NUMBER;
                 }
 	      
             }
-	  else if(boost::regex_match(line.c_str(), what, expRowColAdc, boost::match_extra)) //fill pixel
+	  else if(boost::regex_match(line.c_str(), what, expRowColAdc, boost::match_extra))
             {
 	      pixels_[Utils::toInt(what[1])][Utils::toInt(what[2])][currentReg] = std::make_pair(Utils::toInt(what[3]), Utils::toInt(what[4]));
             }
