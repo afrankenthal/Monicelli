@@ -1498,10 +1498,7 @@ std::string HManager::getLabel (void )
         return "Creating charge distributions" ;
      }
     }
-    else
-    {
-        return "Histogramming" ;
-    }
+    return "Histogramming" ;
 }
 //===============================================================================
 bool HManager::execute()

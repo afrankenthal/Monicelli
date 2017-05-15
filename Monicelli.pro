@@ -264,7 +264,6 @@ extraclean.commands  = rm -rf Makefile                          \
                        *.pcm                                    \
                        tmp/*                                    \
                        Express/MonicelliExpress                 \
-		       plugins/*/Makefile                       \
 		       plugins/*/moc_*.cpp                      \
 		       plugins/*/ui_*.h                         \
                        MakefileExpress

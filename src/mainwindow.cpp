@@ -636,8 +636,8 @@ void MainWindow::readSettings()
     QSettings settings("CMS", "Monicelli");
     QPoint pos             = settings.value("pos",            QPoint(200, 200)).toPoint();
     QSize  size            = settings.value("size",           QSize (400, 400)).toSize();
-    QPoint hNavigatorPos_  = settings.value("posHnavigator",  QSize (400, 400)).toPoint();
-    QSize  hNavigatorSize_ = settings.value("sizeHnavigator", QSize (400, 400)).toSize();
+//    QPoint hNavigatorPos_  = settings.value("posHnavigator",  QSize (400, 400)).toPoint();
+//    QSize  hNavigatorSize_ = settings.value("sizeHnavigator", QSize (400, 400)).toSize();
     this->move(pos);
     this->resize(size);
 }

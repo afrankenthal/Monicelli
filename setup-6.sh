@@ -48,7 +48,54 @@ alias distCleanAll='make -f MakefileAll distclean'
 if [ ${HOSTNAME} == "hal9000.mib.infn.it" ]; then
 
     if [ ${USER} == "menasce" ]; then
-	export BASEDATADIR=../data/2015_10_October/
+	export BASEDATADIR=/raid1/menasce/AnalysisFTB/data/2015_10_October/
+    elif [ ${USER} == "dinardo" ]; then
+	export BASEDATADIR=/raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
+    elif [ ${USER} == "dzuolo" ]; then
+	export BASEDATADIR=../data/TestBeamData2015
+    fi
+
+    export PATH=/opt/rh/devtoolset-2/root/usr/bin:/bin:/usr/bin:/usr/local/bin:/usr/printmi/bin
+
+    #===== Local directories
+    export MonicelliDir=`pwd`
+    export Monicelli_RawData_Dir=${BASEDATADIR}/Merged
+    export Monicelli_DataSample_Dir=${BASEDATADIR}/Merged
+    export Monicelli_CalSample_Dir=${BASEDATADIR}/Calibrations
+    export MonicelliOutputDir=${BASEDATADIR}/MonicelliOutput
+    export Monicelli_XML_Dir=${BASEDATADIR}/Geometries
+    
+    #===== Location of the ROOT components
+    export ROOTVER=SIX
+    export ROOTSYS=/user/service/root-6.04.10/
+    export ROOTINC=$ROOTSYS/include/root
+    export ROOTLIB=$ROOTSYS/lib/root
+    
+    #===== Location of the Qt components
+    export QTDIR=/usr/local/Trolltech/Qt-4.8.5/
+    export QTCREATORDIR=/opt/local/qtcreator-2.7.1/bin
+    
+    #===== Location of the BOOST components
+    export BOOSTINC=/usr/local/include/boost
+    export BOOSTLIB=/usr/local/lib
+    
+    #===== Location of the XERCES components
+    export XERCESCINC=/opt/local/xerces/include
+    export XERCESCLIB=/opt/local/xerces/lib
+    
+    #===== C++ flags
+    export CPLUSPLUSFLAGS=-std=c++11
+   
+    export LD_LIBRARY_PATH	   
+    
+    alias qtcreator=${QTCREATORDIR}/qtcreator
+    
+fi
+#===============   Personalized configuration on this computer   ==============================================
+if [ ${HOSTNAME} == "cip.mib.infn.it" ]; then
+
+    if [ ${USER} == "menasce" ]; then
+	export BASEDATADIR=/raid1/menasce/AnalysisFTB/data/2015_10_October/
     elif [ ${USER} == "dinardo" ]; then
 	export BASEDATADIR=/raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
     elif [ ${USER} == "dzuolo" ]; then
