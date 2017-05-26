@@ -107,31 +107,32 @@ private:
                                         bool                                              ) ;
     std::string getObjectType    (      TObject                          * obj            ) ;
 
-    std::stringstream   ss_               ;
+    std::stringstream                     ss_               ;
+    std::map<int, std::pair<int, int> >   zones_            ;
 
-    int                 currentCanvas_    ;
+    int                                   currentCanvas_    ;
 
-    MainWindow        * theMainWindow_    ;
-    canvasWidgetDef     serviceCanvas_    ;
-    cSwDef              cSw_              ;
-    HManager          * theHManager_      ;
-    QWidget           * parent_           ;
-    HNavigator        * theHNavigator_    ;
-    existingWItemsDef   existingWItems_   ;
+    MainWindow                          * theMainWindow_    ;
+    canvasWidgetDef                       serviceCanvas_    ;
+    cSwDef                                cSw_              ;
+    HManager                            * theHManager_      ;
+    QWidget                             * parent_           ;
+    HNavigator                          * theHNavigator_    ;
+    existingWItemsDef                     existingWItems_   ;
 
-    QIcon               canvasIcon_       ;
-    QIcon               folderIcon_       ;
-    QIcon               fileIcon_         ;
-    QIcon               mainIcon_         ;
-    QIcon               TH1Icon_          ;
-    QIcon               TH2Icon_          ;
-    QIcon               tTreeIcon_        ;
-    dirPathDef          dirPath_          ;
+    QIcon                                 canvasIcon_       ;
+    QIcon                                 folderIcon_       ;
+    QIcon                                 fileIcon_         ;
+    QIcon                                 mainIcon_         ;
+    QIcon                                 TH1Icon_          ;
+    QIcon                                 TH2Icon_          ;
+    QIcon                                 tTreeIcon_        ;
+    dirPathDef                            dirPath_          ;
 
-    int                 canvasPosX_       ;
-    int                 canvasPosY_       ;
-    int                 canvasWitdh_      ;
-    int                 canvasHeight_     ;
+    int                                   canvasPosX_       ;
+    int                                   canvasPosY_       ;
+    int                                   canvasWitdh_      ;
+    int                                   canvasHeight_     ;
 };
 
 #endif // HTREEBROWSER_H

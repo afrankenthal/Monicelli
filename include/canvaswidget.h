@@ -50,13 +50,17 @@ public:
     explicit canvasWidget(QWidget *parent = 0);
             ~canvasWidget();
 
-    void     divide      (int nx,
-                          int ny            ) ;
-    void     cd          (int pos           ) ;
-    void     clear       (void              ) ;
-    void     flush       (void              ) ;
-    void     update      (void              ) ;
-    void     setTitle    (std::string title ) ;
+    void     divide      (
+                          int         nx     ,
+                          int         ny     ,
+                          float       xmargin,
+                          float       ymargin
+                         )                     ;
+    void     cd          (int         pos    ) ;
+    void     clear       (void               ) ;
+    void     flush       (void               ) ;
+    void     update      (void               ) ;
+    void     setTitle    (std::string title  ) ;
 
 private:
     Ui::canvasWidget  * ui;

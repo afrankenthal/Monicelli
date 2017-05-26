@@ -103,6 +103,70 @@ hTreeBrowser::hTreeBrowser(QWidget *parent, MainWindow * mainWindow)
                      this, SLOT(  manipulateFolder          (       QTreeWidgetItem*, int))) ;
     QObject::connect(this, SIGNAL(itemEntered               (       QTreeWidgetItem*, int)),
                      this, SLOT(  showHint                  (       QTreeWidgetItem*, int))) ;
+    zones_[ 1] = std::make_pair(1,1) ;
+    zones_[ 2] = std::make_pair(2,1) ;
+    zones_[ 3] = std::make_pair(3,1) ;
+    zones_[ 4] = std::make_pair(2,2) ;
+    zones_[ 5] = std::make_pair(3,2) ;
+    zones_[ 6] = std::make_pair(3,2) ;
+    zones_[ 7] = std::make_pair(3,3) ;
+    zones_[ 8] = std::make_pair(3,3) ;
+    zones_[ 9] = std::make_pair(3,3) ;
+    zones_[10] = std::make_pair(4,3) ;
+    zones_[11] = std::make_pair(4,3) ;
+    zones_[12] = std::make_pair(4,3) ;
+    zones_[13] = std::make_pair(4,4) ;
+    zones_[14] = std::make_pair(4,4) ;
+    zones_[15] = std::make_pair(4,4) ;
+    zones_[16] = std::make_pair(4,4) ;
+    zones_[17] = std::make_pair(4,5) ;
+    zones_[18] = std::make_pair(4,5) ;
+    zones_[19] = std::make_pair(4,5) ;
+    zones_[20] = std::make_pair(4,5) ;
+    zones_[21] = std::make_pair(5,5) ;
+    zones_[22] = std::make_pair(5,5) ;
+    zones_[23] = std::make_pair(5,5) ;
+    zones_[24] = std::make_pair(5,5) ;
+    zones_[25] = std::make_pair(5,5) ;
+    zones_[26] = std::make_pair(5,6) ;
+    zones_[27] = std::make_pair(5,6) ;
+    zones_[28] = std::make_pair(5,6) ;
+    zones_[29] = std::make_pair(5,6) ;
+    zones_[30] = std::make_pair(5,6) ;
+    zones_[31] = std::make_pair(6,6) ;
+    zones_[32] = std::make_pair(6,6) ;
+    zones_[33] = std::make_pair(6,6) ;
+    zones_[34] = std::make_pair(6,6) ;
+    zones_[35] = std::make_pair(6,6) ;
+    zones_[36] = std::make_pair(6,6) ;
+    zones_[37] = std::make_pair(6,7) ;
+    zones_[38] = std::make_pair(6,7) ;
+    zones_[39] = std::make_pair(6,7) ;
+    zones_[40] = std::make_pair(6,7) ;
+    zones_[41] = std::make_pair(6,7) ;
+    zones_[42] = std::make_pair(6,7) ;
+    zones_[43] = std::make_pair(7,7) ;
+    zones_[44] = std::make_pair(7,7) ;
+    zones_[45] = std::make_pair(7,7) ;
+    zones_[46] = std::make_pair(7,7) ;
+    zones_[47] = std::make_pair(7,7) ;
+    zones_[48] = std::make_pair(7,7) ;
+    zones_[49] = std::make_pair(7,7) ;
+    zones_[50] = std::make_pair(7,8) ;
+    zones_[51] = std::make_pair(7,8) ;
+    zones_[52] = std::make_pair(7,8) ;
+    zones_[53] = std::make_pair(7,8) ;
+    zones_[54] = std::make_pair(7,8) ;
+    zones_[55] = std::make_pair(7,8) ;
+    zones_[56] = std::make_pair(7,8) ;
+    zones_[57] = std::make_pair(8,8) ;
+    zones_[58] = std::make_pair(8,8) ;
+    zones_[59] = std::make_pair(8,8) ;
+    zones_[60] = std::make_pair(8,8) ;
+    zones_[61] = std::make_pair(8,8) ;
+    zones_[62] = std::make_pair(8,8) ;
+    zones_[63] = std::make_pair(8,8) ;
+    zones_[64] = std::make_pair(8,8) ;
 }
 
 //=========================================================================
@@ -455,25 +519,21 @@ void hTreeBrowser::showContextMenu(const QPoint &)
       gStyle->SetOptFit(0) ;
     }
 
-    int nx, ny ;
-    if( numberOfPlots ==  1 ) {nx=1;ny=1;}
-    if( numberOfPlots ==  2 ) {nx=2;ny=1;}
-    if( numberOfPlots ==  3 ) {nx=3;ny=1;}
-    if( numberOfPlots ==  4 ) {nx=2;ny=2;}
-    if( numberOfPlots ==  5 ) {nx=3;ny=2;}
-    if( numberOfPlots ==  6 ) {nx=3;ny=2;}
-    if( numberOfPlots ==  7 ) {nx=3;ny=3;}
-    if( numberOfPlots ==  8 ) {nx=3;ny=3;}
-    if( numberOfPlots ==  9 ) {nx=3;ny=3;}
-    if( numberOfPlots == 10 ) {nx=4;ny=3;}
-    if( numberOfPlots == 11 ) {nx=4;ny=3;}
-    if( numberOfPlots == 12 ) {nx=4;ny=3;}
-    if( numberOfPlots == 13 ) {nx=4;ny=4;}
-    if( numberOfPlots == 14 ) {nx=4;ny=4;}
-    if( numberOfPlots == 15 ) {nx=4;ny=4;}
-    if( numberOfPlots == 16 ) {nx=4;ny=4;}
+    float xmargin = 0.01 ;
+    float ymargin = 0.01 ;
+    if( numberOfPlots > 36 )
+    {
+        xmargin = 0. ;
+        ymargin = 0. ;
+        STDLINE("WARNING: using zero margins",ACYellow) ;
+    }
 
-    serviceCanvas_[currentCanvas_]->divide(nx, ny) ;
+    serviceCanvas_[currentCanvas_]->divide(
+                                           zones_[numberOfPlots].first,
+                                           zones_[numberOfPlots].second,
+                                           xmargin,
+                                           ymargin
+                                          ) ;
 
     std::string options = "" ;
 

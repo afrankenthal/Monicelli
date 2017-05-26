@@ -56,12 +56,10 @@ canvasWidget::~canvasWidget()
 }
 
 //===========================================================================
-void canvasWidget::divide( int nx, int ny )
+void canvasWidget::divide( int nx, int ny, float xmargin, float ymargin )
 {
-//  canvas_ = new QRootCanvas(canvas_,"") ;
-
   canvas_->GetCanvas()->Clear() ;
-  canvas_->GetCanvas()->Divide(nx, ny, 0.001, 0.001) ;
+  canvas_->GetCanvas()->Divide(nx, ny, xmargin, ymargin) ;
   canvas_->GetCanvas()->Modified() ;
   canvas_->GetCanvas()->Update();
 }

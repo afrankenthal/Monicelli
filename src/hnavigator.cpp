@@ -317,12 +317,9 @@ void HNavigator::resizeEvent(QResizeEvent * )
        DE: topGrbx - botFram (dYGrbx)
 
    */
-//  int topComb = 0; // Actually unused
   int topFram = 0;
   int topGrbx = 0;
-//  int botComb = 0; // Actually unused
   int botFram = 0;
-//  int botGrbx = 0; // Actually unused
 
   QRect thisRect = this->geometry() ;
 
@@ -330,12 +327,9 @@ void HNavigator::resizeEvent(QResizeEvent * )
   QRect framRect = ui->hNavigatorTreeFrame  ->geometry() ;
   QRect grbxRect = ui->hNavigatorCanvasGB   ->geometry() ;
 
-//  topComb = combRect.y()  		; // Actually unused
   topFram = framRect.y()  		;
   topGrbx = grbxRect.y()  		;
-//  botComb = topComb + combRect.height() ; // Actually unused
   botFram = topFram + framRect.height() ;
-//  botGrbx = topGrbx + grbxRect.height() ; // Actually unused
 
   int dw = combRect.height() + grbxRect.height() + 40 ; // 40 is the total amount of vertical space between components
 
@@ -351,12 +345,9 @@ void HNavigator::resizeEvent(QResizeEvent * )
   combRect = ui->hNavigatorInputFileCB->geometry() ;
   framRect = ui->hNavigatorTreeFrame  ->geometry() ;
 
-//  topComb = combRect.y()     		  ; // Actually unused
   topFram = framRect.y()     		;
   topGrbx = botFram + 8        		;
-//  botComb = topComb + combRect.height() ; // Actually unused	
   botFram = topFram + framRect.height() ;       
-//  botGrbx = topGrbx + grbxRect.height() ; // Actually unused       
 	 
   // Adjust for vertical stretching
   if( theHTreeBrowser_ ) // At first call this component is not yet existing
