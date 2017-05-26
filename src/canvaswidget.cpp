@@ -126,6 +126,5 @@ void canvasWidget::resizeEvent ( QResizeEvent * re )
 //===========================================================================
 void canvasWidget::setTitle(std::string title)
 {
-  STDLINE(title,ACWhite) ;
   canvas_->setWindowTitle(QApplication::translate("canvasWidget", title.c_str(), 0, QApplication::UnicodeUTF8));
 }

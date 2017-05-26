@@ -62,9 +62,12 @@ class calibrationLoader : public process
   ~calibrationLoader(void);
   
     //               row           col            plot     fitPar and covMat
-    typedef std::map<int, std::map<int, std::pair<TH1I*, fitter::fitResultDef> > >   pixelPlotsMapDef      ;
+    typedef std::map<int, std::map<int, std::pair<TH1I*, fitter::fitResultDef> > >   pixelPlotsMapDef       ;
     //               detectorID          rocID   pixel
-    typedef std::map<std::string, std::map<int,pixelPlotsMapDef> >                   calibrationPlotsMapDef;
+    typedef std::map<std::string, std::map<int,pixelPlotsMapDef> >                   calibrationPlotsMapDef ;
+    //               detectorID          rocID 1D/2D
+    typedef std::map<std::string, std::map<int,TH1I*> >                              calibrationPlotsMapDefH;
+    typedef std::map<std::string, std::map<int,TH2F*> >                              calibrationPlotsMapDefS;
 
     bool    loadASCIIcalibrationFile (std::string   fileName                       );
     bool    loadROOTcalibrationFiles (std::string   detector,
@@ -128,6 +131,8 @@ private :
     headerMapDef                         header_             ;
     pixelDataMapDef                      pixels_             ;
     calibrationPlotsMapDef               calibrations_       ;
+    calibrationPlotsMapDefH              chisquaresH_        ;
+    calibrationPlotsMapDefS              chisquaresS_        ;
     bool                                 readROOT_           ;
     bool                                 writeASCII_         ;
     bool                                 calibrationsLoaded_ ;

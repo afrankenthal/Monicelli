@@ -560,7 +560,7 @@ hTreeBrowser::selectedObjectsDef hTreeBrowser::getSelectedItems()
 //        }
         this->collectItems(selectedItems[item],selectedObjects) ;
     }
-    STDLINE(selectedObjects.size(),ACCyan) ;
+//    STDLINE(selectedObjects.size(),ACCyan) ;
     return selectedObjects ;
 }
 
@@ -671,7 +671,6 @@ void hTreeBrowser::manipulateFolder( QTreeWidgetItem * wItem, int )
    2) if it is a folder, deselect any explicitly selected child but add the
       folder to the list of already selected items.
  */
-    STDLINE("",ACWhite) ;
     if( wItem->childCount() == 0 )
     {
         wItem->setSelected(true);

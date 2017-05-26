@@ -100,12 +100,12 @@ class mainTabs : public QWidget
 public:
     typedef void (mainTabs::*threadEnd_Function)(HManager::stringVDef );
 
-    explicit       mainTabs                 (MainWindow 	      * mainWindow = 0 );
-                  ~mainTabs                 (void				                   );
+    explicit       mainTabs                 (MainWindow 	  * mainWindow = 0 );
+                  ~mainTabs                 (void		    		   );
 
-    fileEater    * getFileEater             (void				                   ) {return theFileEater_ ;}
-    void           collectExistingWidgets   (MainWindow 	      * mainWindow = 0 );
-    Ui::mainTabs * getUi                    (void				                   ) {return ui;	   ;}
+    fileEater    * getFileEater             (void		    		   ) {return theFileEater_ ;}
+    void           collectExistingWidgets   (MainWindow 	  * mainWindow = 0 );
+    Ui::mainTabs * getUi                    (void		    		   ) {return ui;	   ;}
 
 private:
     void           initializeSingletons     (void                                  );
@@ -176,14 +176,14 @@ private:
     std::map<int, QRootCanvas*>   theClusterCanvas_      ; // ToROOT6
     HManager::stringVDef          residualsType_         ;
     bool                          redoChi2_              ;
-    std::map<std::string,GeometryParameters*> geometryParameters_;
-    int                           geometryDisplayShrinkFix_;
+    std::map<std::string,GeometryParameters*> geometryParameters_ ;
+    int                           geometryDisplayShrinkFix_       ;
     std::map< int,std::string>    folderMap_;
     std::map< int,QTableWidget*>  tableMap_;
 
-    TBenchmark     * theBenchmark_                            ;
+    TBenchmark     * theBenchmark_                                ;
 
-    std::string      theThreadProcess_                        ;
+    std::string      theThreadProcess_                            ;
 
     QRootCanvas    * beamSpot2DCanvas_			          ; // ToROOT6
     QRootCanvas    * beamSpotProjXCanvas_ 		          ; // ToROOT6

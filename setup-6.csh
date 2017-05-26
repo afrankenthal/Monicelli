@@ -49,7 +49,7 @@ alias distCleanAll 'make -f MakefileAll distclean'
 if(${HOSTNAME} == "hal9000.mib.infn.it") then
 
   if(     ${USER} == "menasce") then
-   setenv BASEDATADIR /raid1/menasce/AnalysisFTB/data/2015_10_October/
+   setenv BASEDATADIR /raid1/menasce/AnalysisTBF/data/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
   else if(${USER} == "dinardo") then
    setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
   else if(${USER} == "dzuolo") then
@@ -96,7 +96,7 @@ endif
 if(${HOSTNAME} == "cip.mib.infn.it") then
 
   if(     ${USER} == "menasce") then
-   setenv BASEDATADIR /raid1/menasce/AnalysisFTB/data/2015_10_October/
+   setenv BASEDATADIR /raid1/menasce/AnalysisTBF/data/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
   else if(${USER} == "dinardo") then
    setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
   else if(${USER} == "dzuolo") then

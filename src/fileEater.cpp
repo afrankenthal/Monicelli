@@ -133,6 +133,7 @@ fileEater::fileEater(int argc, char ** argv)
 std::string fileEater::openFile(std::string inputFile)
 {
     std::string fileName = inputFile ;
+    if(fileName == "No file loaded" ) return "";
     boost::cmatch what;
     static const boost::regex exp(".*?[\\/](\\w+)\\.(dat|txt|root|xml|nhd|geo)", boost::regex::perl);
 
