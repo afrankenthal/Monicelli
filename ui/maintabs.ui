@@ -2057,8 +2057,8 @@ p, li { white-space: pre-wrap; }
          <rect>
           <x>10</x>
           <y>15</y>
-          <width>96</width>
-          <height>26</height>
+          <width>53</width>
+          <height>20</height>
          </rect>
         </property>
         <property name="palette">
@@ -2110,10 +2110,10 @@ p, li { white-space: pre-wrap; }
        <widget class="QPushButton" name="loadRocCalibrationFile_4">
         <property name="geometry">
          <rect>
-          <x>120</x>
+          <x>68</x>
           <y>15</y>
-          <width>101</width>
-          <height>26</height>
+          <width>77</width>
+          <height>20</height>
          </rect>
         </property>
         <property name="font">
@@ -2128,10 +2128,10 @@ p, li { white-space: pre-wrap; }
        <widget class="QPushButton" name="loadRocCalibrationFile_3">
         <property name="geometry">
          <rect>
-          <x>230</x>
+          <x>148</x>
           <y>15</y>
-          <width>101</width>
-          <height>26</height>
+          <width>89</width>
+          <height>20</height>
          </rect>
         </property>
         <property name="font">
@@ -2224,7 +2224,7 @@ p, li { white-space: pre-wrap; }
           <x>160</x>
           <y>60</y>
           <width>321</width>
-          <height>21</height>
+          <height>20</height>
          </rect>
         </property>
        </widget>
@@ -2234,7 +2234,7 @@ p, li { white-space: pre-wrap; }
           <x>380</x>
           <y>15</y>
           <width>101</width>
-          <height>26</height>
+          <height>20</height>
          </rect>
         </property>
         <property name="palette">
@@ -2350,7 +2350,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>7</x>
-          <y>21</y>
+          <y>17</y>
           <width>56</width>
           <height>21</height>
          </rect>
@@ -2368,9 +2368,9 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>355</x>
-          <y>20</y>
+          <y>16</y>
           <width>44</width>
-          <height>21</height>
+          <height>20</height>
          </rect>
         </property>
         <property name="alignment">
@@ -2384,7 +2384,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>405</x>
-          <y>21</y>
+          <y>17</y>
           <width>26</width>
           <height>21</height>
          </rect>
@@ -2402,7 +2402,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>235</x>
-          <y>21</y>
+          <y>17</y>
           <width>31</width>
           <height>21</height>
          </rect>
@@ -2420,7 +2420,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>320</x>
-          <y>21</y>
+          <y>17</y>
           <width>31</width>
           <height>21</height>
          </rect>
@@ -2438,9 +2438,9 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>65</x>
-          <y>20</y>
+          <y>16</y>
           <width>161</width>
-          <height>21</height>
+          <height>20</height>
          </rect>
         </property>
         <property name="editable">
@@ -2451,9 +2451,9 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>8</x>
-          <y>48</y>
-          <width>133</width>
-          <height>21</height>
+          <y>40</y>
+          <width>53</width>
+          <height>20</height>
          </rect>
         </property>
         <property name="font">
@@ -2462,16 +2462,16 @@ p, li { white-space: pre-wrap; }
          </font>
         </property>
         <property name="text">
-         <string>Show calibration</string>
+         <string>Show </string>
         </property>
        </widget>
        <widget class="QSpinBox" name="calibrationROCSB">
         <property name="geometry">
          <rect>
           <x>270</x>
-          <y>20</y>
+          <y>16</y>
           <width>43</width>
-          <height>21</height>
+          <height>20</height>
          </rect>
         </property>
         <property name="alignment">
@@ -2485,9 +2485,9 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>435</x>
-          <y>20</y>
+          <y>16</y>
           <width>44</width>
-          <height>21</height>
+          <height>20</height>
          </rect>
         </property>
         <property name="alignment">
@@ -2495,6 +2495,74 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="maximum">
          <number>51</number>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="cal1Chi2PB">
+        <property name="geometry">
+         <rect>
+          <x>64</x>
+          <y>40</y>
+          <width>120</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Show chi2 (1D)</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="cal2Chi2PB">
+        <property name="geometry">
+         <rect>
+          <x>192</x>
+          <y>40</y>
+          <width>120</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Show chi2 (2D)</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="cal2DChi2AllPB">
+        <property name="geometry">
+         <rect>
+          <x>192</x>
+          <y>62</y>
+          <width>120</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Show all 2D chi2</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="cal1DChi2AllPB">
+        <property name="geometry">
+         <rect>
+          <x>64</x>
+          <y>62</y>
+          <width>120</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Show all 1D chi2</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="optimizeVScaleCB">
+        <property name="geometry">
+         <rect>
+          <x>324</x>
+          <y>40</y>
+          <width>137</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Optimize vscale</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </widget>

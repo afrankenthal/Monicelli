@@ -388,6 +388,10 @@ private slots:
     void on_setLimitsMakePlotPB_clicked                           (                                  );
     void on_GeometryTabW_selected                                 (const QString                    &);
 
+    void on_cal1Chi2PB_clicked();
+    void on_cal2Chi2PB_clicked();
+    void on_cal1DChi2AllPB_clicked();
+    void on_cal2DChi2AllPB_clicked();
 };
 
 #endif // MAINTABS_H

@@ -61,81 +61,87 @@ class calibrationLoader : public process
   
   ~calibrationLoader(void);
   
-    //               row           col            plot     fitPar and covMat
-    typedef std::map<int, std::map<int, std::pair<TH1I*, fitter::fitResultDef> > >   pixelPlotsMapDef       ;
-    //               detectorID          rocID   pixel
-    typedef std::map<std::string, std::map<int,pixelPlotsMapDef> >                   calibrationPlotsMapDef ;
-    //               detectorID          rocID 1D/2D
-    typedef std::map<std::string, std::map<int,TH1I*> >                              calibrationPlotsMapDefH;
-    typedef std::map<std::string, std::map<int,TH2F*> >                              calibrationPlotsMapDefS;
+    //                     row           col            plot     fitPar and covMat
+    typedef       std::map<int, std::map<int, std::pair<TH1I*, fitter::fitResultDef> > >   pixelPlotsMapDef       ;
+    //                     detectorID          rocID   pixel
+    typedef       std::map<std::string, std::map<int,pixelPlotsMapDef> >                   calibrationPlotsMapDef ;
+    //                     detectorID          rocID 1D/2D
+    typedef       std::map<std::string, std::map<int,TH1I*> >                              calibrationPlotsMapDefH;
+    typedef       std::map<std::string, std::map<int,TH2F*> >                              calibrationPlotsMapDefS;
 
-    bool    loadASCIIcalibrationFile (std::string   fileName                       );
-    bool    loadROOTcalibrationFiles (std::string   detector,
-                                      ROC         * roc,
-                                      std::string   fileName                       );
-    bool    loadAllCalibrationFiles  (void                                         );
-    void    saveROOTcalibrationFiles (std::string   fileDirectory                  );
-    void    listHeader               (void                                         );
-    bool    makeHistograms           (std::string   detector,
-                                      ROC         * roc,
-                                      bool          fit           = false,
-                                      bool          writeGeometry = false,
-                                      bool          writeASCII    = false          );
-    bool    makeDUTHistograms        (std::string   detector,
-                                      ROC         * roc,
-                                      bool          fit           = false,
-                                      bool          writeGeometry = false,
-                                      bool          writeASCII    = false          );
-    void    makeChi2Histograms       (void                                         );
-    //    void    fitHistograms            (std::string   detector,
-    //                                      ROC         * roc,
-    //                                      double        xmin,
-    //                                      double        xmax                           );
-    TH1*    getHistogram             (std::string   detectorID,
-                                      int           rocID,
-                                      int           row,
-                                      int           col                            );
-    bool    getCalibrationLoaded     (void                                         ){return calibrationsLoaded_;}
-    void    writeGeometry            (std::string   detector,
-                                      ROC         * roc                            );
+    bool          loadASCIIcalibrationFile (std::string   fileName                       );
+    bool          loadROOTcalibrationFiles (std::string   detector,
+                                            ROC         * roc,
+                                            std::string   fileName                       );
+    bool          loadAllCalibrationFiles  (void                                         );
+    void          saveROOTcalibrationFiles (std::string   fileDirectory                  );
+    void          listHeader               (void                                         );
+    bool          makeHistograms           (std::string   detector,
+                                            ROC         * roc,
+                                            bool          fit           = false,
+                                            bool          writeGeometry = false,
+                                            bool          writeASCII    = false          );
+    bool          makeDUTHistograms        (std::string   detector,
+                                            ROC         * roc,
+                                            bool          fit           = false,
+                                            bool          writeGeometry = false,
+                                            bool          writeASCII    = false          );
+    void          makeChi2Histograms       (void                                         );
+//  void          fitHistograms            (std::string   detector,
+//                                              ROC         * roc,
+//                                              double        xmin,
+//                                              double        xmax                       );
+    TH1*          getHistogram             (std::string   detectorID,
+                                            int           rocID,
+                                            int           row,
+                                            int           col                            );
+    bool          getCalibrationLoaded     (void                                         ){return calibrationsLoaded_;}
+    TH1I*         get1DChi2                (std::string   detectorID,
+                                            int           rocID                          );
+    TH2F*         get2DChi2                (std::string   detectorID,
+                                            int           rocID                          );
+    vector<TH1I*> getAll1DChi2             (void                                         );
+    vector<TH2F*> getAll2DChi2             (void                                         );
+    void          writeGeometry            (std::string   detector,
+                                            ROC         * roc                            );
 
-    void    setOutputASCIIfile      (bool writeASCII,
-                                     std::string outputFile = "calib_output.txt"   ){
-        writeASCII_     =writeASCII;
-        outputASCIIfile_=outputFile;
-    }
-    void    setInputROOTfile        (bool readROOT)                                 { readROOT_       =readROOT; }
+    void          setOutputASCIIfile       (bool          writeASCII,
+                                            std::string   outputFile = "calib_output.txt"){
+                                                                                           writeASCII_     =writeASCII;
+                                                                                           outputASCIIfile_=outputFile;
+                                                                                          }
+    void          setInputROOTfile         (bool          readROOT                       ){ readROOT_      =readROOT; }
 
-    bool execute (void);
+    bool          execute                  (void                                         );
 
-    std::string  getLabel           (void                        ) ;
-    int          getMaxIterations   (void                        ) ;
-    std::string  getName            (void                        ) {return "calibrationLoader";}
+    std::string   getLabel                 (void                                         );
+    int           getMaxIterations         (void                                         );
+    std::string   getName                  (void                                         ){return "calibrationLoader";}
 
 private :
 
     //                reg            hits  adc
-    typedef std::map< int , std::pair<int, int> >                 aPixelDataMapDef           ;
+    typedef std::map< int , std::pair<int, int> >              aPixelDataMapDef           ;
     //               row           col      data
-    typedef std::map<int, std::map<int,aPixelDataMapDef> >        pixelDataMapDef            ;
-    typedef std::map<std::string, std::string>                    headerMapDef               ;
-    typedef std::map<int, std::map<int,fitter::fitResultDef> >    calibrationfitResultsMapDef;
+    typedef std::map<int, std::map<int,aPixelDataMapDef> >     pixelDataMapDef            ;
+    typedef std::map<std::string, std::string>                 headerMapDef               ;
+    typedef std::map<int, std::map<int,fitter::fitResultDef> > calibrationfitResultsMapDef;
 
-    ofstream                             outputFile_         ;
-    std::string                          outputASCIIfile_    ;
-    fileEater                          * theFileEater_       ;
-    HManager                           * theHManager_        ;
-    fitter                             * theFitter_          ;
-    TH1I                               * emptyTH1I_          ;
+    ofstream                  outputFile_         ;
+    std::string               outputASCIIfile_    ;
+    fileEater               * theFileEater_       ;
+    HManager                * theHManager_        ;
+    fitter                  * theFitter_          ;
+    TH1I                    * emptyTH1I_          ;
 
-    headerMapDef                         header_             ;
-    pixelDataMapDef                      pixels_             ;
-    calibrationPlotsMapDef               calibrations_       ;
-    calibrationPlotsMapDefH              chisquaresH_        ;
-    calibrationPlotsMapDefS              chisquaresS_        ;
-    bool                                 readROOT_           ;
-    bool                                 writeASCII_         ;
-    bool                                 calibrationsLoaded_ ;
+    headerMapDef              header_             ;
+    pixelDataMapDef           pixels_             ;
+    calibrationPlotsMapDef    calibrations_       ;
+    calibrationPlotsMapDefH   chisquaresH_        ;
+    calibrationPlotsMapDefS   chisquaresS_        ;
+    bool                      readROOT_           ;
+    bool                      writeASCII_         ;
+    bool                      calibrationsLoaded_ ;
 
     std::stringstream ss_ ;
 } ;

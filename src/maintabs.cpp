@@ -293,6 +293,7 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
 
     ui->parseFilePB->setCheckable  (true);
     ui->showAllPlaqPB->setCheckable(true);
+    ui->calibrationsHistogramControlsGB->setEnabled(false) ;
 
     ui->DUTSectorCB->addItem("A");
     ui->DUTSectorCB->addItem("B");
@@ -440,7 +441,7 @@ void mainTabs::openRootFile(QString fileName)
     //to be disabled for a new root file
     //Calibrations tab
     ui->calibrationsCalibrationControlsGB  ->setEnabled(false) ;
-    ui->calibrationsHistogramControlsGB    ->setEnabled(false) ;
+//    ui->calibrationsHistogramControlsGB    ->setEnabled(false) ;
     //Clusters tab
     ui->findAndSolveClustersPB             ->setEnabled(false) ;
     //Raw Alignment tab
@@ -1578,12 +1579,30 @@ void mainTabs::on_showPixelCalibrationPB_clicked()
     gStyle->SetOptStat(1111) ;
     gStyle->SetOptFit(111111);
 
-    loadCalibrationMainCanvas_->GetCanvas()->cd();
+    loadCalibrationMainCanvas_->GetCanvas()->Clear();
+    loadCalibrationMainCanvas_->GetCanvas()->Divide(1,1,0.01,0.01) ;
+    loadCalibrationMainCanvas_->GetCanvas()->cd(1);
     loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(true);
     TH1* histo = theCalibrationLoader_->getHistogram(ui->loadCalibrationsTabPagePlaqSelectCB->currentText().toStdString(),
                                                      ui->calibrationROCSB->value(),
                                                      ui->calibrationRowSB->value(),
                                                      ui->calibrationColSB->value());
+    double emin = 1E10 ;
+    double emax =    0 ;
+    for(int bin=1; bin<=histo->GetNbinsX(); bin++)
+    {
+        double b = histo->GetBinContent(bin) ;
+        if( b > 0 && b <  emin ) {emin = b ;}
+        if( b > 0 && b >= emax ) {emax = b ;}
+    }
+    if( ui->optimizeVScaleCB->isChecked())
+    {
+        histo->GetYaxis()->SetRangeUser(emin-emin/20., emax+emax/20.) ;
+    }
+    else
+    {
+        histo->GetYaxis()->SetRangeUser(0, emax+emax/20.) ;
+    }
 
     histo->Draw();
 
@@ -4586,3 +4605,111 @@ void mainTabs::on_GeometryTabW_selected(const QString &tabTitle)
     }
 }
 
+//================================================================================
+void mainTabs::on_cal1Chi2PB_clicked()
+{
+    gStyle->SetOptStat(0);
+    gStyle->SetOptFit (0);
+
+    TH1I* histo = theCalibrationLoader_->get1DChi2(ui->loadCalibrationsTabPagePlaqSelectCB->currentText().toStdString(),
+                                                   ui->calibrationROCSB->value()) ;
+    loadCalibrationMainCanvas_->GetCanvas()->Clear();
+    loadCalibrationMainCanvas_->GetCanvas()->Divide(1,1,0.01,0.01) ;
+    loadCalibrationMainCanvas_->GetCanvas()->cd(1);
+    loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(true);
+    loadCalibrationMainCanvas_->GetCanvas()->Modified();
+    loadCalibrationMainCanvas_->GetCanvas()->Update();
+    if( histo == NULL)
+    {
+        QMessageBox::information(this, tr("WARNING"), tr("Plot not found"));
+        return ;
+    }
+    histo->Draw();
+
+    loadCalibrationMainCanvas_->GetCanvas()->Modified();
+    loadCalibrationMainCanvas_->GetCanvas()->Update();
+}
+
+//================================================================================
+void mainTabs::on_cal2Chi2PB_clicked()
+{
+    gStyle->SetOptStat(0  );
+    gStyle->SetOptFit (0  );
+    gStyle->SetPalette(1,0);
+
+    TH2F* histo = theCalibrationLoader_->get2DChi2(ui->loadCalibrationsTabPagePlaqSelectCB->currentText().toStdString(),
+                                                   ui->calibrationROCSB->value()) ;
+    loadCalibrationMainCanvas_->GetCanvas()->Clear();
+    loadCalibrationMainCanvas_->GetCanvas()->Divide(1,1,0.01,0.01) ;
+    loadCalibrationMainCanvas_->GetCanvas()->cd(1);
+    loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(false);
+    loadCalibrationMainCanvas_->GetCanvas()->Modified();
+    loadCalibrationMainCanvas_->GetCanvas()->Update();
+    if( histo == NULL)
+    {
+        QMessageBox::information(this, tr("WARNING"), tr("Plot not found"));
+        return ;
+    }
+    histo->Draw("COLZ");
+
+    loadCalibrationMainCanvas_->GetCanvas()->Modified();
+    loadCalibrationMainCanvas_->GetCanvas()->Update();
+}
+//================================================================================
+void mainTabs::on_cal1DChi2AllPB_clicked()
+{
+    gStyle->SetOptStat(0);
+    gStyle->SetOptFit (0);
+
+    vector<TH1I*> histos = theCalibrationLoader_->getAll1DChi2() ;
+    loadCalibrationMainCanvas_->GetCanvas()->Clear();
+    loadCalibrationMainCanvas_->GetCanvas()->cd();
+    loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(true);
+    loadCalibrationMainCanvas_->GetCanvas()->Divide(8,8,0,0) ;
+
+    for(unsigned int i=0; i<histos.size(); i++)
+    {
+        if( histos[i] != NULL)
+        {
+            loadCalibrationMainCanvas_->GetCanvas()->cd(i+1) ;
+            histos[i]->Draw();
+        }
+    }
+
+    loadCalibrationMainCanvas_->GetCanvas()->Modified();
+    loadCalibrationMainCanvas_->GetCanvas()->Update();
+}
+//================================================================================
+void mainTabs::on_cal2DChi2AllPB_clicked()
+{
+    gStyle->SetOptStat(0);
+    gStyle->SetOptFit (0);
+    gStyle->SetPalette(1,0);
+
+    vector<TH2F*> histos = theCalibrationLoader_->getAll2DChi2() ;
+    loadCalibrationMainCanvas_->GetCanvas()->Clear();
+    loadCalibrationMainCanvas_->GetCanvas()->cd();
+    loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(false);
+    loadCalibrationMainCanvas_->GetCanvas()->Divide(8,8,0,0) ;
+    ui->parseProgressBar->reset();
+    ui->parseProgressBar->setMaximum(histos.size()-1);
+    ui->parseProgressBar->setValue(ui->parseProgressBar->maximum()) ;
+
+    for(unsigned int i=0; i<histos.size(); i++)
+    {
+        if( histos[i] != NULL)
+        {
+            QApplication::processEvents(QEventLoop::AllEvents);
+            loadCalibrationMainCanvas_->GetCanvas()->cd(i+1) ;
+            histos[i]->Draw("COLZ");
+            ui->parseProgressBar->setValue(i) ;
+            QApplication::processEvents(QEventLoop::AllEvents);
+            loadCalibrationMainCanvas_->GetCanvas()->Modified();
+            loadCalibrationMainCanvas_->GetCanvas()->Update();
+        }
+        else
+        {
+            STDLINE("NULL",ACRed) ;
+        }
+    }
+}

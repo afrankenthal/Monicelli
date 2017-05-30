@@ -34,6 +34,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/regex.hpp>
+//#include <chrono>
 
 
 // @@@ Hard coded parameters @@@
@@ -305,7 +306,7 @@ void  calibrationLoader::saveROOTcalibrationFiles(std::string fileDirectory)
       }
       path = fileDirectory;
       path += std::string("/") + calibrationFileRadix + ".root";
- path = std::string("/tmp/")+ calibrationFileRadix + ".root";
+    //path = std::string("/tmp/")+ calibrationFileRadix + ".root";
       if(boost::filesystem::exists(path))
       {
         STDLINE(std::string("WARNING: File ") + path + " exists. Not overwriting...", ACRed);
@@ -341,12 +342,12 @@ void  calibrationLoader::saveROOTcalibrationFiles(std::string fileDirectory)
           }
         }
       }
-// from Dario
+
       TH2F * pixelsS = chisquaresS_[(*det).first][(*roc).first];
       if( !pixelsS ) STDLINE("No chi2 plots!!!",ACRed) ;
       pixelsS->Write();
 
-std::stringstream ss; ss << "Saving " << pixelsS->GetTitle() ; STDLINE(ss.str(),ACWhite) ;
+      std::stringstream ss; ss << "Saving " << pixelsS->GetTitle() ; STDLINE(ss.str(),ACWhite) ;
       TH1I * pixelsH = chisquaresH_[(*det).first][(*roc).first];
       if( !pixelsH ) STDLINE("No chi2 plots!!!",ACRed) ;
       pixelsH->Write();
@@ -407,7 +408,6 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
   int    binsX = 0;
   double Xmin  = 0;
   double Xmax  = 0;
-  
   for(int p=0; p<4; p++)
   {
     binsX = (int)plotsRangeAndBins[p][0];
@@ -489,127 +489,200 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
       }
     }
   }
-  
-  
+
+//auto start = std::chrono::high_resolution_clock::now();
+//auto elaps = std::chrono::high_resolution_clock::now() - start;
+//long long delta = std::chrono::duration_cast<std::chrono::microseconds>(elaps).count();
+
+  STDLINE("Eccoci...",ACYellow) ;
   double* pars;
   if(fit)
   {
-    fitter::fitResultDef fitR;
-    
-    double minBin,maxBin;
-    
-    for (calibrationLoader::pixelDataMapDef::iterator r=pixels_.begin(); r!=pixels_.end(); ++r)
-    {
-      for (std::map<int,aPixelDataMapDef>::iterator c=(*r).second.begin(); c!=(*r).second.end(); ++c)
+      fitter::fitResultDef fitR;
+
+      double minBin,maxBin;
+
+      for (calibrationLoader::pixelDataMapDef::iterator r=pixels_.begin(); r!=pixels_.end(); ++r)
       {
-        firstBin = (int)firstBinHisto->GetBinContent(firstBinHisto ->GetXaxis()->FindBin((*r).first),firstBinHisto ->GetYaxis()->FindBin((*c).first));
-        lastBin  = (int)lastBinHisto ->GetBinContent(lastBinHisto  ->GetXaxis()->FindBin((*r).first),lastBinHisto  ->GetYaxis()->FindBin((*c).first));
-        minBin = calibNew[(*r).first][(*c).first]->GetMinimum(1);
-        maxBin = calibNew[(*r).first][(*c).first]->GetBinContent(calibNew[(*r).first][(*c).first]->GetMaximumBin());
-        
-        if ((calibNew[(*r).first][(*c).first]->GetEntries() >= FITMINPOINTS) &&
-          (calibNew[(*r).first][(*c).first]->GetBinCenter((int)firstBinHisto->GetBinContent(firstBinHisto->GetXaxis()->FindBin((*r).first),firstBinHisto->GetYaxis()->FindBin((*c).first))) < MAXTHRESHOLD) &&
-          (maxBin-minBin > DYNAMICRANGE))
-        {
-          fitR = theFitter_->calibrationFit(calibNew[(*r).first][(*c).first],
-                			    // 10000,
-                			    calibNew[(*r).first][(*c).first]->GetBinCenter(firstBin),
-                			    22000,
-                			    NULL);
-          pars = fitR.first;
-        }
-        else 
-	{
-	  continue;
-        }
-	
-        if (fitR.first == NULL)
-        {
-          ss_.str("") ;
-          ss_ << "WARNING: first fit failed for detector " << detector << " - ROC: " << roc->getID() << " at row " << (*r).first << ", col " << (*c).first ;
-        }
-        else
-        {
-          for (int p = 0; p < 4; p++)
+          for (std::map<int,aPixelDataMapDef>::iterator c=(*r).second.begin(); c!=(*r).second.end(); ++c)
           {
-            hPars[p]->Fill(pars[p]);
+// start = std::chrono::high_resolution_clock::now();
+              firstBin = (int)firstBinHisto->GetBinContent(firstBinHisto ->GetXaxis()->FindBin((*r).first),firstBinHisto ->GetYaxis()->FindBin((*c).first));
+              lastBin  = (int)lastBinHisto ->GetBinContent(lastBinHisto  ->GetXaxis()->FindBin((*r).first),lastBinHisto  ->GetYaxis()->FindBin((*c).first));
+              minBin = calibNew[(*r).first][(*c).first]->GetMinimum(1);
+              maxBin = calibNew[(*r).first][(*c).first]->GetBinContent(calibNew[(*r).first][(*c).first]->GetMaximumBin());
+
+              if ((calibNew[(*r).first][(*c).first]->GetEntries() >= FITMINPOINTS) &&
+                      (calibNew[(*r).first][(*c).first]->GetBinCenter((int)firstBinHisto->GetBinContent(firstBinHisto->GetXaxis()->FindBin((*r).first),firstBinHisto->GetYaxis()->FindBin((*c).first))) < MAXTHRESHOLD) &&
+                      (maxBin-minBin > DYNAMICRANGE))
+              {
+                  fitR = theFitter_->calibrationFit(calibNew[(*r).first][(*c).first],
+                          // 10000,
+                          calibNew[(*r).first][(*c).first]->GetBinCenter(firstBin),
+                          22000,
+                          NULL);
+                  pars = fitR.first;
+              }
+              else
+              {
+                  continue;
+              }
+
+              if (fitR.first == NULL)
+              {
+                  ss_.str("") ;
+                  ss_ << "WARNING: first fit failed for detector " << detector << " - ROC: " << roc->getID() << " at row " << (*r).first << ", col " << (*c).first ;
+              }
+              else
+              {
+                  for (int p = 0; p < 4; p++)
+                  {
+                      hPars[p]->Fill(pars[p]);
+                  }
+              }
+//elaps = std::chrono::high_resolution_clock::now() - start;
+//delta = std::chrono::duration_cast<std::chrono::microseconds>(elaps).count();
+//STDLINE(delta,ACWhite) ;
+
           }
-        }
       }
-    }
-    
-    double rightPars[4];
-    for(int p=0; p<4; p++) //Fit a second time with initial parameters equal to mean of the parameters found previously
-    {
-      rightPars[p] = hPars[p]->GetMean();
-      ss_.str(""); ss_ << "Parameter " << p << ": " << rightPars[p];
-      STDLINE(ss_.str(),ACGreen);
-    }
-    
-    for (calibrationLoader::pixelDataMapDef::iterator r=pixels_.begin(); r!=pixels_.end(); ++r)
-    {
-      for (std::map<int,aPixelDataMapDef>::iterator c=(*r).second.begin(); c!=(*r).second.end(); ++c)
+
+      double rightPars[4];
+      for(int p=0; p<4; p++) //Fit a second time with initial parameters equal to mean of the parameters found previously
       {
-        firstBin = (int)firstBinHisto->GetBinContent(firstBinHisto ->GetXaxis()->FindBin((*r).first),firstBinHisto ->GetYaxis()->FindBin((*c).first));
-        lastBin  = (int)lastBinHisto ->GetBinContent(lastBinHisto  ->GetXaxis()->FindBin((*r).first),lastBinHisto  ->GetYaxis()->FindBin((*c).first));
-        minBin = calibNew[(*r).first][(*c).first]->GetMinimum(1);
-        maxBin = calibNew[(*r).first][(*c).first]->GetBinContent(calibNew[(*r).first][(*c).first]->GetMaximumBin());
-        
-        if ((calibNew[(*r).first][(*c).first]->GetEntries() >= FITMINPOINTS) &&
-          (calibNew[(*r).first][(*c).first]->GetBinCenter((int)firstBinHisto->GetBinContent(firstBinHisto->GetXaxis()->FindBin((*r).first),firstBinHisto->GetYaxis()->FindBin((*c).first))) < MAXTHRESHOLD) &&
-          (maxBin-minBin > DYNAMICRANGE))
-        {
-          fitR = theFitter_->calibrationFit(calibNew[(*r).first][(*c).first],
-                			    // 10000,
-                			    calibNew[(*r).first][(*c).first]->GetBinCenter(firstBin),
-                			    22000,
-                			    rightPars);
-        }
-        else 
-	{
-	  fitR.first = NULL;
-        }
-	
-        if (calibNew[(*r).first][(*c).first]->GetEntries() !=0 && fitR.first == NULL)
-        {
-          STDLINE("",ACWhite);
-          ss_.str("") ;
-          ss_ << "WARNING: fit failed for detector " << detector << " - ROC: " << roc->getID() << " at row " << (*r).first << ", col " << (*c).first ;
-          STDLINE(ss_.str(),ACRed) ;
-        }
-        
-        calibrations_[detector][roc->getID()][(*r).first][(*c).first].second = fitR;
-        
-        if (writeGeometry)
-          roc->setCalibrationFunction((*r).first, (*c).first, fitR.first, fitR.second);
-        
-        if(writeASCII)
-        {
-          if( fitR.first!=NULL )
-          {
-            outputFile_ << detector << " " << roc->getID() << " " << (*r).first << " " << (*c).first << " ";
-            for(int p=0; p < 4; p++)
-            {
-              outputFile_ << fitR.first[p] << " ";
-            }
-            outputFile_ << std::endl;
-          }
-        }
-        calibrations_[detector][roc->getID()][(*r).first][(*c).first].first = calibNew[(*r).first][(*c).first];
-        
+          rightPars[p] = hPars[p]->GetMean();
+          ss_.str(""); ss_ << "Parameter " << p << ": " << rightPars[p];
+          STDLINE(ss_.str(),ACGreen);
       }
-    }
+
+      for (calibrationLoader::pixelDataMapDef::iterator r=pixels_.begin(); r!=pixels_.end(); ++r)
+      {
+          int row = (*r).first ;
+          for (std::map<int,aPixelDataMapDef>::iterator c=(*r).second.begin(); c!=(*r).second.end(); ++c)
+          {
+              int col = (*c).first ;
+              firstBin = (int)firstBinHisto->GetBinContent(firstBinHisto->GetXaxis()->FindBin(row),
+                                                           firstBinHisto->GetYaxis()->FindBin(col));
+              lastBin  = (int)lastBinHisto ->GetBinContent(lastBinHisto ->GetXaxis()->FindBin(row),
+                                                           lastBinHisto ->GetYaxis()->FindBin(col));
+              minBin   = calibNew[row][col]->GetMinimum(1);
+              maxBin   = calibNew[row][col]->GetBinContent(calibNew[row][col]->GetMaximumBin());
+
+              if ((calibNew[row][col]->GetEntries() >= FITMINPOINTS) &&
+                  (
+                   calibNew[row][col]->GetBinCenter(
+                                                    (int)firstBinHisto->GetBinContent(
+                                                                                      firstBinHisto->GetXaxis()->FindBin(row),
+                                                                                      firstBinHisto->GetYaxis()->FindBin(col)
+                                                                                     )
+                                                   )
+                  ) < MAXTHRESHOLD &&
+                  (maxBin-minBin > DYNAMICRANGE)
+                 )
+              {
+//start = std::chrono::high_resolution_clock::now();
+                  fitR = theFitter_->calibrationFit(
+                                                    calibNew[row][col],
+                                                    calibNew[row][col]->GetBinCenter(firstBin),
+                                                    22000,
+                                                    rightPars
+                                                   );
+//elaps = std::chrono::high_resolution_clock::now() - start;
+//delta = std::chrono::duration_cast<std::chrono::microseconds>(elaps).count();
+//STDLINE(delta,ACWhite) ;
+              }
+              else
+              {
+                  fitR.first = NULL;
+              }
+
+//elaps = std::chrono::high_resolution_clock::now() - start;
+//delta = std::chrono::duration_cast<std::chrono::microseconds>(elaps).count();
+//STDLINE(delta,ACWhite) ;
+//start = std::chrono::high_resolution_clock::now();
+              if (calibNew[row][col]->GetEntries() !=0 && fitR.first == NULL)
+              {
+                  ss_.str("") ;
+                  ss_ << "WARNING: fit failed for detector "
+                      << detector
+                      << " - ROC: "
+                      << roc->getID()
+                      << " at row "
+                      << row
+                      << ", col "
+                      << col ;
+                  STDLINE(ss_.str(),ACRed) ;
+              }
+
+              calibrations_[detector][roc->getID()][row][col].second = fitR;
+
+              if (writeGeometry)
+              {
+                  ss_.str("") ;
+                  ss_ << "Writing geometry for "
+                      << detector
+                      << " - ROC: "
+                      << roc->getID()
+                      << " at row "
+                      << (*r).first
+                      << ", col "
+                      << (*c).first ;
+                  STDLINE(ss_.str(),ACYellow) ;
+                  roc->setCalibrationFunction(row, col, fitR.first, fitR.second);
+                  STDLINE("Done",ACGreen) ;
+              }
+
+//elaps = std::chrono::high_resolution_clock::now() - start;
+//delta = std::chrono::duration_cast<std::chrono::microseconds>(elaps).count();
+//STDLINE(delta,ACWhite) ;
+//start = std::chrono::high_resolution_clock::now();
+
+              if(writeASCII)
+              {
+                  ss_.str("") ;
+                  ss_ << "Writing ASCII for "
+                      << detector
+                      << " - ROC: "
+                      << roc->getID()
+                      << " at row "
+                      << row
+                      << ", col "
+                      << col ;
+                  STDLINE(ss_.str(),ACYellow) ;
+                  if( fitR.first!=NULL )
+                  {
+                      outputFile_ << detector
+                                  << " "
+                                  << roc->getID()
+                                  << " "
+                                  << row
+                                  << " "
+                                  << col
+                                  << " ";
+                      for(int p=0; p < 4; p++)
+                      {
+                          outputFile_ << fitR.first[p] << " ";
+                      }
+                      outputFile_ << std::endl;
+                  }
+              }
+              calibrations_[detector][roc->getID()][row][col].first = calibNew[row][col];
+//elaps = std::chrono::high_resolution_clock::now() - start;
+//delta = std::chrono::duration_cast<std::chrono::microseconds>(elaps).count();
+//STDLINE(delta,ACWhite) ;
+          }
+      }
   }
   
   if(writeASCII) outputFile_.close();
   
   for(int r=0; r<maxRows; r++)
   {
-    for(int c=0; c<maxCols; c++)
-    {
-      
-      calib[r][c]->Delete();
-    }
+      for(int c=0; c<maxCols; c++)
+      {
+
+          calib[r][c]->Delete();
+      }
   }
   
   firstBinHisto->Delete();
@@ -618,7 +691,7 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
   for (int p = 0; p < 4; p++) hPars[p]->Delete();
   
   STDLINE("Done",ACCyan);
-  return true;   
+  return true;
 }
 
 //==================================================================
@@ -630,15 +703,18 @@ bool calibrationLoader::makeHistograms(std::string detector, ROC *roc, bool fit,
     return false;
   }
 
-  if( calibrations_.count(detector) > 0 && calibrations_[detector].count(roc->getID()) > 0 )
+  if( calibrations_.count(detector) > 0 &&
+      calibrations_[detector].count(roc->getID()) > 0 )
+  {
       calibrations_[detector][roc->getID()].clear();
+  }
 
   ss_.str("") ;
   ss_ << "Calibrating ROC " << roc->getID() <<  " of detector " << detector ;
   STDLINE(ss_.str(),ACCyan) ;
 
   if(writeASCII) outputFile_.open(outputASCIIfile_.c_str(), std::ios_base::app);
-
+  STDLINE("",ACWhite) ;
   //Cycle through each pixel on the ROC
   for (calibrationLoader::pixelDataMapDef::iterator r=pixels_.begin(); r!=pixels_.end(); ++r)
   {
@@ -646,16 +722,25 @@ bool calibrationLoader::makeHistograms(std::string detector, ROC *roc, bool fit,
     {
       //if( cc++ > 10) {continue;}
       ss_.str("");
-      ss_ << detector << " - ROC: " << roc->getID() << " - r: " << (*r).first << " - c: " << (*c).first;
-      TH1I * calib = new TH1I(ss_.str().c_str(), ss_.str().c_str(), 255, 0, 255*ELECTRONS_NUMBER);
+      ss_ << detector
+          << " - ROC: "
+          << roc->getID()
+          << " - r: "
+          << (*r).first
+          << " - c: "
+          << (*c).first;
+      TH1I * calib = new TH1I(ss_.str().c_str(),
+                              ss_.str().c_str(), 255, 0, 255*ELECTRONS_NUMBER);
       calib->GetXaxis()->SetTitle("V_cal (electrons number)");
       calib->GetYaxis()->SetTitle("ADC counts");
       calib->GetYaxis()->SetRangeUser(0,750);
       calib->SetDirectory(0);
-      for (calibrationLoader::aPixelDataMapDef::iterator it2=(*c).second.begin(); it2!=(*c).second.end(); ++it2)
+      for (calibrationLoader::aPixelDataMapDef::iterator it2 =(*c).second.begin();
+                                                         it2!=(*c).second.end();
+                                                       ++it2)
       {
           int bin = calib->Fill( (*it2).first, (*it2).second.second );
-          calib->SetBinError(bin,2.4);//sqrt((*it2).second.second));
+          calib->SetBinError(bin,2.4*4); //sqrt((*it2).second.second));
       }
       calibrations_[detector][roc->getID()][(*r).first][(*c).first].first = calib;
       //ss_.str("") ; ss_ << CALIBRATIONS << "/Results/Gain/" << detector->first ;
@@ -671,16 +756,20 @@ bool calibrationLoader::makeHistograms(std::string detector, ROC *roc, bool fit,
                                                               );
         if(calib->GetEntries() != 0 && fitR.first == NULL /*|| fitR.second == NULL*/)
         {
-          std::cout << std::endl ; // This interrupts the STSNAP without CR issued by the theFitter_->calibrationFit call above
-          ss_.str("") ;
-          ss_ << "WARNING: fit failed for detector " << detector << " - ROC: " << roc->getID() << " at row " << (*r).first << ", col " << (*c).first ;
-          //STDLINE(ss_.str(),ACRed) ;
+//          ss_.str("") ;
+//          ss_ << "WARNING: fit failed for detector "
+//              << detector
+//              << " - ROC: "
+//              << roc->getID()
+//              << " at row "
+//              << (*r).first
+//              << ", col "
+//              << (*c).first ;
+//          STDLINE(ss_.str(),ACRed) ;
         }
         calibrations_[detector][roc->getID()][(*r).first][(*c).first].second = fitR;
 
 
-        //if(fitR.first == NULL /*|| fitR.second == NULL*/)
-            //STDLINE("Fit is null",ACRed);
         if(writeGeometry)
         {
           //ss_.str(""); ss_ << "par[0]: " << par[0] << " par[1]: " << par[1];
@@ -691,7 +780,14 @@ bool calibrationLoader::makeHistograms(std::string detector, ROC *roc, bool fit,
         {
           if( fitR.first!=NULL )
           {
-            outputFile_ << detector << " " << roc->getID() << " " << (*r).first << " " << (*c).first << " ";
+            outputFile_ << detector
+                        << " "
+                        << roc->getID()
+                        << " "
+                        << (*r).first
+                        << " "
+                        << (*c).first
+                        << " ";
             for(int p=0; p < theFitter_->getCalibrationFitFunctionNPar(); p++) //FIXME THIS IS WRONG IF THE FUNCTION IN THE FITTER IS DIFFERENT THAN THE ONE IN THE FILE
             {
               outputFile_ << fitR.first[p] << " ";
@@ -806,8 +902,8 @@ void calibrationLoader::makeChi2Histograms(void)
       TH1I* chi2Hist = new TH1I(ss_.str().c_str(), ss_.str().c_str(), 200, 0, 20);
       ss_.str("");
       ss_ << "Chi2 2D- " << detector->first << " - ROC: " << roc->second->getID() ;
-      TH2F* chi2Scat = new TH2F(ss_.str().c_str(), ss_.str().c_str(), maxRows, 0, maxRows,
-                                                                      maxCols, 0, maxCols);
+      TH2F* chi2Scat = new TH2F(ss_.str().c_str(), ss_.str().c_str(), maxCols, 0, maxCols,
+                                                                      maxRows, 0, maxRows);
       ss_.str("") ; ss_ << CALIBRATIONS << "/Results/1D" ; // << detector->first ;
       theHManager_->storeCustomTObject(chi2Hist,ss_.str()) ;
       ss_.str("") ; ss_ << CALIBRATIONS << "/Results/2D" ; // << detector->first ;
@@ -828,7 +924,7 @@ void calibrationLoader::makeChi2Histograms(void)
             {
               double chi2 = funk->GetChisquare() / ndf ;
               chi2Hist->Fill(chi2) ;
-              chi2Scat->SetBinContent(r->first+1,c->first+1,chi2) ;
+              chi2Scat->SetBinContent(c->first+1,r->first+1,chi2) ;
             }
           }
           else
@@ -846,4 +942,54 @@ void calibrationLoader::makeChi2Histograms(void)
       chisquaresS_[detector->first][roc->second->getID()] = chi2Scat ;
     }
   }
+}
+//================================================================================
+TH1I* calibrationLoader::get1DChi2(std::string   detectorID,
+                                   int           rocID      )
+
+{
+    return chisquaresH_[detectorID][rocID] ;
+}
+//================================================================================
+TH2F* calibrationLoader::get2DChi2(std::string   detectorID,
+                                   int           rocID      )
+
+{
+    return chisquaresS_[detectorID][rocID] ;
+}
+//================================================================================
+vector<TH1I*> calibrationLoader::getAll1DChi2(void)
+
+{
+    vector<TH1I*> theH ;
+    for(calibrationPlotsMapDefH::iterator it =chisquaresH_.begin();
+                                          it!=chisquaresH_.end();
+                                          it++)
+    {
+        for(map<int, TH1I*>::iterator jt =it->second.begin();
+                                      jt!=it->second.end();
+                                      jt++)
+        {
+            theH .push_back(jt->second) ;
+        }
+    }
+    return theH ;
+}
+//================================================================================
+vector<TH2F*> calibrationLoader::getAll2DChi2(void)
+
+{
+    vector<TH2F*> theH ;
+    for(calibrationPlotsMapDefS::iterator it =chisquaresS_.begin();
+                                          it!=chisquaresS_.end();
+                                          it++)
+    {
+        for(map<int, TH2F*>::iterator jt =it->second.begin();
+                                      jt!=it->second.end();
+                                      jt++)
+        {
+            theH .push_back(jt->second) ;
+        }
+    }
+    return theH ;
 }

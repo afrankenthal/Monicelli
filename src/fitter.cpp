@@ -28,15 +28,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ================================================================================*/
 
-
 #include "fitter.h"
 #include "ROC.h"
-
 #include <math.h>
-
 #include <TF1.h>
 #include <TH1.h>
-
 
 // @@@ Hard coded parameters @@@
 #define FITTYPE "parabol" // "lin", "parabol", or "tanh": use this to set which function you want to use for the calibrations
@@ -210,51 +206,68 @@ void fitter::linearFit(TH1*  histo, double *slope, double *q, double tolerance)
 }
 
 //==============================================================================
-fitter::fitResultDef fitter::calibrationFit(TH1 *   histo,
-                                            double  xmin,
-                                            double  xmax,
-                                            double* pars)
+fitter::fitResultDef fitter::calibrationFit(TH1    * histo,
+                                            double   xmin ,
+                                            double   xmax ,
+                                            double * pars)
 {
-  double* par = 0;
-  double* cov = 0;
-  
-  if (histo->GetEntries() != 0)
+    double* par = 0;
+    double* cov = 0;
+
+    if (histo->GetEntries() != 0)
     {
-      calibrationFitFunction_->SetLineColor(4);
-      calibrationFitFunction_->SetParNames("0", "1", "2", "3");
+        calibrationFitFunction_->SetLineColor(4);
+        calibrationFitFunction_->SetParNames("0", "1", "2", "3");
 
-      if (pars == 0)
-	{
-	  if (strcmp(FITTYPE,"lin") == 0)
-	    {
-	      calibrationFitFunction_->FixParameter(3,0);
-	      calibrationFitFunction_->FixParameter(4,0);
-	      calibrationFitFunction_->SetParameters(1e-2,200);
-	    }
-	  else if (strcmp(FITTYPE,"parabol") == 0)
-	    {
-	      calibrationFitFunction_->FixParameter(4,0);
-	      calibrationFitFunction_->SetParameters(1e-5,1e-2,200);
-	    }
-	  else calibrationFitFunction_->SetParameters(400,300,0.00004,-0.1);
-	}
-      else calibrationFitFunction_->SetParameters(pars);
+        if (pars == 0)
+        {
+            if (strcmp(FITTYPE,"lin") == 0)
+            {
+                calibrationFitFunction_->FixParameter(3,0);
+                calibrationFitFunction_->FixParameter(4,0);
+                calibrationFitFunction_->SetParameters(1e-2,200);
+            }
+            else if (strcmp(FITTYPE,"parabol") == 0)
+            {
+                calibrationFitFunction_->FixParameter(4,0);
+                calibrationFitFunction_->SetParameters(1e-5,1e-2,200);
+            }
+            else calibrationFitFunction_->SetParameters(400,300,0.00004,-0.1);
+        }
+        else
+        {
+            calibrationFitFunction_->SetParameters(pars);
+        }
+        calibrationFitFunction_->SetRange(xmin,xmax);
+        int entries = 0 ;
+        for(int bin=1; bin<=histo->GetNbinsX(); bin++)
+        {
+            if(histo->GetBinCenter(bin)  > xmin &&
+               histo->GetBinCenter(bin)  < xmax &&
+               histo->GetBinContent(bin) > 0) entries++ ;
+        }
 
-      calibrationFitFunction_->SetRange(xmin,xmax);
-      
-      TFitResultPtr fitResult = histo->Fit(calibrationFitFunction_,"SQR","",xmin,xmax);
-      
-      if ((int)fitResult == 0 || (int)fitResult == 4)
-	par = histo->GetFunction(calibrationFitFunctionName_)->GetParameters();
-      else
-	{
-	  ss_.str("");
-	  ss_ << "WARNING: fit of " << histo->GetName() << " failed. Returned error: " << (int)fitResult;
-	  STDLINE(ss_.str(), ACRed);
-	}
+        if( entries > 10 )
+        {
+            TFitResultPtr fitResult = histo->Fit(calibrationFitFunction_,"SQR","",xmin,xmax);
+
+            if ((int)fitResult == 0 || (int)fitResult == 4)
+            {
+                par = histo->GetFunction(calibrationFitFunctionName_)->GetParameters();
+            }
+            else
+            {
+                ss_.str("");
+                ss_ << "WARNING: fit of "
+                    << histo->GetName()
+                    << " failed. Returned error: "
+                    << (int)fitResult;
+                STDLINE(ss_.str(), ACRed);
+            }
+        }
     }
-  
-  return std::make_pair(par,cov);
+
+    return std::make_pair(par,cov);
 }
 
 //==============================================================================

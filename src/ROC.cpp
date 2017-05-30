@@ -348,14 +348,14 @@ bool ROC::isPixelCalibrated(int row, int col)
 //============================================================================
 void ROC::setCalibrationFunction(int row, int col, double *par, double */*cov*/)
 {
-  if (pixelCalibrationFunctionTmp_.count(row) && pixelCalibrationFunctionTmp_[row].count(col))
-    pixelCalibrationFunctionTmp_.clear();
-  
-  if (par != NULL)
+    if (pixelCalibrationFunctionTmp_.count(row) && pixelCalibrationFunctionTmp_[row].count(col))
+        pixelCalibrationFunctionTmp_.clear();
+
+    if(par != NULL)
     {
-      for(int i=0; i < 4; i++)
+        for(int i=0; i < 4; i++)
         {
-	  pixelCalibrationFunctionTmp_[row][col].push_back(par[i]);
+            pixelCalibrationFunctionTmp_[row][col].push_back(par[i]);
         }
     }
 }
