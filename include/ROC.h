@@ -71,60 +71,78 @@ class ROC : public TObject
     // o--------------------->X
     // Z
 
+//   typedef   std::map< int, std::map<int, double> > covMatMapDef    ;
+//   typedef   std::pair<double*, ROC::covMcalibrationatMapDef>  fitResultPairDef;
 
-//   typedef   std::map< int, std::map<int, double> >                                  covMatMapDef                  ;
-//   typedef   std::pair<double*, ROC::covMatMapDef>                                   fitResultPairDef              ;
+   static double  linearFitFunctionROOT     (double       * x,
+                                             double       * par                           );
+   static double  parabolicFitFunctionROOT  (double       * x,
+                                             double       * par                           );
+   static double  tanhFitFunctionROOT       (double       * x,
+                                             double       * par                           );
+          double  calibrationFitFunction    (double       * x,
+                                             double       * par,
+                                             bool           isDut                         );
+          double  calibrationFitFunctionInv (double       * x,
+                                             double       * par,
+                                             bool           isDut                         );
+   bool           calibratePixel            (int            row,
+                                             int            col,
+                                             int            adc,
+                                             int          & charge,
+                                             bool           isDut = false                 );
 
-   static double calibrationFitFunctionROOT(double *x, double *par                         );
-          double calibrationFitFunction   (double *x, double *par, bool isDut              );
-          double calibrationFitFunctionInv(double *x, double *par, bool isDut              );
-   bool          calibratePixel           (int row, int col, int adc, int& charge, bool isDut = false);
+   void           setCalibrationFilePath    (std::string    path                          ) {calibrationFilePath_= path;      }
+   void           setCalibrationFunction    (int            row, 
+                                             int            col, 
+                                             double       * par, 
+                                             double       * cov                           ) ;
+   void           setCalibrationFunctionType(std::string    type                          ) ;
+   std::string    getCalibrationFunctionType(void                                         ) {return calibrationFunctionType_ ;}
+   void           setStandardPixPitch       (double         raw_cm  ,
+                                             double         col_cm                        ) ;
+   void           setOneRowPitch            (unsigned int   raw     , 
+                                             double         row_cm                        ) ;
+   void           setOneColPitch            (unsigned int   col     , 
+                                             double         col_cm                        ) ;
+   void           setOrientation            (unsigned int   degrees                       ) ;
+   void           setNumberOfRowsCols       (unsigned int   maxRows , unsigned int maxCols) ;
+   void           setNumberOfRows           (unsigned int   maxRows                       ) ;
+   void           setNumberOfCols           (unsigned int   maxCols                       ) ;
+   void           setLocalXPosition         (unsigned int   xLocalPosition                ) {xLocalPosition_ = xLocalPosition;}
+   void           setLocalYPosition         (unsigned int   yLocalPosition                ) {yLocalPosition_ = yLocalPosition;}
+   void           setFirstRow               (unsigned int   firstRow                      ) {firstRow_       = firstRow;      }
+   void           setLastRow                (unsigned int   lastRow                       ) {lastRow_        = lastRow;       }
+   void           setFirstCol               (unsigned int   firstCol                      ) {firstCol_       = firstCol;      }
+   void           setLastCol                (unsigned int   lastCol                       ) {lastCol_        = lastCol;       }
 
-   void         setCalibrationFilePath    (std::string path                               ) {calibrationFilePath_= path; }
-   void         setCalibrationFunction    (int row, int col, double *par, double *cov) ;
-   void         setStandardPixPitch       (double       raw_cm  , double col_cm           ) ;
-   void         setOneRowPitch            (unsigned int raw     , double row_cm           ) ;
-   void         setOneColPitch            (unsigned int col     , double col_cm           ) ;
-   void         setOrientation            (unsigned int degrees                           ) ;
-   void         setNumberOfRowsCols       (unsigned int maxRows , unsigned int maxCols    ) ;
-   void         setNumberOfRows           (unsigned int maxRows                           ) ;
-   void         setNumberOfCols           (unsigned int maxCols                           ) ;
-   void         setLocalXPosition         (unsigned int xLocalPosition		              ) {xLocalPosition_ = xLocalPosition;}
-   void         setLocalYPosition         (unsigned int yLocalPosition    		          ) {yLocalPosition_ = yLocalPosition;}
-   void         setFirstRow 	          (unsigned int firstRow	   		              ) {firstRow_  = firstRow;           }
-   void         setLastRow  	          (unsigned int lastRow	   		                  ) {lastRow_   = lastRow;            }
-   void         setFirstCol 	          (unsigned int firstCol	   		              ) {firstCol_  = firstCol;           }
-   void         setLastCol  	          (unsigned int lastCol	   		                  ) {lastCol_   = lastCol;            }
+   std::string    getCalibrationFilePath    (void                                         ) {return calibrationFilePath_;     }
+   int            getID                     (void                                         ) {return chipID_;                  }
+   unsigned int   getOrientation            (void                                         ) {return orientation_;             }
+   unsigned int   getPosition               (void                                         ) {return position_;                }
+   double         getPixelCenterLocalX      (unsigned int   col                           ) ;
+   double         getPixelCenterLocalY      (unsigned int   row                           ) ;
+   double         getPixelHiEdgeLocalX      (unsigned int   col                           ) ;
+   double         getPixelHiEdgeLocalY      (unsigned int   row                           ) ;
+   double         getPixelLowEdgeLocalX     (unsigned int   col                           ) ;
+   double         getPixelLowEdgeLocalY     (unsigned int   row                           ) ;
+   double         getPixelPitchLocalX       (unsigned int   col                           ) ;
+   double         getPixelPitchLocalY       (unsigned int   row                           ) ;
+   double         getLengthLocalX           (void                                         ) ;
+   double         getLengthLocalY           (void                                         ) ;
 
-   std::string  getCalibrationFilePath    (void                                           ) {return calibrationFilePath_;     }
-   int          getID                     (void                                           ) {return chipID_;                  }
-   unsigned int getOrientation            (void                                           ) {return orientation_;             }
-   unsigned int getPosition               (void                                           ) {return position_;                }
-   double       getPixelCenterLocalX      (unsigned int col                               ) ;
-   double       getPixelCenterLocalY      (unsigned int row                               ) ;
-   double       getPixelHiEdgeLocalX      (unsigned int col                               ) ;
-   double       getPixelHiEdgeLocalY      (unsigned int row                               ) ;
-   double       getPixelLowEdgeLocalX     (unsigned int col                               ) ;
-   double       getPixelLowEdgeLocalY     (unsigned int row                               ) ;
-   double       getPixelPitchLocalX       (unsigned int col                               ) ;
-   double       getPixelPitchLocalY       (unsigned int row                               ) ;
-   double       getLengthLocalX           (void                                           ) ;
-   double       getLengthLocalY           (void                                           ) ;
+   double         getCalibrationError       (int row, int   col ,int adc                  ) ;
+   double       * getCalibrationFunction    (int row, int   col                           ) ;
+   bool           isPixelCalibrated         (int row, int   col                           ) ;
 
-   double       getCalibrationError       (int row, int col ,int adc                      ) ;
-   double*      getCalibrationFunction    (int row, int col                               ) ;
-   bool         isPixelCalibrated         (int row, int col                               ) ;
-
-   unsigned int getNumberOfRows           (void                                           ) {return numberOfRows_;       }
-   unsigned int getNumberOfCols           (void                                           ) {return numberOfCols_;       }
-   unsigned int getPositionLocalX         (void					                          ) {return xLocalPosition_;     }
-   unsigned int getPositionLocalY         (void					                          ) {return yLocalPosition_;     }
-   unsigned int getFirstRow 	          (void					                          ) {return firstRow_;           }
-   unsigned int getLastRow  	          (void					                          ) {return lastRow_;            }
-   unsigned int getFirstCol 	          (void					                          ) {return firstCol_;           }
-   unsigned int getLastCol  	          (void					                          ) {return lastCol_;            }
-
-
+   unsigned int   getNumberOfRows           (void                                         ) {return numberOfRows_;            }
+   unsigned int   getNumberOfCols           (void                                         ) {return numberOfCols_;            }
+   unsigned int   getPositionLocalX         (void                                         ) {return xLocalPosition_;          }
+   unsigned int   getPositionLocalY         (void                                         ) {return yLocalPosition_;          }
+   unsigned int   getFirstRow               (void                                         ) {return firstRow_;                }
+   unsigned int   getLastRow                (void                                         ) {return lastRow_;                 }
+   unsigned int   getFirstCol               (void                                         ) {return firstCol_;                }
+   unsigned int   getLastCol                (void                                         ) {return lastCol_;                 }
 
  private:
 
@@ -167,12 +185,14 @@ class ROC : public TObject
    double                        par_[4]                              ;
 
    //Roc properties set by the detector (plaquette) the rocs belong to
-   unsigned int                  xLocalPosition_		      ;
-   unsigned int                  yLocalPosition_		      ;
-   unsigned int                  firstRow_			      ;
-   unsigned int                  lastRow_ 			      ;
-   unsigned int                  firstCol_			      ;
-   unsigned int                  lastCol_ 			      ;
+   unsigned int                  xLocalPosition_                      ;
+   unsigned int                  yLocalPosition_                      ;
+   unsigned int                  firstRow_                            ;
+   unsigned int                  lastRow_                             ;
+   unsigned int                  firstCol_                            ;
+   unsigned int                  lastCol_                             ;
+
+   std::string                   calibrationFunctionType_             ;
 
    std::stringstream             ss_                                  ;//! temporary state value
 

@@ -45,48 +45,60 @@ using namespace std;
 ClassImp(ROC)
 
 //==========================================================================
-ROC::ROC(unsigned int position, int chipID, unsigned int degrees) :
-rocLengthX_(0)
-  ,rocLengthY_(0)
-  ,numberOfRows_(0)
-  ,numberOfCols_(0)
-  ,chipID_(chipID)
-  ,orientation_(0)
-  ,position_(position)
-  ,standardPixelPitch_(std::pair<double,double>(-1,-1))
-  ,calibrationFilePath_("")
+ROC::ROC(unsigned int position,
+         int          chipID,
+         unsigned int degrees) :
+   rocLengthX_         (0                              )
+  ,rocLengthY_         (0                              )
+  ,numberOfRows_       (0                              )
+  ,numberOfCols_       (0                              )
+  ,chipID_             (chipID                         )
+  ,orientation_        (0                              )
+  ,position_           (position                       )
+  ,standardPixelPitch_ (std::pair<double,double>(-1,-1))
+  ,calibrationFilePath_(""                             )
 {
   this->setOrientation(degrees);
 }
 
 //===============================================================================
-double ROC::calibrationFitFunctionROOT(double *x, double *par)
+double ROC::linearFitFunctionROOT(double *x, double *par)
 {
-  if      (strcmp(FITTYPE,"lin")     == 0) return x[0]*par[0] + par[1];
-  else if (strcmp(FITTYPE,"parabol") == 0) return x[0]*x[0]*par[0] + x[0]*par[1] + par[2];
-  else                                     return par[0] + par[1]*tanh(par[2]*x[0] + par[3]);
+  return x[0]*par[0] + par[1];
+}
+
+//===============================================================================
+double ROC::parabolicFitFunctionROOT(double *x, double *par)
+{
+  return x[0]*x[0]*par[0] + x[0]*par[1] + par[2];
+}
+
+//===============================================================================
+double ROC::tanhFitFunctionROOT(double *x, double *par)
+{
+  return par[0] + par[1]*tanh(par[2]*x[0] + par[3]);
 }
 
 //===============================================================================
 double ROC::calibrationFitFunction(double *x, double *par, bool isDut)
 {
-  if      ((isDut) and (strcmp(FITTYPE,"lin")     == 0)) return x[0]*par[0] + par[1];
-  else if ((isDut) and (strcmp(FITTYPE,"parabol") == 0)) return x[0]*x[0]*par[0] + x[0]*par[1] + par[2];
-  else                                                   return par[0] + par[1]*tanh(par[2]*x[0] + par[3]);
+  if      (isDut && calibrationFunctionType_ == "linear"   ) return x[0]*par[0] + par[1];
+  else if (isDut && calibrationFunctionType_ == "parabolic") return x[0]*x[0]*par[0] + x[0]*par[1] + par[2];
+  else                                                       return par[0] + par[1]*tanh(par[2]*x[0] + par[3]);
 }
 
 //===============================================================================
 double ROC::calibrationFitFunctionInv(double *x, double *par, bool isDut)
 {
-  if      ((isDut) and (strcmp(FITTYPE,"lin")     == 0)) return (x[0] - par[1]) / par[0];
-  else if ((isDut) and (strcmp(FITTYPE,"parabol") == 0))
+    if      (isDut && calibrationFunctionType_ == "linear"   )  return (x[0] - par[1]) / par[0];
+    else if (isDut && calibrationFunctionType_ == "parabolic")
     {
       if ((par[1]*par[1] - 4.*par[0]*(par[2] - x[0])) >= 0)
-	return ((-par[1] + sqrt(par[1]*par[1] - 4.*par[0]*(par[2] - x[0]))) / (2.*par[0]));
+         return ((-par[1] + sqrt(par[1]*par[1] - 4.*par[0]*(par[2] - x[0]))) / (2.*par[0]));
       else
-	return 0.;
+        return 0.;
     }
-  else return (atanh((x[0] - par[0]) / par[1]) - par[3]) / par[2];
+    else return (atanh((x[0] - par[0]) / par[1]) - par[3]) / par[2];
 }
 
 //==========================================================================
@@ -154,6 +166,11 @@ void ROC::setRowPitchVector(void)
   rocLengthY_ = rowLowEdge_[rowLowEdge_.size()-1] + rowPitches_[rowPitches_.size()-1];
 }
 
+//==========================================================================
+void ROC::setCalibrationFunctionType(string type)
+{
+  calibrationFunctionType_ = type ;
+}
 //==========================================================================
 void ROC::setColPitchVector(void)
 {

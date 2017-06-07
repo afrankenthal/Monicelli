@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>412</width>
-    <height>246</height>
+    <height>271</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@
      <x>4</x>
      <y>65</y>
      <width>401</width>
-     <height>176</height>
+     <height>201</height>
     </rect>
    </property>
    <property name="title">
@@ -41,7 +41,7 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>85</y>
+      <y>96</y>
       <width>310</width>
       <height>90</height>
      </rect>
@@ -1381,7 +1381,7 @@ p, li { white-space: pre-wrap; }
       <x>315</x>
       <y>45</y>
       <width>86</width>
-      <height>131</height>
+      <height>141</height>
      </rect>
     </property>
     <property name="palette">
@@ -1473,10 +1473,6 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </widget>
-   <zorder>nonStandardPitchGB</zorder>
-   <zorder>standardPitchGB</zorder>
-   <zorder>ROCLayoutGB</zorder>
-   <zorder>calibrationFitGB</zorder>
   </widget>
   <widget class="QGroupBox" name="ROCIdGB">
    <property name="geometry">
@@ -1484,7 +1480,7 @@ p, li { white-space: pre-wrap; }
      <x>4</x>
      <y>0</y>
      <width>326</width>
-     <height>51</height>
+     <height>69</height>
     </rect>
    </property>
    <property name="palette">
@@ -1798,6 +1794,46 @@ p, li { white-space: pre-wrap; }
      <string>Description</string>
     </property>
    </widget>
+   <widget class="customComboBox" name="sCalibrationFitFunctionCB">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>46</y>
+      <width>100</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="editable">
+     <bool>false</bool>
+    </property>
+    <item>
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>4</x>
+      <y>48</y>
+      <width>209</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Calibration fit function&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QLabel" name="ROCIdLB">
    <property name="geometry">
@@ -2036,6 +2072,11 @@ p, li { white-space: pre-wrap; }
    <class>customLineEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">customLineEdit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>customComboBox</class>
+   <extends>QComboBox</extends>
+   <header location="global">customComboBox.h</header>
   </customwidget>
   <customwidget>
    <class>customCheckBox</class>

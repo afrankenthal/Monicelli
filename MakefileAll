@@ -119,7 +119,7 @@ MonicelliProject:
 	@echo '$(ACYellow)$(ACBold)+=================================== Building Monicelli ============================================<<$(ACPlain)'
 	@echo '$(ACYellow)$(ACBold)|$(ACPlain)'
 	@echo '$(ACYellow)$(ACBold)v$(ACPlain)'
-	qmake && make
+	qmake && ./perlScripts/decorateMake.pl && make
 	@echo 
 
 ###############################################################

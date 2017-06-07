@@ -44,7 +44,7 @@
          std::string PF_ = __PRETTY_FUNCTION__ ;             \
          int PFSize = PF_.size() ;                           \
          int maxL = 90 ;                                     \
-         if(PFSize > 30) {PFSize = 30 ;}                     \
+         if(PFSize >= 30) {PFSize = 30 ;}                    \
          for(int i=0; i<PFSize; ++i) {PFs_<<PF_[i];}         \
          if( PFSize < 30 )                                   \
 	 {                                                   \
@@ -86,7 +86,7 @@
          std::string PF_ = __PRETTY_FUNCTION__ ;             \
          int PFSize = PF_.size() ;                           \
          int maxL = 90 ;                                     \
-         if(PFSize > 30) {PFSize = 30 ;}                     \
+         if(PFSize >= 30) {PFSize = 30 ;}                    \
          for(int i=0; i<PFSize; ++i) {PFs_<<PF_[i];}         \
          if( PFSize < 30 )                                   \
 	 {                                                   \
@@ -106,7 +106,7 @@
               << ACPlain << ACYellow                         \
               << "]"  ;                                      \
          int msgS = msg_.str().size() + 1 ;                  \
-         if(  msgS < 30 ) msgS = 30 ;                        \
+         if(  msgS <= 30 ) msgS = 30 ;                       \
          int blankSize = maxL - msgS ;                       \
          if( blankSize < 0 ) blankSize = 3 ;                 \
          std::string blanks = "" ;                           \
@@ -129,7 +129,7 @@
          std::string PF_ = __PRETTY_FUNCTION__ ;             \
          int PFSize = PF_.size() ;                           \
          int maxL = 90 ;                                     \
-         if(PFSize > 30) {PFSize = 30 ;}                     \
+         if(PFSize >= 30) {PFSize = 30 ;}                    \
          for(int i=0; i<PFSize; ++i) {PFs_<<PF_[i];}         \
          if( PFSize < 30 )                                   \
 	 {                                                   \

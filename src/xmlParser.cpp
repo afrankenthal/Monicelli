@@ -55,18 +55,18 @@ xmlParser::xmlParser(QFile & file)
 
   if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
   {
-    STDLINE(std::string("Could not open ")+file.fileName().toStdString(),ACRed) ;
+    STDLINE(std::string("Could not open "  )+file.fileName().toStdString(),ACRed  ) ;
     return;
   }
 
   if ( !document_->setContent( &file ) )
   {
-    STDLINE(std::string("Could not access ")+file.fileName().toStdString(),ACRed) ;
+    STDLINE(std::string("Could not access ")+file.fileName().toStdString(),ACRed  ) ;
     file.close();
     return;
   }
 
-  STDLINE(std::string("Parsing ")+file.fileName().toStdString(),ACGreen) ;
+  STDLINE(std::string("Parsing "           )+file.fileName().toStdString(),ACGreen) ;
 
   //STDLINE("",ACWhite) ;
   this->buildTelescope() ;
@@ -88,7 +88,9 @@ xmlParser::xmlParser(int numberOfStations,
 
   // Create suitable header components (<?xml ...> and <!DOCTYPE ...>)
   QDomImplementation * imp = new QDomImplementation () ;
-  QDomDocumentType type = imp->createDocumentType(QString("testBeamGeometry"),QString("MTEST telescope geometry definition file"),QString("../dtd/geometry.dtd")) ;
+  QDomDocumentType type = imp->createDocumentType(QString("testBeamGeometry"                        ),
+                                                  QString("MTEST telescope geometry definition file"),
+                                                  QString("../dtd/geometry.dtd"                     )) ;
   document_ = new QDomDocument(type);
   QDomProcessingInstruction ins = document_->createProcessingInstruction("xml","version=\"1.0\" encoding=\"iso-8859-1\"") ;
   document_->appendChild(ins) ;
@@ -114,7 +116,7 @@ xmlParser::xmlParser(int numberOfStations,
 //================================================================================
 void xmlParser::addStation(int stationId, int stationSerial)
 {
-  QDomNode stations         = document_->elementsByTagName("stations"  ).at(0) ;
+  QDomNode    stations      = document_->elementsByTagName("stations"  ).at(0) ;
   QDomElement stationNode   = document_->createElement    ("station"   ) ;
   QDomElement detectorsNode = document_->createElement    ("detectors" ) ;
   stationNode  .setAttribute("id",          stationId    ) ;
@@ -165,22 +167,27 @@ void xmlParser::buildTelescope(void)
 {
   xmlStations_.clear() ;
 
-  rootNode_ = document_->elementsByTagName("testBeamGeometry").at(0) ;
+  rootNode_                 = document_->elementsByTagName("testBeamGeometry").at(0) ;
+  stationsNode_             = document_->elementsByTagName("stations"        ).at(0) ;
 
-  QDomElement rootElement = rootNode_.toElement() ;
+  QDomElement rootElement   = rootNode_.toElement() ;
 
-  description_ = rootElement.attribute("description").toStdString() ;
-  run_         = rootElement.attribute("run"        ).toStdString() ;
-  date_        = rootElement.attribute("date"       ).toStdString() ;
+  QDomElement stationsEle   = document_->elementsByTagName("stations").at(0).toElement() ;
 
-  QDomNodeList stations = document_->elementsByTagName("station") ;
+  description_              = rootElement.attribute("description"            ).toStdString() ;
+  run_                      = rootElement.attribute("run"                    ).toStdString() ;
+  date_                     = rootElement.attribute("date"                   ).toStdString() ;
+  gCalibrationFitFunction_  = stationsEle.attribute("gCalibrationFitFunction").toStdString() ;
+  gDUTFitFunction_          = stationsEle.attribute("gDUTFitFunction"        ).toStdString() ;
+
+  QDomNodeList stations     = document_->elementsByTagName("station") ;
 
   for(int stationSerial=0; stationSerial<stations.size(); ++stationSerial)
   {
-    QDomNode stationNode           = stations.at(stationSerial) ;
-    int stationId                  = stationNode.toElement().attribute("id").toInt() ;
-    xmlStations_[stationId]        = new xmlStation(stationNode) ;
-    stationTabPosition_[stationId] = stationSerial ;
+    QDomNode stationNode                = stations.at(stationSerial)                                                  ;
+    int stationId                       = stationNode.toElement().attribute("id").toInt()                             ;
+    xmlStations_            [stationId] = new xmlStation(stationNode) ;
+    stationTabPosition_     [stationId] = stationSerial ;
   }
 
   //this->dumpStations() ;
@@ -631,6 +638,7 @@ xmlStation::xmlStation(QDomNode & stationNode)
   id_          = stationNode.toElement().attribute("id"         ).toInt() ;
   serial_      = stationNode.toElement().attribute("serial"     ).toInt() ;
   description_ = stationNode.toElement().attribute("description").toStdString() ;
+  sCalibrationFitFunction_ = stationNode.toElement().attribute("sCalibrationFitFunction").toStdString()  ;
   if( stationNode.toElement().attribute("used").toStdString() == "yes" ) used_ = true  ;
   if( stationNode.toElement().attribute("used").toStdString() == "no"  ) used_ = false ;
 

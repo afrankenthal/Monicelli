@@ -85,7 +85,7 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
   setenv XERCESCLIB		   /opt/local/xerces/lib
   
   #===== C++ flags
-  setenv CPLUSPLUSFLAGS            -std=c++11
+  setenv CPLUSPLUSFLAGS            "-std=c++11"
 
   setenv LD_LIBRARY_PATH	   
   
@@ -132,7 +132,7 @@ if(${HOSTNAME} == "cip.mib.infn.it") then
   setenv XERCESCLIB		   /opt/local/xerces/lib
   
   #===== C++ flags
-  setenv CPLUSPLUSFLAGS            -std=c++11
+  setenv CPLUSPLUSFLAGS            "-std=c++11"
 
   setenv LD_LIBRARY_PATH	   
   

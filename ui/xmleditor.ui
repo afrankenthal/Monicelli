@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>962</width>
-    <height>550</height>
+    <width>961</width>
+    <height>628</height>
    </rect>
   </property>
   <property name="palette">
@@ -78,7 +78,7 @@
    <string>The geometry configuration file XML editor</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="Monicelli.qrc">
+   <iconset resource="../Monicelli.qrc">
     <normaloff>:/(XML Editor icon)</normaloff>:/(XML Editor icon)</iconset>
   </property>
   <property name="styleSheet">
@@ -90,7 +90,7 @@
      <x>2</x>
      <y>4</y>
      <width>955</width>
-     <height>71</height>
+     <height>97</height>
     </rect>
    </property>
    <property name="palette">
@@ -558,9 +558,9 @@ p, li { white-space: pre-wrap; }
     <widget class="customLineEdit" name="dateLE">
      <property name="geometry">
       <rect>
-       <x>285</x>
+       <x>289</x>
        <y>40</y>
-       <width>181</width>
+       <width>177</width>
        <height>21</height>
       </rect>
      </property>
@@ -754,7 +754,7 @@ p, li { white-space: pre-wrap; }
       <rect>
        <x>251</x>
        <y>40</y>
-       <width>31</width>
+       <width>37</width>
        <height>21</height>
       </rect>
      </property>
@@ -930,17 +930,103 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </widget>
+   <widget class="QLabel" name="gFitFunctionLB">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>72</y>
+      <width>125</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fit function type:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="gDUTFitFunctionLB">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>72</y>
+      <width>165</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;for &lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;ALL &lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;DUT&lt;/span&gt; detectors:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="customComboBox" name="gCalibrationFitFunctionCB">
+    <property name="geometry">
+     <rect>
+      <x>344</x>
+      <y>70</y>
+      <width>100</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="editable">
+     <bool>false</bool>
+    </property>
+    <item>
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+   </widget>
+   <widget class="customComboBox" name="gDUTFitFunctionCB">
+    <property name="geometry">
+     <rect>
+      <x>632</x>
+      <y>70</y>
+      <width>100</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="editable">
+     <bool>false</bool>
+    </property>
+    <item>
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="gfitFunctionLB">
+    <property name="geometry">
+     <rect>
+      <x>152</x>
+      <y>72</y>
+      <width>193</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;for &lt;span style=&quot; color:#ff0000;&quot;&gt;ALL &lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;telescope&lt;/span&gt; stations&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
    <zorder>geometryControlsGB</zorder>
    <zorder>telescopeDescriptionGB</zorder>
    <zorder>stationControlsGB</zorder>
+   <zorder>gFitFunctionLB</zorder>
+   <zorder>gDUTFitFunctionLB</zorder>
+   <zorder>gCalibrationFitFunctionCB</zorder>
+   <zorder>gDUTFitFunctionCB</zorder>
+   <zorder>gfitFunctionLB</zorder>
   </widget>
   <widget class="QGroupBox" name="stationsGB">
    <property name="geometry">
     <rect>
      <x>2</x>
-     <y>80</y>
-     <width>955</width>
-     <height>403</height>
+     <y>106</y>
+     <width>957</width>
+     <height>517</height>
     </rect>
    </property>
    <property name="title">
@@ -959,9 +1045,14 @@ p, li { white-space: pre-wrap; }
    <extends>QTextEdit</extends>
    <header location="global">customTextEdit.h</header>
   </customwidget>
+  <customwidget>
+   <class>customComboBox</class>
+   <extends>QComboBox</extends>
+   <header location="global">customComboBox.h</header>
+  </customwidget>
  </customwidgets>
  <resources>
-  <include location="Monicelli.qrc"/>
+  <include location="../Monicelli.qrc"/>
  </resources>
  <connections/>
 </ui>

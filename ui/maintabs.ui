@@ -2103,6 +2103,19 @@ p, li { white-space: pre-wrap; }
           <pointsize>9</pointsize>
          </font>
         </property>
+        <property name="toolTip">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; text-decoration: underline; color:#0000ff;&quot;&gt;Load calibration files&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;A given &lt;span style=&quot; font-weight:600;&quot;&gt;configuration&lt;/span&gt; file specifies, for each ROC, a calibration file (located in&lt;span style=&quot; color:#006b86;&quot;&gt; $Monicelli_CalSample&lt;/span&gt;) that exists in two possible flavors:&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;- an ASCII file with calibration raw data&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;- a ROOT file with histograms already fit&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The first time a calibration needs to be done, Monicelli checks for the existence of the necessary ASCII files and reads them in memory, fills histograms and performs fits. Its up to the user to save the results in the end (&amp;quot;Save as ROOT&amp;quot;).&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For each subsequent load attempt, Monicelli will look for the corresponding ROOT files and load those, saving filling and fit time. If you need to re-do calibrations (changing the fit function), remove the ROOT file (see the &amp;quot;Remove&amp;quot; button).&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Load</string>
         </property>
@@ -2147,7 +2160,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>245</x>
-          <y>40</y>
+          <y>38</y>
           <width>101</width>
           <height>21</height>
          </rect>
@@ -2165,7 +2178,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>40</y>
+          <y>38</y>
           <width>111</width>
           <height>21</height>
          </rect>
@@ -2183,7 +2196,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>125</x>
-          <y>40</y>
+          <y>38</y>
           <width>121</width>
           <height>21</height>
          </rect>
@@ -2284,6 +2297,32 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="text">
          <string>Save as Root</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="removeCalibFilesPB">
+        <property name="geometry">
+         <rect>
+          <x>356</x>
+          <y>38</y>
+          <width>61</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Remove</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="restoreCalibFilesPB">
+        <property name="geometry">
+         <rect>
+          <x>420</x>
+          <y>38</y>
+          <width>61</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Restore</string>
         </property>
        </widget>
       </widget>
@@ -2437,7 +2476,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QComboBox" name="loadCalibrationsTabPagePlaqSelectCB">
         <property name="geometry">
          <rect>
-          <x>65</x>
+          <x>68</x>
           <y>16</y>
           <width>161</width>
           <height>20</height>
@@ -2500,7 +2539,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QPushButton" name="cal1Chi2PB">
         <property name="geometry">
          <rect>
-          <x>64</x>
+          <x>68</x>
           <y>40</y>
           <width>120</width>
           <height>20</height>
@@ -2539,7 +2578,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QPushButton" name="cal1DChi2AllPB">
         <property name="geometry">
          <rect>
-          <x>64</x>
+          <x>68</x>
           <y>62</y>
           <width>120</width>
           <height>20</height>

@@ -67,35 +67,44 @@
 
 XERCES_CPP_NAMESPACE_USE
 
+using namespace std ;
 
 class geometryLoader
 {
   public :
-                   geometryLoader(void                    )  ;
-                  ~geometryLoader(void                    ) {;}
+    typedef map< string, pair<bool, string> > sCalFitFuncDef ; // station
+    typedef map< string, pair<bool, string> > dCalFitFuncDef ; // detector
+    typedef map< string, pair<bool, string> > rCalFitFuncDef ; // ROC
 
-    void           loadXML       (std::string configFile  )  ;
-    void           fillGeometry  (std::string toRead="all")  ;
-    Geometry     * getGeometry   (void                    ) {return theGeometry_;}
+                        geometryLoader    (void                  )  ;
+                       ~geometryLoader    (void                  ) {;}
+
+    void                loadXML           (string configFile     )  ;
+    void                fillGeometry      (string toRead="all"   )  ;
+    Geometry          * getGeometry       (void                  ) {return theGeometry_;}
+    void                setCalibrationMaps(void                  )  ;
 
   private :
 
-     bool          validContent  (std::string   tagName,
-                                  std::string content     )  ;
-     void          acquireInfo   (DOMElement  * element   )  ;
-     std::string   stripBlanks   (std::string   theString )  ;
-     std::string   toLower       (std::string   theString )  ;
+     bool               validContent  (string       tagName,
+                                       string       content  )  ;
+     void               acquireInfo   (DOMElement * element  )  ;
+     string             stripBlanks   (string       theString)  ;
+     string             toLower       (string       theString)  ;
 
+     string             currentPlaqID_           ;
+     int                currentROC_              ;
+     string             station_                 ;
+     DOMElement       * testBeamGeometryXml_     ;
+     Geometry         * theGeometry_             ;
+     string             toRead_                  ;
+     string             gCalibrationFitFunction_ ;
+     string             gDUTFitFunction_         ;
+     sCalFitFuncDef     sCalibrationFitFunction_ ;
+     dCalFitFuncDef     dCalibrationFitFunction_ ;
+     rCalFitFuncDef     rCalibrationFitFunction_ ;
 
-     std::string    currentPlaqID_      ;
-     int            currentROC_         ;
-     std::string    station_            ;
-     DOMElement   * testBeamGeometryXml_;
-     Geometry     * theGeometry_        ;
-     std::string    toRead_             ;
-
-     std::stringstream ss_ ;
-     //bool closingFlag_     ;
+     stringstream       ss_                      ;
 } ;
 
 #endif // GEOMETRYLOADER_H

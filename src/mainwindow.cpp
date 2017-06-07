@@ -129,10 +129,6 @@ void MainWindow::initialize()
 void MainWindow::cleanClose()
 {
     STDLINE("Closing everything",ACRed) ;
-//    this->buildHNavigator() ;
-//    theHNavigator_->getTheHTreeBrowser()->expandAll() ;
-//    theHNavigator_->saveAll() ;
-//    writeSettings();
     QApplication::processEvents(QEventLoop::AllEvents);
     qApp->exit() ;
     exit(0) ;
@@ -248,37 +244,12 @@ void MainWindow::about()
 //===========================================================================
 void MainWindow::updateMenus()
 {
-    //    bool hasMdiChild = (activeMdiChild() != 0);
-    //    saveAct     ->setEnabled(hasMdiChild);
-    //    saveAsAct   ->setEnabled(hasMdiChild);
-    //    pasteAct    ->setEnabled(hasMdiChild);
-    //    closeAct    ->setEnabled(hasMdiChild);
-    //    closeAllAct ->setEnabled(hasMdiChild);
-    //    tileAct     ->setEnabled(hasMdiChild);
-    //    cascadeAct  ->setEnabled(hasMdiChild);
-    //    nextAct     ->setEnabled(hasMdiChild);
-    //    previousAct ->setEnabled(hasMdiChild);
-    //    separatorAct->setVisible(hasMdiChild);
-
-    //    bool hasSelection = (activeMdiChild() &&
-    //                         activeMdiChild()->textCursor().hasSelection());
-    //    cutAct ->setEnabled(hasSelection);
-    //    copyAct->setEnabled(hasSelection);
 }
 
 //===========================================================================
 void MainWindow::updateWindowMenu()
 {
     windowMenu->clear       ();
-    //    windowMenu->addAction   (closeAct);
-    //    windowMenu->addAction   (closeAllAct);
-    //    windowMenu->addSeparator();
-    //    windowMenu->addAction   (tileAct);
-    //    windowMenu->addAction   (cascadeAct);
-    //    windowMenu->addSeparator();
-    //    windowMenu->addAction   (nextAct);
-    //    windowMenu->addAction   (previousAct);
-    //    windowMenu->addAction   (separatorAct);
 
     QList<QMdiSubWindow *> windows = mdiArea->subWindowList();
     separatorAct->setVisible(!windows.isEmpty());
@@ -340,79 +311,11 @@ void MainWindow::createActions()
 {
     QString iconPath ;
 
-    //    newAct = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
-    //    newAct->setShortcuts(QKeySequence::New);
-    //    newAct->setStatusTip(tr("Create a new file"));
-    //    connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
-
-    //    openAct = new QAction(QIcon(":/images/open.png"), tr("&Open..."), this);
-    //    openAct->setShortcuts(QKeySequence::Open);
-    //    openAct->setStatusTip(tr("Open an existing file"));
-    //    connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
-
-    //    saveAct = new QAction(QIcon(":/images/save.png"), tr("&Save"), this);
-    //    saveAct->setShortcuts(QKeySequence::Save);
-    //    saveAct->setStatusTip(tr("Save the document to disk"));
-    //    connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
-
-    //    saveAsAct = new QAction(tr("Save &As..."), this);
-    //    saveAsAct->setShortcuts(QKeySequence::SaveAs);
-    //    saveAsAct->setStatusTip(tr("Save the document under a new name"));
-    //    connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
-
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcuts(QKeySequence::Quit);
     exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
 
-    //    cutAct = new QAction(QIcon(":/images/cut.png"), tr("Cu&t"), this);
-    //    cutAct->setShortcuts(QKeySequence::Cut);
-    //    cutAct->setStatusTip(tr("Cut the current selection's contents to the "
-    //                            "clipboard"));
-    //    connect(cutAct, SIGNAL(triggered()), this, SLOT(cut()));
-
-    //    copyAct = new QAction(QIcon(":/images/copy.png"), tr("&Copy"), this);
-    //    copyAct->setShortcuts(QKeySequence::Copy);
-    //    copyAct->setStatusTip(tr("Copy the current selection's contents to the "
-    //                             "clipboard"));
-    //    connect(copyAct, SIGNAL(triggered()), this, SLOT(copy()));
-
-    //    pasteAct = new QAction(QIcon(":/images/paste.png"), tr("&Paste"), this);
-    //    pasteAct->setShortcuts(QKeySequence::Paste);
-    //    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
-    //                              "selection"));
-    //    connect(pasteAct, SIGNAL(triggered()), this, SLOT(paste()));
-
-    //    closeAct = new QAction(tr("Cl&ose"), this);
-    //    closeAct->setStatusTip(tr("Close the active window"));
-    //    connect(closeAct, SIGNAL(triggered()),
-    //            mdiArea, SLOT(closeActiveSubWindow()));
-
-    //    closeAllAct = new QAction(tr("Close &All"), this);
-    //    closeAllAct->setStatusTip(tr("Close all the windows"));
-    //    connect(closeAllAct, SIGNAL(triggered()),
-    //            mdiArea, SLOT(closeAllSubWindows()));
-
-    //    tileAct = new QAction(tr("&Tile"), this);
-    //    tileAct->setStatusTip(tr("Tile the windows"));
-    //    connect(tileAct, SIGNAL(triggered()), mdiArea, SLOT(tileSubWindows()));
-
-    //    cascadeAct = new QAction(tr("&Cascade"), this);
-    //    cascadeAct->setStatusTip(tr("Cascade the windows"));
-    //    connect(cascadeAct, SIGNAL(triggered()), mdiArea, SLOT(cascadeSubWindows()));
-
-    //    nextAct = new QAction(tr("Ne&xt"), this);
-    //    nextAct->setShortcuts(QKeySequence::NextChild);
-    //    nextAct->setStatusTip(tr("Move the focus to the next window"));
-    //    connect(nextAct, SIGNAL(triggered()),
-    //            mdiArea, SLOT(activateNextSubWindow()));
-
-    //    previousAct = new QAction(tr("Pre&vious"), this);
-    //    previousAct->setShortcuts(QKeySequence::PreviousChild);
-    //    previousAct->setStatusTip(tr("Move the focus to the previous "
-    //                                 "window"));
-    //    connect(previousAct, SIGNAL(triggered()),
-    //            mdiArea, SLOT(activatePreviousSubWindow()));
 
     separatorAct = new QAction(this);
     separatorAct->setSeparator(true);
@@ -610,18 +513,12 @@ void MainWindow::createMenus()
 void MainWindow::createToolBars()
 {
     fileToolBar = addToolBar(tr("File"));
-    //    fileToolBar->addAction(newAct);
-    //    fileToolBar->addAction(openAct);
-    //    fileToolBar->addAction(saveAct);
 
     fileToolBar->addAction(newMainPanelAct) ;
     fileToolBar->addAction(hNavigatorAct) ;
     fileToolBar->addAction(editXMLAct) ;
 
     editToolBar = addToolBar(tr("Edit"));
-    //    editToolBar->addAction(cutAct);
-    //    editToolBar->addAction(copyAct);
-    //    editToolBar->addAction(pasteAct);
 }
 
 //===========================================================================
@@ -634,10 +531,8 @@ void MainWindow::createStatusBar()
 void MainWindow::readSettings()
 {
     QSettings settings("CMS", "Monicelli");
-    QPoint pos             = settings.value("pos",            QPoint(200, 200)).toPoint();
-    QSize  size            = settings.value("size",           QSize (400, 400)).toSize();
-//    QPoint hNavigatorPos_  = settings.value("posHnavigator",  QSize (400, 400)).toPoint();
-//    QSize  hNavigatorSize_ = settings.value("sizeHnavigator", QSize (400, 400)).toSize();
+    QPoint pos  = settings.value("pos" , QPoint(200, 200)).toPoint();
+    QSize  size = settings.value("size", QSize (400, 400)).toSize();
     this->move(pos);
     this->resize(size);
 }
@@ -660,10 +555,6 @@ void MainWindow::writeSettings()
                                 ) ;
         settings.setValue("posHnavigator" ,  hNavigatorSize_) ;
         settings.setValue("sizeHnavigator" , hNavigatorPos_ ) ;
-//        cout << "+_+_+_+_  W: " << theHNavigator_->geometry().width()
-//                      << " H: " << theHNavigator_->geometry().height()
-//                      << " x: " << theHNavigator_->pos().x()
-//                      << " y: " << theHNavigator_->pos().y() << endl ;
     }
     else
     {
@@ -723,6 +614,4 @@ void MainWindow::getPartitionsInfos(bool usePartitions, string theCurrentDUT, st
     usePartitions_    = usePartitions;
     theCurrentDUT_    = theCurrentDUT;
     theCurrentSector_ = theCurrentSector;
-
-    //ss_.str(""); ss_<<"Use Partitions is: "<<usePartitions_<<" DUT is:  "<<theCurrentDUT_<<" Sector is: "<<theCurrentSector_<<endl; STDLINE(ss_.str(),ACCyan);
 }

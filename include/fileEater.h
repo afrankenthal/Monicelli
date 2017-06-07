@@ -142,6 +142,7 @@ public:
     TFile         * getFileHandle            (std::string                  fullPath             ) ;
     EventHeader   * getHeader                (void                                              ) {return theEventHeader_            ;}
     beamSimulator * getBeamSimulator         (void                                              ) {return theBeamSimulator_          ;}
+    geometryLoader* getGeometryLoader        (void                                              ) {return theGeometryLoader_         ;}
 
 
  

@@ -89,11 +89,45 @@ p, li { white-space: pre-wrap; }
       <x>8</x>
       <y>18</y>
       <width>743</width>
-      <height>55</height>
+      <height>33</height>
      </rect>
     </property>
     <property name="cursor" stdset="0">
      <cursorShape>IBeamCursor</cursorShape>
+    </property>
+   </widget>
+   <widget class="customComboBox" name="dCalibrationFitFunctionCB">
+    <property name="geometry">
+     <rect>
+      <x>296</x>
+      <y>53</y>
+      <width>100</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="editable">
+     <bool>false</bool>
+    </property>
+    <item>
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="dCalibrationsFitFunctionLB">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>56</y>
+      <width>281</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fit function type for ALL detectors:</string>
     </property>
    </widget>
   </widget>
@@ -101,9 +135,9 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>854</x>
-     <y>6</y>
+     <y>0</y>
      <width>91</width>
-     <height>71</height>
+     <height>77</height>
     </rect>
    </property>
    <property name="toolTip">
@@ -122,13 +156,16 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;file but unused by the reconstruction program.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="title">
-    <string/>
+    <string>-</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
    <widget class="customCheckBox" name="stationInUseCB">
     <property name="geometry">
      <rect>
       <x>6</x>
-      <y>6</y>
+      <y>20</y>
       <width>81</width>
       <height>22</height>
      </rect>
@@ -154,7 +191,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>4</x>
-      <y>40</y>
+      <y>48</y>
       <width>19</width>
       <height>18</height>
      </rect>
@@ -211,7 +248,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>26</x>
-      <y>40</y>
+      <y>48</y>
       <width>59</width>
       <height>18</height>
      </rect>
@@ -457,6 +494,11 @@ p, li { white-space: pre-wrap; }
    <class>customTextEdit</class>
    <extends>QTextEdit</extends>
    <header location="global">customTextEdit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>customComboBox</class>
+   <extends>QComboBox</extends>
+   <header location="global">customComboBox.h</header>
   </customwidget>
   <customwidget>
    <class>customCheckBox</class>

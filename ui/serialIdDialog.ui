@@ -150,8 +150,8 @@ for a new detector</string>
    <widget class="QLabel" name="tabPositionLB">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>46</y>
+      <x>32</x>
+      <y>44</y>
       <width>92</width>
       <height>16</height>
      </rect>
@@ -228,9 +228,9 @@ for a new detector</string>
    <widget class="QComboBox" name="tabPositionCB">
     <property name="geometry">
      <rect>
-      <x>112</x>
+      <x>128</x>
       <y>42</y>
-      <width>60</width>
+      <width>52</width>
       <height>22</height>
      </rect>
     </property>
@@ -247,9 +247,9 @@ for a new detector</string>
     </property>
     <property name="geometry">
      <rect>
-      <x>112</x>
+      <x>128</x>
       <y>14</y>
-      <width>60</width>
+      <width>52</width>
       <height>22</height>
      </rect>
     </property>
@@ -263,7 +263,7 @@ for a new detector</string>
    <widget class="QLabel" name="IdLB">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>32</x>
       <y>20</y>
       <width>92</width>
       <height>16</height>
@@ -314,9 +314,9 @@ for a new detector</string>
    <widget class="QSpinBox" name="IdSB">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>187</x>
       <y>14</y>
-      <width>60</width>
+      <width>52</width>
       <height>22</height>
      </rect>
     </property>
@@ -324,9 +324,9 @@ for a new detector</string>
    <widget class="QSpinBox" name="tabPositionSB">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>187</x>
       <y>42</y>
-      <width>60</width>
+      <width>52</width>
       <height>22</height>
      </rect>
     </property>

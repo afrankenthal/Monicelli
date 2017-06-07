@@ -48,30 +48,33 @@ public:
 
     typedef std::pair<double*,double*> fitResultDef;
 
-    fitResultDef    calibrationFit               (TH1    * histo,
-                                                  double   xmin,
-                                                  double   xmax,
-                                                  double * pars=0      );
-    void            linearFit                    (TH1    * histo,
-                                                  double * slope,
-                                                  double * q,
-                                                  double   tolerance=2.5);
-    void            gaussFit                     (TH1    * histo        );
-    void            gaussFit                     (TH1    * histo,
-                                                  double   mean,
-                                                  double   rms,
-                                                  double   nRMS         );
-    void            chi2Fit                      (TH1* histo            );
-    double          getMean                      (void                  ){return mean_ ;}
-    double          getSigma                     (void                  ){return sigma_;}
-    const char*     getCalibrationFitFunctionName(void                  ){return calibrationFitFunctionName_;}
-    int             getCalibrationFitFunctionNPar(void                  );
+    fitResultDef    calibrationFit               (TH1         * histo,
+                                                  double        xmin,
+                                                  double        xmax,
+                                                  double      * pars=0       );
+    void            linearFit                    (TH1         * histo,
+                                                  double      * slope,
+                                                  double      * q,
+                                                  double        tolerance=2.5);
+    void            gaussFit                     (TH1         * histo        );
+    void            gaussFit                     (TH1         * histo,
+                                                  double        mean,
+                                                  double        rms,
+                                                  double        nRMS         );
+    void            chi2Fit                      (TH1         * histo        );
+    double          getMean                      (void                       ){return mean_                      ;}
+    double          getSigma                     (void                       ){return sigma_                     ;}
+    const char *    getCalibrationFitFunctionName(void                       ){return calibrationFitFunctionName_;}
+    int             getCalibrationFitFunctionNPar(void                       );
+    void            setFitFunctionType           (std::string   type         );
+    std::string     getFitFunctionType           (void                       ){return fitFunctionType_           ;}
 
 private:
-    double            mean_ ;
-    double            sigma_;
-    const char*       calibrationFitFunctionName_;
-    TF1*              calibrationFitFunction_;
+    double          mean_                      ;
+    double          sigma_                     ;
+    const char *    calibrationFitFunctionName_;
+    TF1        *    calibrationFitFunction_    ;
+    std::string     fitFunctionType_           ;
 
     std::stringstream ss_;
 

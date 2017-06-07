@@ -26,20 +26,22 @@
   <widget class="QLabel" name="rowColLB">
    <property name="geometry">
     <rect>
-     <x>6</x>
-     <y>10</y>
-     <width>97</width>
-     <height>16</height>
+     <x>28</x>
+     <y>4</y>
+     <width>65</width>
+     <height>33</height>
     </rect>
    </property>
    <property name="font">
     <font>
+     <pointsize>10</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
    </property>
    <property name="text">
-    <string>Row to remove</string>
+    <string>Row to
+remove</string>
    </property>
   </widget>
   <widget class="QPushButton" name="okPB">

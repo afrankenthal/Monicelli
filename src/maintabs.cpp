@@ -354,14 +354,19 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
 //===========================================================================
 void mainTabs::initializeSingletons()
 {
-    if( !theThreader_         ) theThreader_          = new threader()                                                ;
-    if( !theAligner_          ) theAligner_           = new aligner(theFileEater_, theHManager_)                      ;
-    if( !theFitter_           ) theFitter_            = new fitter()                                                  ;
-    if( !theCalibrationLoader_) theCalibrationLoader_ = new calibrationLoader(theFileEater_, theHManager_, theFitter_);
-//  if( !theParser_           ) theParser_            = new parser(theFileEater_)                                     ;
-    if( !theClusterizer_      ) theClusterizer_       = new clusterizer()                                             ;
-    if( !theTrackFitter_      ) theTrackFitter_       = new trackFitter()                                             ;
-    if( !theTrackFinder_      ) theTrackFinder_       = new trackFinder(theTrackFitter_)                              ;
+    if( !theThreader_         ) theThreader_          = new threader         (                                  );
+    if( !theAligner_          ) theAligner_           = new aligner          (theFileEater_,
+                                                                              theHManager_                      );
+    if( !theFitter_           ) theFitter_            = new fitter           (                                  );
+    if( !theCalibrationLoader_) theCalibrationLoader_ = new calibrationLoader(theFileEater_,
+                                                                              theHManager_ ,
+                                                                              theFitter_   ,
+                                                                              theFileEater_->getGeometryLoader(),
+                                                                              ui->parseProgressBar              );
+//  if( !theParser_           ) theParser_            = new parser           (theFileEater_                     );
+    if( !theClusterizer_      ) theClusterizer_       = new clusterizer      (                                  );
+    if( !theTrackFitter_      ) theTrackFitter_       = new trackFitter      (                                  );
+    if( !theTrackFinder_      ) theTrackFinder_       = new trackFinder      (theTrackFitter_                   );
 
 
     // Start timer to periodically update the main widget
@@ -4631,6 +4636,92 @@ void mainTabs::on_cal1Chi2PB_clicked()
 }
 
 //================================================================================
+void mainTabs::optimizePlot(TH2 * histo)
+{
+    double emin = 1E10 ;
+    double emax =    0 ;
+    double mean =    0 ;
+    double Mean =    0 ;
+    double rms  =   20 ;
+    int    n    =    0 ;
+    double z    =    0 ;
+    for(int i=0; i<2; ++i)
+    {
+     n    =    0 ;
+     z    =    0 ;
+     mean =    0 ;
+     emin = 1E10 ;
+     emax =    0 ;
+     for(int binX=1; binX<=histo->GetNbinsX(); binX++)
+     {
+      for(int binY=1; binY<=histo->GetNbinsY(); binY++)
+      {
+       double b = histo->GetBinContent(binX,binY) ;
+       if( b > 0 && b <  emin )  {emin  = b ;}
+       if( b > 0 && b >= emax )  {emax  = b ;}
+       if( i == 0 )
+       {
+        mean += b;
+       }
+       else
+       {
+        if( fabs(Mean - b) < 3*rms ){mean += b ;}
+        else
+        {
+         ss_.str(""); ss_ << "Excluding ["
+                          << binX
+                          << ","
+                          << binY
+                          << "] = "
+                          << b
+                          << " mean: "
+                          << mean
+                          << " Mean: "
+                          << Mean ;
+//         STDLINE(ss_.str(),ACWhite) ;
+        }
+       }
+       n++ ;
+      }
+     }
+     mean /= float(n) ;
+     Mean  = mean ;
+     for(int binX=1; binX<=histo->GetNbinsX(); binX++)
+     {
+       for(int binY=1; binY<=histo->GetNbinsY(); binY++)
+       {
+         double b = histo->GetBinContent(binX,binY) ;
+         if( fabs(Mean - b) < 3*rms ){z += (b-mean)*(b-mean) ;}
+       }
+     }
+     rms = sqrt(z/float(n)) ;
+     ss_.str(""); ss_ << "mean: "
+                      << mean
+                      << " (Mean: "
+                      << Mean
+                      << ") and RMS: "
+                      << rms
+                      << " (emin: "
+                      << emin
+                      << ")" ;
+//     STDLINE(ss_.str(),ACWhite) ;
+     ss_.str(""); ss_ << "From "
+                      << emin
+                      << " to "
+                      << mean + rms ;
+//     STDLINE(ss_.str(),ACWhite) ;
+    }
+
+    if( ui->optimizeVScaleCB->isChecked())
+    {
+        histo->GetZaxis()->SetRangeUser(emin, mean + 5*rms) ;
+    }
+    else
+    {
+        histo->GetZaxis()->SetRangeUser(0, emax+emax/20.) ;
+    }
+}
+//================================================================================
 void mainTabs::on_cal2Chi2PB_clicked()
 {
     gStyle->SetOptStat(0  );
@@ -4650,6 +4741,9 @@ void mainTabs::on_cal2Chi2PB_clicked()
         QMessageBox::information(this, tr("WARNING"), tr("Plot not found"));
         return ;
     }
+
+    this->optimizePlot((TH2*)histo) ;
+
     histo->Draw("COLZ");
 
     loadCalibrationMainCanvas_->GetCanvas()->Modified();
@@ -4700,6 +4794,7 @@ void mainTabs::on_cal2DChi2AllPB_clicked()
         if( histos[i] != NULL)
         {
             QApplication::processEvents(QEventLoop::AllEvents);
+            this->optimizePlot((TH2*)histos[i]) ;
             loadCalibrationMainCanvas_->GetCanvas()->cd(i+1) ;
             histos[i]->Draw("COLZ");
             ui->parseProgressBar->setValue(i) ;
@@ -4712,4 +4807,18 @@ void mainTabs::on_cal2DChi2AllPB_clicked()
             STDLINE("NULL",ACRed) ;
         }
     }
+}
+//================================================================================
+void mainTabs::on_removeCalibFilesPB_clicked()
+{
+    QString calibOutputDirectory = getEnvPath("Monicelli_CalSample_Dir");
+    // Pass command to output to text file to calibrationLoader_
+    theCalibrationLoader_->removeCalibrationFiles(calibOutputDirectory.toStdString());
+}
+//================================================================================
+void mainTabs::on_restoreCalibFilesPB_clicked()
+{
+    QString calibOutputDirectory = getEnvPath("Monicelli_CalSample_Dir");
+    // Pass command to output to text file to calibrationLoader_
+    theCalibrationLoader_->restoreCalibrationFiles(calibOutputDirectory.toStdString());
 }

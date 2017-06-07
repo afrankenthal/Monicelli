@@ -43,6 +43,9 @@
 
 #define CONVF 1000
 
+#define DEFAULT_TELESCOPE_FIT_FUNCTION "linear"
+#define DEFAULT_DUT_FIT_FUNCTION       "parabola"
+
 class Geometry : public TObject
 {
  public:
@@ -52,41 +55,42 @@ class Geometry : public TObject
 
   typedef std::map< std::string , Detector* >   detectorsMapDef;
   typedef std::map< int , int >                 dataTypeMapDef ;
+  typedef detectorsMapDef::iterator             iterator       ;
 
-  typedef detectorsMapDef::iterator   iterator;
-  const iterator                                               begin() {return detectorsMap_.begin() ;}
-  const iterator                                               end()   {return detectorsMap_.end()   ;}
+  const iterator              begin                 (                               ) {return detectorsMap_.begin()       ;}
+  const iterator              end                   (                               ) {return detectorsMap_.end()         ;}
 
   Detector                  * addDetector           (std::string  plaqID,
                                                      bool         isDUT   = false,
                                                      bool         isStrip = false   );
 
-  void                        clear                 (void                           ) {detectorsMap_.clear()       ;}
-  bool                        empty                 (void                           ) {return detectorsMap_.empty();}
+  void                        clear                 (void                           ) {detectorsMap_.clear()              ;}
+  bool                        empty                 (void                           ) {return detectorsMap_.empty()       ;}
 
   Detector                  * getDetector           (std::string  plaqID            );
   Detector                  * getDetector           (int          station,
                                                      int          plaq              );
   int                         getDetectorStation    (std::string  plaqID            );
   int                         getDetectorModule     (std::string  plaqID            );
-  const KalmanPlaneInfo &     getKalmanPlaneInfo    (void                           ) {return theKalmanPlaneInfo_     ;}
+  int                         getSize               (void                           ) {return detectorsMap_.size()        ;}
+  const KalmanPlaneInfo &     getKalmanPlaneInfo    (void                           ) {return theKalmanPlaneInfo_         ;}
 
   std::vector<Detector*>      getDUTs               (void                           );
-  const detectorsMapDef&      getDetectors          (void                           ) {return detectorsMap_        ;}
-  std::string                 getDetectorID         (int          Station, int Plaq );
+  detectorsMapDef             getDetectors          (void                           ) {return detectorsMap_               ;}
+  std::string                 getDetectorID         (int          Station, 
+                                                     int          Plaq              );
   unsigned int                getDetectorsNumber    (bool         excludeDUT = false);
-  std::string                 getGeometryFileName   (void                           ) {return geometryFileName_    ;}
+  std::string                 getGeometryFileName   (void                           ) {return geometryFileName_           ;}
   double                      getMaxDetectorsLength (void                           );
   unsigned int                getMaxRowsNum         (void                           );
   unsigned int                getMaxColsNum         (void                           );
-  bool                        calibrationDone       (void                           ) {return calibrationDone_     ;}
+  bool                        calibrationDone       (void                           ) {return calibrationDone_            ;}
 
-  void                        setDUTnumbers         (unsigned int dutNumbers        ) {dutNumbers_ = dutNumbers    ;}
+  void                        setDUTnumbers         (unsigned int dutNumbers        ) {dutNumbers_           = dutNumbers ;}
   void                        setGeometryFileName   (std::string  fileName          ) ;
-  void                        setCalibrationDone    (bool done                      ) {calibrationDone_ = done     ;}
-  void                        setDataType           (int station,
-                                                     int dataType                   ) {dataTypeMap_[station] = dataType;}
-
+  void                        setCalibrationDone    (bool         done              ) {calibrationDone_      = done       ;}
+  void                        setDataType           (int          station,
+                                                     int          d                 ) {dataTypeMap_[station] = d          ;}
   void                        dump                  (void                           );
   void                        orderPlanes           (void                           );
   void                        calculatePlaneMCS     (void                           );
@@ -95,15 +99,14 @@ class Geometry : public TObject
 
   bool compare_zPosition (std::string first, std::string second);
 
-  detectorsMapDef   detectorsMap_      ;
-  dataTypeMapDef    dataTypeMap_       ;
-  std::vector<int>  runNumbers_        ;
-  unsigned int      dutNumbers_        ;
-  std::string       geometryFileName_  ;
-  bool              calibrationDone_   ;
-  KalmanPlaneInfo   theKalmanPlaneInfo_;//! temporary state value
-
-  std::stringstream ss_                ;//! temporary state value
+  detectorsMapDef   detectorsMap_            ;
+  dataTypeMapDef    dataTypeMap_             ;
+  std::vector<int>  runNumbers_              ;
+  unsigned int      dutNumbers_              ;
+  std::string       geometryFileName_        ;
+  bool              calibrationDone_         ;
+  KalmanPlaneInfo   theKalmanPlaneInfo_      ;//! temporary state value
+  std::stringstream ss_                      ;//! temporary state value
 
   ClassDef(Geometry,2)
 

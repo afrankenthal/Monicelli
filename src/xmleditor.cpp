@@ -28,6 +28,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ================================================================================*/
  
+#include <iostream>
 #include <string>
 #include <cstdlib>
 #include <stdio.h>
@@ -42,6 +43,8 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
+using namespace std ;
+
 //===========================================================================
 XMLEditor::XMLEditor(QWidget *parent) : QWidget(parent), ui(new Ui::XMLEditor)
 {
@@ -51,20 +54,24 @@ XMLEditor::XMLEditor(QWidget *parent) : QWidget(parent), ui(new Ui::XMLEditor)
 
     ui->setupUi(this);
 
-    this->setGeometry(this->geometry().x(),
+    this->setGeometry(
+                      this->geometry().x(),
                       this->geometry().y(),
                       ui->stationsGB->geometry().width ()+ 10,
-                      ui->stationsGB->geometry().height()+250) ;
+                      ui->stationsGB->geometry().height()+250
+                     ) ;
 
-    QMessageBox msgBox(QMessageBox::Question, tr("Warning"),
-                       tr("Use existing geometry file or create a new one?"), 0, this);
-    QPushButton *useExisting = msgBox.addButton(tr("Use existing"), QMessageBox::AcceptRole);
-    QPushButton *createOne   = msgBox.addButton(tr("Create"      ), QMessageBox::AcceptRole);
-    QPushButton *abort       = msgBox.addButton(tr("Abort"       ), QMessageBox::RejectRole);
+    QMessageBox msgBox(
+                       QMessageBox::Question, tr("Warning"),
+                       tr("Choose an already existing geometry file or create a new one?"), 0, this
+                      );
+    QPushButton *useExisting = msgBox.addButton(tr("Select an already existing one"), QMessageBox::AcceptRole);
+    QPushButton *createOne   = msgBox.addButton(tr("Create a new one"              ), QMessageBox::AcceptRole);
+    QPushButton *abort       = msgBox.addButton(tr("Abort"                         ), QMessageBox::RejectRole);
 
     msgBox.exec();
 
-    if ( msgBox.clickedButton() == abort)
+    if (     msgBox.clickedButton() == abort      )
     {
         STDLINE("Editing of an XML document has been aborted",ACPurple) ;
         return ;
@@ -76,13 +83,17 @@ XMLEditor::XMLEditor(QWidget *parent) : QWidget(parent), ui(new Ui::XMLEditor)
         if(!this->loadGeometryFile())
             return;
     }
-    else if (msgBox.clickedButton() == createOne)
+    else if (msgBox.clickedButton() == createOne  )
     {
         STDLINE("Editing a new XML document",ACPurple) ;
         xmlCreationDialog * cd = new xmlCreationDialog(this) ;
         cd->exec() ;
         if( !cd->state() ) return ;
-        theXMLParser_ = new xmlParser(cd->getStations(),cd->getDetectors(),cd->getROCs()) ;
+        theXMLParser_ = new xmlParser(
+                                      cd->getStations(),
+                                      cd->getDetectors(),
+                                      cd->getROCs()
+                                     ) ;
     }
     else
     {
@@ -139,7 +150,7 @@ void XMLEditor::setGeometryFileName(QString fileName)
 //===========================================================================
 bool XMLEditor::loadGeometryFile(void)
 {
-    std::string path = std::string(getenv("MonicelliDir"))+std::string("/xml") ;
+    std::string path = std::string(getenv("Monicelli_XML_Dir")) ;
     QString path_    = QString(path.c_str()) ;
     QString fileName = QFileDialog::getOpenFileName(this,"Geometry files",path_,"XML files (*.xml)");
     if (fileName.isEmpty())  return false;
@@ -163,32 +174,54 @@ void XMLEditor::layout()
 { 
     if( alreadyLaidOut_ ) return ;
 
-    ui->fileDescriptionTA->setInnerGeometry(ui->fileDescriptionTA->geometry()            );
-    ui->fileDescriptionTA->textIsAttribute (true                                         );
-    ui->fileDescriptionTA->setText         ("description",theXMLParser_->getDesctiption());
-    ui->fileDescriptionTA->assignXmlElement(theXMLParser_->getNode()                     );
+    alreadyLaidOut_     = true                       ;
+    theStationTW_       = new stationTabWidget(this) ;
+    QRect theStationsGB = ui->stationsGB->geometry() ;
 
-    ui->runLE            ->setInnerGeometry(ui->runLE->geometry()                        );
-    ui->runLE            ->textIsAttribute (true                                         );
-    ui->runLE            ->setText         ("run",        theXMLParser_->getRun ()       );
-    ui->runLE            ->assignXmlElement(theXMLParser_->getNode()                     );
 
-    ui->dateLE           ->setInnerGeometry(ui->dateLE->geometry()                       );
-    ui->dateLE           ->textIsAttribute (true                                         );
-    ui->dateLE           ->setText         ("date",       theXMLParser_->getDate()       );
-    ui->dateLE           ->assignXmlElement(theXMLParser_->getNode()                     );
+    ui->fileDescriptionTA        ->setInnerGeometry(ui->fileDescriptionTA->geometry()                             );
+    ui->fileDescriptionTA        ->textIsAttribute (true                                                          );
+    ui->fileDescriptionTA        ->setText         ("description",
+                                                    theXMLParser_->getDesctiption()                               );
+    ui->fileDescriptionTA        ->assignXmlElement(theXMLParser_->getNode()                                      );
 
-    alreadyLaidOut_       = true ;
-    theStationTW_         = new stationTabWidget(this)  ;
+    ui->runLE                    ->setInnerGeometry(ui->runLE->geometry()                                         );
+    ui->runLE                    ->textIsAttribute (true                                                          );
+    ui->runLE                    ->setText         ("run",
+                                                    theXMLParser_->getRun ()                                      );
+    ui->runLE                    ->assignXmlElement(theXMLParser_->getNode()                                      );
 
-    QRect theStationTWGeo = theStationTW_  ->geometry() ;
-    QRect xmlEditorGBGeo  = ui->xmlEditorGB->geometry() ;
-    int theStationTWTop   = theStationTWGeo.y()  + xmlEditorGBGeo.y() + xmlEditorGBGeo.height() +  5 ;
+    ui->dateLE                   ->setInnerGeometry(ui->dateLE->geometry()                                        );
+    ui->dateLE                   ->textIsAttribute (true                                                          );
+    ui->dateLE                   ->setText         ("date",
+                                                    theXMLParser_->getDate()                                      );
+    ui->dateLE                   ->assignXmlElement(theXMLParser_->getNode()                                      );
 
-    theStationTW_ ->setGeometry(xmlEditorGBGeo.x(),
-                                theStationTWTop,
-                                xmlEditorGBGeo.width(),
-                                theStationTWGeo.height() ) ;
+    ui->gCalibrationFitFunctionCB->textIsAttribute (true                                                          );
+    ui->gCalibrationFitFunctionCB->assignXmlElement(theXMLParser_->getChildNode()                                 );
+    ui->gCalibrationFitFunctionCB->addItem         ("tanh"                                                        );
+    ui->gCalibrationFitFunctionCB->addItem         ("linear"                                                      );
+    ui->gCalibrationFitFunctionCB->addItem         ("parabolic"                                                   );
+    ui->gCalibrationFitFunctionCB->setCurrentIndex ("gCalibrationFitFunction",
+                                                    QString((theXMLParser_->getgCalibrationFitFunction()).c_str()));
+
+    ui->gCalibrationFitFunctionCB->setInnerGeometry(ui->gCalibrationFitFunctionCB->geometry()                     );
+    
+    ui->gDUTFitFunctionCB        ->textIsAttribute (true                                                          );
+    ui->gDUTFitFunctionCB        ->assignXmlElement(theXMLParser_->getChildNode()                                 );
+    ui->gDUTFitFunctionCB        ->addItem         ("linear"                                                      );
+    ui->gDUTFitFunctionCB        ->addItem         ("tanh"                                                        );
+    ui->gDUTFitFunctionCB        ->addItem         ("parabolic"                                                   );
+    ui->gDUTFitFunctionCB        ->setCurrentIndex ("gDUTFitFunction",
+                                                    QString((theXMLParser_->getgDUTFitFunction()).c_str())        );
+    ui->gDUTFitFunctionCB        ->setInnerGeometry(ui->gDUTFitFunctionCB->geometry()                             );
+
+    theStationTW_                ->setGeometry     (ui->stationsGB->geometry()                                    );
+    theStationTW_                ->setGeometry     (theStationsGB.x()     ,
+                                                    theStationsGB.y()     ,
+                                                    theStationsGB.width() ,
+                                                    theStationsGB.height()                                        );
+
 
     xmlParser::xmlStationsDef stations = theXMLParser_->getXmlStations() ;
     for(xmlParser::xmlStationsDef::iterator it =stations.begin(); it!=stations.end(); it++)
@@ -239,13 +272,6 @@ void XMLEditor::placeStation(xmlStation * theXmlStation)
     QFrame * detTabFrame = new QFrame(this) ;
     theStationGB_        = new stationGB(detTabFrame) ;
     theDetectorTW_       = new detectorTabWidget(detTabFrame) ;
-/*
-    ss_.str(""); ss_ << "Adding station serial "
-                     << theXmlStation->getStationSerial()
-                     << " with id "
-                     << theXmlStation->getStationId()  ;
-    STDLINE(ss_.str(),ACCyan) ;
-*/
     stationWMap_[theXmlStation->getStationId()] = theDetectorTW_ ;
 
     theStationGB_ ->initialize(theXmlStation) ;
@@ -282,9 +308,7 @@ void XMLEditor::placeStation(xmlStation * theXmlStation)
     for(xmlStation::xmlDetectorsDef::iterator it =detectors.begin(); it!=detectors.end(); it++)
         this->placeDetector(it->second) ;
 
-//    STDLINE("",ACWhite) ;
     this->reorderDetectorTabs(theXmlStation->getStationId()) ;
-//    STDLINE("",ACWhite) ;
 }
 
 //===========================================================================

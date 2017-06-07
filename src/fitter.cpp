@@ -35,7 +35,7 @@
 #include <TH1.h>
 
 // @@@ Hard coded parameters @@@
-#define FITTYPE "parabol" // "lin", "parabol", or "tanh": use this to set which function you want to use for the calibrations
+//#define FITTYPE "parabol" // "lin", "parabol", or "tanh": use this to set which function you want to use for the calibrations
 // ============================
 
 
@@ -44,7 +44,6 @@ fitter::fitter(void) :
     mean_                      (0)
   , sigma_                     (0)
   , calibrationFitFunctionName_("calibrationFitFunction")
-  , calibrationFitFunction_    (new TF1(calibrationFitFunctionName_, ROC::calibrationFitFunctionROOT, 0, 800000,4))
 {
 }
 
@@ -52,6 +51,33 @@ fitter::fitter(void) :
 fitter::~fitter(void)
 {
   delete calibrationFitFunction_;
+}
+
+//================================================================================
+void fitter::setFitFunctionType(std::string type)
+{
+    fitFunctionType_ = type ;
+
+    static bool todo = false ;
+    if(todo) return ;
+
+    todo = true ;
+
+    ss_.str("") ; ss_ << "Setting fit function type to " << fitFunctionType_ ;
+    STDLINE(ss_.str(),string(ACBlue)+string(ACReverse)) ;
+
+    if(     fitFunctionType_ == "linear" )
+    {
+        calibrationFitFunction_ = new TF1(calibrationFitFunctionName_, ROC::linearFitFunctionROOT,    0, 800000,2) ;
+    }
+    else if(fitFunctionType_ == "parabolic")
+    {
+        calibrationFitFunction_ = new TF1(calibrationFitFunctionName_, ROC::parabolicFitFunctionROOT, 0, 800000,3) ;
+    }
+    else
+    {
+        calibrationFitFunction_ = new TF1(calibrationFitFunctionName_, ROC::tanhFitFunctionROOT,      0, 800000,4) ;
+    }
 }
 
 //================================================================================
@@ -111,11 +137,21 @@ void fitter::gaussFit(TH1*  histo, double mean, double userRMS, double nRMS)
   if ( userRMS  <= 0 ) rms = histo->GetRMS();
   else                 rms = userRMS;
   
-  ss_.str("") ; ss_ << "For " << histo->GetName() << " mean: " << mean << " userRMS: " << userRMS << " nRMS: " << nRMS << " rms: " << rms; STDLINE(ss_.str(),ACWhite) ;
+  ss_.str("") ; ss_ << "For " 
+                    << histo->GetName() 
+                    << " mean: " 
+                    << mean 
+                    << " userRMS: " 
+                    << userRMS 
+                    << " nRMS: " 
+                    << nRMS 
+                    << " rms: " 
+                    << rms; 
+  STDLINE(ss_.str(),ACWhite) ;
   
   double min = mean - nRMS*rms;
   
-  if ( (mean - nRMS*rms) > min ) min = mean - nRMS*rms;
+  if ( (mean - nRMS*rms) > min ) min =  mean - nRMS*rms;
   if ( (mean + nRMS*rms) < max ) max = (mean + nRMS*rms);
   
   TF1 *gaus = new TF1("gausFitFunc", "[2]*TMath::Gaus(x,[0],[1])",min , max);
@@ -152,10 +188,10 @@ void fitter::linearFit(TH1*  histo, double *slope, double *q, double tolerance)
   double nsig = tolerance;
   
   ss_.str(""); ss_ << "Fitting "
-		   << histo->GetTitle()
-		   << " with a tolerance of "
-		   << nsig
-		   << " sigmas";
+                   << histo->GetTitle()
+                   << " with a tolerance of "
+                   << nsig
+                   << " sigmas";
   STDLINE(ss_.str(),ACGreen);
   
   TH1D * t = (TH1D*)histo->Clone();
@@ -163,31 +199,36 @@ void fitter::linearFit(TH1*  histo, double *slope, double *q, double tolerance)
   t->Reset();
   
   for (int bin = 1; bin < histo->GetNbinsX(); ++bin)
-    {
+  {
       if( histo->GetBinContent(bin) == 0 &&
-	  histo->GetBinError  (bin) == 0 ) continue;
+              histo->GetBinError  (bin) == 0 ) continue;
       t1.Fill(histo->GetBinContent(bin));
-    }
+  }
   double mea = t1.GetMean();
   double rms = t1.GetRMS();
-  ss_.str("") ; ss_ << "Mean: " << mea << " +/- " << rms; STDLINE(ss_.str(),ACCyan);
+  ss_.str("") ; ss_ << "Mean: "
+                    << mea << " +/- "
+                    << rms; STDLINE(ss_.str(),ACCyan);
   
   int lowB =  5000;
   int higB = -5000;
   for (int bin = 1; bin < histo->GetNbinsX(); ++bin)
-    {
+  {
       if( histo->GetBinContent(bin) == 0 &&
-	  histo->GetBinError(bin)   == 0 ) continue;
+          histo->GetBinError(bin)   == 0 ) continue;
       if( histo->GetBinContent(bin) > mea-rms*nsig &&
-	  histo->GetBinContent(bin) < mea+rms*nsig )
-        {
-	  if( lowB > bin ) lowB = bin;
-	  if( higB < bin ) higB = bin;
-        }
-    }
+          histo->GetBinContent(bin) < mea+rms*nsig )
+      {
+          if( lowB > bin ) lowB = bin;
+          if( higB < bin ) higB = bin;
+      }
+  }
   double low = histo->GetBinCenter(lowB);
   double hig = histo->GetBinCenter(higB);
-  ss_.str(""); ss_ << "Cut: from " << low << " to " << hig; STDLINE(ss_.str(),ACCyan);
+  ss_.str(""); ss_ << "Cut: from "
+                   << low
+                   << " to "
+                   << hig; STDLINE(ss_.str(),ACCyan);
 
   TF1  * f = new TF1("linearFitFunc", "x*[0]+[1]", low, hig);
   f->SetLineColor(2);
@@ -214,25 +255,33 @@ fitter::fitResultDef fitter::calibrationFit(TH1    * histo,
     double* par = 0;
     double* cov = 0;
 
+
     if (histo->GetEntries() != 0)
     {
         calibrationFitFunction_->SetLineColor(4);
-        calibrationFitFunction_->SetParNames("0", "1", "2", "3");
 
         if (pars == 0)
         {
-            if (strcmp(FITTYPE,"lin") == 0)
+            if (     fitFunctionType_ == "linear"   )
             {
-                calibrationFitFunction_->FixParameter(3,0);
-                calibrationFitFunction_->FixParameter(4,0);
-                calibrationFitFunction_->SetParameters(1e-2,200);
+//                STDLINE(fitFunctionType_,string(ACPurple)+string(ACReverse)) ;
+                calibrationFitFunction_->SetParNames  ("intercept", "slope"     );
+                calibrationFitFunction_->FixParameter (3   , 0                  );
+                calibrationFitFunction_->FixParameter (4   , 0                  );
+                calibrationFitFunction_->SetParameters(1e-2, 200                );
             }
-            else if (strcmp(FITTYPE,"parabol") == 0)
+            else if (fitFunctionType_ == "parabolic")
             {
-                calibrationFitFunction_->FixParameter(4,0);
-                calibrationFitFunction_->SetParameters(1e-5,1e-2,200);
+//                STDLINE(fitFunctionType_,string(ACGreen)+string(ACReverse)) ;
+                calibrationFitFunction_->SetParNames  ("p0", "p1", "p2"         );
+                calibrationFitFunction_->FixParameter (4   , 0                  );
+                calibrationFitFunction_->SetParameters(1e-5, 1e-2, 200          );
             }
-            else calibrationFitFunction_->SetParameters(400,300,0.00004,-0.1);
+            else
+            {
+                calibrationFitFunction_->SetParNames  ("p0", "p1", "p2"   , "p3");
+                calibrationFitFunction_->SetParameters(400 , 300 ,  0.    , 0.  );
+            }
         }
         else
         {

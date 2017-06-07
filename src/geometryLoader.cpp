@@ -160,25 +160,176 @@ void geometryLoader::loadXML(std::string configFile)
     theGeometry_->setGeometryFileName(configFile);
 }
 //===================================================================================================================
-void  geometryLoader::fillGeometry(std::string toRead)
+void geometryLoader::fillGeometry(std::string toRead)
 {
-    toRead_ = toRead;
+    toRead_      = toRead;
     theGeometry_->clear();
     this->acquireInfo(testBeamGeometryXml_) ;
     for(Geometry::iterator git=theGeometry_->begin(); git!=theGeometry_->end(); git++)
         git->second->setupVariables();
+
+//    this->dumpCalibrationMap();
+}
+//===================================================================================================================
+void geometryLoader::setCalibrationMaps(void)
+{
+    string             color = "ACWhite" ;
+    boost::cmatch      what ;
+    const boost::regex expStation  {"Station: (\\d+)",                              boost::regex::perl};
+    const boost::regex expDetector {"Station: (\\d+) - Plaq: (\\d+)",               boost::regex::perl};
+    const boost::regex expROC      {"Station: (\\d+) - Plaq: (\\d+) - ROC: (\\d+)", boost::regex::perl};
+    const boost::regex expDetectorS{"Station: \\d+ - Plaq: \\d+",                   boost::regex::perl};
+
+    map<int,          string>              stationFitFunc  ;
+    map<int, map<int, string> >            detectorFitFunc ;
+    map<int, map<int, map<int, string> > > ROCFitFunc      ;
+
+    string       st    ;
+    string       pl    ;
+    stringstream ssTmp ;
+    string       ssTel ;
+    string       ssSta ;
+    string       ssDet ;
+    string       ssROC ;
+
+    const Geometry::detectorsMapDef theDetectors = theGeometry_->getDetectors() ;
+    for(  Geometry::detectorsMapDef::const_iterator dit = theDetectors.begin();
+                                                    dit!= theDetectors.end(); ++dit)
+    {
+        if(boost::regex_search(dit->first.c_str(), what, expDetector))
+        {
+           st = what[1] ;
+           pl = what[2] ;
+        }
+        
+        for(unsigned int rocPos=0; rocPos<dit->second->getNumberOfROCs(); ++rocPos)
+        {
+            ROC * roc = dit->second->getROCByPosition(rocPos) ;
+            STDLINE("",ACWhite) ;            
+            ss_.str(""); ss_ << "Calibration fit function - Proposing default of the whole telescope: " 
+                             << dit->first
+                             << " - ROC: " 
+                             << roc->getID() 
+                             << " to " ;
+
+            if( dit->second->isDUT() )
+            {
+               ss_  << gDUTFitFunction_ << " (DUT)";
+               ssTel = gDUTFitFunction_ ;
+            }
+            else
+            {
+               ss_  << gCalibrationFitFunction_ ;
+               ssTel = gCalibrationFitFunction_ ;
+            }
+            STDLINE(ss_.str(), ACWhite) ;
+            
+            ssTmp.str(""); ssTmp << "Station: " << st ;
+            if( sCalibrationFitFunction_.find(ssTmp.str()) != sCalibrationFitFunction_.end())
+            {
+               ss_.str(""); ss_ << "Calibration fit function - Proposing default of the whole station  : " 
+                                << dit->first 
+                                << " - ROC: " 
+                                << roc->getID() 
+                                << " to " ;
+               if(!sCalibrationFitFunction_[ssTmp.str()].first        ||
+                   sCalibrationFitFunction_[ssTmp.str()].second == "" ||
+                   dit->second->isDUT()                                )
+               {
+                  ssSta = ssTel ;              
+                  ss_ << ssSta ;
+               }
+               else
+               {
+                  ssSta = sCalibrationFitFunction_[ssTmp.str()].second ;              
+                  ss_ << ssSta;
+               }
+               STDLINE(ss_.str(), ACCyan) ;
+            }
+            else
+            {
+               ss_.str(""); ss_ << dit->first 
+                                << " - ROC: " 
+                                << roc->getID() 
+                                << " was not found " ;
+               STDLINE(ss_.str(),ACRed) ;
+            }
+            
+            if( dCalibrationFitFunction_.find(dit->first) != dCalibrationFitFunction_.end())
+            {
+               ss_.str(""); ss_ << "Calibration fit function - Proposing default of the whole detector : " 
+                                << dit->first 
+                                << " - ROC: " 
+                                << roc->getID() 
+                                << " to " ;
+               if(!dCalibrationFitFunction_[dit->first].first        ||
+                   dCalibrationFitFunction_[dit->first].second == "" ||
+                   dit->second->isDUT()                               )
+               {
+                  ssDet = ssSta ;              
+                  ss_ << ssDet ;  
+               }              
+               else
+               {
+                  ssDet = dCalibrationFitFunction_[dit->first].second;              
+                  ss_ << ssDet;
+               }
+               STDLINE(ss_.str(), ACGreen) ;
+            }
+            else
+            {
+               ss_.str(""); ss_ << dit->first 
+                                << " - ROC: " 
+                                << roc->getID() 
+                                << " was not found " ;
+               STDLINE(ss_.str(),ACRed) ;
+            }
+            
+            
+            ssTmp.str(""); ssTmp << dit->first << " - ROC: " << roc->getID()  ;
+            if( rCalibrationFitFunction_.find(ssTmp.str()) != rCalibrationFitFunction_.end())
+            {
+               ss_.str(""); ss_ << "Calibration fit function - finally using: " 
+                                << ssTmp.str() 
+                                << " to " ;
+               if(!rCalibrationFitFunction_[ssTmp.str()].first        ||
+                   rCalibrationFitFunction_[ssTmp.str()].second == "" ||
+                   dit->second->isDUT()                                )
+               {
+                  ssROC = ssDet ;
+                  ss_ << ssROC ;  
+               }              
+               else
+               {
+                  ssROC = rCalibrationFitFunction_[ssTmp.str()].second;
+                  ss_ << ssROC;
+               }
+               STDLINE(ss_.str(), ACYellow) ;
+               roc->setCalibrationFunctionType(ssROC) ;
+            }
+            else
+            {
+               ss_.str(""); ss_ << dit->first 
+                                << " - ROC: " 
+                                << roc->getID() 
+                                << " was not found " ;
+               STDLINE(ss_.str(),ACRed) ;
+            }
+        }
+    }
+    STDLINE("",ACWhite) ;            
 }
 //===================================================================================================================
 void geometryLoader::acquireInfo(DOMElement * element)
 {
-    //  static const boost::regex matchDoubleQuotes(".*?\"(.*)\".*", boost::regex::perl);
-
-    DOMNodeList*      children  = element->getChildNodes();
-    const  XMLSize_t  nodeCount = children->getLength()   ;
-    double rowPitch=0,colPitch=0;
-    int dutNumbers=0;
-
-    std::string  parentTagName = XMLString::transcode(element->getTagName()) ;
+    DOMNodeList      * children      = element->getChildNodes();
+    const  XMLSize_t   nodeCount     = children->getLength()   ;
+    double             rowPitch      = 0                       ;
+    double             colPitch      = 0                       ;
+    int                dutNumbers    = 0                       ;
+    std::string        gTELFitFunc   = ""                      ;
+    std::string        gDUTFitFunc   = ""                      ;
+    std::string        parentTagName = XMLString::transcode(element->getTagName()) ;
 
     std::map<std::string, std::string> keyValue ;
 
@@ -205,31 +356,38 @@ void geometryLoader::acquireInfo(DOMElement * element)
 
         for(unsigned int i=0; i<attList->getLength(); ++i) // Set attibutes apart in a temporary hash map
         {
-            if(                                                  attList->item(i)->getTextContent() )
-                keyValue[                   XMLString::transcode(attList->item(i)->   getNodeName())] =
+            if(                                                 attList->item(i)->getTextContent() )
+                keyValue[                  XMLString::transcode(attList->item(i)->getNodeName   ())] =
                         this->stripBlanks( XMLString::transcode(attList->item(i)->getTextContent()));
         }
 
 
-        if( tagName == "testBeamGeometry" )
-        {
-            //theGeometry_->                keyValue["id" ]           ;
-            //theGeometry_->       ( this->toLower(keyValue["date"]) );
-            STDLINE("Entered " + tagName,ACYellow) ;
-        }
-
         if( tagName == "stations" )
         {
-            ss_.str("");
-            ss_ << "Stations in use: " << keyValue["inUse" ];
+            ss_.str(""); ss_ << "Stations in use: " << keyValue["inUse"];
             STDLINE(ss_.str(),ACYellow) ;
+            gCalibrationFitFunction_ = keyValue["gCalibrationFitFunction"] ;
+            gDUTFitFunction_         = keyValue["gDUTFitFunction"        ] ;
+            ss_.str(""); ss_ << "Default fit function for all stations: " << gCalibrationFitFunction_ ;
+            STDLINE(ss_.str(),ACWhite );
+            ss_.str(""); ss_ << "Default fit function for all DUTs    : " << gDUTFitFunction_         ;
+            STDLINE(ss_.str(),ACWhite );
         }
 
         if( tagName == "station" )
         {
             if(this->toLower(keyValue["used"])=="yes")
-                station_    = keyValue["id"];
-            else                   used        = false         ;
+            {
+                station_ = keyValue["id"];
+                ss_.str(""); ss_ << "Station: " << station_ ;
+                sCalibrationFitFunction_[ss_.str()] = make_pair(true,keyValue["sCalibrationFitFunction"]) ;
+            }
+            else
+            {
+                used     = false         ;
+                ss_.str(""); ss_ << "Station: " << keyValue["id"] ;
+                sCalibrationFitFunction_[ss_.str()] = make_pair(false,"not used") ;
+            }
         }
 
         if( tagName == "detectors" )
@@ -241,12 +399,14 @@ void geometryLoader::acquireInfo(DOMElement * element)
 
         if( tagName == "detector" )
         {
+            ss_.str("");
+            ss_ << "Station: " << station_ << " - " << "Plaq: " << keyValue["id"];
             if( this->toLower(keyValue["used"])=="yes" )
             {
-                ss_.str("");
-                ss_ << "Station: " << station_ << " - " << "Plaq: " << keyValue["id"];
+                STDLINE(ss_.str(),ACGreen) ;
                 currentPlaqID_ = ss_.str();
                 theGeometry_->addDetector( currentPlaqID_ );
+                dCalibrationFitFunction_[ss_.str()] = make_pair(true,keyValue["dCalibrationFitFunction"]) ;
 
                 STDLINE(keyValue["name"] + " detector id: " + currentPlaqID_,ACGreen) ;
 
@@ -263,7 +423,11 @@ void geometryLoader::acquireInfo(DOMElement * element)
                     theGeometry_->setDUTnumbers(dutNumbers);
                 }
             }
-            else used=false;
+            else
+            {
+                used=false;
+                dCalibrationFitFunction_[ss_.str()] = make_pair(used,"not used") ;
+            }
         }
 
         if( tagName == "largeGranularity" )
@@ -360,17 +524,28 @@ void geometryLoader::acquireInfo(DOMElement * element)
 
         if( tagName == "ROC" )
         {
+            ss_.str("") ; ss_ << currentPlaqID_ << " - ROC: " << keyValue["pos"] ;
             if( this->toLower(keyValue["used"])=="yes" )
             {
                 currentROC_ = Utils::toInt(keyValue["pos"]);
-                theGeometry_->getDetector( currentPlaqID_ )->addROC( Utils::toInt(keyValue["pos"]),
-                                                                     Utils::toInt(keyValue["id"] ) );
+                theGeometry_->getDetector( currentPlaqID_ )->addROC( Utils::toInt(keyValue["pos"]),                                                                     Utils::toInt(keyValue["id"] ) );
+                rCalibrationFitFunction_[ss_.str()] = make_pair(true,keyValue["rCalibrationFitFunction"]) ;
             }
-            else used=false;
+            else
+            {
+                used    = false;
+                rCalibrationFitFunction_[ss_.str()] = make_pair(false,"not used") ;
+                STDLINE("FATAL: sorry, but it is not yet possible to set a ROC as unused in the xml file",ACRed) ;
+                STDLINE(ss_.str() ,ACRed) ;
+                STDLINE("Aborting...",ACCyan) ;
+                exit(0);
+            }
         }
 
         if ( tagName == "calibrationFilePath" && this->validContent(tagName,textContent))
-            theGeometry_->getDetector( currentPlaqID_ )->getROC( currentROC_ )->setCalibrationFilePath(textContent);
+        {
+            theGeometry_->getDetector(currentPlaqID_)->getROC(currentROC_)->setCalibrationFilePath(textContent);
+        }
 
         if ( tagName == "standardRowPitch" && this->validContent(tagName,textContent)) rowPitch = Utils::toDouble(textContent)*CONVF;
         if ( tagName == "standardColPitch" && this->validContent(tagName,textContent))
@@ -378,8 +553,8 @@ void geometryLoader::acquireInfo(DOMElement * element)
             colPitch = Utils::toDouble(textContent)*CONVF;
             ss_.str("");
             ss_ << ACCyan   << ACBold << "Pitch. Row : " << ACWhite << ACBold << rowPitch
-                    << ACCyan   << ACBold << " Col: "        << ACWhite << ACBold << colPitch
-                    << ACYellow << ACBold << " (tens of microns)";
+                << ACCyan   << ACBold << " Col: "        << ACWhite << ACBold << colPitch
+                << ACYellow << ACBold << " (tens of microns)";
             STDLINE(ss_.str(),ACRed) ;
             theGeometry_->getDetector( currentPlaqID_ )->getROC( currentROC_ )->setStandardPixPitch(rowPitch,colPitch);
         }
@@ -409,11 +584,9 @@ void geometryLoader::acquireInfo(DOMElement * element)
                     << ACYellow << ACBold << " (degrees)";
             STDLINE(ss_.str(),ACGreen) ;
         }
-        //closingFlag_ = false ;
-        //STDLINE(tagName,ACRed) ;
+
         if ( used ) this->acquireInfo(currentElement) ;
-        //STDLINE(tagName,ACGreen) ;
-        //closingFlag_ = true ;
+
     }
 }
 

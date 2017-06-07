@@ -252,6 +252,9 @@ p, li { white-space: pre-wrap; }
       <height>20</height>
      </rect>
     </property>
+    <property name="value">
+     <number>1</number>
+    </property>
    </widget>
    <widget class="QSpinBox" name="detectorsSB">
     <property name="geometry">
@@ -262,6 +265,9 @@ p, li { white-space: pre-wrap; }
       <height>20</height>
      </rect>
     </property>
+    <property name="value">
+     <number>1</number>
+    </property>
    </widget>
    <widget class="QSpinBox" name="ROCsSB">
     <property name="geometry">
@@ -271,6 +277,9 @@ p, li { white-space: pre-wrap; }
       <width>54</width>
       <height>20</height>
      </rect>
+    </property>
+    <property name="value">
+     <number>1</number>
     </property>
    </widget>
    <widget class="QLabel" name="xmlCreationDialogLB">

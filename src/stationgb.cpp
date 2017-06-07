@@ -54,28 +54,37 @@ stationGB::~stationGB()
 //================================================================================
 void stationGB::initialize(xmlStation * theStation)
 {
-  station_ = theStation ;
+  station_      = theStation ;
+  int stationId = station_->getStationId();
 
-  ss_.str(""); ss_ << station_->getStationId() ;
-  ui->stationIdLE->textIsAttribute (true                          ) ;
-  ui->stationIdLE->setText         ("id",ss_.str()                ) ; // Assign value from xml file
-  ui->stationIdLE->setRange        ("\\d+"                        ) ;
-  ui->stationIdLE->assignXmlElement(theStation->getNode()         ) ;
-  ui->stationIdLE->setInnerGeometry(ui->stationIdLE->geometry()   ) ;
-  ui->stationIdLE->setExclusionList(theStation->getAllStationsId()) ;
-  ui->stationIdLE->needsReturn     (                              ) ;
+  connect(ui->stationInUseCB, SIGNAL(isToggled     (bool)),
+          this,               SLOT  (stationToggled(bool))) ;
 
-  ss_.str(""); ss_ << station_->getDescription() ;
-  ui->stationDescriptionTA->textIsAttribute (true                                 ) ;
-  ui->stationDescriptionTA->setText("description",ss_.str()                       ) ;
-  ui->stationDescriptionTA->assignXmlElement(theStation->getNode()                ) ;
-  ui->stationDescriptionTA->setInnerGeometry(ui->stationDescriptionTA->geometry() ) ;
+  ss_.str("");  ss_ << stationId ;
+  ui->stationIdLE              ->textIsAttribute (true                                                       );
+  ui->stationIdLE              ->setText         ("id",ss_.str()                                             ); // Assign value from xml file
+  ui->stationIdLE              ->setRange        ("\\d+"                                                     );
+  ui->stationIdLE              ->assignXmlElement(theStation->getNode()                                      );
+  ui->stationIdLE              ->setInnerGeometry(ui->stationIdLE->geometry()                                );
+  ui->stationIdLE              ->setExclusionList(theStation->getAllStationsId()                             );
+  ui->stationIdLE              ->needsReturn     (                                                           );
 
-  connect(ui->stationInUseCB,       SIGNAL(isToggled     (bool)),
-          this,                     SLOT  (stationToggled(bool))) ;
+  ss_.str("");  ss_ << station_->getDescription() ;
+  ui->stationDescriptionTA     ->textIsAttribute (true                                                       );
+  ui->stationDescriptionTA     ->setText         ("description",ss_.str()                                    );
+  ui->stationDescriptionTA     ->assignXmlElement(theStation->getNode()                                      );
+  ui->stationDescriptionTA     ->setInnerGeometry(ui->stationDescriptionTA->geometry()                       );
 
-  ui->stationInUseCB->setChecked(theStation->isEnabled()) ;
+//  ui->sCalibrationFitFunctionCB->textIsAttribute (true                                                       );
+//  ui->sCalibrationFitFunctionCB->assignXmlElement(theStation->getNode()                                      );
+//  ui->sCalibrationFitFunctionCB->addItem         ("tanh"                                                     );
+//  ui->sCalibrationFitFunctionCB->addItem         ("linear"                                                   );
+//  ui->sCalibrationFitFunctionCB->addItem         ("parabolic"                                                );
+//  ui->sCalibrationFitFunctionCB->setCurrentIndex ("sCalibrationFitFunction",
+//                                                  QString((theStation->getsCalibrationFitFunction()).c_str()));
+//  ui->sCalibrationFitFunctionCB->setInnerGeometry(ui->sCalibrationFitFunctionCB->geometry()                  );
 
+  ui->stationInUseCB           ->setChecked      (theStation->isEnabled()                                    );
 }
 
 //================================================================================

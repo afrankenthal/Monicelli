@@ -107,16 +107,18 @@ void Detector::setupVariables(void)
     ROCsPositionMap_[0]->setLastCol(ROCsPositionMap_[0]->getNumberOfCols()-1);
     for(unsigned int posX=1; posX < xNumberOfROCs_; posX++)
     {
-        ROCsPositionMap_[posX]->setFirstCol(ROCsPositionMap_[(posX-1)]->getLastCol()+1);
-        ROCsPositionMap_[posX]->setLastCol (ROCsPositionMap_[posX]->getFirstCol()+ROCsPositionMap_[posX]->getNumberOfCols()-1);
+        ROCsPositionMap_[posX]->setFirstCol(ROCsPositionMap_[(posX-1)]->getLastCol() +1);
+        ROCsPositionMap_[posX]->setLastCol (ROCsPositionMap_[ posX   ]->getFirstCol()+
+                                            ROCsPositionMap_[ posX   ]->getNumberOfCols()-1);
     }
 
     ROCsPositionMap_[0]->setFirstRow(0);
     ROCsPositionMap_[0]->setLastRow(ROCsPositionMap_[0]->getNumberOfRows()-1);
     for(unsigned int posY=xNumberOfROCs_; posY<yNumberOfROCs_*xNumberOfROCs_; posY+=xNumberOfROCs_)
     {
-        ROCsPositionMap_[posY]->setFirstRow(ROCsPositionMap_[(posY-xNumberOfROCs_)]->getLastRow()+1);
-        ROCsPositionMap_[posY]->setLastRow (ROCsPositionMap_[posY]->getFirstRow()+ROCsPositionMap_[posY]->getNumberOfRows()-1);
+        ROCsPositionMap_[posY]->setFirstRow(ROCsPositionMap_[(posY-xNumberOfROCs_)]->getLastRow() +1);
+        ROCsPositionMap_[posY]->setLastRow (ROCsPositionMap_[ posY                ]->getFirstRow()+
+                                            ROCsPositionMap_[ posY                ]->getNumberOfRows()-1);
     }
 
     for(ROCsMapDef::iterator it=ROCsChipIDMap_.begin(); it!=ROCsChipIDMap_.end(); it++)

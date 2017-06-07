@@ -31,11 +31,16 @@
 #include "Geometry.h"
 #include "MessageTools.h"
 
-struct sort_pred {
-    bool operator()(const std::pair<double,std::string> &left, const std::pair<double,std::string> &right) {
-        return fabs(left.first) < fabs(right.first);
+struct sort_pred
+{
+    bool operator()(
+                    const std::pair<double,std::string> &left,
+                    const std::pair<double,std::string> &right
+                   )
+    {
+      return fabs(left.first) < fabs(right.first);
     }
-}geoSorter_;
+} geoSorter_;
 
 ClassImp(Geometry);
 

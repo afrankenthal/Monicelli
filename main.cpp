@@ -20,6 +20,7 @@
  * Stefano Terzo      (INFN)
  * Lorenzo Uplegger   (FNAL)
  * Luigi Vigani       (INFN)
+ * Davide Zuolo       (INFN)
  *
  * INFN: Piazza della Scienza 3, Edificio U2, Milano, Italy 20126
  *
@@ -130,7 +131,7 @@ int main(int argc, char *argv[])
 
     QPixmap pixmap(splashIcon.c_str());
 
-    QSplashScreen splash(pixmap);
+    QSplashScreen splash(pixmap,Qt::WindowStaysOnTopHint);
 
     splash.setMask(pixmap.mask());
 
@@ -142,6 +143,7 @@ int main(int argc, char *argv[])
     MainWindow window;
 
     window.show();
+    splash.finish(window.centralWidget()) ;
 
     std::string color = std::string(ACYellow)+std::string(ACBold)+std::string(ACReverse) ;
     STDLINE("",color);
@@ -155,6 +157,7 @@ int main(int argc, char *argv[])
     STDLINE("|                                                  |",color);
     STDLINE("|        D. Menasce, L. Moroni, S. Terzo           |",color);
     STDLINE("|      J. Ngadiuba, L. Uplegger, L. Vigani         |",color);
+    STDLINE("|                   D. Zuolo                       |",color);
     STDLINE("|                                                  |",color);
     STDLINE("+--------------------------------------------------+",color);
     STDLINE("",color);

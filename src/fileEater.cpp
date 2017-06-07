@@ -141,14 +141,12 @@ std::string fileEater::openFile(std::string inputFile)
 
     if( boost::regex_match(inputFile.c_str(), what, exp, boost::match_extra) )
     {
-        inputFileName_=fileName ;
-        fileName      = what[1] ;
-        STDLINE(what[0] + " file name: " + fileName + " extension: " + what[2],ACCyan) ;
-        fileFormat_ =  std::string(what[2]);
+        inputFileName_ = fileName ;
+        fileName       = what[1] ;
+        fileFormat_    = std::string(what[2]);
 
         if (fileFormat_=="root") // =============== R O O T  F I L E ======================
         {
-            STDLINE("",ACRed);
             //open event root file
             if( inputTreesMap_.find(inputFile)==inputTreesMap_.end() )
             {
@@ -834,7 +832,6 @@ void fileEater::fillMagicPlaqComposition( int station, int module, unsigned int 
     //real time beam spot filling
     if ( !(beamSpotsH_.find(ss_.str()) != beamSpotsH_.end()) )
     {
-        STDLINE("Filling " + ss_.str(),ACGreen);
         int cols = detector->getNumberOfCols();
         int rows = detector->getNumberOfRows();
         beamSpotsH_[ss_.str()] = new TH2I(ss_.str().c_str(), ss_.str().c_str(), cols, 0, cols, rows, 0, rows);

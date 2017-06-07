@@ -42,32 +42,37 @@
 #include <TFile.h>
 #include <TKey.h>
 #include <vector>
+#include <sys/stat.h>
+
+#include <QProgressBar>
 
 #include "EventHeader.h"
 #include "Geometry.h"
+#include "geometryLoader.h"
 #include "fileEater.h"
 #include "HManager.h"
 #include "fitter.h"
 #include "MessageTools.h"
 #include "process.h"
 
-
 class calibrationLoader : public process
 {
  public :
-  calibrationLoader(fileEater * theFileEater,
-		    HManager  * theHManager,
-		    fitter    * theFitter);
+    calibrationLoader(fileEater      * theFileEater     ,
+                      HManager       * theHManager      ,
+                      fitter         * theFitter        ,
+                      geometryLoader * theGeometryLoader,
+                      QProgressBar   * parseProgressBar );
   
-  ~calibrationLoader(void);
+   ~calibrationLoader(void                              );
   
     //                     row           col            plot     fitPar and covMat
-    typedef       std::map<int, std::map<int, std::pair<TH1I*, fitter::fitResultDef> > >   pixelPlotsMapDef       ;
+    typedef       std::map<int, std::map<int, std::pair<TH1I*, fitter::fitResultDef> > > pixelPlotsMapDef       ;
     //                     detectorID          rocID   pixel
-    typedef       std::map<std::string, std::map<int,pixelPlotsMapDef> >                   calibrationPlotsMapDef ;
+    typedef       std::map<std::string, std::map<int,pixelPlotsMapDef> >                 calibrationPlotsMapDef ;
     //                     detectorID          rocID 1D/2D
-    typedef       std::map<std::string, std::map<int,TH1I*> >                              calibrationPlotsMapDefH;
-    typedef       std::map<std::string, std::map<int,TH2F*> >                              calibrationPlotsMapDefS;
+    typedef       std::map<std::string, std::map<int,TH1I*> >                            calibrationPlotsMapDefH;
+    typedef       std::map<std::string, std::map<int,TH2F*> >                            calibrationPlotsMapDefS;
 
     bool          loadASCIIcalibrationFile (std::string   fileName                       );
     bool          loadROOTcalibrationFiles (std::string   detector,
@@ -75,6 +80,8 @@ class calibrationLoader : public process
                                             std::string   fileName                       );
     bool          loadAllCalibrationFiles  (void                                         );
     void          saveROOTcalibrationFiles (std::string   fileDirectory                  );
+    void          removeCalibrationFiles   (std::string   fileDirectory                  );
+    void          restoreCalibrationFiles  (std::string   fileDirectory                  );
     void          listHeader               (void                                         );
     bool          makeHistograms           (std::string   detector,
                                             ROC         * roc,
@@ -132,6 +139,7 @@ private :
     fileEater               * theFileEater_       ;
     HManager                * theHManager_        ;
     fitter                  * theFitter_          ;
+    geometryLoader          * theGeometryLoader_  ;
     TH1I                    * emptyTH1I_          ;
 
     headerMapDef              header_             ;
@@ -142,8 +150,10 @@ private :
     bool                      readROOT_           ;
     bool                      writeASCII_         ;
     bool                      calibrationsLoaded_ ;
-
-    std::stringstream ss_ ;
+    QProgressBar            * parseProgressBar_   ;
+    std::stringstream         ss_                 ;
+    TH2F                    * firstBinHisto_      ;
+    TH2F                    * lastBinHisto_       ;
 } ;
 
 #endif // CALIBRATIONLOADER_H

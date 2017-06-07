@@ -89,7 +89,11 @@ void customComboBox::setNodeText(std::string   key,
   if(isAttribute_)
   {
 //    ss_.str("") ; ss_ << key << " = " << textValue.toStdString() ; STDLINE(ss_.str(),ACGreen) ;
-    if( key != "" ) elementNode_.toElement().setAttribute(QString(key.c_str()),textValue) ;
+    if( key != "" )
+    {
+        elementNode_.toElement().setAttribute(QString(key.c_str()),textValue) ;
+        ss_.str("") ; ss_ << key << " = " << textValue.toStdString() ; STDLINE(ss_.str(),ACGreen) ;
+    }
   }
   else
   {    
@@ -102,7 +106,18 @@ void customComboBox::setNodeText(std::string   key,
                                     .at(0);
     QDomNode child    = thisNode.firstChild() ;
     QDomText text     = elementNode_.ownerDocument().createTextNode(textValue) ;
+//    ss_.str("") ; ss_ << "elementNode: " << elementNode_.toElement().tagName().toStdString() ;
+//    STDLINE(ss_.str(),ACCyan) ;
+//    ss_.str("") ; ss_ << "thisNode   : " <<     thisNode.toElement().tagName().toStdString() ;
+//    STDLINE(ss_.str(),ACCyan) ;
 
+//    ss_.str("") ; ss_ << "TagName: "
+//                      << key.c_str()
+//                      << " textValue: "
+//                      << textValue.toStdString()
+//                      << " text: "
+//                      << text.toCharacterData().data().toStdString() ;
+//    STDLINE(ss_.str(),ACGreen) ;
     thisNode.replaceChild(text,child) ;
   }
 }
