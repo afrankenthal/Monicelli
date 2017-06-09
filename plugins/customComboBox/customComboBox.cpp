@@ -92,7 +92,14 @@ void customComboBox::setNodeText(std::string   key,
     if( key != "" )
     {
         elementNode_.toElement().setAttribute(QString(key.c_str()),textValue) ;
-        ss_.str("") ; ss_ << key << " = " << textValue.toStdString() ; STDLINE(ss_.str(),ACGreen) ;
+
+//        ss_.str("") ; ss_ << "Node: "
+//                          << elementNode_.nodeName().toStdString()
+//                          << " "
+//                          << key
+//                          << " = "
+//                          << textValue.toStdString() ;
+//        STDLINE(ss_.str(),ACGreen) ;
     }
   }
   else
@@ -125,6 +132,5 @@ void customComboBox::setNodeText(std::string   key,
 //================================================================================
 void customComboBox::on_comboBox_currentIndexChanged(QString text)
 {
-  emit textChanged(key_, text);
-
+    emit textChanged(key_, text);
 }

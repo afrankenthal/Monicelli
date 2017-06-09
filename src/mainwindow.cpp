@@ -345,6 +345,12 @@ void MainWindow::createActions()
     newMainPanelAct = new QAction(QIcon(iconPath), tr("Main Panel"), this);
     newMainPanelAct->setStatusTip(tr("Create a Main Panel")) ;
     connect(newMainPanelAct, SIGNAL(triggered()), this, SLOT(buildMainPanel()));
+
+    iconPath  = path_ ;
+    iconPath += "/images/treeIcon.png" ;
+    synopticViewerAct = new QAction(QIcon(iconPath), tr("Synoptic Viewer"), this);
+    synopticViewerAct->setStatusTip(tr("Create a Synoptic Viewer")) ;
+    connect(synopticViewerAct, SIGNAL(triggered()), this, SLOT(buildSynopticViewer()));
 }
 
 //===========================================================================
@@ -371,6 +377,12 @@ void MainWindow::enableHNavigatorButton()
     this->buildHNavigator() ;
 }
 
+//===========================================================================
+void MainWindow::buildSynopticViewer()
+{
+    STDLINE("Synoptic Viewer",ACWhite) ;
+    
+}
 //===========================================================================
 void MainWindow::editXMLPanel()
 {
@@ -517,6 +529,7 @@ void MainWindow::createToolBars()
     fileToolBar->addAction(newMainPanelAct) ;
     fileToolBar->addAction(hNavigatorAct) ;
     fileToolBar->addAction(editXMLAct) ;
+    fileToolBar->addAction(synopticViewerAct) ;
 
     editToolBar = addToolBar(tr("Edit"));
 }

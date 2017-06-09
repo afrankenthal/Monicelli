@@ -92,18 +92,30 @@ p, li { white-space: pre-wrap; }
       <height>33</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
     <property name="cursor" stdset="0">
      <cursorShape>IBeamCursor</cursorShape>
     </property>
    </widget>
-   <widget class="customComboBox" name="dCalibrationFitFunctionCB">
+   <widget class="customComboBox" name="sCalibrationFitFunctionCB">
     <property name="geometry">
      <rect>
-      <x>296</x>
+      <x>308</x>
       <y>53</y>
       <width>100</width>
       <height>20</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
     </property>
     <property name="cursor">
      <cursorShape>PointingHandCursor</cursorShape>
@@ -117,18 +129,89 @@ p, li { white-space: pre-wrap; }
      </property>
     </item>
    </widget>
-   <widget class="QLabel" name="dCalibrationsFitFunctionLB">
+   <widget class="QLabel" name="sgCalibrationsFitFunctionLB">
     <property name="geometry">
      <rect>
       <x>8</x>
+      <y>56</y>
+      <width>185</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Calibration fit function:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="daCalibrationsFitFunctionLB">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
       <y>56</y>
       <width>281</width>
       <height>16</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Fit function type for ALL detectors:</string>
+    <property name="font">
+     <font>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
     </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;ALL&lt;/span&gt; detectors of this station: &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="sCalibrationsFitFunctionLB">
+    <property name="geometry">
+     <rect>
+      <x>208</x>
+      <y>56</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;THIS&lt;/span&gt; station&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="customComboBox" name="daCalibrationFitFunctionCB">
+    <property name="geometry">
+     <rect>
+      <x>652</x>
+      <y>53</y>
+      <width>100</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="editable">
+     <bool>false</bool>
+    </property>
+    <item>
+     <property name="text">
+      <string/>
+     </property>
+    </item>
    </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox">
@@ -236,8 +319,8 @@ p, li { white-space: pre-wrap; }
     <property name="font">
      <font>
       <pointsize>10</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="text">
@@ -293,8 +376,8 @@ p, li { white-space: pre-wrap; }
     <property name="font">
      <font>
       <pointsize>12</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
    </widget>
@@ -418,8 +501,8 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="font">
      <font>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="text">
@@ -474,8 +557,8 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="font">
      <font>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="text">

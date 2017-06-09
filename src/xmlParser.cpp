@@ -42,16 +42,12 @@
 xmlParser::xmlParser(QFile & file)
 {
   // Use the geometry loader to check for file syntax using xercesc components
-  //STDLINE("",ACWhite) ;
   geometryLoader * theGeometryLoader_ = new geometryLoader() ;
-  //STDLINE("",ACWhite) ;
   theGeometryLoader_->loadXML( file.fileName().toStdString() )  ;
-  //STDLINE("",ACWhite) ;
+
   delete theGeometryLoader_ ;
 
-  //STDLINE("",ACWhite) ;
   document_ = new QDomDocument( "GeometryFile" );
-  //STDLINE("",ACWhite) ;
 
   if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
   {
@@ -68,9 +64,7 @@ xmlParser::xmlParser(QFile & file)
 
   STDLINE(std::string("Parsing "           )+file.fileName().toStdString(),ACGreen) ;
 
-  //STDLINE("",ACWhite) ;
   this->buildTelescope() ;
-  //STDLINE("",ACWhite) ;
 
   file.close();
 }
@@ -128,7 +122,7 @@ void xmlParser::addStation(int stationId, int stationSerial)
   stationNode  .appendChild(detectorsNode) ;
   stations     .appendChild(stationNode  ) ;
 
-  xmlStations_[stationId] = new xmlStation(stationNode) ;
+  xmlStations_[stationId] = new xmlStation(this, stationNode) ;
 
   ss_.str(""); ss_ << "Added station serial "
                    << stationSerial
@@ -167,32 +161,284 @@ void xmlParser::buildTelescope(void)
 {
   xmlStations_.clear() ;
 
-  rootNode_                 = document_->elementsByTagName("testBeamGeometry").at(0) ;
-  stationsNode_             = document_->elementsByTagName("stations"        ).at(0) ;
+  rootNode_                = document_->elementsByTagName("testBeamGeometry").at(0) ;
+  stationsNode_            = document_->elementsByTagName("stations"        ).at(0) ;
 
-  QDomElement rootElement   = rootNode_.toElement() ;
+  QDomElement rootElement  = rootNode_.toElement() ;
 
-  QDomElement stationsEle   = document_->elementsByTagName("stations").at(0).toElement() ;
+  QDomElement stationsEle  = document_->elementsByTagName("stations").at(0).toElement() ;
 
-  description_              = rootElement.attribute("description"            ).toStdString() ;
-  run_                      = rootElement.attribute("run"                    ).toStdString() ;
-  date_                     = rootElement.attribute("date"                   ).toStdString() ;
-  gCalibrationFitFunction_  = stationsEle.attribute("gCalibrationFitFunction").toStdString() ;
-  gDUTFitFunction_          = stationsEle.attribute("gDUTFitFunction"        ).toStdString() ;
+  description_             = rootElement.attribute("description"            ).toStdString() ;
+  run_                     = rootElement.attribute("run"                    ).toStdString() ;
+  date_                    = rootElement.attribute("date"                   ).toStdString() ;
+  gCalibrationFitFunction_ = stationsEle.attribute("gCalibrationFitFunction").toStdString() ;
+  gDUTFitFunction_         = stationsEle.attribute("gDUTFitFunction"        ).toStdString() ;
 
-  QDomNodeList stations     = document_->elementsByTagName("station") ;
+  if(gCalibrationFitFunction_ == "" )
+  {
+      gCalibrationFitFunction_ = "tanh" ;
+      stationsEle.setAttribute(QString("gCalibrationFitFunction"       ),
+                               QString( gCalibrationFitFunction_.c_str())) ;
+  }
+  if(gDUTFitFunction_ == "" )
+  {
+      gDUTFitFunction_ = "linear" ;
+      stationsEle.setAttribute(QString("gDUTFitFunction"       ),
+                               QString( gDUTFitFunction_.c_str())) ;
+  }
+
+  QDomNodeList stations    = document_->elementsByTagName("station") ;
 
   for(int stationSerial=0; stationSerial<stations.size(); ++stationSerial)
   {
-    QDomNode stationNode                = stations.at(stationSerial)                                                  ;
-    int stationId                       = stationNode.toElement().attribute("id").toInt()                             ;
-    xmlStations_            [stationId] = new xmlStation(stationNode) ;
-    stationTabPosition_     [stationId] = stationSerial ;
+    QDomNode stationNode                = stations.at(stationSerial)                        ;
+    int stationId                       = stationNode.toElement().attribute("id").toInt()   ;
+    xmlStations_            [stationId] = new xmlStation(this, stationNode)                 ;
+    stationTabPosition_     [stationId] = stationSerial                                     ;
   }
 
   //this->dumpStations() ;
 }
 
+//================================================================================
+xmlParser::~xmlParser()
+{
+  delete document_ ;
+}
+
+//================================================================================
+unsigned int xmlParser::getNumberOfStations(void)
+{
+  return xmlStations_.size();
+}
+
+//================================================================================
+xmlDetector * xmlParser::getXmlDetectorBySerial(int stationSerial,
+                                                int detectorSerial)
+{
+  xmlStation::xmlDetectorsDef detectors =  this->getXmlStationBySerial(stationSerial)->getXmlDetectors() ;
+
+  for(xmlStation::xmlDetectorsDef::iterator di=detectors.begin(); di!=detectors.end(); ++di)
+  {
+    if( detectorSerial == di->second->getDetectorSerial() ) return di->second;
+  }
+  ss_.str("") ; ss_ << "FATAL: detector serial "
+      << detectorSerial
+      << " is out of range ("
+      << detectors.size()
+      << ")" ;
+  STDLINE(ss_.str(), ACRed) ;
+  assert(0) ;
+}
+
+//================================================================================
+xmlDetector * xmlParser::getXmlDetectorById(int stationId,
+                                            int detectorId)
+{
+  return this->getXmlStationById(stationId)->getXmlDetectorById(detectorId) ;
+}
+
+//================================================================================
+int xmlParser::getNumberOfDetectors(int stationSerial)
+{
+  return this->getXmlStationBySerial(stationSerial)->getXmlDetectors().size() ;
+}
+
+//================================================================================
+int xmlParser::getNumberOfROCs(int stationSerial, int detectorSerial)
+{
+  return this->getXmlStationBySerial(stationSerial)->getXmlDetectorBySerial(detectorSerial)->getXmlROCs().size() ;
+}
+
+//================================================================================
+void xmlParser::remStation(int stationSerial)
+{
+  xmlStation * station = this->getXmlStationBySerial(stationSerial) ;
+
+  station->remStation() ;
+
+  xmlStations_.erase(xmlStations_.find(station->getStationId() )) ;
+}
+
+//================================================================================
+void xmlParser::dumpStations(void)
+{
+  STDLINE("================= Dump of xmlStations_ ================",ACYellow);
+
+  for(xmlStationsDef::iterator it =xmlStations_.begin();
+                               it!=xmlStations_.end();  ++it)
+  {
+    ss_.str(""); ss_ << "Station Id "
+                     << it->first
+                     << " is serial "
+                     << it->second->getStationSerial()
+                     << " and has "
+                     << it->second->getXmlDetectors().size()
+                     << " detectors";
+    STDLINE(ss_.str(),ACWhite) ;
+    it->second->dumpDetectors() ;
+  }
+  STDLINE("=============== End Dump of xmlStations_ ==============",ACYellow);
+  STDLINE("",ACWhite) ;
+}
+
+//================================================================================
+xmlStation * xmlParser::getXmlStationBySerial(int stationSerial)
+{
+  for(xmlStationsDef::iterator si=xmlStations_.begin(); si!=xmlStations_.end(); ++si )
+  {
+    if( stationSerial == si->second->getStationSerial()) return si->second ;
+  }
+
+  ss_.str("") ; ss_ << "FATAL: station serial "
+      << stationSerial
+      << " could not be found" ;
+  STDLINE(ss_.str(), ACRed) ;
+  this->dumpStations() ;
+  assert(0) ;
+  return NULL ;
+}
+
+//================================================================================
+xmlStation * xmlParser::getXmlStationById(int stationId)
+{
+  if( xmlStations_.find(stationId) != xmlStations_.end() ) return xmlStations_[stationId] ;
+
+  ss_.str("") ; ss_ << "FATAL: station Id "
+      << stationId
+      << " could not be found)" ;
+  STDLINE(ss_.str(), ACRed) ;
+  this->dumpStations();
+  assert(0) ;
+}
+
+//================================================================================
+xmlROC * xmlParser::getROCById(int stationId, int detectorId, int rocId)
+{
+  return this->getXmlStationById(stationId)->getXmlDetectorById(detectorId)->getXmlROCById(rocId) ;
+}
+
+//================================================================================
+xmlROC * xmlParser::getROCBySerial(int stationSerial, int detectorSerial, int rocSerial)
+{
+  return this->getXmlStationBySerial(stationSerial)->getXmlDetectorBySerial(detectorSerial)->getXmlROCBySerial(rocSerial) ;
+}
+
+//================================================================================
+void xmlParser::save(std::string fileName)
+{
+  QFile file( QString(fileName.c_str()) );
+  if ( file.open( QIODevice::WriteOnly | QIODevice::Text ) )
+  {
+    QTextStream stream( &file );
+    document_->save( stream, 2 ) ;
+    file.close();
+    ss_.str("") ;
+    ss_  << ACCyan << ACBold
+        << "File "
+        << ACPlain << ACYellow << ACBold
+        << fileName
+        << ACPlain << ACCyan << ACBold
+        << " saved"
+        << ACPlain ;
+    STDLINE(ss_.str(),ACWhite) ;
+  }
+}
+
+//================================================================================
+xmlParser::idSerialListDef xmlParser::getStationList()
+{
+  xmlParser::idSerialListDef list ;
+  for(xmlStationsDef::iterator it =xmlStations_.begin();
+                               it!=xmlStations_.end(); ++it)
+  {
+    xmlParser::xmlParser::pairIntDef idSerial ;
+    idSerial.first  = it->second->getStationId() ;
+    idSerial.second = it->second->getStationSerial() ;
+    list.push_back(idSerial) ;
+  }
+  return list ;
+}
+
+//================================================================================
+void xmlParser::dumpHeaders()
+{
+  QDomNodeList stations = document_->elementsByTagName("station") ;
+
+  for(int station=0; station<stations.size(); ++station)
+  {
+    QDomNode stationNode = stations.at(station) ;
+    QString textFrom ;
+    QTextStream streamFrom( &textFrom );
+    stationNode.save( streamFrom, 2 ) ;
+    int pos = textFrom.toStdString().find(">") + 1;
+    STDLINE(textFrom.toStdString().substr(0,pos),ACCyan) ;
+
+    QDomNodeList detectors = stationNode.toElement().elementsByTagName("detector") ;
+
+    for(int detector=0; detector<detectors.size(); ++detector)
+    {
+      QDomNode detectorNode = detectors.at(detector) ;
+      QString text;
+      QTextStream stream( &text );
+      detectorNode.save( stream, 2 ) ;
+      int pos = text.toStdString().find(">") + 1;
+      STDLINE(text.toStdString().substr(0,pos),ACLightBlue) ;
+    }
+  }
+}
+
+//================================================================================
+int xmlParser::getDetectorTabPosition(int stationId, int detectorId)
+{
+  return this->getXmlStationById     (stationId )
+             ->getDetectorTabPosition(detectorId);
+}
+
+//================================================================================
+xmlParser::idSerialListDef xmlStation::getDetectorList()
+{
+  xmlParser::idSerialListDef list ;
+  xmlStation::xmlDetectorsDef detectors = this->getXmlDetectors() ;
+
+  for(xmlStation::xmlDetectorsDef::iterator it =detectors.begin();
+                                            it!=detectors.end(); ++it)
+  {
+    xmlParser::xmlParser::pairIntDef idSerial ;
+    idSerial.first  = it->second->getDetectorId() ;
+    idSerial.second = it->second->getDetectorSerial() ;
+    ss_.str("") ; ss_ << "In station id "   << id_
+                      << " serial "         << serial_
+                      << " is detector id " << idSerial.first
+                      << " serial "         << idSerial.second ; STDLINE(ss_.str(),ACCyan) ;
+    list.push_back(idSerial) ;
+  }
+  return list ;
+}
+
+//================================================================================
+xmlParser::idSerialListDef xmlDetector::getROCList()
+{
+  xmlParser::idSerialListDef list ;
+  xmlDetector::xmlROCDef rocs = this->getXmlROCs() ;
+  ss_.str("") ;ss_ << "Found " << rocs.size() << " rocs in detector id " << id_ ;
+  STDLINE(ss_.str(),ACWhite) ;
+  for(xmlDetector::xmlROCDef::iterator it =rocs.begin();
+                                       it!=rocs.end(); ++it)
+  {
+    xmlParser::xmlParser::pairIntDef idSerial ;
+    idSerial.first  = it->second->getROCId() ;
+    idSerial.second = it->second->getROCSerial() ;
+    list.push_back(idSerial) ;
+  }
+  return list ;
+}
+
+/*================================================================================+
+|                                                                                 |
+|                               x m l U t i l  s                                  |
+|                                                                                 |
++================================================================================*/
 //================================================================================
 void xmlUtils::addStations(QDomElement & stations, int numberOfStations,
                                                    int numberOfDetectorsPerStation,
@@ -430,201 +676,6 @@ void xmlUtils::dumpFragment(QDomNode    & thisNode,
   }
 }
 
-//================================================================================
-xmlParser::~xmlParser()
-{
-  delete document_ ;
-}
-
-//================================================================================
-unsigned int xmlParser::getNumberOfStations(void)
-{
-  return xmlStations_.size();
-}
-
-//================================================================================
-xmlDetector * xmlParser::getXmlDetectorBySerial(int stationSerial,
-                                                int detectorSerial)
-{
-  xmlStation::xmlDetectorsDef detectors =  this->getXmlStationBySerial(stationSerial)->getXmlDetectors() ;
-
-  for(xmlStation::xmlDetectorsDef::iterator di=detectors.begin(); di!=detectors.end(); ++di)
-  {
-    if( detectorSerial == di->second->getDetectorSerial() ) return di->second;
-  }
-  ss_.str("") ; ss_ << "FATAL: detector serial "
-      << detectorSerial
-      << " is out of range ("
-      << detectors.size()
-      << ")" ;
-  STDLINE(ss_.str(), ACRed) ;
-  assert(0) ;
-}
-
-//================================================================================
-xmlDetector * xmlParser::getXmlDetectorById(int stationId,
-                                            int detectorId)
-{
-  return this->getXmlStationById(stationId)->getXmlDetectorById(detectorId) ;
-}
-
-//================================================================================
-int xmlParser::getNumberOfDetectors(int stationSerial)
-{
-  return this->getXmlStationBySerial(stationSerial)->getXmlDetectors().size() ;
-}
-
-//================================================================================
-int xmlParser::getNumberOfROCs(int stationSerial, int detectorSerial)
-{
-  return this->getXmlStationBySerial(stationSerial)->getXmlDetectorBySerial(detectorSerial)->getXmlROCs().size() ;
-}
-
-//================================================================================
-void xmlParser::remStation(int stationSerial)
-{
-  xmlStation * station = this->getXmlStationBySerial(stationSerial) ;
-
-  station->remStation() ;
-
-  xmlStations_.erase(xmlStations_.find(station->getStationId() )) ;
-}
-
-//================================================================================
-void xmlParser::dumpStations(void)
-{
-  STDLINE("================= Dump of xmlStations_ ================",ACYellow);
-
-  for(xmlStationsDef::iterator it =xmlStations_.begin();
-                               it!=xmlStations_.end();  ++it)
-  {
-    ss_.str(""); ss_ << "Station Id "
-                     << it->first
-                     << " is serial "
-                     << it->second->getStationSerial()
-                     << " and has "
-                     << it->second->getXmlDetectors().size()
-                     << " detectors";
-    STDLINE(ss_.str(),ACWhite) ;
-    it->second->dumpDetectors() ;
-  }
-  STDLINE("=============== End Dump of xmlStations_ ==============",ACYellow);
-  STDLINE("",ACWhite) ;
-}
-
-//================================================================================
-xmlStation * xmlParser::getXmlStationBySerial(int stationSerial)
-{
-  for(xmlStationsDef::iterator si=xmlStations_.begin(); si!=xmlStations_.end(); ++si )
-  {
-    if( stationSerial == si->second->getStationSerial()) return si->second ;
-  }
-
-  ss_.str("") ; ss_ << "FATAL: station serial "
-      << stationSerial
-      << " could not be found" ;
-  STDLINE(ss_.str(), ACRed) ;
-  this->dumpStations() ;
-  assert(0) ;
-  return NULL ;
-}
-
-//================================================================================
-xmlStation * xmlParser::getXmlStationById(int stationId)
-{
-  if( xmlStations_.find(stationId) != xmlStations_.end() ) return xmlStations_[stationId] ;
-
-  ss_.str("") ; ss_ << "FATAL: station Id "
-      << stationId
-      << " could not be found)" ;
-  STDLINE(ss_.str(), ACRed) ;
-  this->dumpStations();
-  assert(0) ;
-}
-
-//================================================================================
-xmlROC * xmlParser::getROCById(int stationId, int detectorId, int rocId)
-{
-  return this->getXmlStationById(stationId)->getXmlDetectorById(detectorId)->getXmlROCById(rocId) ;
-}
-
-//================================================================================
-xmlROC * xmlParser::getROCBySerial(int stationSerial, int detectorSerial, int rocSerial)
-{
-  return this->getXmlStationBySerial(stationSerial)->getXmlDetectorBySerial(detectorSerial)->getXmlROCBySerial(rocSerial) ;
-}
-
-//================================================================================
-void xmlParser::save(std::string fileName)
-{
-  QFile file( QString(fileName.c_str()) );
-  if ( file.open( QIODevice::WriteOnly | QIODevice::Text ) )
-  {
-    QTextStream stream( &file );
-    document_->save( stream, 2 ) ;
-    file.close();
-    ss_.str("") ;
-    ss_  << ACCyan << ACBold
-        << "File "
-        << ACPlain << ACYellow << ACBold
-        << fileName
-        << ACPlain << ACCyan << ACBold
-        << " saved"
-        << ACPlain ;
-    STDLINE(ss_.str(),ACWhite) ;
-  }
-}
-
-//================================================================================
-xmlParser::idSerialListDef xmlParser::getStationList()
-{
-  xmlParser::idSerialListDef list ;
-  for(xmlStationsDef::iterator it =xmlStations_.begin();
-                               it!=xmlStations_.end(); ++it)
-  {
-    xmlParser::xmlParser::pairIntDef idSerial ;
-    idSerial.first  = it->second->getStationId() ;
-    idSerial.second = it->second->getStationSerial() ;
-    list.push_back(idSerial) ;
-  }
-  return list ;
-}
-
-//================================================================================
-void xmlParser::dumpHeaders()
-{
-  QDomNodeList stations = document_->elementsByTagName("station") ;
-
-  for(int station=0; station<stations.size(); ++station)
-  {
-    QDomNode stationNode = stations.at(station) ;
-    QString textFrom ;
-    QTextStream streamFrom( &textFrom );
-    stationNode.save( streamFrom, 2 ) ;
-    int pos = textFrom.toStdString().find(">") + 1;
-    STDLINE(textFrom.toStdString().substr(0,pos),ACCyan) ;
-
-    QDomNodeList detectors = stationNode.toElement().elementsByTagName("detector") ;
-
-    for(int detector=0; detector<detectors.size(); ++detector)
-    {
-      QDomNode detectorNode = detectors.at(detector) ;
-      QString text;
-      QTextStream stream( &text );
-      detectorNode.save( stream, 2 ) ;
-      int pos = text.toStdString().find(">") + 1;
-      STDLINE(text.toStdString().substr(0,pos),ACLightBlue) ;
-    }
-  }
-}
-
-//================================================================================
-int xmlParser::getDetectorTabPosition(int stationId, int detectorId)
-{
-  return this->getXmlStationById     (stationId )
-             ->getDetectorTabPosition(detectorId);
-}
-
 /*================================================================================+
 |                                                                                 |
 |                            x m l S t a t i o n s                                |
@@ -632,13 +683,30 @@ int xmlParser::getDetectorTabPosition(int stationId, int detectorId)
 +================================================================================*/
 
 //================================================================================
-xmlStation::xmlStation(QDomNode & stationNode)
+xmlStation::xmlStation(xmlParser * theParser, QDomNode & stationNode) :
+    theParser_ (theParser)
 {
-  stationNode_ = stationNode ;
-  id_          = stationNode.toElement().attribute("id"         ).toInt() ;
-  serial_      = stationNode.toElement().attribute("serial"     ).toInt() ;
-  description_ = stationNode.toElement().attribute("description").toStdString() ;
-  sCalibrationFitFunction_ = stationNode.toElement().attribute("sCalibrationFitFunction").toStdString()  ;
+  QDomNode detectoNode      = stationNode.firstChild() ;
+  stationNode_              = stationNode              ;
+  id_                       = stationNode.toElement().attribute("id"                      ).toInt() ;
+  serial_                   = stationNode.toElement().attribute("serial"                  ).toInt() ;
+  description_              = stationNode.toElement().attribute("description"             ).toStdString() ;
+  sCalibrationFitFunction_  = stationNode.toElement().attribute("sCalibrationFitFunction" ).toStdString() ;
+  daCalibrationFitFunction_ = detectoNode.toElement().attribute("daCalibrationFitFunction").toStdString() ;
+
+  if( sCalibrationFitFunction_  == "" )
+  {
+      sCalibrationFitFunction_  = theParser_->getgCalibrationFitFunction() ;
+      stationNode_.toElement().setAttribute(QString("sCalibrationFitFunction"        ),
+                                            QString( sCalibrationFitFunction_.c_str()) ) ;
+  }
+  if( daCalibrationFitFunction_ == "" )
+  {
+      daCalibrationFitFunction_ = theParser_->getgCalibrationFitFunction() ;
+      detectoNode .toElement().setAttribute(QString("daCalibrationFitFunction"        ),
+                                            QString( daCalibrationFitFunction_.c_str())) ;
+  }
+
   if( stationNode.toElement().attribute("used").toStdString() == "yes" ) used_ = true  ;
   if( stationNode.toElement().attribute("used").toStdString() == "no"  ) used_ = false ;
 
@@ -657,7 +725,7 @@ xmlStation::xmlStation(QDomNode & stationNode)
   {
     QDomNode detectorNode            = detectors.at(detectorSerial) ;
     int detectorId                   = detectorNode.toElement().attribute("id").toInt() ;
-    detectors_[detectorId]           = new xmlDetector(detectorNode);
+    detectors_[detectorId]           = new xmlDetector(theParser_,this, detectorNode);
     detectorTabPosition_[detectorId] = detectorSerial ;
   }
 }
@@ -729,7 +797,10 @@ xmlROC * xmlStation::getROCById(int detector, int roc)
 {
   if( detectors_.find(detector) == detectors_.end() )
   {
-    ss_.str(""); ss_ << "FATAL: could not locate detector " << detector << " for station " << id_ ;
+    ss_.str(""); ss_ << "FATAL: could not locate detector "
+                     << detector
+                     << " for station "
+                     << id_ ;
     STDLINE(ss_.str(), ACRed ) ;
     assert(0) ;
   }
@@ -783,7 +854,7 @@ void xmlStation::addDetector(int detectorId, int detectorSerial)
                         detectorSerial,
                         1) ;
 
-  detectors_[detectorId] = new xmlDetector(detectorNode) ;
+  detectors_[detectorId] = new xmlDetector(theParser_,this, detectorNode) ;
 
   ss_.str(""); ss_ << "Now there are "
                    << detectors_.size()
@@ -815,50 +886,71 @@ void xmlStation::dumpDetectors(void)
   STDLINE("",ACWhite) ;
 }
 
-//================================================================================
-xmlParser::idSerialListDef xmlStation::getDetectorList()
-{
-  xmlParser::idSerialListDef list ;
-  xmlStation::xmlDetectorsDef detectors = this->getXmlDetectors() ;
+/*================================================================================+
+|                                                                                 |
+|                            x m l D e t e c t o r                                |
+|                                                                                 |
++================================================================================*/
 
-  for(xmlStation::xmlDetectorsDef::iterator it =detectors.begin();
-                                            it!=detectors.end(); ++it)
+//================================================================================
+xmlDetector::xmlDetector(xmlParser  * theParser     ,
+                         xmlStation * theStation,
+                         QDomNode   & detectorNode) :
+    theStation_ (theStation)
+  , theParser_  (theParser )
+{
+  QDomNodeList allROCsNode  = detectorNode.childNodes() ;
+  QDomNode     thisROCsNode ;
+  for(int node=0; node<allROCsNode.size(); ++node)
   {
-    xmlParser::xmlParser::pairIntDef idSerial ;
-    idSerial.first  = it->second->getDetectorId() ;
-    idSerial.second = it->second->getDetectorSerial() ;
-    ss_.str("") ; ss_ << "In station id "   << id_
-                      << " serial "         << serial_
-                      << " is detector id " << idSerial.first
-                      << " serial "         << idSerial.second ; STDLINE(ss_.str(),ACCyan) ;
-    list.push_back(idSerial) ;
+      if( allROCsNode.at(node).nodeName().toStdString() == "ROCs")
+         thisROCsNode = allROCsNode.at(node) ;
   }
-  return list ;
-}
 
-/*================================================================================
-
-                            x m l D e t e c t o r s
-
- ================================================================================*/
-
-//================================================================================
-xmlDetector::xmlDetector(QDomNode & detectorNode)
-{
   detectorNode_ = detectorNode ;
 
   stationId_ = detectorNode_.parentNode().parentNode().toElement().attribute("id").toInt() ;
 
-  keyValue_["id"         ] = detectorNode_.toElement().attribute("id"         ) ;
-  keyValue_["serial"     ] = detectorNode_.toElement().attribute("serial"     ) ;
-  keyValue_["name"       ] = detectorNode_.toElement().attribute("name"       ) ;
-  keyValue_["used"       ] = detectorNode_.toElement().attribute("used"       ) ;
-  keyValue_["description"] = detectorNode_.toElement().attribute("description") ;
-  keyValue_["isDUT"      ] = detectorNode_.toElement().attribute("isDUT"      ) ;
-
+  keyValue_["id"         ] = detectorNode_.toElement().attribute("id"                      ) ;
+  keyValue_["serial"     ] = detectorNode_.toElement().attribute("serial"                  ) ;
+  keyValue_["name"       ] = detectorNode_.toElement().attribute("name"                    ) ;
+  keyValue_["used"       ] = detectorNode_.toElement().attribute("used"                    ) ;
+  keyValue_["description"] = detectorNode_.toElement().attribute("description"             ) ;
+  keyValue_["isDUT"      ] = detectorNode_.toElement().attribute("isDUT"                   ) ;
   id_                      = keyValue_["id"         ].toInt      () ;
   serial_                  = keyValue_["serial"     ].toInt      () ;
   description_             = keyValue_["description"].toStdString() ;
+
+  dCalibrationFitFunction_ = detectorNode_.toElement().attribute("dCalibrationFitFunction" ).toStdString() ;
+  raCalibrationFitFunction_= thisROCsNode .toElement().attribute("raCalibrationFitFunction").toStdString() ;
+
+  if( dCalibrationFitFunction_  == "" )
+  {
+      if(keyValue_["isDUT"] == "yes")
+      {
+          dCalibrationFitFunction_  = theParser_->getgDUTFitFunction(); ;
+      }
+      else
+      {
+          dCalibrationFitFunction_  = theStation_->getdaCalibrationFitFunction() ;
+      }
+      detectorNode_.toElement().setAttribute(QString("dCalibrationFitFunction"         ),
+                                             QString( dCalibrationFitFunction_.c_str() )) ;
+  }
+  if( raCalibrationFitFunction_ == "" )
+  {
+      if(keyValue_["isDUT"] == "yes")
+      {
+          raCalibrationFitFunction_ = theParser_->getgDUTFitFunction();
+      }
+      else
+      {
+          raCalibrationFitFunction_ = theParser_->getgCalibrationFitFunction();
+      }
+      thisROCsNode .toElement().setAttribute(QString("raCalibrationFitFunction"        ),
+                                             QString( raCalibrationFitFunction_.c_str())) ;
+  }
+
 
   isDUT_ = false ;
   if( detectorNode_.toElement().attribute("used" ).toStdString() == "yes" ) used_  = true  ;
@@ -866,18 +958,18 @@ xmlDetector::xmlDetector(QDomNode & detectorNode)
   if( detectorNode_.toElement().attribute("isDUT").toStdString() == "yes" ) isDUT_ = true  ;
   if( detectorNode_.toElement().attribute("isDUT").toStdString() == "no"  ) isDUT_ = false ;
 
-  /*
-  ss_.str("") ; ss_ << "  Building detector serial "
-      << serial_
-      << " with Id "
-      << keyValue_["id"].toStdString()
-      << " in station id "
-      << stationId_
-      << " (this is a "
-      << keyValue_["name"].toStdString()
-      << ")";
-  STDLINE(ss_.str(),ACYellow) ;
-*/
+
+//  ss_.str("") ; ss_ << "  Building detector serial "
+//      << serial_
+//      << " with Id "
+//      << keyValue_["id"].toStdString()
+//      << " in station id "
+//      << stationId_
+//      << " (this is a "
+//      << keyValue_["name"].toStdString()
+//      << ")";
+//  STDLINE(ss_.str(),ACYellow) ;
+
   QDomNodeList lg = detectorNode_.toElement().elementsByTagName("largeGranularity") ;
   QDomNodeList fg = detectorNode_.toElement().elementsByTagName("fineGranularity" ) ;
 
@@ -921,26 +1013,11 @@ xmlDetector::xmlDetector(QDomNode & detectorNode)
   {
     QDomNode rocNode = rocs.at(rocSerial) ;
     int   rocId      = rocNode.toElement().attribute("id").toInt() ;
-    ROCs_[rocId]     = new xmlROC(rocNode) ;
+    ROCs_[rocId]     = new xmlROC(theParser_ ,
+                                  theStation_,
+                                  this       ,
+                                  rocNode)   ;
   }
-}
-
-//================================================================================
-xmlParser::idSerialListDef xmlDetector::getROCList()
-{
-  xmlParser::idSerialListDef list ;
-  xmlDetector::xmlROCDef rocs = this->getXmlROCs() ;
-  ss_.str("") ;ss_ << "Found " << rocs.size() << " rocs in detector id " << id_ ;
-  STDLINE(ss_.str(),ACWhite) ;
-  for(xmlDetector::xmlROCDef::iterator it =rocs.begin();
-                                       it!=rocs.end(); ++it)
-  {
-    xmlParser::xmlParser::pairIntDef idSerial ;
-    idSerial.first  = it->second->getROCId() ;
-    idSerial.second = it->second->getROCSerial() ;
-    list.push_back(idSerial) ;
-  }
-  return list ;
 }
 
 //================================================================================
@@ -1036,6 +1113,19 @@ void xmlDetector::dumpROCs(void)
 }
 
 //================================================================================
+void xmlDetector::setValue(int value)
+{
+  detectorNode_.toElement().setAttribute(QString("id"),value);
+}
+
+//================================================================================
+void xmlDetector::setAttributeText(std::string   key,
+                                   QString     & textValue)
+{
+  detectorNode_.toElement().setAttribute(QString(key.c_str()),textValue) ;
+}
+
+//================================================================================
 void xmlDetector::remDetector(void)
 {
   ss_.str("");
@@ -1063,7 +1153,10 @@ void xmlDetector::addROC(int ROCId, int ROCSerial)
                    ROCId,
                    ROCSerial) ;
 
-  ROCs_[ROCId] = new xmlROC(ROCNode) ;
+  ROCs_[ROCId] = new xmlROC(theParser_ ,
+                            theStation_,
+                            this       ,
+                            ROCNode)   ;
 
   ss_.str(""); ss_ << "Now there are "
                    << ROCs_.size()
@@ -1073,25 +1166,44 @@ void xmlDetector::addROC(int ROCId, int ROCSerial)
   this->dumpROCs();
 }
 
-/*================================================================================#
-#                                                                                 #
-#                            x m l R O C s                                        #
-#                                                                                 #
-# ================================================================================*/
+/*================================================================================+
+|                                                                                 |
+|                                 x m l R o c                                     |
+|                                                                                 |
++================================================================================*/
 
 //================================================================================
-xmlROC::xmlROC(QDomNode & ROCNode)
+xmlROC::xmlROC(xmlParser   * theParser ,
+               xmlStation  * theStation,
+               xmlDetector * theDetector,
+               QDomNode    & ROCNode) :
+    theXMLParser_   (theParser  )
+  , theXMLStation_  (theStation )
+  , theXMLDetector_ (theDetector)
 {
   ROCNode_ = ROCNode ;
 
   QDomNode detectorNode = ROCNode_    .parentNode().parentNode() ;
   QDomNode stationNode  = detectorNode.parentNode().parentNode() ;
 
-  detectorId_  = detectorNode.toElement().attribute("id"         ).toInt() ;
-  stationId_   = stationNode .toElement().attribute("id"         ).toInt() ;
-  id_          = ROCNode     .toElement().attribute("id"         ).toInt() ;
-  serial_      = ROCNode     .toElement().attribute("serial"     ).toInt() ;
-  description_ = ROCNode     .toElement().attribute("description").toStdString() ;
+  detectorId_              = detectorNode.toElement().attribute("id"                      ).toInt() ;
+  stationId_               = stationNode .toElement().attribute("id"                      ).toInt() ;
+  id_                      = ROCNode     .toElement().attribute("id"                      ).toInt() ;
+  serial_                  = ROCNode     .toElement().attribute("serial"                  ).toInt() ;
+  description_             = ROCNode     .toElement().attribute("description"             ).toStdString() ;
+  rCalibrationFitFunction_ = ROCNode     .toElement().attribute("rCalibrationFitFunction" ).toStdString() ;
+
+  if( rCalibrationFitFunction_ == "" )
+  {
+      if( theDetector->isDUT())
+      {
+          rCalibrationFitFunction_ = theXMLParser_->getgDUTFitFunction() ;
+      }
+      else
+      {
+          rCalibrationFitFunction_ = theXMLParser_->getgCalibrationFitFunction() ;
+      }
+  }
 
   ss_.str(""); ss_ << "ROC - Serial: "
                    << serial_

@@ -61,30 +61,39 @@ void stationGB::initialize(xmlStation * theStation)
           this,               SLOT  (stationToggled(bool))) ;
 
   ss_.str("");  ss_ << stationId ;
-  ui->stationIdLE              ->textIsAttribute (true                                                       );
-  ui->stationIdLE              ->setText         ("id",ss_.str()                                             ); // Assign value from xml file
-  ui->stationIdLE              ->setRange        ("\\d+"                                                     );
-  ui->stationIdLE              ->assignXmlElement(theStation->getNode()                                      );
-  ui->stationIdLE              ->setInnerGeometry(ui->stationIdLE->geometry()                                );
-  ui->stationIdLE              ->setExclusionList(theStation->getAllStationsId()                             );
-  ui->stationIdLE              ->needsReturn     (                                                           );
+  ui->stationIdLE              ->textIsAttribute  (true                                                        );
+  ui->stationIdLE              ->setText          ("id",ss_.str()                                              ); // Assign value from xml file
+  ui->stationIdLE              ->setRange         ("\\d+"                                                      );
+  ui->stationIdLE              ->assignXmlElement (theStation->getNode()                                       );
+  ui->stationIdLE              ->setInnerGeometry (ui->stationIdLE->geometry()                                 );
+  ui->stationIdLE              ->setExclusionList (theStation->getAllStationsId()                              );
+  ui->stationIdLE              ->needsReturn      (                                                            );
 
   ss_.str("");  ss_ << station_->getDescription() ;
-  ui->stationDescriptionTA     ->textIsAttribute (true                                                       );
-  ui->stationDescriptionTA     ->setText         ("description",ss_.str()                                    );
-  ui->stationDescriptionTA     ->assignXmlElement(theStation->getNode()                                      );
-  ui->stationDescriptionTA     ->setInnerGeometry(ui->stationDescriptionTA->geometry()                       );
+  ui->stationDescriptionTA     ->textIsAttribute  (true                                                        );
+  ui->stationDescriptionTA     ->setText          ("description",ss_.str()                                     );
+  ui->stationDescriptionTA     ->assignXmlElement (theStation->getNode()                                       );
+  ui->stationDescriptionTA     ->setInnerGeometry (ui->stationDescriptionTA->geometry()                        );
 
-//  ui->sCalibrationFitFunctionCB->textIsAttribute (true                                                       );
-//  ui->sCalibrationFitFunctionCB->assignXmlElement(theStation->getNode()                                      );
-//  ui->sCalibrationFitFunctionCB->addItem         ("tanh"                                                     );
-//  ui->sCalibrationFitFunctionCB->addItem         ("linear"                                                   );
-//  ui->sCalibrationFitFunctionCB->addItem         ("parabolic"                                                );
-//  ui->sCalibrationFitFunctionCB->setCurrentIndex ("sCalibrationFitFunction",
-//                                                  QString((theStation->getsCalibrationFitFunction()).c_str()));
-//  ui->sCalibrationFitFunctionCB->setInnerGeometry(ui->sCalibrationFitFunctionCB->geometry()                  );
+  ui->sCalibrationFitFunctionCB->textIsAttribute  (true                                                        );
+  ui->sCalibrationFitFunctionCB->assignXmlElement (theStation->getNode()                                       );
+  ui->sCalibrationFitFunctionCB->addItem          ("tanh"                                                      );
+  ui->sCalibrationFitFunctionCB->addItem          ("linear"                                                    );
+  ui->sCalibrationFitFunctionCB->addItem          ("parabolic"                                                 );
+  ui->sCalibrationFitFunctionCB->setCurrentIndex  ("sCalibrationFitFunction",
+                                                   QString((theStation->getsCalibrationFitFunction()).c_str()) );
+  ui->sCalibrationFitFunctionCB->setInnerGeometry (ui->sCalibrationFitFunctionCB->geometry()                   );
 
-  ui->stationInUseCB           ->setChecked      (theStation->isEnabled()                                    );
+  ui->daCalibrationFitFunctionCB->textIsAttribute (true                                                        );
+  ui->daCalibrationFitFunctionCB->assignXmlElement(theStation->getChildNode()                                  );
+  ui->daCalibrationFitFunctionCB->addItem         ("tanh"                                                      );
+  ui->daCalibrationFitFunctionCB->addItem         ("linear"                                                    );
+  ui->daCalibrationFitFunctionCB->addItem         ("parabolic"                                                 );
+  ui->daCalibrationFitFunctionCB->setCurrentIndex ("daCalibrationFitFunction",
+                                                   QString((theStation->getdaCalibrationFitFunction()).c_str()));
+  ui->daCalibrationFitFunctionCB->setInnerGeometry(ui->daCalibrationFitFunctionCB->geometry()                  );
+
+  ui->stationInUseCB            ->setChecked      (theStation->isEnabled()                                     );
 }
 
 //================================================================================
@@ -150,4 +159,9 @@ void stationGB::on_remDetectorPB_clicked()
   station_->getXmlDetectorBySerial(detectorSerial)->remDetector(); // Remove from DOM first
 
   emit removeDetectorTab(station_->getStationId(),detectorSerial);
+}
+//================================================================================
+void stationGB::setEnabled(bool enable)
+{
+  ui->stationInUseCB->setChecked(enable) ;
 }

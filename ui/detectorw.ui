@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>929</width>
-    <height>365</height>
+    <height>380</height>
    </rect>
   </property>
   <property name="palette">
@@ -213,6 +213,12 @@ p, li { white-space: pre-wrap; }
        <height>22</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
      <property name="cursor">
       <cursorShape>PointingHandCursor</cursorShape>
      </property>
@@ -312,6 +318,12 @@ p, li { white-space: pre-wrap; }
        <width>513</width>
        <height>30</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
      </property>
      <property name="cursor" stdset="0">
       <cursorShape>IBeamCursor</cursorShape>
@@ -437,8 +449,8 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="font">
       <font>
-       <weight>75</weight>
-       <bold>true</bold>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="toolTip">
@@ -505,8 +517,8 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="font">
       <font>
-       <weight>75</weight>
-       <bold>true</bold>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="toolTip">
@@ -631,8 +643,8 @@ p, li { white-space: pre-wrap; }
     <property name="font">
      <font>
       <pointsize>10</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
    </widget>
@@ -685,8 +697,8 @@ p, li { white-space: pre-wrap; }
     <property name="font">
      <font>
       <pointsize>10</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="text">
@@ -700,7 +712,7 @@ p, li { white-space: pre-wrap; }
      <x>6</x>
      <y>56</y>
      <width>927</width>
-     <height>317</height>
+     <height>325</height>
     </rect>
    </property>
    <property name="title">
@@ -715,7 +727,7 @@ p, li { white-space: pre-wrap; }
       <x>0</x>
       <y>129</y>
       <width>491</width>
-      <height>173</height>
+      <height>189</height>
      </rect>
     </property>
     <property name="palette">
@@ -831,6 +843,12 @@ p, li { white-space: pre-wrap; }
         </colorrole>
        </disabled>
       </palette>
+     </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
      </property>
      <property name="title">
       <string>Position corrections (cm)</string>
@@ -1357,6 +1375,12 @@ p, li { white-space: pre-wrap; }
        </disabled>
       </palette>
      </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
      <property name="title">
       <string>Angle corrections (deg)</string>
      </property>
@@ -1772,39 +1796,110 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </widget>
-    <widget class="customComboBox" name="sCalibrationFitFunctionCB">
+    <widget class="QGroupBox" name="dCalibrationGB">
      <property name="geometry">
       <rect>
-       <x>308</x>
-       <y>146</y>
-       <width>100</width>
-       <height>20</height>
+       <x>6</x>
+       <y>140</y>
+       <width>473</width>
+       <height>43</height>
       </rect>
      </property>
-     <property name="cursor">
-      <cursorShape>PointingHandCursor</cursorShape>
+     <property name="title">
+      <string>Calibration fit function</string>
      </property>
-     <property name="editable">
-      <bool>false</bool>
-     </property>
-     <item>
-      <property name="text">
-       <string/>
+     <widget class="customComboBox" name="dCalibrationFitFunctionCB">
+      <property name="geometry">
+       <rect>
+        <x>116</x>
+        <y>17</y>
+        <width>100</width>
+        <height>20</height>
+       </rect>
       </property>
-     </item>
-    </widget>
-    <widget class="QLabel" name="label">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>148</y>
-       <width>289</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Calibration fit function for all ROCs</string>
-     </property>
+      <property name="font">
+       <font>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="cursor">
+       <cursorShape>PointingHandCursor</cursorShape>
+      </property>
+      <property name="editable">
+       <bool>false</bool>
+      </property>
+      <item>
+       <property name="text">
+        <string/>
+       </property>
+      </item>
+     </widget>
+     <widget class="QLabel" name="thisCalibrationLB">
+      <property name="geometry">
+       <rect>
+        <x>4</x>
+        <y>19</y>
+        <width>113</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;THIS&lt;/span&gt; detector&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="arCalibrationLB">
+      <property name="geometry">
+       <rect>
+        <x>288</x>
+        <y>19</y>
+        <width>77</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;ALL&lt;/span&gt; ROCs &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="customComboBox" name="raCalibrationFitFunctionCB">
+      <property name="geometry">
+       <rect>
+        <x>368</x>
+        <y>16</y>
+        <width>100</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="cursor">
+       <cursorShape>PointingHandCursor</cursorShape>
+      </property>
+      <property name="editable">
+       <bool>false</bool>
+      </property>
+      <item>
+       <property name="text">
+        <string/>
+       </property>
+      </item>
+     </widget>
     </widget>
    </widget>
    <widget class="QFrame" name="ROCTabWidgetPlaceHolder">
@@ -1813,7 +1908,7 @@ p, li { white-space: pre-wrap; }
       <x>500</x>
       <y>12</y>
       <width>419</width>
-      <height>289</height>
+      <height>305</height>
      </rect>
     </property>
     <property name="toolTip">
@@ -2007,6 +2102,12 @@ p, li { white-space: pre-wrap; }
         </colorrole>
        </disabled>
       </palette>
+     </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
      </property>
      <property name="title">
       <string>Position in space (cm)</string>
@@ -2225,6 +2326,12 @@ p, li { white-space: pre-wrap; }
         </colorrole>
        </disabled>
       </palette>
+     </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
      </property>
      <property name="title">
       <string>Rotation angles (deg)</string>
@@ -2513,8 +2620,8 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="font">
       <font>
-       <weight>75</weight>
-       <bold>true</bold>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="toolTip">
@@ -2661,8 +2768,8 @@ p, li { white-space: pre-wrap; }
      <property name="font">
       <font>
        <pointsize>9</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="toolTip">
@@ -2699,8 +2806,8 @@ p, li { white-space: pre-wrap; }
       </property>
       <property name="font">
        <font>
-        <weight>75</weight>
-        <bold>true</bold>
+        <weight>50</weight>
+        <bold>false</bold>
        </font>
       </property>
       <property name="text">
@@ -2824,8 +2931,8 @@ p, li { white-space: pre-wrap; }
       </property>
       <property name="font">
        <font>
-        <weight>75</weight>
-        <bold>true</bold>
+        <weight>50</weight>
+        <bold>false</bold>
        </font>
       </property>
       <property name="text">
@@ -2878,6 +2985,12 @@ p, li { white-space: pre-wrap; }
         </colorrole>
        </disabled>
       </palette>
+     </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
      </property>
      <property name="toolTip">
       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;

@@ -72,6 +72,7 @@ public:
   void              buildTelescope            (void                           ) ;
   void              dumpHeaders               (void                           ) ;
   void              dumpStations              (void                           ) ;
+  QDomNode        & getChildNode              (void                           ) {return stationsNode_                    ;}
   std::string       getDate                   (void                           ) {return date_                            ;}
   std::string       getDesctiption            (void                           ) {return description_                     ;}
   int               getDetectorId             (int           stationSerial,
@@ -80,32 +81,31 @@ public:
                                                int           detectorId       ) ;
   int               getDetectorTabPosition    (int           stationId,
                                                int           detectorId       ) ;
+  std::string       getgCalibrationFitFunction(void                           ) {return gCalibrationFitFunction_         ;}
+  std::string       getgDUTFitFunction        (void                           ) {return gDUTFitFunction_                 ;}
   QDomNode        & getNode                   (void                           ) {return rootNode_                        ;}
-  QDomNode        & getChildNode              (void                           ) {return stationsNode_                    ;}
   int               getNumberOfDetectors      (int           stationSerial    ) ;
   unsigned int      getNumberOfStations       (void                           ) ;
   int               getNumberOfROCs           (int           stationSerial,
                                                int           detectorSerial   ) ;
-  std::string       getRun                    (void                           ) {return run_                             ;}
-  std::string       getgCalibrationFitFunction(void                           ) {return gCalibrationFitFunction_         ;}
-  std::string       getgDUTFitFunction        (void                           ) {return gDUTFitFunction_                 ;}
-  int               getStationId              (int           stationSerial    ) ;
-  idSerialListDef   getStationList            (void                           ) ;
-  int               getStationSerial          (int           stationId        ) ;
-  int               getStationTabPosition     (int           stationId        ) {return stationTabPosition_ [stationId ] ;}
-  xmlDetector     * getXmlDetectorBySerial    (int           stationSerial,
-                                               int           detectorSerial   ) ;
-  xmlDetector     * getXmlDetectorById        (int           stationId,
-                                               int           detectorId       ) ;
-  xmlStation      * getXmlStationBySerial     (int           stationSerial    ) ;
-  xmlStation      * getXmlStationById         (int           stationId        ) ;
-  xmlStationsDef    getXmlStations            (void                           ) {return xmlStations_                     ;}
   xmlROC          * getROCById                (int           stationId,
                                                int           detectorId,
                                                int           rocId            ) ;
   xmlROC          * getROCBySerial            (int           stationSerial,
                                                int           detectorSerial,
                                                int           rocSerial        ) ;
+  std::string       getRun                    (void                           ) {return run_                             ;}
+  int               getStationId              (int           stationSerial    ) ;
+  idSerialListDef   getStationList            (void                           ) ;
+  int               getStationSerial          (int           stationId        ) ;
+  int               getStationTabPosition     (int           stationId        ) {return stationTabPosition_ [stationId ] ;}
+  xmlDetector     * getXmlDetectorById        (int           stationId,
+                                               int           detectorId       ) ;
+  xmlDetector     * getXmlDetectorBySerial    (int           stationSerial,
+                                               int           detectorSerial   ) ;
+  xmlStation      * getXmlStationBySerial     (int           stationSerial    ) ;
+  xmlStation      * getXmlStationById         (int           stationId        ) ;
+  xmlStationsDef    getXmlStations            (void                           ) {return xmlStations_                     ;}
   void              remStation                (int           stationId        ) ;
   void              save                      (std::string   fileName         ) ;
 
@@ -117,17 +117,22 @@ private:
   QDomNode                     rootNode_                ;
   QDomNode                     stationsNode_            ;
 
-  std::stringstream            ss_                      ;
 
-  std::string                  description_             ;
-  std::string                  run_                     ;
   std::string                  date_                    ;
+  std::string                  description_             ;
   std::string                  gCalibrationFitFunction_ ;
   std::string                  gDUTFitFunction_         ;
+  std::string                  run_                     ;
 
+  std::stringstream            ss_                      ;
   tabPositionDef               stationTabPosition_      ;
 };
 
+/*================================================================================+
+|                                                                                 |
+|                               x m l U t i l  s                                  |
+|                                                                                 |
++================================================================================*/
 //=========================================================================================
 
 class xmlUtils
@@ -178,55 +183,70 @@ private:
 
 };
 
+/*================================================================================+
+|                                                                                 |
+|                            x m l S t a t i o n                                  |
+|                                                                                 |
++================================================================================*/
 //=========================================================================================
 
 class xmlStation : public QWidget
 {
   Q_OBJECT
-public:
-   xmlStation  (QDomNode & stationNode) ;
-  ~xmlStation  (void                  ){;}
+ public:
 
   typedef std::map<int, xmlDetector *> xmlDetectorsDef ;
 
-  void                         addDetector               (int           detectorId,
-                                                          int           detectorSerial) ;
-  bool                         isUsed                    (void                        ) {return used_                            ;}
-  std::vector<int>             getAllStationsId          (void                        ) ;
-  std::string                  getDescription            (void                        ) {return description_                     ;}
-  int                          getDetectorTabPosition    (int           detectorId    ) {return detectorTabPosition_[detectorId] ;}
-  xmlParser::idSerialListDef   getDetectorList           (void                        ) ;
-  QDomNode                   & getNode                   (void                        ) {return stationNode_                     ;}
-  int                          getStationId              (void                        ) {return id_                              ;}
-  int                          getStationSerial          (void                        ) {return serial_                          ;}
-  std::string                  getsCalibrationFitFunction(void                        ) {return sCalibrationFitFunction_         ;}
-  xmlDetector                * getXmlDetectorBySerial    (int           detectorSerial) ;
-  xmlDetector                * getXmlDetectorById        (int           detectorId    ) ;
-  xmlROC                     * getROCById                (int           detector,
-                                                          int           roc           ) ;
-  xmlDetectorsDef              getXmlDetectors           (void                        ) {return detectors_                       ;}
+                               xmlStation                 (xmlParser * theParser     ,
+                                                           QDomNode  & stationNode   ) ;
+                              ~xmlStation                 (void                      ) {                                        ;}
 
-  void                         remStation                (void                        ) ;
-  void                         setId                     (int           id            ) ;
-  void                         setUsed                   (bool          used          ) ;
+  void                         addDetector                (int         detectorId,
+                                                           int         detectorSerial) ;
+  bool                         isUsed                     (void                      ) {return used_                            ;}
+  std::vector<int>             getAllStationsId           (void                      ) ;
+  std::string                  getDescription             (void                      ) {return description_                     ;}
+  int                          getDetectorTabPosition     (int         detectorId    ) {return detectorTabPosition_[detectorId] ;}
+  xmlParser::idSerialListDef   getDetectorList            (void                      ) ;
+  QDomNode                   & getNode                    (void                      ) {return stationNode_                     ;}
+  QDomNode                   & getChildNode               (void                      ) {
+                                                                                        childNode_ = stationNode_.firstChild()  ;
+                                                                                        return childNode_                       ;
+                                                                                       }
+  int                          getStationId               (void                      ) {return id_                              ;}
+  int                          getStationSerial           (void                      ) {return serial_                          ;}
+  std::string                  getsCalibrationFitFunction (void                      ) {return sCalibrationFitFunction_         ;}
+  std::string                  getdaCalibrationFitFunction(void                      ) {return daCalibrationFitFunction_        ;}
+  xmlDetector                * getXmlDetectorBySerial     (int         detectorSerial) ;
+  xmlDetector                * getXmlDetectorById         (int         detectorId    ) ;
+  xmlROC                     * getROCById                 (int         detector,
+                                                           int         roc           ) ;
+  xmlDetectorsDef              getXmlDetectors            (void                      ) {return detectors_                       ;}
 
-  bool                         isEnabled                 (void                        ) ;
-  void                         dumpDetectors             (void                        ) ;
+  void                         remStation                 (void                      ) ;
+  void                         setId                      (int         id            ) ;
+  void                         setUsed                    (bool        used          ) ;
+
+  bool                         isEnabled                  (void                      ) ;
+  void                         dumpDetectors              (void                      ) ;
 
 private:
 
-  QDomNode                  stationNode_             ;
+  QDomNode                    stationNode_             ;
+  QDomNode                    childNode_               ;
 
-  std::stringstream         ss_                      ;
-  int                       id_                      ;
-  int                       serial_                  ;
-  bool                      used_                    ;
-  std::string               description_             ;
+  std::stringstream           ss_                      ;
+  int                         id_                      ;
+  int                         serial_                  ;
+  bool                        used_                    ;
+  std::string                 description_             ;
 
-  xmlDetectorsDef           detectors_               ; // Indexed by station Id
+  xmlDetectorsDef             detectors_               ; // Indexed by station Id
 
-  xmlParser::tabPositionDef detectorTabPosition_     ;
-  std::string               sCalibrationFitFunction_ ;
+  xmlParser                 * theParser_               ;
+  xmlParser::tabPositionDef   detectorTabPosition_     ;
+  std::string                 sCalibrationFitFunction_ ;
+  std::string                 daCalibrationFitFunction_;
 
 private slots:
 
@@ -237,41 +257,59 @@ private slots:
 signals:
 };
 
+/*================================================================================+
+|                                                                                 |
+|                            x m l D e t e c t o r                                |
+|                                                                                 |
++================================================================================*/
 //=========================================================================================
 
 class xmlDetector : public QWidget
 {
   Q_OBJECT
 public:
-  explicit xmlDetector(QDomNode & detectorNode) ;
-          ~xmlDetector(void                   ){;}
 
-  typedef std::map<int,         xmlROC *   > xmlROCDef      ;
-  typedef std::map<std::string, QString    > keyValueDef    ;
+  typedef std::map<int,         xmlROC *> xmlROCDef      ;
+  typedef std::map<std::string, QString > keyValueDef    ;
 
-  void                         addROC           (int  ROCId,
-                                                 int  ROCSerial     ) ;
-  std::string                  getDescription   (void               ) {return description_  ;}
-  QDomNode                   & getNode          (void               ) {return detectorNode_ ;}
-  QDomNode                   & getROCNode       (void               ) {
-                                                                       ROCNode_ = detectorNode_.toElement().elementsByTagName("ROCs").at(0) ;
-                                                                       return ROCNode_                                                      ;
-                                                                      }
+  explicit                     xmlDetector                (xmlParser  * theParser ,
+                                                           xmlStation * theStation,
+                                                           QDomNode   & detectorNode) ;
+                              ~xmlDetector                (void                     ) {;}
 
-  std::vector<int>             getAllDetectorsId(void               ) ;
-  int                          getDetectorId    (void               ) {return id_           ;}
-  int                          getDetectorSerial(void               ) {return serial_       ;}
-  xmlParser::idSerialListDef   getROCList       (void               ) ;
-  xmlROCDef                    getXmlROCs       (void               ) {return ROCs_         ;}
-  int                          getStationId     (void               ) {return stationId_    ;}
-  xmlROC                     * getXmlROCById    (int  roc           ) ;
-  xmlROC                     * getXmlROCBySerial(int  rocSerial     ) ;
-  void                         remDetector      (void               ) ;
-  bool                         isEnabled        (void               ) ;
-  bool                         isUsed           (void               ) {return used_         ;}
-  bool                         isDUT            (void               ) {return isDUT_        ;}
-  void                         setUsed          (bool used          ) ;
-  void                         dumpROCs         (void               ) ;
+  void                         addROC                     (int         ROCId,
+                                                           int         ROCSerial    ) ;
+  std::string                  getDescription             (void                     ) {return description_              ;}
+  QDomNode                   & getNode                    (void                     ) {return detectorNode_             ;}
+  QDomNode                   & getROCNode                 (void                     ) {
+                                                                                        ROCNode_ = detectorNode_.toElement().elementsByTagName("ROCs").at(0) ;
+                                                                                        return ROCNode_                                                      ;
+                                                                                      }
+  std::vector<int>             getAllDetectorsId          (void                     ) ;
+  int                          getDetectorId              (void                     ) {return id_                       ;}
+  int                          getDetectorSerial          (void                     ) {return serial_                   ;}
+  xmlParser::idSerialListDef   getROCList                 (void                     ) ;
+  xmlROCDef                    getXmlROCs                 (void                     ) {return ROCs_                     ;}
+  int                          getStationId               (void                     ) {return stationId_                ;}
+  xmlROC                     * getXmlROCById              (int        roc           ) ;
+  xmlROC                     * getXmlROCBySerial          (int        rocSerial     ) ;
+  std::string                  getdCalibrationFitFunction (void                     ) {return dCalibrationFitFunction_  ;}
+  std::string                  getraCalibrationFitFunction(void                     ) {return raCalibrationFitFunction_ ;}
+  std::string                  getAddress                 (void                     ) {
+                                                                                       ss_.str("");
+                                                                                       ss_ << "Station "
+                                                                                           << theStation_->getStationId()
+                                                                                           << " - Plaq: "
+                                                                                           << id_ ;
+                                                                                       return ss_.str() ;
+                                                                                      }
+
+  void                         remDetector                (void                     ) ;
+  bool                         isEnabled                  (void                     ) ;
+  bool                         isUsed                     (void                     ) {return used_                     ;}
+  bool                         isDUT                      (void                     ) {return isDUT_                    ;}
+  void                         setUsed                    (bool used                ) ;
+  void                         dumpROCs                   (void                     ) ;
 
   keyValueDef          keyValue_                         ;
 
@@ -283,16 +321,29 @@ private:
   std::stringstream    ss_                               ;
   xmlROCDef            ROCs_                             ;
   xmlParser::ROCsDef   ROCId_                            ;
+  xmlStation         * theStation_                       ;
+  xmlParser          * theParser_                        ;
   int                  id_                               ;
   int                  serial_                           ;
   int                  stationId_                        ;
   bool                 used_                             ;
   bool                 isDUT_                            ;
   std::string          description_                      ;
+  std::string          dCalibrationFitFunction_          ;
+  std::string          raCalibrationFitFunction_         ;
 
 private slots:
+  void setValue        (int           value     ) ;
+
+  void setAttributeText(std::string   key,
+                        QString     & textValue ) ;
 };
 
+/*================================================================================+
+|                                                                                 |
+|                                 x m l R o c                                     |
+|                                                                                 |
++================================================================================*/
 //=========================================================================================
 
 class xmlROC : public QWidget
@@ -300,27 +351,41 @@ class xmlROC : public QWidget
   Q_OBJECT
 
 public:
-  explicit   xmlROC                   (QDomNode &    ROCNode   ) ;
-            ~xmlROC                   (void                    ) {;}
-
   typedef std::map<std::string, QString > keyValueDef    ;
   typedef std::map<int,         double  > nonStandardPitchDef ;
 
-  bool          isUsed                (void                    ) {return used_       ;}
-  std::string   getDescription        (void                    ) {return description_;}
-  int           getDetectorId         (void                    ) {return detectorId_ ;}
-  QDomNode    & getNode               (void                    ) {return ROCNode_    ;}
-  int           getROCId              (void                    ) {return id_         ;}
-  int           getROCSerial          (void                    ) {return serial_     ;}
-  int           getStationId          (void                    ) {return stationId_  ;}
-  void          remROC                (void                    ) ;
-  void          setUsed               (bool      used          ) ;
-  void          addNonStandardPitch   (xmlROC  * ROC,
-                                       QString   type   ,
-                                       int       rowCol ,
-                                       double    pitch         ) ;
-  void          removeNonStandardPitch(QString   type,
-                                       int       rowCol        ) ;
+  explicit      xmlROC                     (xmlParser   * theParser ,
+                                            xmlStation  * theStation,
+                                            xmlDetector * theDetector,
+                                            QDomNode    & ROCNode  ) ;
+               ~xmlROC                     (void                   ) {;}
+
+  bool          isUsed                     (void                   ) {return used_                     ;}
+  std::string   getDescription             (void                   ) {return description_              ;}
+  int           getDetectorId              (void                   ) {return detectorId_               ;}
+  QDomNode    & getNode                    (void                   ) {return ROCNode_                  ;}
+  int           getROCId                   (void                   ) {return id_                       ;}
+  int           getROCSerial               (void                   ) {return serial_                   ;}
+  std::string   getrCalibrationFitFunction (void                   ) {return rCalibrationFitFunction_  ;}
+  int           getStationId               (void                   ) {return stationId_                ;}
+  std::string   getAddress                 (void                   ) {
+                                                                        ss_.str("");
+                                                                        ss_ << "Station "
+                                                                            << theXMLStation_->getStationId()
+                                                                            << " - Plaq: "
+                                                                            << theXMLDetector_->getDetectorId()
+                                                                            << " - ROC: "
+                                                                            << id_ ;
+                                                                         return ss_.str() ;
+                                                                     }
+  void          remROC                     (void                   ) ;
+  void          setUsed                    (bool          used     ) ;
+  void          addNonStandardPitch        (xmlROC      * ROC       ,
+                                            QString       type      ,
+                                            int           rowCol    ,
+                                            double        pitch    ) ;
+  void          removeNonStandardPitch     (QString       type      ,
+                                            int           rowCol   ) ;
 
   keyValueDef         keyValue_             ;
 
@@ -329,26 +394,29 @@ public:
 
 
 private slots:
-  void       setTabbedText   (std::string   key,
-                              std::string   tabValue,
-                              std::string   attName,
-                              QString     & textValue) ;
-  void       setAttributeText(std::string   key,
-                              QString     & textValue) ;
+  void          setTabbedText              (std::string   key,
+                                            std::string   tabValue,
+                                            std::string   attName,
+                                            QString     & textValue) ;
+  void          setAttributeText           (std::string   key,
+                                            QString     & textValue) ;
 
 private:
 
   void update(void) ;
 
-  QDomNode           ROCNode_    ;
-  std::stringstream  ss_         ;
-  int                serial_     ;
-  int                id_         ;
-  bool               used_       ;
-  int                detectorId_ ;
-  int                stationId_  ;
-  std::string        description_;
-
+  QDomNode            ROCNode_                ;
+  std::stringstream   ss_                     ;
+  int                 serial_                 ;
+  int                 id_                     ;
+  bool                used_                   ;
+  int                 detectorId_             ;
+  int                 stationId_              ;
+  std::string         description_            ;
+  std::string         rCalibrationFitFunction_;
+  xmlParser         * theXMLParser_           ;
+  xmlStation        * theXMLStation_          ;
+  xmlDetector       * theXMLDetector_         ;
 };
 
 #endif // XMLPARSER_H

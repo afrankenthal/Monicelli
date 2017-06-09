@@ -934,39 +934,42 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>8</x>
-      <y>72</y>
-      <width>125</width>
+      <y>74</y>
+      <width>121</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Fit function type:</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GLOBAL&lt;/span&gt; defaults.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="gDUTFitFunctionLB">
     <property name="geometry">
      <rect>
-      <x>460</x>
-      <y>72</y>
-      <width>165</width>
+      <x>328</x>
+      <y>74</y>
+      <width>49</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;for &lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;ALL &lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;DUT&lt;/span&gt; detectors:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;DUTs&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="customComboBox" name="gCalibrationFitFunctionCB">
     <property name="geometry">
      <rect>
-      <x>344</x>
-      <y>70</y>
+      <x>216</x>
+      <y>72</y>
       <width>100</width>
       <height>20</height>
      </rect>
     </property>
     <property name="cursor">
      <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline; color:#126e99;&quot;&gt;Calibration fit function&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;This is the fit function that will be used to perform any ROC pixel cell calibration unless the ROC has a specified one  to override this value.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="editable">
      <bool>false</bool>
@@ -980,8 +983,8 @@ p, li { white-space: pre-wrap; }
    <widget class="customComboBox" name="gDUTFitFunctionCB">
     <property name="geometry">
      <rect>
-      <x>632</x>
-      <y>70</y>
+      <x>376</x>
+      <y>72</y>
       <width>100</width>
       <height>20</height>
      </rect>
@@ -1001,14 +1004,136 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="gfitFunctionLB">
     <property name="geometry">
      <rect>
-      <x>152</x>
-      <y>72</y>
-      <width>193</width>
+      <x>128</x>
+      <y>74</y>
+      <width>89</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;for &lt;span style=&quot; color:#ff0000;&quot;&gt;ALL &lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;telescope&lt;/span&gt; stations&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Telescope&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="resetCalibFitFuncPB">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>72</y>
+      <width>53</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset all ROCs fit functions using  these two defaults (on the left)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>Reset</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="enableALLPB">
+    <property name="geometry">
+     <rect>
+      <x>708</x>
+      <y>72</y>
+      <width>89</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="palette">
+     <palette>
+      <active>
+       <colorrole role="Button">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>117</red>
+          <green>201</green>
+          <blue>122</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </active>
+      <inactive>
+       <colorrole role="Button">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>117</red>
+          <green>201</green>
+          <blue>122</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </inactive>
+      <disabled>
+       <colorrole role="Button">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>117</red>
+          <green>201</green>
+          <blue>122</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </disabled>
+     </palette>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable/Disable &lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;everything&lt;/span&gt;, &lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;ALL&lt;/span&gt; stations, detectors and ROCs&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>Enable ALL</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="enableAllStationsPB">
+    <property name="geometry">
+     <rect>
+      <x>802</x>
+      <y>72</y>
+      <width>141</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="palette">
+     <palette>
+      <active>
+       <colorrole role="Button">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>117</red>
+          <green>201</green>
+          <blue>122</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </active>
+      <inactive>
+       <colorrole role="Button">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>117</red>
+          <green>201</green>
+          <blue>122</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </inactive>
+      <disabled>
+       <colorrole role="Button">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>117</red>
+          <green>201</green>
+          <blue>122</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </disabled>
+     </palette>
+    </property>
+    <property name="toolTip">
+     <string>Enable/Disable ALL stations, detectors and ROCs</string>
+    </property>
+    <property name="text">
+     <string>Enable ALL Stations</string>
     </property>
    </widget>
    <zorder>geometryControlsGB</zorder>
@@ -1019,6 +1144,9 @@ p, li { white-space: pre-wrap; }
    <zorder>gCalibrationFitFunctionCB</zorder>
    <zorder>gDUTFitFunctionCB</zorder>
    <zorder>gfitFunctionLB</zorder>
+   <zorder>resetCalibFitFuncPB</zorder>
+   <zorder>enableALLPB</zorder>
+   <zorder>enableAllStationsPB</zorder>
   </widget>
   <widget class="QGroupBox" name="stationsGB">
    <property name="geometry">

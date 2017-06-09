@@ -93,6 +93,7 @@ private slots:
     void            about                 (void                    ) ;
     void            buildMainPanel        (void                    ) ;
     void            buildHNavigator       (void                    ) ;
+    void            buildSynopticViewer   (void                    ) ;
     void            editXMLPanel          (void                    ) ;
     void            cleanClose            (void                    ) ;
     void            copy                  (void                    ) ;
@@ -159,6 +160,7 @@ private:
     QAction       * saveAct          ;
     QAction       * saveAsAct        ;
     QAction       * separatorAct     ;
+    QAction       * synopticViewerAct;
     QAction       * tileAct          ;
     QMenu         * windowMenu       ;
     QSignalMapper * windowMapper     ;

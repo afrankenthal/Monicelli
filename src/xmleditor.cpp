@@ -71,6 +71,8 @@ XMLEditor::XMLEditor(QWidget *parent) : QWidget(parent), ui(new Ui::XMLEditor)
 
     msgBox.exec();
 
+    QApplication::processEvents(QEventLoop::AllEvents);
+
     if (     msgBox.clickedButton() == abort      )
     {
         STDLINE("Editing of an XML document has been aborted",ACPurple) ;
@@ -102,7 +104,17 @@ XMLEditor::XMLEditor(QWidget *parent) : QWidget(parent), ui(new Ui::XMLEditor)
 
     this->layout() ;
 
+    connect(ui->gCalibrationFitFunctionCB, SIGNAL(textChanged(std::string, QString&)),
+            this,                          SLOT  (textChanged(std::string, QString&))) ;
+
     isActive_ = true ;
+}
+
+//===========================================================================
+void XMLEditor::textChanged(std::string from, QString & to)
+{
+    STDLINE(from            ,ACWhite) ;
+    STDLINE(to.toStdString(),ACWhite) ;
 }
 
 //===========================================================================
@@ -179,48 +191,47 @@ void XMLEditor::layout()
     QRect theStationsGB = ui->stationsGB->geometry() ;
 
 
-    ui->fileDescriptionTA        ->setInnerGeometry(ui->fileDescriptionTA->geometry()                             );
-    ui->fileDescriptionTA        ->textIsAttribute (true                                                          );
+    ui->fileDescriptionTA        ->setInnerGeometry(ui->fileDescriptionTA->geometry()                              );
+    ui->fileDescriptionTA        ->textIsAttribute (true                                                           );
     ui->fileDescriptionTA        ->setText         ("description",
-                                                    theXMLParser_->getDesctiption()                               );
-    ui->fileDescriptionTA        ->assignXmlElement(theXMLParser_->getNode()                                      );
+                                                    theXMLParser_->getDesctiption()                                );
+    ui->fileDescriptionTA        ->assignXmlElement(theXMLParser_->getNode()                                       );
 
-    ui->runLE                    ->setInnerGeometry(ui->runLE->geometry()                                         );
-    ui->runLE                    ->textIsAttribute (true                                                          );
+    ui->runLE                    ->setInnerGeometry(ui->runLE->geometry()                                          );
+    ui->runLE                    ->textIsAttribute (true                                                           );
     ui->runLE                    ->setText         ("run",
-                                                    theXMLParser_->getRun ()                                      );
-    ui->runLE                    ->assignXmlElement(theXMLParser_->getNode()                                      );
+                                                    theXMLParser_->getRun ()                                       );
+    ui->runLE                    ->assignXmlElement(theXMLParser_->getNode()                                       );
 
-    ui->dateLE                   ->setInnerGeometry(ui->dateLE->geometry()                                        );
-    ui->dateLE                   ->textIsAttribute (true                                                          );
+    ui->dateLE                   ->setInnerGeometry(ui->dateLE->geometry()                                         );
+    ui->dateLE                   ->textIsAttribute (true                                                           );
     ui->dateLE                   ->setText         ("date",
-                                                    theXMLParser_->getDate()                                      );
-    ui->dateLE                   ->assignXmlElement(theXMLParser_->getNode()                                      );
+                                                    theXMLParser_->getDate()                                       );
+    ui->dateLE                   ->assignXmlElement(theXMLParser_->getNode()                                       );
 
-    ui->gCalibrationFitFunctionCB->textIsAttribute (true                                                          );
-    ui->gCalibrationFitFunctionCB->assignXmlElement(theXMLParser_->getChildNode()                                 );
-    ui->gCalibrationFitFunctionCB->addItem         ("tanh"                                                        );
-    ui->gCalibrationFitFunctionCB->addItem         ("linear"                                                      );
-    ui->gCalibrationFitFunctionCB->addItem         ("parabolic"                                                   );
+    ui->gCalibrationFitFunctionCB->textIsAttribute (true                                                           );
+    ui->gCalibrationFitFunctionCB->assignXmlElement(theXMLParser_->getChildNode()                                  );
+    ui->gCalibrationFitFunctionCB->addItem         ("tanh"                                                         );
+    ui->gCalibrationFitFunctionCB->addItem         ("linear"                                                       );
+    ui->gCalibrationFitFunctionCB->addItem         ("parabolic"                                                    );
     ui->gCalibrationFitFunctionCB->setCurrentIndex ("gCalibrationFitFunction",
-                                                    QString((theXMLParser_->getgCalibrationFitFunction()).c_str()));
-
-    ui->gCalibrationFitFunctionCB->setInnerGeometry(ui->gCalibrationFitFunctionCB->geometry()                     );
+                                                    QString((theXMLParser_->getgCalibrationFitFunction()).c_str()) );
+    ui->gCalibrationFitFunctionCB->setInnerGeometry(ui->gCalibrationFitFunctionCB->geometry()                      );
     
-    ui->gDUTFitFunctionCB        ->textIsAttribute (true                                                          );
-    ui->gDUTFitFunctionCB        ->assignXmlElement(theXMLParser_->getChildNode()                                 );
-    ui->gDUTFitFunctionCB        ->addItem         ("linear"                                                      );
-    ui->gDUTFitFunctionCB        ->addItem         ("tanh"                                                        );
-    ui->gDUTFitFunctionCB        ->addItem         ("parabolic"                                                   );
+    ui->gDUTFitFunctionCB        ->textIsAttribute (true                                                           );
+    ui->gDUTFitFunctionCB        ->assignXmlElement(theXMLParser_->getChildNode()                                  );
+    ui->gDUTFitFunctionCB        ->addItem         ("linear"                                                       );
+    ui->gDUTFitFunctionCB        ->addItem         ("tanh"                                                         );
+    ui->gDUTFitFunctionCB        ->addItem         ("parabolic"                                                    );
     ui->gDUTFitFunctionCB        ->setCurrentIndex ("gDUTFitFunction",
-                                                    QString((theXMLParser_->getgDUTFitFunction()).c_str())        );
-    ui->gDUTFitFunctionCB        ->setInnerGeometry(ui->gDUTFitFunctionCB->geometry()                             );
+                                                    QString((theXMLParser_->getgDUTFitFunction()).c_str())         );
+    ui->gDUTFitFunctionCB        ->setInnerGeometry(ui->gDUTFitFunctionCB->geometry()                              );
 
-    theStationTW_                ->setGeometry     (ui->stationsGB->geometry()                                    );
+    theStationTW_                ->setGeometry     (ui->stationsGB->geometry()                                     );
     theStationTW_                ->setGeometry     (theStationsGB.x()     ,
                                                     theStationsGB.y()     ,
                                                     theStationsGB.width() ,
-                                                    theStationsGB.height()                                        );
+                                                    theStationsGB.height()                                         );
 
 
     xmlParser::xmlStationsDef stations = theXMLParser_->getXmlStations() ;
@@ -273,7 +284,7 @@ void XMLEditor::placeStation(xmlStation * theXmlStation)
     theStationGB_        = new stationGB(detTabFrame) ;
     theDetectorTW_       = new detectorTabWidget(detTabFrame) ;
     stationWMap_[theXmlStation->getStationId()] = theDetectorTW_ ;
-
+    stationGBs_.push_back(theStationGB_) ;
     theStationGB_ ->initialize(theXmlStation) ;
     theDetectorTW_->setEnabled(theXmlStation->isEnabled());
 
@@ -681,3 +692,61 @@ void XMLEditor::on_chooseDatePB_clicked()
     ui->dateLE->setText(QString(today.c_str())) ;
 }
 
+//===========================================================================
+void XMLEditor::on_resetCalibFitFuncPB_clicked()
+{
+    STDLINE("Not yet implemented...",ACRed) ;
+}
+
+//===========================================================================
+void XMLEditor::on_enableALLPB_clicked()
+{
+    bool enable = true ;
+    if( ui->enableALLPB->text() == QString("Enable ALL") )
+    {
+        ui->enableALLPB->setText(QString("Disable ALL")) ;
+        ui->enableALLPB->setPalette(QColor(255,0,0)) ;        
+        STDLINE("Enable ALL",ACGreen) ;
+        enable = true ;
+    }
+    else
+    {
+        ui->enableALLPB->setText(QString("Enable ALL")) ;
+        ui->enableALLPB->setPalette(QColor(117,201,122)) ;
+        STDLINE("Disable ALL",ACRed) ;
+        enable = false ;
+    }
+    for(stationGBDef::iterator itSt = stationGBs_.begin();
+                               itSt!= stationGBs_.end();
+                             ++itSt )
+    {
+     (*itSt)->setEnabled(enable) ;
+    }
+    
+}
+
+//===========================================================================
+void XMLEditor::on_enableAllStationsPB_clicked()
+{
+    bool enable = true ;
+    if( ui->enableALLPB->text() == QString("Enable ALL stations") )
+    {
+        ui->enableALLPB->setText(QString("Disable ALL stations")) ;
+        ui->enableALLPB->setPalette(QColor(255,0,0)) ;        
+        STDLINE("Enabled ALL stations",ACGreen) ;
+        enable = true ;
+    }
+    else
+    {
+        ui->enableALLPB->setText(QString("Enable ALL station")) ;
+        ui->enableALLPB->setPalette(QColor(117,201,122)) ;
+        STDLINE("Disabled ALL stations",ACRed) ;
+        enable = false ;
+    }
+    for(stationGBDef::iterator itSt = stationGBs_.begin();
+                               itSt!= stationGBs_.end();
+                             ++itSt )
+    {
+     (*itSt)->setEnabled(enable) ;
+    }
+}

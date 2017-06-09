@@ -104,6 +104,8 @@ private:
     typedef std::map<int, detectorTabWidget*>         stationWMapDef  ; // Associates a stationId  with its detectorTabWidget
     typedef std::map<int, std::map<int, detectorW*> > detectorWMapDef ;
 
+    typedef std::vector<stationGB*>                   stationGBDef    ;
+
     Ui::XMLEditor *ui;
 
     void placeDetector      (xmlDetector * theXmlDetector) ;
@@ -123,6 +125,7 @@ private:
     ROCWidget         * theROCW_       ;
     xmlParser         * theXMLParser_  ;
 
+    stationGBDef        stationGBs_    ;
     detROCWMapDef       detROCsWMap_   ;
     detectorWMapDef     detectorWMap_  ;
     stationWMapDef      stationWMap_   ;
@@ -133,25 +136,30 @@ private:
     std::stringstream ss_ ;
 
 private slots:
-    void on_chooseDatePB_clicked();
-    void on_showHierachyPB_clicked();
-    void on_removeStationPB_clicked();
-    void on_addNewStationPB_clicked();
-    void on_savePB_clicked            (void                        );
-    void toggleStationWidget          (int           id,
-                                       bool          inUse         );
-    void addNewTab                    (ROCWidget   *,
-                                       xmlROC      *,
-                                       QString,
-                                       int,
-                                       double                      );
-    void placeDetectorTab             (xmlDetector * theXmlDetector);
-    void placeROCTab                  (xmlROC      * theXmlROC     );
-    void removeDetectorTab            (int           stationId,
-                                       int           detectorSerial);
-    void removeROCTab                 (int           stationId,
-                                       int           detectorId,
-                                       int           ROCSerial     );
+    void on_chooseDatePB_clicked            (void                          );
+    void on_showHierachyPB_clicked          (void                          );
+    void on_removeStationPB_clicked         (void                          );
+    void on_addNewStationPB_clicked         (void                          );
+    void on_savePB_clicked                  (void                          );
+    void toggleStationWidget                (int             id,
+                                             bool            inUse         );
+    void addNewTab                          (ROCWidget     *              ,
+                                             xmlROC        *              ,
+                                             QString                      ,
+                                             int,
+                                             double                        );
+    void placeDetectorTab                   (xmlDetector   * theXmlDetector);
+    void placeROCTab                        (xmlROC        * theXmlROC     );
+    void removeDetectorTab                  (int             stationId    ,
+                                             int             detectorSerial);
+    void removeROCTab                       (int             stationId,
+                                             int             detectorId   ,
+                                             int             ROCSerial     );
+    void textChanged                        (std::string                  ,
+                                             QString       &               );
+    void on_resetCalibFitFuncPB_clicked     (void                          );
+    void on_enableALLPB_clicked             (void                          );
+    void on_enableAllStationsPB_clicked     (void                          );
 };
 
 #endif // XMLEDITOR_H

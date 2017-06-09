@@ -69,10 +69,18 @@ void ROCWidget::initialize(xmlROC * theROC)
   ROC_ = theROC ;
 
   ss_.str(""); ss_ << ROC_->getDescription() ;
-  ui->rocDescriptionLE->textIsAttribute (true                            ) ;
-  ui->rocDescriptionLE->setText         ("description",ss_.str()         ) ; // Assign value from xml file
-  ui->rocDescriptionLE->assignXmlElement(ROC_->getNode()                 ) ;
-  ui->rocDescriptionLE->setInnerGeometry(ui->rocDescriptionLE->geometry()) ;
+  ui->rocDescriptionLE         ->textIsAttribute (true                                                   ) ;
+  ui->rocDescriptionLE         ->setText         ("description",ss_.str()                                ) ; // Assign value from xml file
+  ui->rocDescriptionLE         ->assignXmlElement(ROC_->getNode()                                        ) ;
+  ui->rocDescriptionLE         ->setInnerGeometry(ui->rocDescriptionLE->geometry()                       ) ;
+  ui->rCalibrationFitFunctionCB->textIsAttribute (true                                                   ) ;
+  ui->rCalibrationFitFunctionCB->assignXmlElement(ROC_->getNode()                                        ) ;
+  ui->rCalibrationFitFunctionCB->addItem         ("tanh"                                                 ) ;
+  ui->rCalibrationFitFunctionCB->addItem         ("linear"                                               ) ;
+  ui->rCalibrationFitFunctionCB->addItem         ("parabolic"                                            ) ;
+  ui->rCalibrationFitFunctionCB->setCurrentIndex ("rCalibrationFitFunction",
+                                                  QString((theROC->getrCalibrationFitFunction()).c_str())) ;
+  ui->rCalibrationFitFunctionCB->setInnerGeometry(ui->rCalibrationFitFunctionCB->geometry()              ) ;
 
   lEditsDef lEdits ;
 

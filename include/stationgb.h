@@ -47,17 +47,16 @@ class stationGB : public QWidget
     Q_OBJECT
 
 public:
-    explicit stationGB (QWidget    * parent = 0);
-            ~stationGB (void                   );
+    explicit stationGB (QWidget    * parent = 0) ;
+            ~stationGB (void                   ) ;
 
     void     initialize(xmlStation * theStation) ;
+    void     setEnabled(bool         enable    ) ;
 
 private:
-    Ui::stationGB     * ui               ;
-
-    xmlStation        * station_         ;
-
-    std::stringstream   ss_              ;
+    Ui::stationGB     * ui       ;
+    xmlStation        * station_ ;
+    std::stringstream   ss_      ;
 
 private slots:
     void on_remDetectorPB_clicked(void                        ) ;

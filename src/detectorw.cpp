@@ -67,60 +67,78 @@ void detectorW::initialize(xmlDetector * theDetector)
           this,                SLOT  (detectorToggled(bool))) ;
 
 
-  ss_.str(""); ss_ << detector_->getDetectorId() ;
-  ui->detectorIdLE->textIsAttribute          (true                                      ) ;
-  ui->detectorIdLE->setText                  ("id",ss_.str()                            ) ; // Assign value from xml file
-  ui->detectorIdLE->setRange                 ("\\d+"                                    ) ;
-  ui->detectorIdLE->assignXmlElement         (theDetector->getNode()                    ) ;
-  ui->detectorIdLE->setInnerGeometry         (ui->detectorIdLE->geometry()              ) ;
-  ui->detectorIdLE->setExclusionList         (theDetector->getAllDetectorsId()          ) ;
-  ui->detectorIdLE->needsReturn              (                                          ) ;
+  ss_.str(""); ss_ << detector_ ->getDetectorId() ;
+  ui->detectorIdLE              ->textIsAttribute (true                                                         ) ;
+  ui->detectorIdLE              ->setText         ("id",ss_.str()                                               ) ; // Assign value from xml file
+  ui->detectorIdLE              ->setRange        ("\\d+"                                                       ) ;
+  ui->detectorIdLE              ->assignXmlElement(theDetector->getNode()                                       ) ;
+  ui->detectorIdLE              ->setInnerGeometry(ui->detectorIdLE->geometry()                                 ) ;
+  ui->detectorIdLE              ->setExclusionList(theDetector->getAllDetectorsId()                             ) ;
+  ui->detectorIdLE              ->needsReturn     (                                                             ) ;
 
-  ss_.str(""); ss_ << detector_->getDescription() ;
-  ui->detectorDescriptionTA->textIsAttribute (true                                      ) ;
-  ui->detectorDescriptionTA->setText         ("description",ss_.str()                   ) ; // Assign value from xml file
-  ui->detectorDescriptionTA->assignXmlElement(detector_->getNode()                      ) ;
-  ui->detectorDescriptionTA->setInnerGeometry(ui->detectorDescriptionTA->geometry()     ) ;
+  ss_.str(""); ss_ << detector_ ->getDescription() ;
+  ui->detectorDescriptionTA     ->textIsAttribute (true                                                         ) ;
+  ui->detectorDescriptionTA     ->setText         ("description",ss_.str()                                      ) ; // Assign value from xml file
+  ui->detectorDescriptionTA     ->assignXmlElement(detector_->getNode()                                         ) ;
+  ui->detectorDescriptionTA     ->setInnerGeometry(ui->detectorDescriptionTA->geometry()                        ) ;
 
-  ui->isDUTCB->assignXmlElement              (theDetector->getNode()                    ) ;
-  ui->isDUTCB->setChecked                    (theDetector->isDUT()                      ) ;
+  ui->isDUTCB                   ->assignXmlElement(theDetector->getNode()                                       ) ;
+  ui->isDUTCB                   ->setChecked      (theDetector->isDUT()                                         ) ;
 
-  ui->detectorInUseCB->setChecked            (theDetector->isEnabled()                  ) ;
-  ui->detectorGeoROCGB->setEnabled           (theDetector->isEnabled()                  ) ;
+  ui->detectorInUseCB           ->setChecked      (theDetector->isEnabled()                                     ) ;
+  ui->detectorGeoROCGB          ->setEnabled      (theDetector->isEnabled()                                     ) ;
 
-  ui->backFlipXCB->textIsAttribute           (false                                     ) ;
-  ui->backFlipXCB->assignXmlElement          (theDetector->getNode()                    ) ;
-  ui->backFlipXCB->addItem(QString           ("yes")                                    ) ;
-  ui->backFlipXCB->addItem(QString           ("no" )                                    ) ;
-  ui->backFlipXCB->setCurrentIndex           ("xBackFlipped",
-                                              detector_->keyValue_["xBackFlipped"]      ) ;
-  ui->backFlipXCB->setInnerGeometry          (ui->backFlipXCB->geometry()               ) ;
+  ui->backFlipXCB               ->textIsAttribute (false                                                        ) ;
+  ui->backFlipXCB               ->assignXmlElement(theDetector->getNode()                                       ) ;
+  ui->backFlipXCB               ->addItem(QString ("yes")                                                       ) ;
+  ui->backFlipXCB               ->addItem(QString ("no" )                                                       ) ;
+  ui->backFlipXCB               ->setCurrentIndex ("xBackFlipped",
+                                                   detector_->keyValue_["xBackFlipped"]                         ) ;
+  ui->backFlipXCB               ->setInnerGeometry(ui->backFlipXCB->geometry()                                  ) ;
 
-  ui->backFlipYCB->textIsAttribute           (false                                     ) ;
-  ui->backFlipYCB->assignXmlElement          (theDetector->getNode()                    ) ;
-  ui->backFlipYCB->addItem(QString           ("yes")                                    ) ;
-  ui->backFlipYCB->addItem(QString           ("no" )                                    ) ;
-  ui->backFlipYCB->setCurrentIndex           ("yBackFlipped",
-                                              detector_->keyValue_["yBackFlipped"]      ) ;
-  ui->backFlipYCB->setInnerGeometry          (ui->backFlipYCB->geometry()               ) ;
+  ui->backFlipYCB               ->textIsAttribute (false                                                        ) ;
+  ui->backFlipYCB               ->assignXmlElement(theDetector->getNode()                                       ) ;
+  ui->backFlipYCB               ->addItem(QString ("yes")                                                       ) ;
+  ui->backFlipYCB               ->addItem(QString ("no" )                                                       ) ;
+  ui->backFlipYCB               ->setCurrentIndex ("yBackFlipped",
+                                                   detector_->keyValue_["yBackFlipped"]                         ) ;
+  ui->backFlipYCB               ->setInnerGeometry(ui->backFlipYCB->geometry()                                  ) ;
 
-  ss_.str(""); ss_ << detector_->keyValue_["xChipsNumber"].toInt() ;
-  ui->xChipsNumberLE->textIsAttribute        (true                                      ) ;
-  ui->xChipsNumberLE->setText                ("xChipsNumber",ss_.str()                  ) ; // Assign value from xml file
-  ui->xChipsNumberLE->assignXmlElement       (theDetector->getROCNode()                 ) ;
-  ui->xChipsNumberLE->setInnerGeometry       (ui->xChipsNumberLE->geometry()            ) ;
+  ss_.str(""); ss_ << detector_ ->keyValue_["xChipsNumber"].toInt() ;
+  ui->xChipsNumberLE            ->textIsAttribute (true                                                         ) ;
+  ui->xChipsNumberLE            ->setText         ("xChipsNumber",ss_.str()                                     ) ; // Assign value from xml fil
+  ui->xChipsNumberLE            ->assignXmlElement(theDetector->getROCNode()                                    ) ;
+  ui->xChipsNumberLE            ->setInnerGeometry(ui->xChipsNumberLE->geometry()                               ) ;
 
-  ss_.str(""); ss_ << detector_->keyValue_["yChipsNumber"].toInt() ;
-  ui->yChipsNumberLE->textIsAttribute        (true                                      ) ;
-  ui->yChipsNumberLE->setText                ("yChipsNumber",ss_.str()                  ) ; // Assign value from xml file
-  ui->yChipsNumberLE->assignXmlElement       (theDetector->getROCNode()                 ) ;
-  ui->yChipsNumberLE->setInnerGeometry       (ui->yChipsNumberLE->geometry()            ) ;
+  ss_.str(""); ss_ << detector_ ->keyValue_["yChipsNumber"].toInt() ;
+  ui->yChipsNumberLE            ->textIsAttribute (true                                                         ) ;
+  ui->yChipsNumberLE            ->setText         ("yChipsNumber",ss_.str()                                     ) ; // Assign value from xml file
+  ui->yChipsNumberLE            ->assignXmlElement(theDetector->getROCNode()                                    ) ;
+  ui->yChipsNumberLE            ->setInnerGeometry(ui->yChipsNumberLE->geometry()                               ) ;
 
-  ui->detectorTypeLE->textIsAttribute        (true                                      ) ;
-  ui->detectorTypeLE->setText                ("name",
-                                              detector_->keyValue_["name"].toStdString()) ;
-  ui->detectorTypeLE->assignXmlElement       (theDetector->getNode()                    ) ;
-  ui->detectorTypeLE->setInnerGeometry       (ui->detectorTypeLE->geometry()            ) ;
+  ui->detectorTypeLE            ->textIsAttribute (true                                                         ) ;
+  ui->detectorTypeLE            ->setText         ("name",
+                                                   detector_->keyValue_["name"].toStdString()                   ) ;
+  ui->detectorTypeLE            ->assignXmlElement(theDetector->getNode()                                       ) ;
+  ui->detectorTypeLE            ->setInnerGeometry(ui->detectorTypeLE->geometry()                               ) ;
+
+  ui->dCalibrationFitFunctionCB ->textIsAttribute (true                                                         ) ;
+  ui->dCalibrationFitFunctionCB ->assignXmlElement(theDetector->getNode()                                       ) ;
+  ui->dCalibrationFitFunctionCB ->addItem         ("tanh"                                                       ) ;
+  ui->dCalibrationFitFunctionCB ->addItem         ("linear"                                                     ) ;
+  ui->dCalibrationFitFunctionCB ->addItem         ("parabolic"                                                  ) ;
+  ui->dCalibrationFitFunctionCB ->setCurrentIndex ("dCalibrationFitFunction",
+                                                   QString((theDetector->getdCalibrationFitFunction()).c_str()) ) ;
+  ui->dCalibrationFitFunctionCB ->setInnerGeometry(ui->dCalibrationFitFunctionCB->geometry()                    ) ;
+
+  ui->raCalibrationFitFunctionCB->textIsAttribute (true                                                         ) ;
+  ui->raCalibrationFitFunctionCB->assignXmlElement(theDetector->getROCNode()                                    ) ;
+  ui->raCalibrationFitFunctionCB->addItem         ("tanh"                                                       ) ;
+  ui->raCalibrationFitFunctionCB->addItem         ("linear"                                                     ) ;
+  ui->raCalibrationFitFunctionCB->addItem         ("parabolic"                                                  ) ;
+  ui->raCalibrationFitFunctionCB->setCurrentIndex ("raCalibrationFitFunction",
+                                                   QString((theDetector->getraCalibrationFitFunction()).c_str())) ;
+  ui->raCalibrationFitFunctionCB->setInnerGeometry(ui->raCalibrationFitFunctionCB->geometry()                   ) ;
 
   lEditsDef lEdits ;
 
