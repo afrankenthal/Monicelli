@@ -284,7 +284,6 @@ void XMLEditor::placeStation(xmlStation * theXmlStation)
     theStationGB_        = new stationGB(detTabFrame) ;
     theDetectorTW_       = new detectorTabWidget(detTabFrame) ;
     stationWMap_[theXmlStation->getStationId()] = theDetectorTW_ ;
-    stationGBs_.push_back(theStationGB_) ;
     theStationGB_ ->initialize(theXmlStation) ;
     theDetectorTW_->setEnabled(theXmlStation->isEnabled());
 
@@ -317,7 +316,9 @@ void XMLEditor::placeStation(xmlStation * theXmlStation)
 
     xmlStation::xmlDetectorsDef detectors = theXmlStation->getXmlDetectors() ;
     for(xmlStation::xmlDetectorsDef::iterator it =detectors.begin(); it!=detectors.end(); it++)
+    {
         this->placeDetector(it->second) ;
+    }
 
     this->reorderDetectorTabs(theXmlStation->getStationId()) ;
 }
@@ -716,12 +717,13 @@ void XMLEditor::on_enableALLPB_clicked()
         STDLINE("Disable ALL",ACRed) ;
         enable = false ;
     }
-    for(stationGBDef::iterator itSt = stationGBs_.begin();
-                               itSt!= stationGBs_.end();
-                             ++itSt )
-    {
-     (*itSt)->setEnabled(enable) ;
-    }
+
+//    for(stationGBDef::iterator itSt =stationUi_.begin(); itSt!=stationUi_.end(); itSt++)
+//    {
+//        itSt->setEnabled(enable) ;
+//        ss_.str(""); ss_ << "Enabling station " << itSt->first ;
+//        STDLINE(ss_.str(),ACGreen) ;
+//    }
     
 }
 
@@ -743,10 +745,6 @@ void XMLEditor::on_enableAllStationsPB_clicked()
         STDLINE("Disabled ALL stations",ACRed) ;
         enable = false ;
     }
-    for(stationGBDef::iterator itSt = stationGBs_.begin();
-                               itSt!= stationGBs_.end();
-                             ++itSt )
-    {
-     (*itSt)->setEnabled(enable) ;
-    }
+//    for(xmlParser::xmlStationsDef::iterator it =stations.begin(); it!=stations.end(); it++)
+//        this->placeStation(it->second) ;
 }

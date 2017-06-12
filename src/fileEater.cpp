@@ -167,12 +167,7 @@ std::string fileEater::openFile(std::string inputFile)
             eventsTreeName   << inputFileName.toStdString() << ".root" << "Events";
             eventsHeaderName << inputFileName.toStdString() << ".root" << "Header";
 
-
-
-            //STDLINE(eventsTreeName.str(),  ACYellow) ;
-
-            //get event root tree
-           inputEventTree_ = (TTree*)inputTreesMap_[inputFile]->Get(eventsTreeName.str().c_str()) ;
+            inputEventTree_ = (TTree*)inputTreesMap_[inputFile]->Get(eventsTreeName.str().c_str()) ;
 
             if ( inputEventTree_ )
             {
@@ -303,6 +298,16 @@ bool fileEater::openGeometryFile(std::string geometryFileName)
         inputTreesMap_.erase(inputTreesMap_.begin());
 
     inputTreesMap_[geometryFileName] = new TFile( geometryFileName.c_str(), "read" );
+
+    if( inputTreesMap_[geometryFileName]->GetErrno() != 0 )
+    {
+        string msg = "File " + geometryFileName + " generates errors: see STDOUT";
+        STDLINE(msg,ACRed) ;
+        return false;
+    }
+
+    ss_.str("") ; ss_ << "Error " << inputTreesMap_[geometryFileName]->GetErrno() << " for file " << geometryFileName ; STDLINE(ss_.str(),ACRed) ;
+
     if( !inputTreesMap_[geometryFileName]->IsOpen() )
     {
         STDLINE(std::string("Could not open file ") + geometryFileName, ACRed) ;

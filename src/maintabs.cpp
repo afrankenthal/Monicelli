@@ -1303,9 +1303,7 @@ void mainTabs::on_abortActionPB_clicked()
 //=============================================================================
 void mainTabs::on_parseFilePB_clicked()
 {
-    theFileEater_->openFile        ( ui->loadedGeometryLE->text().toStdString() );
     theFileEater_->setInputFileName( ui->loadedFileLE    ->text().toStdString() );
-    //theFileEater_->openFile( ui->loadedFileLE->text().toStdString() );
 
     mainWindow_->getGeometryFileName(ui->loadedGeometryLE->text().toStdString());
     mainWindow_->getInputFileName   (ui->loadedFileLE    ->text().toStdString());
@@ -1427,7 +1425,7 @@ bool mainTabs::loadGeometry(QString type)
     if (fileName.isEmpty()) return false  ;
 
     theFileEater_  ->openFile(fileName.toStdString());
-    theGeometry_ = theFileEater_->getGeometry();
+    theGeometry_   = theFileEater_->getGeometry();
     theGeometry_   ->orderPlanes();
     theGeometry_   ->calculatePlaneMCS();
     theTrackFitter_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());

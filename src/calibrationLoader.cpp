@@ -334,58 +334,77 @@ void calibrationLoader::removeCalibrationFiles(std::string fileDirectory)
         path = fileDirectory;
         path += std::string("/") + calibrationFileRadix + ".root";
 
-        parseProgressBar_->setValue(loop) ;
         loop++ ;
+        parseProgressBar_->setValue(loop) ;
 
-        struct stat fileStatus;
-        int returnStatus = stat(path.c_str(), &fileStatus);
-        if( returnStatus == ENOENT )
-        {
-            ss_.str("") ; ss_ << "WARNING: Path to " << path << " does not exist, or path is an empty string." ;
-            STDLINE(ss_.str(),ACRed) ;
-            continue ;
-        }
-        else if( returnStatus == ENOTDIR )
-        {
-            ss_.str("") ; ss_ << "WARNING: A component of the path of " << path << " is not a directory.";
-            STDLINE(ss_.str(),ACRed) ;
-            continue ;
-        }
-        else if( returnStatus == ELOOP )
-        {
-            ss_.str("") ; ss_ << "WARNING: Too many symbolic links encountered while traversing the path to " << path;
-            STDLINE(ss_.str(),ACRed) ;
-            continue ;
-        }
-        else if( returnStatus == EACCES )
-        {
-            ss_.str("") ; ss_ << "WARNING: Permission denied to read " << path;
-            STDLINE(ss_.str(),ACRed) ;
-            continue ;
-        }
-        else if( returnStatus == ENAMETOOLONG )
-        {
-            ss_.str("") ; ss_ << "WARNING: Cannot read " << path;
-            STDLINE(ss_.str(),ACRed) ;
-            continue ;
-        }
-        else if( returnStatus == -1  )
-        {
-            ss_.str("") ; ss_ << "WARNING: Could not find calibration file "
-                    << "'"
-                    << path
-                    << "'!";
-            STDLINE(ss_.str(),ACRed) ;
-            continue ;
-        }
+        if( !this->checkFileStatus(path) ) {continue;}
 
-        ss_.str("") ; ss_ << "mv " << path << " /tmp/." ;
+        std::string me = getenv("USER") ;
+        ss_.str("") ; ss_ << "/tmp/" << me ;
+
+        if( !this->checkFileStatus(ss_.str()) )
+        {
+            STDLINE(string("mkdir ")+ss_.str(),ACPurple) ;
+            if( !system((string("mkdir ")+ss_.str()).c_str()))
+            {
+                STDLINE(string("Failed to mkdir ")+ss_.str(),ACPurple) ;
+                exit(0) ;
+            }
+        }
+        ss_.str("") ; ss_ << "mv " << path << " /tmp/" << me << "/.";
         STDLINE(ss_.str(),ACGreen) ;
         system(ss_.str().c_str()) ;
       }
     }
+    STDLINE("Files have actually been moved to a temporary area",string(ACCyan)+string(ACReverse)) ;
 }
 
+//=========================================================
+bool calibrationLoader::checkFileStatus(std::string path)
+{
+    struct stat fileStatus;
+    int returnStatus = stat(path.c_str(), &fileStatus);
+    if( returnStatus == ENOENT )
+    {
+        ss_.str("") ; ss_ << "WARNING: Path to " << path << " does not exist, or path is an empty string." ;
+        STDLINE(ss_.str(),ACRed) ;
+        return false ;
+    }
+    else if( returnStatus == ENOTDIR )
+    {
+        ss_.str("") ; ss_ << "WARNING: A component of the path of " << path << " is not a directory.";
+        STDLINE(ss_.str(),ACRed) ;
+        return false ;
+    }
+    else if( returnStatus == ELOOP )
+    {
+        ss_.str("") ; ss_ << "WARNING: Too many symbolic links encountered while traversing the path to " << path;
+        STDLINE(ss_.str(),ACRed) ;
+        return false ;
+    }
+    else if( returnStatus == EACCES )
+    {
+        ss_.str("") ; ss_ << "WARNING: Permission denied to read " << path;
+        STDLINE(ss_.str(),ACRed) ;
+        return false ;
+    }
+    else if( returnStatus == ENAMETOOLONG )
+    {
+        ss_.str("") ; ss_ << "WARNING: Cannot read " << path;
+        STDLINE(ss_.str(),ACRed) ;
+        return false ;
+    }
+    else if( returnStatus == -1  )
+    {
+        ss_.str("") ; ss_ << "WARNING: Could not find calibration file "
+                          << "'"
+                          << path
+                          << "'!";
+        STDLINE(ss_.str(),ACRed) ;
+        return false ;
+    }
+    return true ;
+}
 //=========================================================
 void calibrationLoader::restoreCalibrationFiles(std::string fileDirectory)
 {
@@ -421,59 +440,31 @@ void calibrationLoader::restoreCalibrationFiles(std::string fileDirectory)
           STDLINE(std::string("WARNING: Can't match the regular expression very likely because there is a strange character like - or + in the file name: ") + roc->second->getCalibrationFilePath() + ". You need to change the file name because I won't save it or load it!", ACRed);
           continue;
         }
-        path = std::string("/tmp/") + calibrationFileRadix + ".root";
+        std::string me = getenv("USER") ;
+        path = std::string("/tmp/") +
+               me                   +
+               "/"                  +
+               calibrationFileRadix +
+               ".root";
 
-        parseProgressBar_->setValue(loop) ;
         loop++ ;
+        parseProgressBar_->setValue(loop) ;
 
-        struct stat fileStatus;
-        int returnStatus = stat(path.c_str(), &fileStatus);
-        if( returnStatus == ENOENT )
-        {
-            ss_.str("") ; ss_ << "WARNING: Path to " << path << " does not exist, or path is an empty string." ;
-            STDLINE(ss_.str(),ACRed) ;
-            continue ;
-        }
-        else if( returnStatus == ENOTDIR )
-        {
-            ss_.str("") ; ss_ << "WARNING: A component of the path of " << path << " is not a directory.";
-            STDLINE(ss_.str(),ACRed) ;
-            continue ;
-        }
-        else if( returnStatus == ELOOP )
-        {
-            ss_.str("") ; ss_ << "WARNING: Too many symbolic links encountered while traversing the path to " << path;
-            STDLINE(ss_.str(),ACRed) ;
-            continue ;
-        }
-        else if( returnStatus == EACCES )
-        {
-            ss_.str("") ; ss_ << "WARNING: Permission denied to read " << path;
-            STDLINE(ss_.str(),ACRed) ;
-            continue ;
-        }
-        else if( returnStatus == ENAMETOOLONG )
-        {
-            ss_.str("") ; ss_ << "WARNING: Cannot read " << path;
-            STDLINE(ss_.str(),ACRed) ;
-            continue ;
-        }
-        else if( returnStatus == -1  )
-        {
-            ss_.str("") ; ss_ << "WARNING: Could not find calibration file "
-                    << "'"
-                    << path
-                    << "'!";
-            STDLINE(ss_.str(),ACRed) ;
-            continue ;
-        }
+        if( !this->checkFileStatus(path) ) {continue;}
 
-        ss_.str("") ; ss_ << "mv /tmp/" << calibrationFileRadix << ".root " << fileDirectory << "/." ;
+        ss_.str("") ; ss_ << "mv /tmp/"
+                          << me
+                          << "/"
+                          << calibrationFileRadix
+                          << ".root "
+                          << fileDirectory
+                          << "/." ;
         STDLINE(ss_.str(),ACGreen) ;
 
         system(ss_.str().c_str()) ;
       }
     }
+    STDLINE("Calibration files have been restored.",string(ACCyan)+string(ACReverse)) ;
 }
 
 //=========================================================
@@ -490,7 +481,7 @@ void  calibrationLoader::saveROOTcalibrationFiles(std::string fileDirectory)
   Geometry * theGeometry = theFileEater_->getGeometry();
   std::string path = "";
   
-  int totalLoops = 1 ;
+  int totalLoops = 0 ;
   for(Geometry::iterator det=theGeometry->begin(); det!=theGeometry->end(); det++)
   {
     for(Detector::iterator roc=det->second->begin(); roc!=det->second->end(); roc++ )
@@ -530,8 +521,8 @@ void  calibrationLoader::saveROOTcalibrationFiles(std::string fileDirectory)
       {
         STDLINE(std::string("Saving calibrations to " + path), ACGreen);
       }
-      parseProgressBar_->setValue(loop) ;
       loop++ ;
+      parseProgressBar_->setValue(loop) ;
       // Open TFile
       TFile * outputTFile = TFile::Open(path.c_str(), "RECREATE");
 
@@ -993,7 +984,7 @@ bool calibrationLoader::makeHistograms(std::string detector, ROC *roc, bool fit,
           alreadyFit = true ;
       }
       if( alreadyFit ) continue ;
-      STDLINE(ss_.str(),ACYellow) ;
+//      STDLINE(ss_.str(),ACYellow) ;
       for (calibrationLoader::aPixelDataMapDef::iterator it2 =(*c).second.begin();
                                                          it2!=(*c).second.end();
                                                        ++it2)

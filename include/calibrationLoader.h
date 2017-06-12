@@ -124,6 +124,7 @@ class calibrationLoader : public process
     std::string   getLabel                 (void                                         );
     int           getMaxIterations         (void                                         );
     std::string   getName                  (void                                         ){return "calibrationLoader";}
+    bool          checkFileStatus          (std::string   path                           );
 
 private :
 

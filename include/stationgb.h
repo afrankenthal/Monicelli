@@ -38,7 +38,8 @@
 
 class xmlStation ;
 
-namespace Ui {
+namespace Ui
+{
     class stationGB;
 }
 
@@ -47,11 +48,12 @@ class stationGB : public QWidget
     Q_OBJECT
 
 public:
-    explicit stationGB (QWidget    * parent = 0) ;
-            ~stationGB (void                   ) ;
+    explicit        stationGB (QWidget    * parent = 0) ;
+                   ~stationGB (void                   ) ;
 
-    void     initialize(xmlStation * theStation) ;
-    void     setEnabled(bool         enable    ) ;
+    void            initialize(xmlStation * theStation) ;
+    void            setEnabled(bool         enable    ) ;
+    Ui::stationGB * getUi     (void                   ) {return ui;}
 
 private:
     Ui::stationGB     * ui       ;

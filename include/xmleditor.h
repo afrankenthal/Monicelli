@@ -46,7 +46,8 @@
 #include <QWidget>
 #include <QString>
 
-namespace Ui {
+namespace Ui
+{
     class XMLEditor;
 }
 
@@ -104,7 +105,7 @@ private:
     typedef std::map<int, detectorTabWidget*>         stationWMapDef  ; // Associates a stationId  with its detectorTabWidget
     typedef std::map<int, std::map<int, detectorW*> > detectorWMapDef ;
 
-    typedef std::vector<stationGB*>                   stationGBDef    ;
+    typedef std::map<int, stationGB*>                 stationGBDef    ;
 
     Ui::XMLEditor *ui;
 
@@ -117,23 +118,23 @@ private:
     bool stationInUse       (int           station       ) ;
     bool loadGeometryFile   (void                        ) ;
 
-    stationGB         * theStationGB_  ;
-    detectorTabWidget * theDetectorTW_ ;
-    detectorW         * theDetectorW_  ;
-    stationTabWidget  * theStationTW_  ;
-    ROCTabWidget      * theROCTW_      ;
-    ROCWidget         * theROCW_       ;
-    xmlParser         * theXMLParser_  ;
+    stationGB                     * theStationGB_  ;
+    detectorTabWidget             * theDetectorTW_ ;
+    detectorW                     * theDetectorW_  ;
+    stationTabWidget              * theStationTW_  ;
+    ROCTabWidget                  * theROCTW_      ;
+    ROCWidget                     * theROCW_       ;
+    xmlParser                     * theXMLParser_  ;
 
-    stationGBDef        stationGBs_    ;
-    detROCWMapDef       detROCsWMap_   ;
-    detectorWMapDef     detectorWMap_  ;
-    stationWMapDef      stationWMap_   ;
+    detROCWMapDef                   detROCsWMap_   ;
+    detectorWMapDef                 detectorWMap_  ;
+    stationWMapDef                  stationWMap_   ;
 
-    bool isActive_        ;
-    bool alreadyLaidOut_  ;
+    stationGBDef                    stationUi_     ;
+    bool                            isActive_      ;
+    bool                            alreadyLaidOut_;
 
-    std::stringstream ss_ ;
+    std::stringstream               ss_            ;
 
 private slots:
     void on_chooseDatePB_clicked            (void                          );
