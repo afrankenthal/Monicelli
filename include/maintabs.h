@@ -34,47 +34,44 @@
 #include <math.h>
 
 #include <TLegend.h>
-#include <QProgressBar>
-#include <QListWidgetItem>
-#include <QStatusBar>
-#include <QTimer>
-#include <QWidget>
-#include "qrootcanvas.h"  // ToROOT6
-#include "TBenchmark.h"
+#include <TBenchmark.h>
 #include <TCanvas.h>
 #include <TH2I.h>
 #include <TStyle.h>
 
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/regex.hpp>
 
 #include <QButtonGroup>
 #include <QFileDialog>
+#include <QFutureWatcher>
+#include <QListWidgetItem>
 #include <QImage>
+#include <QProgressBar>
 #include <QScrollArea>
+#include <QStatusBar>
 #include <QString>
 #include <QTableWidget>
+#include <QTimer>
+#include <QVBoxLayout>
+#include <QWidget>
 
 #include <qtconcurrentrun.h>
-#include <QFutureWatcher>
-
-#include <QVBoxLayout>
-#include <boost/filesystem/operations.hpp>
 
 #include "aligner.h"
 #include "beamSimulator.h"
-#include "trackFinder.h"
 #include "calibrationLoader.h"
 #include "clusterizer.h"
-#include "mainwindow.h"
-#include "xmleditor.h"
-#include "threader.h"
-#include "GeometryParameters.h"
 #include "customTableView.h"
+#include "GeometryParameters.h"
+#include "mainwindow.h"
+#include "threader.h"
+#include "trackFinder.h"
+#include "xmleditor.h"
 #include "qrootcanvas.h" // ToROOT6
 
-//class trackFitter;
 class MainWindow ;
 class HNavigator ;
 //class TQtWidget  ; // ToROOT6
@@ -90,6 +87,7 @@ class mainTabs : public QWidget
 
 public:
     typedef void (mainTabs::*threadEnd_Function)(HManager::stringVDef );
+    typedef std::map<std::string,GeometryParameters*> geometryParametersDef ;
 
     explicit       mainTabs                 (MainWindow           * mainWindow = 0 );
                   ~mainTabs                 (void                                  );
@@ -140,121 +138,121 @@ private:
 
     std::string getPlaneID (int station, int plaquette);
 
-    Ui::mainTabs                * ui                     ;
-    MainWindow                  * mainWindow_            ;
+    Ui::mainTabs                 * ui                                           ;
+    MainWindow                   * mainWindow_                                  ;
 
-    fileEater::fileVDef           inputFiles_            ;
-    calibrationLoader           * theCalibrationLoader_  ;
-    std::vector<int>              selectedEvents_        ;
-    aligner                     * theAligner_            ;
-    beamSimulator               * theBeamSimulator_      ;
-    clusterizer                 * theClusterizer_        ;
-    fileEater                   * theFileEater_          ;
-    fitter                      * theFitter_             ;
-    Geometry                    * theGeometry_           ;
-    HManager                    * theHManager_           ;
-    HNavigator                  * theHNavigator_         ;
-    trackFinder                 * theTrackFinder_        ;
-    trackFitter                 * theTrackFitter_        ;
-    threader                    * theThreader_           ;
-    long                          SELF_ID                ;
-    std::stringstream             ss_                    ;
-    QTimer                      * timer2_                ;
-    QString                       path_                  ;
-    std::string                   plaqSelected_          ;
-    QStatusBar                  * statusBar_             ;
-    std::map<std::string,TH2I*>   vetH_                  ;
-    std::map<int, QRootCanvas*>   theClusterCanvas_      ; // ToROOT6
-    HManager::stringVDef          residualsType_         ;
-    bool                          redoChi2_              ;
-    std::map<std::string,GeometryParameters*> geometryParameters_ ;
-    int                           geometryDisplayShrinkFix_       ;
-    std::map< int,std::string>    folderMap_;
-    std::map< int,QTableWidget*>  tableMap_;
+    fileEater::fileVDef            inputFiles_                                  ;
+    calibrationLoader            * theCalibrationLoader_                        ;
+    std::vector<int>               selectedEvents_                              ;
+    aligner                      * theAligner_                                  ;
+    beamSimulator                * theBeamSimulator_                            ;
+    clusterizer                  * theClusterizer_                              ;
+    fileEater                    * theFileEater_                                ;
+    fitter                       * theFitter_                                   ;
+    Geometry                     * theGeometry_                                 ;
+    HManager                     * theHManager_                                 ;
+    HNavigator                   * theHNavigator_                               ;
+    trackFinder                  * theTrackFinder_                              ;
+    trackFitter                  * theTrackFitter_                              ;
+    threader                     * theThreader_                                 ;
+    long                           SELF_ID                                      ;
+    std::stringstream              ss_                                          ;
+    QTimer                       * timer2_                                      ;
+    QString                        path_                                        ;
+    std::string                    plaqSelected_                                ;
+    QStatusBar                   * statusBar_                                   ;
+    std::map<std::string,TH2I*>    vetH_                                        ;
+    std::map<int, QRootCanvas*>    theClusterCanvas_                            ; // ToROOT6
+    HManager::stringVDef           residualsType_                               ;
+    bool                           redoChi2_                                    ;
+    geometryParametersDef          geometryParameters_                          ;
+    int                            geometryDisplayShrinkFix_                    ;
+    std::map< int,std::string>     folderMap_;
+    std::map< int,QTableWidget*>   tableMap_;
 
-    TBenchmark     * theBenchmark_                                ;
+    TBenchmark                   * theBenchmark_                                ;
 
-    std::string      theThreadProcess_                            ;
+    std::string                    theThreadProcess_                            ;
 
-    QRootCanvas    * beamSpot2DCanvas_                            ; // ToROOT6
-    QRootCanvas    * beamSpotProjXCanvas_                         ; // ToROOT6
-    QRootCanvas    * beamSpotProjYCanvas_                         ; // ToROOT6
-    QRootCanvas    * chargeADCCanvas_                             ; // ToROOT6
-    QRootCanvas    * chargeElectronsCanvas_                       ; // ToROOT6
-    QRootCanvas    * clustersCanvas_                              ; // ToROOT6
-    QRootCanvas    * dutAlignmentPullsCanvasLeft_                 ; // ToROOT6
-    QRootCanvas    * dutAlignmentPullsCanvasRight_                ; // ToROOT6
-    QRootCanvas    * dutAlignmentPullsSize1CanvasLeft_            ; // ToROOT6
-    QRootCanvas    * dutAlignmentPullsSize1CanvasRight_           ; // ToROOT6
-    QRootCanvas    * dutAlignmentPullsSize2CanvasLeft_            ; // ToROOT6
-    QRootCanvas    * dutAlignmentPullsSize2CanvasRight_           ; // ToROOT6
-    QRootCanvas    * dutAlignmentResidualsCanvasLeft_             ; // ToROOT6
-    QRootCanvas    * dutAlignmentResidualsCanvasRight_            ; // ToROOT6
-    QRootCanvas    * dutAlignmentResidualsSize1CanvasLeft_        ; // ToROOT6
-    QRootCanvas    * dutAlignmentResidualsSize1CanvasRight_       ; // ToROOT6
-    QRootCanvas    * dutAlignmentResidualsSize2CanvasLeft_        ; // ToROOT6
-    QRootCanvas    * dutAlignmentResidualsSize2CanvasRight_       ; // ToROOT6
-    QRootCanvas    * dutAlignmentResXYvsXYCanvasLeft_             ; // ToROOT6
-    QRootCanvas    * dutAlignmentResXYvsXYCanvasRight_            ; // ToROOT6
-    QRootCanvas    * dutAlignmentResXYvsXYSize1CanvasLeft_        ; // ToROOT6
-    QRootCanvas    * dutAlignmentResXYvsXYSize1CanvasRight_       ; // ToROOT6
-    QRootCanvas    * dutAlignmentResXYvsXYSize2CanvasLeft_        ; // ToROOT6
-    QRootCanvas    * dutAlignmentResXYvsXYSize2CanvasRight_       ; // ToROOT6
-    QRootCanvas    * dutAlignmentResXYvsYXCanvasLeft_             ; // ToROOT6
-    QRootCanvas    * dutAlignmentResXYvsYXCanvasRight_            ; // ToROOT6
-    QRootCanvas    * dutAlignmentResXYvsYXSize1CanvasLeft_        ; // ToROOT6
-    QRootCanvas    * dutAlignmentResXYvsYXSize1CanvasRight_       ; // ToROOT6
-    QRootCanvas    * dutAlignmentResXYvsYXSize2CanvasLeft_        ; // ToROOT6
-    QRootCanvas    * dutAlignmentResXYvsYXSize2CanvasRight_       ; // ToROOT6
-    QRootCanvas    * eventDisplayLeftCanvas_                      ; // ToROOT6
-    QRootCanvas    * eventDisplayRightCanvas_                     ; // ToROOT6
-    QRootCanvas    * fineAlignmentPullsCanvasLeft_                ; // ToROOT6
-    QRootCanvas    * fineAlignmentPullsCanvasRight_               ; // ToROOT6
-    QRootCanvas    * fineAlignmentPullsSize1CanvasLeft_           ; // ToROOT6
-    QRootCanvas    * fineAlignmentPullsSize1CanvasRight_          ; // ToROOT6
-    QRootCanvas    * fineAlignmentPullsSize2CanvasLeft_           ; // ToROOT6
-    QRootCanvas    * fineAlignmentPullsSize2CanvasRight_          ; // ToROOT6
-    QRootCanvas    * fineAlignmentResidualsCanvasLeft_            ; // ToROOT6
-    QRootCanvas    * fineAlignmentResidualsCanvasRight_           ; // ToROOT6
-    QRootCanvas    * fineAlignmentResidualsSize1CanvasLeft_       ; // ToROOT6
-    QRootCanvas    * fineAlignmentResidualsSize1CanvasRight_      ; // ToROOT6
-    QRootCanvas    * fineAlignmentResidualsSize2CanvasLeft_       ; // ToROOT6
-    QRootCanvas    * fineAlignmentResidualsSize2CanvasRight_      ; // ToROOT6
-    QRootCanvas    * fineAlignmentResXYvsXYCanvasLeft_            ; // ToROOT6
-    QRootCanvas    * fineAlignmentResXYvsXYCanvasRight_           ; // ToROOT6
-    QRootCanvas    * fineAlignmentResXYvsXYSize1CanvasLeft_       ; // ToROOT6
-    QRootCanvas    * fineAlignmentResXYvsXYSize1CanvasRight_      ; // ToROOT6
-    QRootCanvas    * fineAlignmentResXYvsXYSize2CanvasLeft_       ; // ToROOT6
-    QRootCanvas    * fineAlignmentResXYvsXYSize2CanvasRight_      ; // ToROOT6
-    QRootCanvas    * fineAlignmentResXYvsYXCanvasLeft_            ; // ToROOT6
-    QRootCanvas    * fineAlignmentResXYvsYXCanvasRight_           ; // ToROOT6
-    QRootCanvas    * fineAlignmentResXYvsYXSize1CanvasLeft_       ; // ToROOT6
-    QRootCanvas    * fineAlignmentResXYvsYXSize1CanvasRight_      ; // ToROOT6
-    QRootCanvas    * fineAlignmentResXYvsYXSize2CanvasLeft_       ; // ToROOT6
-    QRootCanvas    * fineAlignmentResXYvsYXSize2CanvasRight_      ; // ToROOT6
-    QRootCanvas    * loadCalibrationMainCanvas_                   ; // ToROOT6
-    QRootCanvas    * mainTabsExpertCanvas_                        ; // ToROOT6
-    QRootCanvas    * rawAlignmentLeftCanvas_                      ; // ToROOT6
-    QRootCanvas    * rawAlignmentRightCanvas_                     ; // ToROOT6
-    QRootCanvas    * rawAlignmentSynpoticLeftCanvas_              ; // ToROOT6
-    QRootCanvas    * rawAlignmentSynpoticRightCanvas_             ; // ToROOT6
-    QRootCanvas    * residuals2DResidualsVsCoordinateLeftCanvas_  ; // ToROOT6
-    QRootCanvas    * residuals2DResidualsVsCoordinateRightCanvas_ ; // ToROOT6
-    QRootCanvas    * residualsManualFitLeftCanvas_                ; // ToROOT6
-    QRootCanvas    * residualsManualFitRightCanvas_               ; // ToROOT6
-    QRootCanvas    * residualsPullsLeftCanvas_                    ; // ToROOT6
-    QRootCanvas    * residualsPullsRightCanvas_                   ; // ToROOT6
-    QRootCanvas    * residualsResidualsVsCoordinateLeftCanvas_    ; // ToROOT6
-    QRootCanvas    * residualsResidualsVsCoordinateRightCanvas_   ; // ToROOT6
-    QRootCanvas    * residualsSynopticViewLeftCanvas_             ; // ToROOT6
-    QRootCanvas    * residualsSynopticViewRightCanvas_            ; // ToROOT6
-    QRootCanvas    * setLimitsOnResidualsvsCoordinateCanvas_      ; //ToROOT6
-    QRootCanvas    * trackFinderLeftCanvas_                       ; // ToROOT6
-    QRootCanvas    * trackFinderRightCanvas_                      ; // ToROOT6
+    QRootCanvas                  * beamSpot2DCanvas_                            ; // ToROOT6
+    QRootCanvas                  * beamSpotProjXCanvas_                         ; // ToROOT6
+    QRootCanvas                  * beamSpotProjYCanvas_                         ; // ToROOT6
+    QRootCanvas                  * chargeADCCanvas_                             ; // ToROOT6
+    QRootCanvas                  * chargeElectronsCanvas_                       ; // ToROOT6
+    QRootCanvas                  * clustersCanvas_                              ; // ToROOT6
+    QRootCanvas                  * dutAlignmentPullsCanvasLeft_                 ; // ToROOT6
+    QRootCanvas                  * dutAlignmentPullsCanvasRight_                ; // ToROOT6
+    QRootCanvas                  * dutAlignmentPullsSize1CanvasLeft_            ; // ToROOT6
+    QRootCanvas                  * dutAlignmentPullsSize1CanvasRight_           ; // ToROOT6
+    QRootCanvas                  * dutAlignmentPullsSize2CanvasLeft_            ; // ToROOT6
+    QRootCanvas                  * dutAlignmentPullsSize2CanvasRight_           ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResidualsCanvasLeft_             ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResidualsCanvasRight_            ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResidualsSize1CanvasLeft_        ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResidualsSize1CanvasRight_       ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResidualsSize2CanvasLeft_        ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResidualsSize2CanvasRight_       ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResXYvsXYCanvasLeft_             ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResXYvsXYCanvasRight_            ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResXYvsXYSize1CanvasLeft_        ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResXYvsXYSize1CanvasRight_       ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResXYvsXYSize2CanvasLeft_        ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResXYvsXYSize2CanvasRight_       ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResXYvsYXCanvasLeft_             ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResXYvsYXCanvasRight_            ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResXYvsYXSize1CanvasLeft_        ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResXYvsYXSize1CanvasRight_       ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResXYvsYXSize2CanvasLeft_        ; // ToROOT6
+    QRootCanvas                  * dutAlignmentResXYvsYXSize2CanvasRight_       ; // ToROOT6
+    QRootCanvas                  * eventDisplayLeftCanvas_                      ; // ToROOT6
+    QRootCanvas                  * eventDisplayRightCanvas_                     ; // ToROOT6
+    QRootCanvas                  * fineAlignmentPullsCanvasLeft_                ; // ToROOT6
+    QRootCanvas                  * fineAlignmentPullsCanvasRight_               ; // ToROOT6
+    QRootCanvas                  * fineAlignmentPullsSize1CanvasLeft_           ; // ToROOT6
+    QRootCanvas                  * fineAlignmentPullsSize1CanvasRight_          ; // ToROOT6
+    QRootCanvas                  * fineAlignmentPullsSize2CanvasLeft_           ; // ToROOT6
+    QRootCanvas                  * fineAlignmentPullsSize2CanvasRight_          ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResidualsCanvasLeft_            ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResidualsCanvasRight_           ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResidualsSize1CanvasLeft_       ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResidualsSize1CanvasRight_      ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResidualsSize2CanvasLeft_       ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResidualsSize2CanvasRight_      ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResXYvsXYCanvasLeft_            ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResXYvsXYCanvasRight_           ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResXYvsXYSize1CanvasLeft_       ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResXYvsXYSize1CanvasRight_      ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResXYvsXYSize2CanvasLeft_       ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResXYvsXYSize2CanvasRight_      ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResXYvsYXCanvasLeft_            ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResXYvsYXCanvasRight_           ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResXYvsYXSize1CanvasLeft_       ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResXYvsYXSize1CanvasRight_      ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResXYvsYXSize2CanvasLeft_       ; // ToROOT6
+    QRootCanvas                  * fineAlignmentResXYvsYXSize2CanvasRight_      ; // ToROOT6
+    QRootCanvas                  * loadCalibrationMainCanvas_                   ; // ToROOT6
+    QRootCanvas                  * mainTabsExpertCanvas_                        ; // ToROOT6
+    QRootCanvas                  * rawAlignmentLeftCanvas_                      ; // ToROOT6
+    QRootCanvas                  * rawAlignmentRightCanvas_                     ; // ToROOT6
+    QRootCanvas                  * rawAlignmentSynpoticLeftCanvas_              ; // ToROOT6
+    QRootCanvas                  * rawAlignmentSynpoticRightCanvas_             ; // ToROOT6
+    QRootCanvas                  * residuals2DResidualsVsCoordinateLeftCanvas_  ; // ToROOT6
+    QRootCanvas                  * residuals2DResidualsVsCoordinateRightCanvas_ ; // ToROOT6
+    QRootCanvas                  * residualsManualFitLeftCanvas_                ; // ToROOT6
+    QRootCanvas                  * residualsManualFitRightCanvas_               ; // ToROOT6
+    QRootCanvas                  * residualsPullsLeftCanvas_                    ; // ToROOT6
+    QRootCanvas                  * residualsPullsRightCanvas_                   ; // ToROOT6
+    QRootCanvas                  * residualsResidualsVsCoordinateLeftCanvas_    ; // ToROOT6
+    QRootCanvas                  * residualsResidualsVsCoordinateRightCanvas_   ; // ToROOT6
+    QRootCanvas                  * residualsSynopticViewLeftCanvas_             ; // ToROOT6
+    QRootCanvas                  * residualsSynopticViewRightCanvas_            ; // ToROOT6
+    QRootCanvas                  * setLimitsOnResidualsvsCoordinateCanvas_      ; // ToROOT6
+    QRootCanvas                  * trackFinderLeftCanvas_                       ; // ToROOT6
+    QRootCanvas                  * trackFinderRightCanvas_                      ; // ToROOT6
 
 signals:
-    void processFinished (threadEnd_Function function   ,
-                          HManager::stringVDef histoType   );
+    void processFinished                                          (threadEnd_Function function   ,
+                                                                   HManager::stringVDef histoType               );
 
 private slots:
     void on_trackFindAndFitPB_clicked                             (void                                         );

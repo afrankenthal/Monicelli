@@ -55,10 +55,11 @@ XMLEditor::XMLEditor(QWidget *parent) : QWidget(parent), ui(new Ui::XMLEditor)
     ui->setupUi(this);
 
     this->setGeometry(
-                      this->geometry().x(),
-                      this->geometry().y(),
-                      ui->stationsGB->geometry().width ()+ 10,
-                      ui->stationsGB->geometry().height()+250
+                      this                    ->geometry().x()           ,
+                      this                    ->geometry().y()           ,
+                      ui  ->stationsGB        ->geometry().width () + 10 ,
+                      ui  ->geometryControlsGB->geometry().height()      +
+                      ui  ->stationsGB        ->geometry().height() + 75
                      ) ;
 
     QMessageBox msgBox(
@@ -129,7 +130,7 @@ XMLEditor::XMLEditor(QString fileName) : ui(new Ui::XMLEditor)
     this->setGeometry(this->geometry().x(),
                       this->geometry().y(),
                       ui->stationsGB->geometry().width ()+ 10,
-                      ui->stationsGB->geometry().height()+250) ;
+                      ui->stationsGB->geometry().height()+ 20) ;
 
     STDLINE(fileName.toStdString(),ACRed);
     QFile file(fileName) ;
@@ -237,6 +238,7 @@ void XMLEditor::layout()
     xmlParser::xmlStationsDef stations = theXMLParser_->getXmlStations() ;
     for(xmlParser::xmlStationsDef::iterator it =stations.begin(); it!=stations.end(); it++)
         this->placeStation(it->second) ;
+    theStationTW_->setCurrentIndex(0);
 }
 
 //===========================================================================
@@ -250,8 +252,9 @@ void XMLEditor::reorderStationTabs()
 
         theStationTW_->getTabBar()->moveTab(tab,tabPosition) ;
         //    ss_.str(""); ss_<<"Moved tab from " << tab << " to "<<tabPosition; STDLINE(ss_.str(),ACWhite) ;
-        theStationTW_->setCurrentIndex(tabPosition) ;
+//        theStationTW_->setCurrentIndex(tabPosition) ;
     }
+    theStationTW_->setCurrentIndex(0) ;
 }
 
 //===========================================================================
@@ -311,8 +314,9 @@ void XMLEditor::placeStation(xmlStation * theXmlStation)
     // Add a tab for this station
     ss_.str(""); ss_ << "Station " << theXmlStation->getStationSerial() ;
     theStationTW_->addTab((QWidget*)detTabFrame,QString(ss_.str().c_str())) ;
-    theStationTW_->setCurrentIndex(theStationTW_->count()-1);
+//    theStationTW_->setCurrentIndex(theStationTW_->count()-1);
     theStationTW_->setNode(theXmlStation->getStationSerial(), theXmlStation->getNode());
+//    theStationTW_->setCurrentIndex(1);
 
     xmlStation::xmlDetectorsDef detectors = theXmlStation->getXmlDetectors() ;
     for(xmlStation::xmlDetectorsDef::iterator it =detectors.begin(); it!=detectors.end(); it++)
@@ -321,6 +325,8 @@ void XMLEditor::placeStation(xmlStation * theXmlStation)
     }
 
     this->reorderDetectorTabs(theXmlStation->getStationId()) ;
+    theStationTW_ ->setCurrentIndex(0);
+    theDetectorTW_->setCurrentIndex(0);
 }
 
 //===========================================================================
@@ -338,8 +344,10 @@ void XMLEditor::placeDetector(xmlDetector * theXmlDetector)
 
     ss_.str(""); ss_ << "Detector "
                      <<  theXmlDetector->getDetectorSerial() ;
-    stationWMap_[theXmlDetector->getStationId()]->addTab(detectorFrame,QString(ss_.str().c_str())) ;
-    stationWMap_[theXmlDetector->getStationId()]->setCurrentIndex(stationWMap_.size()-1) ;
+    stationWMap_[theXmlDetector->getStationId()]->addTab         (detectorFrame,
+                                                                  QString(ss_.str().c_str())) ;
+    stationWMap_[theXmlDetector->getStationId()]->setCurrentIndex(stationWMap_.size()-1     ) ;
+    stationWMap_[theXmlDetector->getStationId()]->setCurrentIndex(1                         ) ;
     ss_.str("") ;
     ss_ << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
            "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
