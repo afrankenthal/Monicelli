@@ -1,0 +1,130 @@
+<?xml encoding="ISO-8859-1"?>
+
+<!-- Author  : D. Menasce, S. Terzo -->
+<!-- @version: 1.0                  -->
+<!-- 
+ stations         gCalibrationFitFunction  (ALL  stations)                  gDUTFitFunction (ALL DUTs)
+  station 0       sCalibrationFitFunction  (THIS station )                  
+   detectors      daCalibrationFitFunction (ALL  detectors of THIS station) 
+    detector 0    dCalibrationFitFunction  (THIS detector)                  
+     ROCs         raCalibrationFitFunction (ALL  ROCs      of THIS detector) 
+      ROC 0       rCalibrationFitFunction  (THIS ROCs    ) 
+       ...
+      ROC 0
+      ROC 1
+       ...
+      ROC 1
+      ...
+     ROCs
+    detector 0
+    detector 1
+     ...
+    detector 1
+   detectors
+  station 0
+  station 1
+   ...
+  station 1
+  ...
+ stations
+-->
+
+<!ELEMENT testBeamGeometry                         (stations                                       )                   >
+<!ATTLIST testBeamGeometry                          run                                                CDATA #REQUIRED  
+                                                    description                                        CDATA #IMPLIED
+                                                    date                                               CDATA #IMPLIED  >
+  <!ELEMENT stations                               (station+                                       )                   >
+  <!ATTLIST stations                                inUse                                              CDATA #REQUIRED 
+                                                    gCalibrationFitFunction  (linear|parabolic|tanh)  "tanh"  
+                                                    gDUTFitFunction          (linear|parabolic|tanh)  "parabolic"      >
+    <!ELEMENT station                              (detectors                                      )                   >
+    <!ATTLIST station                               id                                                 CDATA #REQUIRED 
+                                                    serial                                             CDATA #IMPLIED
+                                                    used                                               CDATA #REQUIRED 
+                                                    description                                        CDATA #IMPLIED  
+                                                    sCalibrationFitFunction  (linear|parabolic|tanh)  "tanh"           >
+      <!ELEMENT detectors                          (detector+                                      )                   >
+      <!ATTLIST detectors                           inUse                                              CDATA #REQUIRED 
+                                                    daCalibrationFitFunction (linear|parabolic|tanh)  "tanh"           >
+        <!ELEMENT detector                         (largeGranularity        ,                      
+                                                    fineGranularity?        ,                       
+                                                    ROCs                                           )                   >
+        <!ATTLIST detector                          id                                                 CDATA #REQUIRED
+                                                    serial                                             CDATA #IMPLIED
+                                                    name                                               CDATA #IMPLIED
+						    isDUT                                              CDATA #IMPLIED
+                                                    used                                               CDATA #REQUIRED 
+                                                    description                                        CDATA #IMPLIED  
+                                                    dCalibrationFitFunction  (linear|parabolic|tanh)  "tanh"           >
+          <!ELEMENT largeGranularity               (xBackFlipped            ,                       
+                                                    yBackFlipped            ,
+                                                    xPosition               ,
+                                                    yPosition               ,
+                                                    zPosition               ,
+                                                    xRotation               ,
+                                                    yRotation               ,
+                                                    zRotation                                      )                   >
+          <!ATTLIST largeGranularity                relativeRotations                                  CDATA #REQUIRED >
+            <!ELEMENT xBackFlipped                 (#PCDATA                                        )*                  >
+            <!ELEMENT yBackFlipped                 (#PCDATA                                        )*                  >
+            <!ELEMENT xPosition                    (#PCDATA                                        )*                  >
+            <!ELEMENT yPosition                    (#PCDATA                                        )*                  >
+            <!ELEMENT zPosition                    (#PCDATA                                        )*                  >
+            <!ELEMENT xRotation                    (#PCDATA                                        )*                  >
+            <!ELEMENT yRotation                    (#PCDATA                                        )*                  >
+            <!ELEMENT zRotation                    (#PCDATA                                        )*                  >
+          <!ELEMENT fineGranularity                (xPosCorrection          ,
+                                                    xPositionError          ,
+                                                    yPosCorrection          ,
+                                                    yPositionError          ,
+                                                    zPosCorrection          ,
+                                                    zPositionError          ,
+                                                    xRotationCorrection     ,
+                                                    xRotationCorrectionError,
+                                                    yRotationCorrection     ,
+                                                    yRotationCorrectionError,
+                                                    zRotationCorrection     ,
+                                                    zRotationCorrectionError                       )                   >
+          <!ATTLIST fineGranularity                 relativeRotations                                  CDATA #REQUIRED >
+            <!ELEMENT xPosCorrection               (#PCDATA                                        )*                  >
+            <!ELEMENT xPositionError               (#PCDATA                                        )*                  >
+            <!ELEMENT yPosCorrection               (#PCDATA                                        )*                  >
+            <!ELEMENT yPositionError               (#PCDATA                                        )*                  >
+            <!ELEMENT zPosCorrection               (#PCDATA                                        )*                  >
+            <!ELEMENT zPositionError               (#PCDATA                                        )*                  >
+            <!ELEMENT xRotationCorrection          (#PCDATA                                        )*                  >
+            <!ELEMENT xRotationCorrectionError     (#PCDATA                                        )*                  >
+            <!ELEMENT yRotationCorrection          (#PCDATA                                        )*                  >
+            <!ELEMENT yRotationCorrectionError     (#PCDATA                                        )*                  >
+            <!ELEMENT zRotationCorrection          (#PCDATA                                        )*                  >
+            <!ELEMENT zRotationCorrectionError     (#PCDATA                                        )*                  >
+          <!ELEMENT ROCs                           (ROC+                                           )                   >
+          <!ATTLIST ROCs                            inUse                                              CDATA #IMPLIED 
+                                                    xChipsNumber                                       CDATA #REQUIRED
+                                                    yChipsNumber                                       CDATA #REQUIRED 
+                                                    raCalibrationFitFunction (linear|parabolic|tanh)  "tanh"           >
+            <!ELEMENT ROC                          (calibrationFilePath*    ,
+                                                    rCalibrationFitFunction*,
+	                                            standardRowPitch        ,
+                                                    standardColPitch        ,
+                                                    nonStandardRowPitch*    ,
+                                                    nonStandardColPitch*    ,
+                                                    MAX_ROWS                ,
+                                                    MAX_COLS                ,
+                                                    orientation                                    )                   >
+            <!ATTLIST ROC                           id                                                 CDATA #REQUIRED
+                                                    serial                                             CDATA #IMPLIED
+                                                    pos                                                CDATA #REQUIRED
+                                                    used                                               CDATA #REQUIRED 
+                                                    description                                        CDATA #IMPLIED  
+                                                    rCalibrationFitFunction  (linear|parabolic|tanh)  "tanh"           >
+	      <!ELEMENT calibrationFilePath        (#PCDATA                                        )*                  >
+              <!ELEMENT standardRowPitch           (#PCDATA                                        )*                  >
+              <!ELEMENT standardColPitch           (#PCDATA                                        )*                  >
+              <!ELEMENT nonStandardRowPitch        (#PCDATA                                        )*                  >
+              <!ATTLIST nonStandardRowPitch         rowNum                                             CDATA #REQUIRED >
+              <!ELEMENT nonStandardColPitch        (#PCDATA                                        )*                  >
+              <!ATTLIST nonStandardColPitch         colNum                                             CDATA #REQUIRED >
+              <!ELEMENT MAX_ROWS                   (#PCDATA                                        )*                  >
+              <!ELEMENT MAX_COLS                   (#PCDATA                                        )*                  >
+              <!ELEMENT orientation                (#PCDATA                                        )*                  >
