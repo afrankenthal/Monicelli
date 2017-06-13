@@ -1030,63 +1030,10 @@ p, li { white-space: pre-wrap; }
      <string>Reset</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="enableALLPB">
-    <property name="geometry">
-     <rect>
-      <x>708</x>
-      <y>72</y>
-      <width>89</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="palette">
-     <palette>
-      <active>
-       <colorrole role="Button">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>117</red>
-          <green>201</green>
-          <blue>122</blue>
-         </color>
-        </brush>
-       </colorrole>
-      </active>
-      <inactive>
-       <colorrole role="Button">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>117</red>
-          <green>201</green>
-          <blue>122</blue>
-         </color>
-        </brush>
-       </colorrole>
-      </inactive>
-      <disabled>
-       <colorrole role="Button">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>117</red>
-          <green>201</green>
-          <blue>122</blue>
-         </color>
-        </brush>
-       </colorrole>
-      </disabled>
-     </palette>
-    </property>
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable/Disable &lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;everything&lt;/span&gt;, &lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;ALL&lt;/span&gt; stations, detectors and ROCs&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="text">
-     <string>Enable ALL</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="enableAllStationsPB">
     <property name="geometry">
      <rect>
-      <x>802</x>
+      <x>808</x>
       <y>72</y>
       <width>141</width>
       <height>20</height>
@@ -1145,7 +1092,6 @@ p, li { white-space: pre-wrap; }
    <zorder>gDUTFitFunctionCB</zorder>
    <zorder>gfitFunctionLB</zorder>
    <zorder>resetCalibFitFuncPB</zorder>
-   <zorder>enableALLPB</zorder>
    <zorder>enableAllStationsPB</zorder>
   </widget>
   <widget class="QGroupBox" name="stationsGB">

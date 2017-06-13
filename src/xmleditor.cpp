@@ -314,9 +314,9 @@ void XMLEditor::placeStation(xmlStation * theXmlStation)
     // Add a tab for this station
     ss_.str(""); ss_ << "Station " << theXmlStation->getStationSerial() ;
     theStationTW_->addTab((QWidget*)detTabFrame,QString(ss_.str().c_str())) ;
-//    theStationTW_->setCurrentIndex(theStationTW_->count()-1);
     theStationTW_->setNode(theXmlStation->getStationSerial(), theXmlStation->getNode());
-//    theStationTW_->setCurrentIndex(1);
+
+    stationGB_[theXmlStation->getStationSerial()] = theStationGB_ ;
 
     xmlStation::xmlDetectorsDef detectors = theXmlStation->getXmlDetectors() ;
     for(xmlStation::xmlDetectorsDef::iterator it =detectors.begin(); it!=detectors.end(); it++)
@@ -708,51 +708,55 @@ void XMLEditor::on_resetCalibFitFuncPB_clicked()
 }
 
 //===========================================================================
-void XMLEditor::on_enableALLPB_clicked()
-{
-    bool enable = true ;
-    if( ui->enableALLPB->text() == QString("Enable ALL") )
-    {
-        ui->enableALLPB->setText(QString("Disable ALL")) ;
-        ui->enableALLPB->setPalette(QColor(255,0,0)) ;        
-        STDLINE("Enable ALL",ACGreen) ;
-        enable = true ;
-    }
-    else
-    {
-        ui->enableALLPB->setText(QString("Enable ALL")) ;
-        ui->enableALLPB->setPalette(QColor(117,201,122)) ;
-        STDLINE("Disable ALL",ACRed) ;
-        enable = false ;
-    }
-
-//    for(stationGBDef::iterator itSt =stationUi_.begin(); itSt!=stationUi_.end(); itSt++)
-//    {
-//        itSt->setEnabled(enable) ;
-//        ss_.str(""); ss_ << "Enabling station " << itSt->first ;
-//        STDLINE(ss_.str(),ACGreen) ;
-//    }
-    
-}
-
-//===========================================================================
 void XMLEditor::on_enableAllStationsPB_clicked()
 {
     bool enable = true ;
-    if( ui->enableALLPB->text() == QString("Enable ALL stations") )
+    STDLINE(ui->enableAllStationsPB->text().toStdString(),ACPurple) ;
+    if( ui->enableAllStationsPB->text() == QString("Enable ALL Stations") )
     {
-        ui->enableALLPB->setText(QString("Disable ALL stations")) ;
-        ui->enableALLPB->setPalette(QColor(255,0,0)) ;        
+        ui->enableAllStationsPB->setText(QString("Disable ALL Stations")) ;
+        ui->enableAllStationsPB->setPalette(QColor(255,0,0)) ;        
         STDLINE("Enabled ALL stations",ACGreen) ;
         enable = true ;
     }
     else
     {
-        ui->enableALLPB->setText(QString("Enable ALL station")) ;
-        ui->enableALLPB->setPalette(QColor(117,201,122)) ;
+        ui->enableAllStationsPB->setText(QString("Enable ALL Stations")) ;
+        ui->enableAllStationsPB->setPalette(QColor(117,201,122)) ;
         STDLINE("Disabled ALL stations",ACRed) ;
         enable = false ;
     }
-//    for(xmlParser::xmlStationsDef::iterator it =stations.begin(); it!=stations.end(); it++)
-//        this->placeStation(it->second) ;
+
+//    theStationTW_->setEnabled(enable) ;
+
+    for(stationGBDef::iterator stIt =stationGB_.begin();
+                               stIt!=stationGB_.end()  ;
+                             ++stIt)
+    {
+        ss_.str("") ; ss_ << "Setting for station "
+                          << stIt->first
+                          << ": "
+                          << enable ;
+        stationGB_[stIt->first]->setEnabled(enable) ;
+        STDLINE(ss_.str(),ACWhite) ;
+    }
+
+    for(detectorWMapDef::iterator stIt =detectorWMap_.begin();
+                                  stIt!=detectorWMap_.end()  ;
+                                ++stIt)
+    {
+        for(std::map<int, detectorW*>::iterator deIt =stIt->second.begin();
+                                                deIt!=stIt->second.end()  ;
+                                              ++deIt)
+        {
+            ss_.str("") ; ss_ << "Setting detector "
+                              << deIt->first
+                              << " of station "
+                              << stIt->first
+                              << " to "
+                               << enable ;
+            STDLINE(ss_.str(),ACWhite) ;
+            deIt->second->setEnabled(enable) ;
+        }
+    }
 }

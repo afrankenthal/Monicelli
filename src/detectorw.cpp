@@ -28,16 +28,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ================================================================================*/
  
-#include "xmlParser.h"
-
-#include <QDoubleValidator>
 #include <QDomNode>
+#include <QDoubleValidator>
 #include <QTextStream>
 
-#include "MessageTools.h"
 #include "detectorw.h"
+#include "MessageTools.h"
 #include "ui_detectorw.h"
 #include "serialIdDialog.h"
+#include "xmlParser.h"
 
 //================================================================================
 detectorW::detectorW(QWidget *parent) : QFrame(parent),
@@ -52,6 +51,12 @@ detectorW::~detectorW()
     delete ui;
 }
 
+//================================================================================
+void detectorW::setEnabled(bool enabled)
+{
+//  ss_.str(""); ss_ << "Final status: " << enabled ; STDLINE(ss_.str(),ACGreen) ;
+  ui->detectorInUseCB->setChecked(enabled);
+}
 //================================================================================
 QFrame * detectorW::getROCTabWidgetPlaceHolder(void)
 {

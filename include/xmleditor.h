@@ -130,7 +130,8 @@ private:
     detectorWMapDef                 detectorWMap_  ;
     stationWMapDef                  stationWMap_   ;
 
-    stationGBDef                    stationUi_     ;
+    stationGBDef                    stationGB_     ;
+
     bool                            isActive_      ;
     bool                            alreadyLaidOut_;
 
@@ -159,7 +160,6 @@ private slots:
     void textChanged                        (std::string                  ,
                                              QString       &               );
     void on_resetCalibFitFuncPB_clicked     (void                          );
-    void on_enableALLPB_clicked             (void                          );
     void on_enableAllStationsPB_clicked     (void                          );
 };
 

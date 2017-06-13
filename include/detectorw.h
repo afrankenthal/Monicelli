@@ -70,6 +70,7 @@ public:
     void     setXRotationCorrection    (double        correction    ) ;
     void     setYRotationCorrection    (double        correction    ) ;
     void     setZRotationCorrection    (double        correction    ) ;
+    void     setEnabled                (bool          enabled       ) ;
 
 private:
     typedef std::map<std::string, QLineEdit*> lEditsDef ;
