@@ -25,7 +25,7 @@ Extractor::Extractor()
 QString Extractor::getFileName()
 {
     return QFileDialog::getOpenFileName(NULL, "Open File",
-                                        "/data/TestBeam/2016_06_June",
+                                        "/raid2/data1/user/gr1/e831/dzuolo/data",
                                         "ROOTFile (*.root)"
                                         );
 }

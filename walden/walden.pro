@@ -21,7 +21,8 @@ SOURCES               += main.cpp             \
                          src/extractor.cpp    \
                          src/treeitem.cpp     \
                          src/treemodel.cpp    \
-                         src/indent.cpp
+                         src/indent.cpp       \
+                         src/utilities.cpp
 
 HEADERS               += inc/mainwindow.h     \
                          inc/qrootcanvas.h    \
@@ -30,50 +31,51 @@ HEADERS               += inc/mainwindow.h     \
                          inc/treeitem.h       \
                          inc/treemodel.h      \
                          inc/indent.h         \
-                         inc/ANSIColors.h
+                         inc/ANSIColors.h     \
+                         inc/utilities.h
 
 INCLUDEPATH	      += ./inc                \
                          uiFiles              \
                          $(ROOTINC)
 
 LIBS                  += -L$(ROOTLIB)        \
-#                         -lCore               \
-#                         -lRIO                \
-#                         -lNet		      \
-#                         -lHist 	      \
-#                         -lGraf 	      \
-#                         -lGraf3d	      \
-#                         -lGpad 	      \
-#                         -lTree 	      \
-#                         -lRint 	      \
-#                         -lPostscript	      \
-#                         -lMatrix	      \
-#                         -lPhysics	      \
-#                         -lMathCore	      \
-#                         -lThread	      \
-#                         -pthread	      \
-#                         -lm		      \
-#                         -ldl		      \
-#                         -rdynamic
-                            -lCore \
-                            -lCint \
-                            -lRIO \
-                            -lNet \
-                            -lHist \
-                            -lGraf \
-                            -lGraf3d \
-                            -lGpad \
-                            -lTree \
-                            -lRint \
-                            -lPostscript \
-                            -lMatrix \
-                            -lPhysics\
-                            -lMathCore \
-                            -lThread \
-                            -pthread \
-                            -lm \
-                            -ldl \
-                            -rdynamic
+                         -lCore               \
+                         -lRIO                \
+                         -lNet		      \
+                         -lHist 	      \
+                         -lGraf 	      \
+                         -lGraf3d	      \
+                         -lGpad 	      \
+                         -lTree 	      \
+                         -lRint 	      \
+                         -lPostscript	      \
+                         -lMatrix	      \
+                         -lPhysics	      \
+                         -lMathCore	      \
+                         -lThread	      \
+                         -pthread	      \
+                         -lm		      \
+                         -ldl		      \
+                         -rdynamic
+#                            -lCore \
+#                            -lCint \
+#                            -lRIO \
+#                            -lNet \
+#                            -lHist \
+#                            -lGraf \
+#                            -lGraf3d \
+#                            -lGpad \
+#                            -lTree \
+#                            -lRint \
+#                            -lPostscript \
+#                            -lMatrix \
+#                            -lPhysics\
+#                            -lMathCore \
+#                            -lThread \
+#                            -pthread \
+#                            -lm \
+#                            -ldl \
+#                            -rdynamic
 
 FORMS                 += uiFiles/mainwindow.ui
 

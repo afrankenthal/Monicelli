@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>919</width>
+    <width>1250</width>
     <height>716</height>
    </rect>
   </property>
@@ -173,7 +173,7 @@
    <widget class="QCheckBox" name="recreateTreeCB">
     <property name="geometry">
      <rect>
-      <x>400</x>
+      <x>420</x>
       <y>0</y>
       <width>111</width>
       <height>21</height>
@@ -188,18 +188,18 @@
      <rect>
       <x>310</x>
       <y>0</y>
-      <width>80</width>
+      <width>101</width>
       <height>26</height>
      </rect>
     </property>
     <property name="text">
-     <string>Save</string>
+     <string>Save as ROOT</string>
     </property>
    </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>530</x>
+      <x>553</x>
       <y>-4</y>
       <width>221</width>
       <height>31</height>
@@ -219,7 +219,7 @@
    <widget class="QSpinBox" name="maxNumOfHistSB">
     <property name="geometry">
      <rect>
-      <x>747</x>
+      <x>770</x>
       <y>0</y>
       <width>54</width>
       <height>25</height>
@@ -281,12 +281,142 @@
      <rect>
       <x>10</x>
       <y>40</y>
-      <width>791</width>
+      <width>901</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
      <string>No File Loaded...</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="saveAsImagePB">
+    <property name="geometry">
+     <rect>
+      <x>930</x>
+      <y>80</y>
+      <width>101</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Save as Image</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="imageNameLE">
+    <property name="geometry">
+     <rect>
+      <x>930</x>
+      <y>120</y>
+      <width>281</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>prova.png</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="fitPlotPB">
+    <property name="geometry">
+     <rect>
+      <x>930</x>
+      <y>160</y>
+      <width>101</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fit</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="imageCB">
+    <property name="geometry">
+     <rect>
+      <x>1060</x>
+      <y>80</y>
+      <width>151</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Landau</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>cellEfficiency</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>other</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="fitFunctionCB">
+    <property name="geometry">
+     <rect>
+      <x>1060</x>
+      <y>160</y>
+      <width>151</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Langaus</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Gaus</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLineEdit" name="xMinLE">
+    <property name="geometry">
+     <rect>
+      <x>1060</x>
+      <y>200</y>
+      <width>113</width>
+      <height>25</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="xMaxLE">
+    <property name="geometry">
+     <rect>
+      <x>1060</x>
+      <y>240</y>
+      <width>113</width>
+      <height>25</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>1024</x>
+      <y>200</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>x Min:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>240</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>x Max:</string>
     </property>
    </widget>
   </widget>
@@ -295,7 +425,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>919</width>
+     <width>1250</width>
      <height>23</height>
     </rect>
    </property>

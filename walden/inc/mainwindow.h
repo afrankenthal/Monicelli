@@ -16,15 +16,24 @@
 #include <QVector>
 
 #include <TCanvas.h>
+#include <TF1.h>
 #include <TFile.h>
 #include <TFolder.h>
+#include <TGaxis.h>
 #include <TH1F.h>
+#include <TH2F.h>
 #include <TKey.h>
+#include <TMath.h>
+#include <TROOT.h>
+#include <TStyle.h>
 #include <TSystem.h>
+
+
 
 #include <extractor.h>
 #include <indent.h>
 #include <qrootcanvas.h>
+#include <utilities.h>
 
 #include <cmath>
 #include <sstream>
@@ -65,6 +74,12 @@ private slots:
     void        createStatusBar       (void                );
     void        resizeChildrens       (int                 ,
                                        int                 );
+    void        langausFit            (TH1*                );
+
+    void        on_saveAsImagePB_clicked(void                );
+
+    void        on_fitPlotPB_clicked   (void                );
+
 
 private:
 
@@ -84,6 +99,7 @@ private:
     QModelIndexList           clickedList_  ;
     QList<int>                splitterSizes_;
     bool                      foldersInFile_;
+    TF1*                      langaus_      ;
 
 protected:
     QTimer                  * fRootTimer_ ; // ToROOT6

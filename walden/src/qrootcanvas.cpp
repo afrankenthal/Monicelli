@@ -180,3 +180,4 @@ void QRootCanvas::paintEvent( QPaintEvent * )
       fCanvas->Update();
    }
 }
+

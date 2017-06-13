@@ -2,7 +2,7 @@
 #include <helpers.h>
 #include "ui_mainwindow.h"
 #include <treemodel.h>
-#include <TStyle.h>
+
 
 //==================================================================================
 MainWindow::MainWindow(QWidget *parent) :
@@ -42,6 +42,10 @@ MainWindow::MainWindow(QWidget *parent) :
     foldersInFile_=false;
 
     gStyle -> SetPalette(1); //To ROOT 5
+
+    langaus_ = new TF1("langaus",Utilities::langaus,0,60000,4);
+    langaus_->SetParNames("Width","MPV","Area","GSigma");
+    langaus_->SetLineColor(kBlue);
 }
 
 //==================================================================================
@@ -192,7 +196,7 @@ void MainWindow::onCustomContextMenu(const QPoint &)
 QString MainWindow::getSaveFileName(void)
 {
     return QFileDialog::getSaveFileName(NULL, "Save File",
-                                        "/user/gr1/e831/dzuolo",
+                                        "/raid2/data1/user/gr1/e831/dzuolo/",
                                         "ROOTFile (*.root)"
                                         );
 }
@@ -246,20 +250,20 @@ void MainWindow::drawAll (void)
     if(histoMap_.size()>(unsigned int)maxPadNumber)
     {
         createStatusBar();
-//        if(maxPadNumber>12) c_->DivideSquare(maxPadNumber,0,0); TO ROOT 6
-//        else c_->DivideSquare(maxPadNumber);
-        if(maxPadNumber>12) c_->Divide(maxPadNumber/2,maxPadNumber/2,0,0);
-        else c_->Divide(maxPadNumber/2,maxPadNumber/2);
+        if(maxPadNumber>12) c_->DivideSquare(maxPadNumber,0,0); //TO ROOT 6
+        else c_->DivideSquare(maxPadNumber);
+//        if(maxPadNumber>12) c_->Divide(maxPadNumber/2,maxPadNumber/2,0,0);
+//        else c_->Divide(maxPadNumber/2,maxPadNumber/2);
         c_->Modified();
         c_->Update();
     }
 
     else
     {
-//        if(maxPadNumber>12) c_->DivideSquare(histoMap_.size(),0,0); TO ROOT 6
-//        else c_->DivideSquare(histoMap_.size());
-        if(maxPadNumber>12) c_->Divide(histoMap_.size()/2,histoMap_.size()/2,0,0);
-        else c_->Divide(histoMap_.size()/2,histoMap_.size()/2);
+        if(maxPadNumber>12) c_->DivideSquare(histoMap_.size(),0,0); //TO ROOT 6
+        else c_->DivideSquare(histoMap_.size());
+//        if(maxPadNumber>12) c_->Divide(histoMap_.size()/2,histoMap_.size()/2,0,0);
+//        else c_->Divide(histoMap_.size()/2,histoMap_.size()/2);
         c_->Modified();
         c_->Update();
 
@@ -394,4 +398,190 @@ void MainWindow::handle_root_events()         // ToROOT6
 {                                             // ToROOT6
    //call the inner loop of ROOT              // ToROOT6
    gSystem->ProcessEvents();                  // ToROOT6
+}
+//===========================================================================
+void MainWindow::on_saveAsImagePB_clicked()
+{
+
+    TCanvas *c = new TCanvas("c","c",700,700);
+    TObject *obj;
+    TIter nextPlot(c_->GetPad(1)->GetListOfPrimitives());
+
+    if(ui->imageCB->currentText() == "Landau")
+    {
+        TH1F *plot;
+        while ((obj=nextPlot()))
+        {
+            if (obj->InheritsFrom("TH1"))
+            {
+                plot = (TH1F*)obj;
+            }
+        }
+        c->SetCanvasSize(700,900);
+        c->Modified();
+        c->Update();
+        c->cd();
+        plot->GetFunction("langaus")->SetLineColor(2);
+        plot->Draw("e1");
+    }
+
+    if(ui->imageCB->currentText() == "cellEfficiency")
+    {
+        TH2F *plot;
+        while ((obj=nextPlot()))
+        {
+            if (obj->InheritsFrom("TH1"))
+            {
+            plot = (TH2F*)obj;
+            }
+        }
+        c->SetCanvasSize(900,600);
+        c->Modified();
+        c->Update();
+        plot->GetXaxis()->SetTitleSize(0.04);
+        plot->GetYaxis()->SetTitleSize(0.04);
+        plot->Draw("COLZ");
+    }
+
+    if(ui->imageCB->currentText() == "other")
+    {
+        while ((obj=nextPlot()))
+        {
+            if (obj->InheritsFrom("TH1")||obj->InheritsFrom("TH2"))
+            {
+                c->cd();
+                obj->Draw();
+            }
+        }
+    }
+
+    c->SaveAs(ui->imageNameLE->text().toStdString().c_str());
+
+}
+//===========================================================================
+void MainWindow::on_fitPlotPB_clicked()
+{
+    TObject *obj;
+    TIter nextPlot(c_->GetPad(1)->GetListOfPrimitives());
+
+    gROOT->SetStyle("Plain");
+
+    gStyle->SetOptStat(0);
+    gStyle->SetStatY(0.9);
+    gStyle->SetStatX(0.9);
+    gStyle->SetStatW(0.2);
+    gStyle->SetStatH(0.1);
+    gStyle->SetOptTitle(0);
+    gStyle->SetOptFit(1);
+
+
+
+    if(ui->fitFunctionCB->currentText() == "Langaus")
+    {
+        TH1F *plot;
+        while ((obj=nextPlot()))
+        {
+            if (obj->InheritsFrom("TH1"))
+            {
+            plot = (TH1F*)obj;
+            }
+        }
+
+       TGaxis *myX = (TGaxis*)plot->GetXaxis();
+        myX->SetMaxDigits(3);
+        plot->GetXaxis()->SetRangeUser(0,20000);
+        plot->SetYTitle("entries (#)");
+        plot->GetYaxis()->SetTitleOffset(1.2);
+        plot->GetYaxis()->SetTitleSize(0.04);
+
+        c_->GetPad(1)->cd();
+        plot->Draw("e1");
+        langausFit(plot);
+
+        c_->GetPad(1)->Modified();
+        c_->GetPad(1)->Update();
+    }
+
+    if(ui->fitFunctionCB->currentText() == "Gaus")
+    {
+        TH1F *plot;
+        while ((obj=nextPlot()))
+        {
+            if (obj->InheritsFrom("TH1"))
+            {
+            plot = (TH1F*)obj;
+            }
+        }
+
+        plot->SetYTitle("entries (#)");
+        plot->GetYaxis()->SetTitleOffset(1.2);
+        plot->GetYaxis()->SetTitleSize(0.04);
+
+        c_->GetPad(1)->cd();
+        plot->Draw("e1");
+        plot->Fit("gaus","QL","",ui->xMinLE->text().toInt(),ui->xMaxLE->text().toInt());
+        c_->GetPad(1)->Modified();
+        c_->GetPad(1)->Update();
+    }
+
+
+}
+//===========================================================================
+void MainWindow::langausFit(TH1* histo)
+{
+        TAxis* xAxis           ;
+        double range           ;
+        double integral        ;
+        double gausPar      [3];
+        double landauPar    [3];
+        double fitRange     [2];
+        double startValues  [4];
+        double parsLowLimit [4];
+        double parsHighLimit[4];
+
+        TF1* landau = new TF1("myLandau","landau",0,60000);
+        TF1* gaus   = new TF1("myGaus"  ,"gaus"  ,0,60000);
+
+        fitRange[0]=0.4*(histo->GetMean());
+        fitRange[1]=1.8*(histo->GetMean());
+
+        gaus->SetRange(fitRange[0],fitRange[1]);
+        histo->Fit(gaus,"0QR");
+        for(int p=0; p<3; p++)
+            gausPar[p] = gaus->GetParameter(p);
+
+        landau->SetRange(fitRange[0],fitRange[1]);
+        histo->Fit(landau,"0QR");
+        for(int p=0; p<3; p++)
+            landauPar[p] = landau->GetParameter(p);
+
+        xAxis    = histo->GetXaxis();
+        range    = xAxis->GetXmax() - xAxis->GetXmin();
+        integral = ((histo->Integral())*range)/(histo->GetNbinsX());
+
+        startValues[0]=landauPar[2];
+        startValues[1]=landauPar[1];
+        startValues[2]=integral    ;
+        startValues[3]=gausPar[2]  ;
+
+        parsLowLimit [0] = startValues[0] - 0.68*startValues[0];
+        parsHighLimit[0] = startValues[0] + 0.68*startValues[0];
+        parsLowLimit [1] = startValues[1] - 0.68*startValues[1];
+        parsHighLimit[1] = startValues[1] + 0.68*startValues[1];
+        parsLowLimit [2] = startValues[2] - 0.68*startValues[2];
+        parsHighLimit[2] = startValues[2] + 0.68*startValues[2];
+        parsLowLimit [3] = startValues[3] - 0.68*startValues[3];
+        parsHighLimit[3] = startValues[3] + 0.68*startValues[3];
+
+        langaus_->SetRange(fitRange[0],fitRange[1]);
+        langaus_->SetParameters(startValues);
+
+        for (int p=0; p<4; p++) {
+            langaus_->SetParLimits(p, parsLowLimit[p], parsHighLimit[p]);
+        }
+
+        histo->Fit(langaus_,"QRB");
+        langaus_->SetLineColor(2);
+        langaus_->Draw("same");
+
 }
