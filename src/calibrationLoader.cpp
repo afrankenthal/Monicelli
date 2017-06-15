@@ -588,7 +588,7 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
       << " with function: "
       << roc->getCalibrationFunctionType();
   STDLINE(ss_.str(),ACCyan) ;
-  
+
   if(writeASCII) outputFile_.open(outputASCIIfile_.c_str(), std::ios_base::app);
 
   static double plotsRangeAndBins[4][3];
@@ -902,7 +902,11 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
       }
   }
   
-  if(writeASCII) outputFile_.close();
+  if(writeASCII)
+  {
+      outputFile_.close();
+      STDLINE(string("Calibration written out in ASCII format in ")+outputASCIIfile_,ACCyan) ;
+  }
   
   for(int r=0; r<maxRows; r++)
   {
