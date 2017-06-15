@@ -299,14 +299,18 @@ bool fileEater::openGeometryFile(std::string geometryFileName)
 
     inputTreesMap_[geometryFileName] = new TFile( geometryFileName.c_str(), "read" );
 
-    if( inputTreesMap_[geometryFileName]->GetErrno() != 0 )
-    {
-        string msg = "File " + geometryFileName + " generates errors: see STDOUT";
-        STDLINE(msg,ACRed) ;
-        return false;
-    }
-
-    ss_.str("") ; ss_ << "Error " << inputTreesMap_[geometryFileName]->GetErrno() << " for file " << geometryFileName ; STDLINE(ss_.str(),ACRed) ;
+// The following lines are useless: the error has apparantly no meaning!...
+//    if( inputTreesMap_[geometryFileName]->GetErrno() != 0 )
+//    {
+//        ss_.str("");
+//        ss_ << "File "
+//            << geometryFileName
+//            << " generates errors ("
+//            << inputTreesMap_[geometryFileName]->GetErrno()
+//            << "): see STDOUT";
+//        STDLINE(ss_.str(),ACRed) ;
+//        return false;
+//    }
 
     if( !inputTreesMap_[geometryFileName]->IsOpen() )
     {

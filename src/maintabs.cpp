@@ -1269,7 +1269,6 @@ void mainTabs::advanceProgressBar2()
             theBenchmark_->Stop(theThreadProcess_.c_str());
             Float_t realTime = 0 ;
             Float_t CPUTime  = 0 ;
-            //            cout << "                      " ;
             theBenchmark_->Summary(realTime, CPUTime);
             cout << endl ;
             ss_.str("") ; ss_ << "Process: " << theThreadProcess_ << "\t\t\tElapsed time: " << realTime << "\tCPU time: " << CPUTime << "\n";

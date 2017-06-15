@@ -205,8 +205,7 @@ contains(ROOTVERSION, "FIVE") {
  header.commands     = @echo "'[1;33m------ ROOT6 header dictionary[0;0m'" &&    \
                        rootcint -f tmp/EventHeaderDict.C      		   	     	   \
                                 -c include/EventHeader.h+     		        &&         \
-                       cp tmp/*.pcm .                                           &&         \
-                       @echo "'[1;33m------ ROOT6 header dictionary done[0;0m'"
+                       cp tmp/*.pcm .                                           
 }
 
 trees.depends        = include/Event.h                        		   	     	   \
