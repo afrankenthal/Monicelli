@@ -17,8 +17,8 @@
    <widget class="QPushButton" name="BrowsePB">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>0</y>
+      <x>50</x>
+      <y>40</y>
       <width>80</width>
       <height>26</height>
      </rect>
@@ -70,8 +70,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>0</y>
+      <x>150</x>
+      <y>40</y>
       <width>80</width>
       <height>26</height>
      </rect>
@@ -123,8 +123,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>0</y>
+      <x>250</x>
+      <y>40</y>
       <width>80</width>
       <height>26</height>
      </rect>
@@ -173,8 +173,8 @@
    <widget class="QCheckBox" name="recreateTreeCB">
     <property name="geometry">
      <rect>
-      <x>420</x>
-      <y>0</y>
+      <x>460</x>
+      <y>40</y>
       <width>111</width>
       <height>21</height>
      </rect>
@@ -186,8 +186,8 @@
    <widget class="QPushButton" name="savePB">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>0</y>
+      <x>350</x>
+      <y>40</y>
       <width>101</width>
       <height>26</height>
      </rect>
@@ -199,8 +199,8 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>553</x>
-      <y>-4</y>
+      <x>593</x>
+      <y>36</y>
       <width>221</width>
       <height>31</height>
      </rect>
@@ -219,8 +219,8 @@
    <widget class="QSpinBox" name="maxNumOfHistSB">
     <property name="geometry">
      <rect>
-      <x>770</x>
-      <y>0</y>
+      <x>810</x>
+      <y>40</y>
       <width>54</width>
       <height>25</height>
      </rect>
@@ -236,9 +236,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
-      <width>901</width>
-      <height>571</height>
+      <y>180</y>
+      <width>1231</width>
+      <height>471</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -280,7 +280,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
+      <y>110</y>
       <width>901</width>
       <height>25</height>
      </rect>
@@ -289,135 +289,148 @@
      <string>No File Loaded...</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="saveAsImagePB">
+   <widget class="QGroupBox" name="fitGB">
     <property name="geometry">
      <rect>
-      <x>930</x>
-      <y>80</y>
-      <width>101</width>
-      <height>26</height>
+      <x>920</x>
+      <y>0</y>
+      <width>321</width>
+      <height>171</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Save as Image</string>
+    <property name="title">
+     <string>Fit Utils</string>
     </property>
-   </widget>
-   <widget class="QLineEdit" name="imageNameLE">
-    <property name="geometry">
-     <rect>
-      <x>930</x>
-      <y>120</y>
-      <width>281</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>prova.png</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="fitPlotPB">
-    <property name="geometry">
-     <rect>
-      <x>930</x>
-      <y>160</y>
-      <width>101</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Fit</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="imageCB">
-    <property name="geometry">
-     <rect>
-      <x>1060</x>
-      <y>80</y>
-      <width>151</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <item>
-     <property name="text">
-      <string>Landau</string>
+    <widget class="QLineEdit" name="xMaxLE">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>140</y>
+       <width>105</width>
+       <height>25</height>
+      </rect>
      </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>cellEfficiency</string>
+    </widget>
+    <widget class="QComboBox" name="imageCB">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>20</y>
+       <width>151</width>
+       <height>25</height>
+      </rect>
      </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>other</string>
+     <item>
+      <property name="text">
+       <string>Landau</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>cellEfficiency</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>other</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QPushButton" name="saveAsImagePB">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>101</width>
+       <height>26</height>
+      </rect>
      </property>
-    </item>
-   </widget>
-   <widget class="QComboBox" name="fitFunctionCB">
-    <property name="geometry">
-     <rect>
-      <x>1060</x>
-      <y>160</y>
-      <width>151</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <item>
      <property name="text">
-      <string>Langaus</string>
+      <string>Save as Image</string>
      </property>
-    </item>
-    <item>
+    </widget>
+    <widget class="QLineEdit" name="imageNameLE">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>281</width>
+       <height>25</height>
+      </rect>
+     </property>
      <property name="text">
-      <string>Gaus</string>
+      <string>prova.png</string>
      </property>
-    </item>
-   </widget>
-   <widget class="QLineEdit" name="xMinLE">
-    <property name="geometry">
-     <rect>
-      <x>1060</x>
-      <y>200</y>
-      <width>113</width>
-      <height>25</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="xMaxLE">
-    <property name="geometry">
-     <rect>
-      <x>1060</x>
-      <y>240</y>
-      <width>113</width>
-      <height>25</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>1024</x>
-      <y>200</y>
-      <width>41</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>x Min:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>1020</x>
-      <y>240</y>
-      <width>41</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>x Max:</string>
-    </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>140</y>
+       <width>41</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>x Max:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>140</y>
+       <width>41</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>x Min:</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="fitFunctionCB">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>100</y>
+       <width>151</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>Langaus</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Gaus</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLineEdit" name="xMinLE">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>140</y>
+       <width>105</width>
+       <height>25</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="fitPlotPB">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>101</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Fit</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
