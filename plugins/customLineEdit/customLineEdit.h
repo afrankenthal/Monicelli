@@ -35,8 +35,8 @@
 #include <string>
 #include <vector>
 
-#include <QLineEdit>
-#include <QDomNode>
+#include <QtWidgets/QLineEdit>
+#include <QtXml/QDomNode>
 
 class QRect       ;
 class QDomNode    ;

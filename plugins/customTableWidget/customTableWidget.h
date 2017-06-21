@@ -31,8 +31,8 @@
 #ifndef CUSTOMTABLEWIDGET_H
 #define CUSTOMTABLEWIDGET_H
 
-#include <QTableView>
-#include <QDomNodeList>
+#include <QtWidgets/QTableView>
+#include <QtXml/QDomNodeList>
 
 class QRect;
 class QTableWidgetItem;

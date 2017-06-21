@@ -168,6 +168,11 @@ INCLUDEPATH	    += plugins/customCheckBox			 	      		   \
 		       plugins/customTextEdit			 	      		   \
 		       plugins/customTableView
 		       
+LIBS                += -L$(BOOSTLIB)                             	      		   \
+                       -lboost_regex                             	      		   \
+                       -lboost_system                            	      		   \
+                       -lboost_filesystem
+
 LIBS                += -L$(ROOTLIB)                              	      		   \
                        -lCore                                                              \
                        -lRIO                                                               \
@@ -183,11 +188,6 @@ LIBS                += -L$(ROOTLIB)                              	      		   \
                        -lPhysics                                                           \
                        -lMathCore                                                          \
                        -lThread
-
-LIBS                += -L$(BOOSTLIB)                             	      		   \
-                       -lboost_regex                             	      		   \
-                       -lboost_system                            	      		   \
-                       -lboost_filesystem
 
 LIBS                += -Lplugins/libs                            	      		   \
                        -lcustomCheckBox                          	      		   \
@@ -216,7 +216,7 @@ header.target        = tmp/EventHeaderDict.C
 ROOTVERSION          = $$(ROOTVER)
 
 contains(ROOTVERSION, "FIVE") {
- message("Setting up Makefile for ROOT5")  
+ message("'[1;33mSetting up Makefile for ROOT5[0;0m")  
  header.commands     = @echo "'[1;33m------ ROOT5 header dictionary[0;0m'" &&    \
                        rootcint -f tmp/EventHeaderDict.C                                   \
                                 -c include/EventHeader.h+                       &&         \

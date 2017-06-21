@@ -35,8 +35,8 @@
 #include <string>
 #include <sstream>
 
-#include <QCheckBox>
-#include <QDomNode>
+#include <QtWidgets/QCheckBox>
+#include <QtXml/QDomNode>
 
 class QDomNode    ;
 

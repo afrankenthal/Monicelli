@@ -32,9 +32,9 @@
 #define CUSTOMTEXTEDIT_H
 
 #include <sstream>
-#include <QTextEdit>
-#include <QWidget>
-#include <QDomNode>
+#include <QtWidgets/QTextEdit>
+#include <QtWidgets/QWidget>
+#include <QtXml/QDomNode>
 
 class QTextEdit ;
 class QRect     ;

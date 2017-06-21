@@ -33,8 +33,8 @@
 
 #include <sstream>
 
-#include <QAbstractSpinBox>
-#include <QDomNode>
+#include <QtWidgets/QAbstractSpinBox>
+#include <QtXml/QDomNode>
 
 class QRect       ;
 

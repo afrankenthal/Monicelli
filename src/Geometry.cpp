@@ -232,7 +232,7 @@ void Geometry::orderPlanes(void)
     std::vector<std::pair<double, std::string> >  posPlaqByZ;
     std::vector<std::pair<double, std::string> >  negPlaqByZ;
     std::vector<std::pair<double, std::string> >  plaqByZ;
-    double posPlane,negPlane;
+    double posPlane=0,negPlane=0;
 
     for(std::map< std::string , Detector* >::iterator it = detectorsMap_.begin(); it!=detectorsMap_.end();++it)
     {
@@ -292,15 +292,15 @@ void Geometry::calculatePlaneMCS(void)
         TVectorT<double> beamVector(4);
         double multipleScattering = 6.18e-6;// 4.37e-6;
         bool dataType = detector->isStrip();
-        TVectorT<double> h(4)             ;
-        TVectorT<double> hx(4)            ;
-        TVectorT<double> hy(4)            ;
-        TMatrixTSym<double> trackCov (4);
-        TMatrixTSym<double> trackCovx(4);
-        TMatrixTSym<double> trackCovy(4);
-        double offset                     ;
-        double offsetx                    ;
-        double offsety                    ;
+        TVectorT<double> h(4)              ;
+        TVectorT<double> hx(4)             ;
+        TVectorT<double> hy(4)             ;
+        TMatrixTSym<double> trackCov (4)   ;
+        TMatrixTSym<double> trackCovx(4)   ;
+        TMatrixTSym<double> trackCovy(4)   ;
+        double offset   = 0                ;
+        double offsetx  = 0                ;
+        double offsety  = 0                ;
 
        //Define local coordinates
         sensorOrigin[0] = 0; sensorOrigin[1] = 0; sensorOrigin[2] = 0;
