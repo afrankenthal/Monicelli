@@ -123,6 +123,6 @@ QString customTableWidgetPlugin::includeFile() const
     return "customTableWidget.h";
 }
 //=============================================================================
-Q_EXPORT_PLUGIN2(customTableWidgetPlugin, customTableWidgetPlugin)
+//Q_EXPORT_PLUGIN2(customTableWidgetPlugin, customTableWidgetPlugin)
 
 

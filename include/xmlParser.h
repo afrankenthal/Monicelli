@@ -38,11 +38,11 @@
 #include <string>
 #include <vector>
 
-#include <QWidget>
-#include <QDomDocument>
-#include <QFile>
-#include <QDomNode>
-#include <QTextStream>
+#include <QtWidgets/QWidget>
+#include <QtXml/QDomDocument>
+#include <QtCore/QFile>
+#include <QtXml/QDomNode>
+#include <QtCore/QTextStream>
 
 class QWidget     ;
 class QDomElement ;

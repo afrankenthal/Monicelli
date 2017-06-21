@@ -28,30 +28,33 @@
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # ================================================================================*/
 
-QT          += core gui
+QMAKE_CFLAGS_RELEASE   = -std=c++11
+QMAKE_CXXFLAGS_RELEASE = -std=c++11
 
-TARGET       = customSpinBox
-TEMPLATE     = lib
+QT                    += core gui designer
 
-INCLUDEPATH += ../../include
+TARGET                 = customSpinBox
+TEMPLATE               = lib
 
-CONFIG      += qt warn_on release designer plugin
+INCLUDEPATH           += ../../include
 
-SOURCES     += customSpinBox.cpp                      \
-               customSpinBoxPlugin.cpp
+CONFIG                += qt warn_on release plugin
 
-HEADERS     += customSpinBox.h                        \
-               customSpinBoxPlugin.h
+SOURCES               += customSpinBox.cpp                  \
+                         customSpinBoxPlugin.cpp
 
-FORMS       += customSpinBox.ui
+HEADERS               += customSpinBox.h                    \
+                         customSpinBoxPlugin.h
 
-target.path  = ../libs
+FORMS                 += customSpinBox.ui
 
-INSTALLS    += target
+target.path            = ../libs
 
-extraclean.commands  = rm -rf Makefile                \
-                       plugins/customSpinBox/moc_*    \
-                       plugins/customSpinBox/Makefile \
-                       plugins/customSpinBox/ui_*     \
+INSTALLS              += target
 
-distclean.depends    = extraclean
+extraclean.commands    = rm -rf Makefile                    \
+                         plugins/customSpinBox/moc_*        \
+                         plugins/customSpinBox/Makefile     \
+                         plugins/customSpinBox/ui_*         \
+
+distclean.depends      = extraclean

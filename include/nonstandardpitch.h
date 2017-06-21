@@ -34,7 +34,7 @@
 #include <string>
 #include <sstream>
 #include <map>
-#include <QWidget>
+#include <QtWidgets/QWidget>
 
 class xmlROC ;
 class QLineEdit ;

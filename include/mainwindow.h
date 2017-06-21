@@ -33,9 +33,9 @@
 
 #include <sstream>
 
-#include <QMainWindow>
-#include <QPoint>
-#include <QSize>
+#include <QtWidgets/QMainWindow>
+#include <QtCore/QPoint>
+#include <QtCore/QSize>
 #include <QTimer> // ToROOT6
 
 #include "canvaswidget.h"

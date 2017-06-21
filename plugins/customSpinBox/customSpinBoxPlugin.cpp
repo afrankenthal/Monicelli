@@ -123,6 +123,6 @@ QString customSpinBoxPlugin::includeFile() const
     return "customSpinBox.h";
 }
 //=============================================================================
-Q_EXPORT_PLUGIN2(customSpinBoxPlugin, customSpinBoxPlugin)
+//Q_EXPORT_PLUGIN2(customSpinBoxPlugin, customSpinBoxPlugin)
 
 

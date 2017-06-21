@@ -32,9 +32,9 @@
 #include "stationtabwidget.h"
 #include "ui_stationtabwidget.h"
 #include "xmlParser.h"
-#include <QTabBar>
-#include <QString>
-#include <QTextStream>
+#include <QtWidgets/QTabBar>
+#include <QtCore/QString>
+#include <QtCore/QTextStream>
 
 //===========================================================================
 stationTabWidget::stationTabWidget(QWidget *parent) :

@@ -45,12 +45,13 @@ fitter::fitter(void) :
   , sigma_                     (0)
   , calibrationFitFunctionName_("calibrationFitFunction")
 {
+ calibrationFitFunction_ = NULL ;
 }
 
 //================================================================================
 fitter::~fitter(void)
 {
-  delete calibrationFitFunction_;
+  if( calibrationFitFunction_ ) delete calibrationFitFunction_;
 }
 
 //================================================================================

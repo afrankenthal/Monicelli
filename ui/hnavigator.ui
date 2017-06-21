@@ -642,6 +642,7 @@ p, li { white-space: pre-wrap; }
  </widget>
  <resources>
   <include location="../Monicelli.qrc"/>
+  <include location="../Monicelli.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -122,5 +122,5 @@ QString customTableViewPlugin::includeFile() const
     return "customTableView.h";
 }
 //=============================================================================
-Q_EXPORT_PLUGIN2(customTableViewPlugin, customTableViewPlugin)
+//Q_EXPORT_PLUGIN2(customTableViewPlugin, customTableViewPlugin)
 

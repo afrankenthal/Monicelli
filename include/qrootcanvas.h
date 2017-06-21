@@ -33,9 +33,9 @@
 
 #include <iostream>
 #include <string>
-#include <QWidget>
+#include <QtWidgets/QWidget>
 
-class QPaintEvent;
+//class QPaintEvent;
 class QResizeEvent;
 class QMouseEvent;
 class QPushButton;

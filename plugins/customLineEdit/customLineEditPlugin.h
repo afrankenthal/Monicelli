@@ -31,7 +31,7 @@
 #ifndef CUSTOMLINEEDITPLUGIN_H
 #define CUSTOMLINEEDITPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 
 class customLineEditPlugin : public QObject, public QDesignerCustomWidgetInterface
 {

@@ -32,9 +32,9 @@
 #include <sstream>
 
 #include <time.h>
-#include <QTime>
-#include <QRegExp>
-#include <QStringList>
+#include <QtCore/QTime>
+#include <QtCore/QRegExp>
+#include <QtCore/QStringList>
 
 #include "fileEater.h"
 #include "MessageTools.h"

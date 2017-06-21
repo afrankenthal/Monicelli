@@ -28,7 +28,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ================================================================================*/
  
-#include <QtGui>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QFileDialog>
+#include <QtGui/QtGui>
 
 #include "mdichild.h"
 #include "MessageTools.h"

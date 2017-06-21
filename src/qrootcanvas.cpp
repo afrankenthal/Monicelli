@@ -28,13 +28,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ================================================================================*/
  
-#include <QPushButton>
-#include <QLayout>
-#include <QTimer>
-#include <QPaintEvent>
-#include <QResizeEvent>
-#include <QMouseEvent>
-#include <QMessageBox>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QLayout>
+#include <QtCore/QTimer>
+#include <QtGui/QPaintEvent>
+#include <QtGui/QResizeEvent>
+#include <QtGui/QMouseEvent>
+#include <QtWidgets/QMessageBox>
 
 #include <stdlib.h>
 #include <iostream>
@@ -59,14 +59,14 @@ using namespace std ;
 //______________________________________________________________________________
 QRootCanvas::QRootCanvas(QWidget *parent, string title) : QWidget(parent, 0), fCanvas(0)
 {
-   setAttribute(Qt::WA_PaintOnScreen,    true);
-   setAttribute(Qt::WA_OpaquePaintEvent, true);
-   setMinimumSize(50, 50);
+   setAttribute     (Qt::WA_PaintOnScreen,    true);
+   setAttribute     (Qt::WA_OpaquePaintEvent, true);
+   setAttribute     (Qt::WA_NativeWindow,     true);
+   setMinimumSize   (50, 50);
    setUpdatesEnabled(kFALSE);
-   setMouseTracking(kTRUE);
+   setMouseTracking (kTRUE );
 
    int wid = gVirtualX->AddWindow((ULong_t)winId(), width(), height());
-   
    this->setGeometry(
                      0,
                      0,
@@ -75,6 +75,7 @@ QRootCanvas::QRootCanvas(QWidget *parent, string title) : QWidget(parent, 0), fC
                     );
 
    fCanvas = new TCanvas(title.c_str(), width(), height(), wid);
+   TQObject::Connect("TGPopMenu", "PoppedDown()", "TCanvas", fCanvas, "Update()") ;
 }
 
 //______________________________________________________________________________
@@ -156,14 +157,14 @@ void QRootCanvas::mouseReleaseEvent( QMouseEvent *e )
       }
    }
 }
-
 //______________________________________________________________________________
-void QRootCanvas::resizeEvent( QResizeEvent * )
+void QRootCanvas::resizeEvent( QResizeEvent * event)
 {
    // Handle resize events.
 
    if (fCanvas)
    {
+      fCanvas->SetCanvasSize(event->size().width(), event->size().height());
       fCanvas->Resize();
       fCanvas->Update();
    }
@@ -180,3 +181,4 @@ void QRootCanvas::paintEvent( QPaintEvent * )
       fCanvas->Update();
    }
 }
+

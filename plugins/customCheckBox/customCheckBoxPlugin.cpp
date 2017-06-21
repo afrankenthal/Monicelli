@@ -122,5 +122,5 @@ QString customCheckBoxPlugin::includeFile() const
     return "customCheckBox.h";
 }
 //=============================================================================
-Q_EXPORT_PLUGIN2(customCheckBoxPlugin, customCheckBoxPlugin)
+//Q_EXPORT_PLUGIN2(customCheckBoxPlugin, customCheckBoxPlugin)
 

@@ -31,7 +31,7 @@
 #ifndef CUSTOMTABLEWIDGETPLUGIN_H
 #define CUSTOMTABLEWIDGETPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 
 class customTableWidgetPlugin : public QObject, public QDesignerCustomWidgetInterface
 {

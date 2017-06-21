@@ -34,8 +34,8 @@
 #include "MessageTools.h"
 #include "newNonStandardTabDialog.h"
 #include "remNonStandardTabDialog.h"
-#include <QMessageBox>
-#include <QFileDialog>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QFileDialog>
 
 //================================================================================
 ROCWidget::ROCWidget(QWidget *parent) :

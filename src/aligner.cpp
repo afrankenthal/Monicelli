@@ -30,16 +30,20 @@
  
 #include "aligner.h"
 
-struct sort_pred {
-    bool operator()(const std::pair<double,std::string> &left, const std::pair<double,std::string> &right) {
+struct sort_pred 
+{
+    bool operator()(const std::pair<double,std::string> &left, 
+                    const std::pair<double,std::string> &right) 
+    {
         return fabs(left.first) < fabs(right.first);
     }
 }sorter1_;
 
 //=============================================================
-aligner::aligner(fileEater* theFileEater, HManager* theHManager) :
+aligner::aligner(fileEater * theFileEater, 
+                 HManager  * theHManager ) :
     theFileEater_(theFileEater)
-  , theHManager_ (theHManager)
+  , theHManager_ (theHManager )
 {
     nIterations_ = 0;
 }
@@ -47,7 +51,7 @@ aligner::aligner(fileEater* theFileEater, HManager* theHManager) :
 //=============================================================
 aligner::~aligner(void)
 {
-//    STDLINE("aligner::~aligner",ACRed);
+    STDLINE("aligner::~aligner",ACRed);
 }
 
 //=============================================================
@@ -64,12 +68,12 @@ bool aligner::align(void)
 
     std::map< std::string, double > rxprime,ryprime;
 
-    std::map<int, std::map<std::string, double> > xmeas, ymeas, zmeas;
-    std::map<int, std::map<std::string, double> > xmeasNoRot, ymeasNoRot;
-    std::map<int, std::map<std::string, int> >    xsizemeas,ysizemeas;
-    std::map<int, std::map<std::string, double> > sigx , sigy ;
-    std::map<int, std::map<std::string, double> > sigxNoRot , sigyNoRot ;
-    std::map<int, std::map<std::string, int> > dataTypeMeas ;
+    std::map<int, std::map<std::string, double> > xmeas       , ymeas	  , zmeas;
+    std::map<int, std::map<std::string, double> > xmeasNoRot  , ymeasNoRot	 ;
+    std::map<int, std::map<std::string, int> >    xsizemeas   , ysizemeas	 ;
+    std::map<int, std::map<std::string, double> > sigx        , sigy		 ;
+    std::map<int, std::map<std::string, double> > sigxNoRot   , sigyNoRot	 ;
+    std::map<int, std::map<std::string, int> >    dataTypeMeas                   ;
 
     // Control Parameters
     //int phase = strategy_;	// phase=0 does a preliminary XY Trans adjustment and then Trans&Rots for max trial iterations both

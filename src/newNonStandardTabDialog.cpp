@@ -31,7 +31,7 @@
 #include "newNonStandardTabDialog.h"
 #include "ui_newNonStandardTabDialog.h"
 #include "MessageTools.h"
-#include <QMessageBox>
+#include <QtWidgets/QMessageBox>
 
 //================================================================================
 newNonStandardTabDialog::newNonStandardTabDialog(QWidget *parent) :

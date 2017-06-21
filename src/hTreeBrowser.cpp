@@ -28,9 +28,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ================================================================================*/
  
-#include <QtGui>
-#include <QTreeWidgetItem>
-#include <QMdiArea>
+#include <QtGui/QtGui>
+#include <QtWidgets/QTreeWidgetItem>
+#include <QtWidgets/QMdiArea>
 
 #include <TDirectory.h>
 #include <TKey.h>
@@ -69,11 +69,7 @@ hTreeBrowser::hTreeBrowser(QWidget *parent, MainWindow * mainWindow)
     QStringList labels;
     labels << tr("Folder Name") << tr("Object Type") << tr("Entries");
     this->setHeaderLabels(labels);
-    this->header()->setResizeMode(0, QHeaderView::Interactive);
-    this->header()->setResizeMode(1, QHeaderView::Interactive);
-    this->header()->setResizeMode(2, QHeaderView::Interactive);
-
-    this->header()->setDefaultSectionSize(200);
+    this->header()->resizeSection(0,200);
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -215,7 +211,9 @@ void hTreeBrowser::populate(TFolder * currentFolder)
     if( ! currentFolder )
     {
         ss_.str("");
-        ss_<<"Directory "<<currentFolder->GetName()<<" not found!";
+        ss_<< "Directory "
+           << currentFolder->GetName()
+           << " not found!";
         STDLINE(ss_.str(),ACRed) ;
         return ;
     }

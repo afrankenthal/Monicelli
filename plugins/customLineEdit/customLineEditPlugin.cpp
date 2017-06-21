@@ -122,5 +122,5 @@ QString customLineEditPlugin::includeFile() const
     return "customLineEdit.h";
 }
 //=============================================================================
-Q_EXPORT_PLUGIN2(customLineEditPlugin, customLineEditPlugin)
+//Q_EXPORT_PLUGIN2(customLineEditPlugin, customLineEditPlugin)
 

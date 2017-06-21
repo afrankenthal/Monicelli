@@ -30,8 +30,8 @@
 
 #include "maintabs.h"
 #include "ui_maintabs.h"
-#include "qmessagebox.h"
-#include <QTableWidget>
+#include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/QTableWidget>
 #include "TBenchmark.h"
 #include "Geometry.h"
 
@@ -196,7 +196,6 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
              ui->yRoadToleranceSB2           ,SLOT  (setValue                   (int                                     )));
     connect( ui->yRoadToleranceSB2           ,SIGNAL(valueChanged               (int                                     )),
              ui->yRoadToleranceSB            ,SLOT  (setValue                   (int                                     )));
-
 
     beamSpot2DCanvas_                           = new QRootCanvas(ui->beamSpot2DCanvas                           ,"") ; // ToROOT6
     beamSpotProjXCanvas_                        = new QRootCanvas(ui->beamSpotProjXCanvas                        ,"") ; // ToROOT6
@@ -4458,7 +4457,7 @@ void mainTabs::on_clearBulkFilesPB_clicked()
 }
 
 //================================================================================
-void mainTabs::on_residualsMonitorTW_selected(const QString &tabTitle)
+void mainTabs::on_residualsMonitorTW_currentChanged(int tabNumber)
 {
     if( !theGeometry_ )
     {
@@ -4466,7 +4465,7 @@ void mainTabs::on_residualsMonitorTW_selected(const QString &tabTitle)
         return ;
     }
 
-    if( tabTitle == "Set Limits")
+    if( tabNumber == 6)
     {
 
         map<int, string> orientation;
@@ -4587,7 +4586,7 @@ void mainTabs::on_setLimitsMakePlotPB_clicked()
 
 }
 //================================================================================
-void mainTabs::on_GeometryTabW_selected(const QString &tabTitle)
+void mainTabs::on_GeometryTabW_currentChanged(int tabNumber)
 {
     if( !theGeometry_ )
     {
@@ -4595,7 +4594,9 @@ void mainTabs::on_GeometryTabW_selected(const QString &tabTitle)
         return ;
     }
 
-    if( tabTitle == "Partitions")
+    STDLINE(tabNumber,ACCyan) ;
+
+    if( tabNumber == 2)
     {
         for(Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); it++)
         {

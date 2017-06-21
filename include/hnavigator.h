@@ -33,11 +33,11 @@
 
 #include <sstream>
 
-#include <QList>
-#include <QTabWidget>
+#include <QtCore/QList>
+#include <QtWidgets/QTabWidget>
 #include <TBrowser.h>
 #include <TFolder.h>
-#include <QRegExp>
+#include <QtCore/QRegExp>
 
 #include "fileEater.h"
 #include "HManager.h"

@@ -237,9 +237,9 @@ p, li { white-space: pre-wrap; }
     <widget class="customTextEdit" name="fileDescriptionTA">
      <property name="geometry">
       <rect>
-       <x>5</x>
-       <y>16</y>
-       <width>341</width>
+       <x>3</x>
+       <y>20</y>
+       <width>346</width>
        <height>46</height>
       </rect>
      </property>
@@ -363,9 +363,9 @@ p, li { white-space: pre-wrap; }
      <property name="geometry">
       <rect>
        <x>6</x>
-       <y>15</y>
+       <y>22</y>
        <width>64</width>
-       <height>21</height>
+       <height>18</height>
       </rect>
      </property>
      <property name="palette">
@@ -419,9 +419,9 @@ p, li { white-space: pre-wrap; }
      <property name="geometry">
       <rect>
        <x>6</x>
-       <y>40</y>
+       <y>43</y>
        <width>64</width>
-       <height>21</height>
+       <height>18</height>
       </rect>
      </property>
      <property name="palette">
@@ -543,7 +543,7 @@ p, li { white-space: pre-wrap; }
      <property name="geometry">
       <rect>
        <x>107</x>
-       <y>15</y>
+       <y>19</y>
        <width>401</width>
        <height>21</height>
       </rect>
@@ -559,9 +559,9 @@ p, li { white-space: pre-wrap; }
      <property name="geometry">
       <rect>
        <x>289</x>
-       <y>40</y>
+       <y>42</y>
        <width>177</width>
-       <height>21</height>
+       <height>18</height>
       </rect>
      </property>
      <property name="palette">
@@ -612,9 +612,9 @@ p, li { white-space: pre-wrap; }
      <property name="geometry">
       <rect>
        <x>469</x>
-       <y>40</y>
+       <y>42</y>
        <width>36</width>
-       <height>21</height>
+       <height>18</height>
       </rect>
      </property>
      <property name="toolTip">
@@ -638,9 +638,9 @@ p, li { white-space: pre-wrap; }
      <property name="geometry">
       <rect>
        <x>48</x>
-       <y>40</y>
+       <y>42</y>
        <width>121</width>
-       <height>21</height>
+       <height>18</height>
       </rect>
      </property>
      <property name="palette">
@@ -700,9 +700,9 @@ p, li { white-space: pre-wrap; }
      <property name="geometry">
       <rect>
        <x>205</x>
-       <y>40</y>
+       <y>42</y>
        <width>41</width>
-       <height>21</height>
+       <height>18</height>
       </rect>
      </property>
      <property name="palette">
@@ -781,7 +781,7 @@ p, li { white-space: pre-wrap; }
      <property name="geometry">
       <rect>
        <x>4</x>
-       <y>15</y>
+       <y>20</y>
        <width>101</width>
        <height>21</height>
       </rect>
@@ -813,9 +813,9 @@ p, li { white-space: pre-wrap; }
      <property name="geometry">
       <rect>
        <x>3</x>
-       <y>40</y>
+       <y>42</y>
        <width>41</width>
-       <height>21</height>
+       <height>18</height>
       </rect>
      </property>
      <property name="palette">
@@ -1036,7 +1036,7 @@ p, li { white-space: pre-wrap; }
       <x>808</x>
       <y>72</y>
       <width>141</width>
-      <height>20</height>
+      <height>18</height>
      </rect>
     </property>
     <property name="palette">
@@ -1126,6 +1126,7 @@ p, li { white-space: pre-wrap; }
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="../Monicelli.qrc"/>
   <include location="../Monicelli.qrc"/>
  </resources>
  <connections/>

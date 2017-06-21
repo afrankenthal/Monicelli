@@ -34,8 +34,8 @@
 #include <string>
 #include <sstream>
 
-#include <QComboBox>
-#include <QDomNode>
+#include <QtWidgets/QComboBox>
+#include <QtXml/QDomNode>
 
 class QRect       ;
 class QDomNode    ;

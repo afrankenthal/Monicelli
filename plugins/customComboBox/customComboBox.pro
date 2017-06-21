@@ -28,34 +28,34 @@
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # ================================================================================*/
 
-QMAKE_CFLAGS_RELEASE   = -std=c++0x
-QMAKE_CXXFLAGS_RELEASE = -std=c++0x
+QMAKE_CFLAGS_RELEASE   = -std=c++11
+QMAKE_CXXFLAGS_RELEASE = -std=c++11
 
-QT          += core gui
+QT                    += core gui designer
 
-TARGET       = customComboBox
-TEMPLATE     = lib
+TARGET                 = customComboBox
+TEMPLATE               = lib
 
-INCLUDEPATH += ../../include
+INCLUDEPATH           += ../../include
 
-CONFIG      += qt warn_on release designer plugin
+CONFIG                += qt warn_on release plugin
 
-SOURCES     += customComboBox.cpp                      \
-               customComboBoxPlugin.cpp
+SOURCES               += customComboBox.cpp                 \
+                         customComboBoxPlugin.cpp
 
-HEADERS     += customComboBox.h                        \
-               customComboBoxPlugin.h
+HEADERS               += customComboBox.h                   \
+                         customComboBoxPlugin.h
 
-FORMS       += customComboBox.ui
+FORMS                 += customComboBox.ui
 
-target.path  = ../libs
+target.path            = ../libs
 
-INSTALLS    += target
+INSTALLS              += target
 
-extraclean.commands  = rm -rf Makefile                 \
-                       plugins/customComboBox/moc_*    \
-                       plugins/customComboBox/Makefile \
-                       plugins/customComboBox/ui_*     \
+extraclean.commands    = rm -rf Makefile                    \
+                         plugins/customComboBox/moc_*       \
+                         plugins/customComboBox/Makefile    \
+                         plugins/customComboBox/ui_*        \
 
-distclean.depends    = extraclean
-QMAKE_EXTRA_TARGETS += distclean extraclean
+distclean.depends      = extraclean
+QMAKE_EXTRA_TARGETS   += distclean extraclean

@@ -28,31 +28,34 @@
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # ================================================================================*/
 
-QT          += core gui
+QMAKE_CFLAGS_RELEASE   = -std=c++11
+QMAKE_CXXFLAGS_RELEASE = -std=c++11
 
-TARGET       = customCheckBox
-TEMPLATE     = lib
+QT                    += core gui designer
 
-INCLUDEPATH += ../../include
+TARGET                 = customCheckBox
+TEMPLATE               = lib
 
-CONFIG      += qt warn_on release designer plugin
+INCLUDEPATH           += ../../include
 
-SOURCES     += customCheckBox.cpp                      \
-               customCheckBoxPlugin.cpp
+CONFIG                += qt warn_on release plugin
 
-HEADERS     += customCheckBox.h                        \
-               customCheckBoxPlugin.h
+SOURCES               += customCheckBox.cpp                 \
+                         customCheckBoxPlugin.cpp
 
-FORMS       += customCheckBox.ui
+HEADERS               += customCheckBox.h                   \
+                         customCheckBoxPlugin.h
 
-target.path  = ../libs
+FORMS                 += customCheckBox.ui
 
-INSTALLS    += target
+target.path            = ../libs
 
-extraclean.commands  = rm -rf Makefile                 \
-                       plugins/customCheckBox/moc_*    \
-                       plugins/customCheckBox/Makefile \
-                       plugins/customCheckBox/ui_*     \
+INSTALLS              += target
 
-distclean.depends    = extraclean
-QMAKE_EXTRA_TARGETS += distclean extraclean
+extraclean.commands    = rm -rf Makefile                    \
+                         plugins/customCheckBox/moc_*       \
+                         plugins/customCheckBox/Makefile    \
+                         plugins/customCheckBox/ui_*        \
+
+distclean.depends      = extraclean
+QMAKE_EXTRA_TARGETS   += distclean extraclean

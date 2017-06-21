@@ -43,8 +43,8 @@
 #include <map>
 #include <string>
 
-#include <QWidget>
-#include <QString>
+#include <QtWidgets/QWidget>
+#include <QtCore/QString>
 
 namespace Ui
 {

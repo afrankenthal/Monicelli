@@ -31,7 +31,7 @@
 #ifndef XMLCREATIONDIALOG_H
 #define XMLCREATIONDIALOG_H
 
-#include <QDialog>
+#include <QtWidgets/QDialog>
 
 namespace Ui {
     class xmlCreationDialog;

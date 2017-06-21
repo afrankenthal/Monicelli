@@ -31,7 +31,7 @@
 #ifndef GEOMETRYPARAMETERS_H
 #define GEOMETRYPARAMETERS_H
 
-#include <QWidget>
+#include <QtWidgets/QWidget>
 #include <string>
 #include <vector>
 

@@ -31,7 +31,7 @@
 #include <assert.h>
 
 #include "geometryLoader.h"
-#include <QTextStream>
+#include <QtCore/QTextStream>
 
 #include "MessageTools.h"
 #include "xmlParser.h"

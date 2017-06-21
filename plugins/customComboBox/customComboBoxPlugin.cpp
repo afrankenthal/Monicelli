@@ -122,6 +122,6 @@ QString customComboBoxPlugin::includeFile() const
     return "customComboBox.h";
 }
 //=============================================================================
-Q_EXPORT_PLUGIN2(customComboBoxPlugin, customComboBoxPlugin)
+//Q_EXPORT_PLUGIN2(customComboBoxPlugin, customComboBoxPlugin)
 
 

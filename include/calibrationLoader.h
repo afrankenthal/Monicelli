@@ -44,7 +44,7 @@
 #include <vector>
 #include <sys/stat.h>
 
-#include <QProgressBar>
+#include <QtWidgets/QProgressBar>
 
 #include "EventHeader.h"
 #include "Geometry.h"

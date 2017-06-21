@@ -34,7 +34,7 @@
 #include "xmlParser.h"
 #include "customSpinBox.h"
 
-#include <QWidget>
+#include <QtWidgets/QWidget>
 
 class xmlStation ;
 

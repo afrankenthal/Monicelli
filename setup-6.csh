@@ -73,8 +73,8 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
   setenv ROOTLIB		   $ROOTSYS/lib/root
 
   #===== Location of the Qt components
-  setenv QTDIR  		   /usr/local/Trolltech/Qt-4.8.5/
-  setenv QTCREATORDIR		   /opt/local/qtcreator-2.7.1/bin
+  setenv QTDIR  		   /user/service/Qt-5.6.2/5.6/gcc_64/
+  setenv QTCREATORDIR		   /raid1/menasce/qt-creator-opensource-src-4.3.0
 
   #===== Location of the BOOST components
   setenv BOOSTINC		   /usr/local/include/boost
@@ -89,7 +89,7 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
 
   setenv LD_LIBRARY_PATH	   
   
-  alias  qtcreator                 ${QTCREATORDIR}/qtcreator
+  unalias qtcreator
     
 endif
 #===============   Personalized configuration on this computer   ==============================================
@@ -115,13 +115,13 @@ if(${HOSTNAME} == "cip.mib.infn.it") then
   
   #===== Location of the ROOT components
   setenv ROOTVER                   SIX
-  setenv ROOTSYS		   /user/service/root-6.04.10/
+  setenv ROOTSYS		   /usr
   setenv ROOTINC		   $ROOTSYS/include/root
-  setenv ROOTLIB		   $ROOTSYS/lib/root
+  setenv ROOTLIB		   $ROOTSYS/lib64/root
 
   #===== Location of the Qt components
-  setenv QTDIR  		   /usr/local/Trolltech/Qt-4.8.5/
-  setenv QTCREATORDIR		   /opt/local/qtcreator-2.7.1/bin
+  setenv QTDIR  		   /user/service/Qt-5.6.2/5.6/gcc_64
+  setenv QTCREATORDIR		   /user/service/QtCreator-4.3.0/
 
   #===== Location of the BOOST components
   setenv BOOSTINC		   /usr/local/include/boost
@@ -136,10 +136,11 @@ if(${HOSTNAME} == "cip.mib.infn.it") then
 
   setenv LD_LIBRARY_PATH	   
   
-  alias  qtcreator                 ${QTCREATORDIR}/qtcreator
+  unalias qtcreator
     
 endif
 
 #===== Final PATH definitions
 setenv PATH	       ${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}
-setenv LD_LIBRARY_PATH ${ROOTLIB}:${BOOSTLIB}:${QTDIR}/lib:${XERCESCLIB}/:${MonicelliDir}/plugins/libs/:${MonicelliDir}/test/customWidgets/libs:${LD_LIBRARY_PATH}
+setenv LD_LIBRARY_PATH ${ROOTLIB}:${BOOSTLIB}:${QTDIR}/lib64:${QTCREATORDIR}:${XERCESCLIB}/:${MonicelliDir}/plugins/libs/:${MonicelliDir}/test/customWidgets/libs:${LD_LIBRARY_PATH}
+#/user/service/QtCreator-4.3.0/bin:/usr/sue/sbin:/usr/sue/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/printmi/bin:/usr/bin:/root/bin

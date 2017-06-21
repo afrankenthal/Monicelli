@@ -31,7 +31,7 @@
 #ifndef MDICHILD_H
 #define MDICHILD_H
 
-#include <QTextEdit>
+#include <QtWidgets/QTextEdit>
 
 class MdiChild : public QTextEdit
 {

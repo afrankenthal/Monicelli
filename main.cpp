@@ -40,14 +40,13 @@
  
 #include <iostream>
 
-#include <QApplication>
-#include <QBitmap>
-#include <QPixmap>
-#include <QPainter>
-#include <QPlastiqueStyle>
-#include <QSplashScreen>
-#include <QEventLoop>
-#include <QThread>
+#include <QtWidgets/QApplication>
+#include <QtGui/QBitmap>
+#include <QtGui/QPixmap>
+#include <QtGui/QPainter>
+#include <QtWidgets/QSplashScreen>
+#include <QtCore/QEventLoop>
+#include <QtCore/QThread>
 
 #include <TApplication.h>
 
@@ -61,18 +60,18 @@ int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(Monicelli);
 
+    std::stringstream ss_ ;
+    char* envVariables;
+    bool missingEnvVariable = false;
+
     system("clear") ;
 
     TApplication rootapp("Simple Qt ROOT Application", &argc, argv);
 
     QApplication app(argc, argv);
-    QApplication::setStyle(new QPlastiqueStyle()) ;
+    app.setStyle("fusion") ;
 
-    std::stringstream ss_ ;
-
-    char* envVariables;
     envVariables = getenv("MonicelliDir");
-    bool missingEnvVariable = false;
     if(envVariables == NULL)
     {
         FATAL("The 'MonicelliDir' environment variable is not defined",ACYellow);
@@ -141,9 +140,7 @@ int main(int argc, char *argv[])
     app.processEvents(QEventLoop::AllEvents);
 
     MainWindow window;
-
     window.show();
-    splash.finish(window.centralWidget()) ;
 
     std::string color = std::string(ACYellow)+std::string(ACBold)+std::string(ACReverse) ;
     STDLINE("",color);
@@ -162,7 +159,9 @@ int main(int argc, char *argv[])
     STDLINE("+--------------------------------------------------+",color);
     STDLINE("",color);
 
+    sleep(1) ;
     splash.finish(&window);
+    window.raise() ;
 
     app.exec();
 

@@ -39,9 +39,9 @@
 #include "MessageTools.h"
 #include "xmlcreationdialog.h"
 #include "serialIdDialog.h"
-#include <QFileDialog>
-#include <QInputDialog>
-#include <QMessageBox>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QInputDialog>
+#include <QtWidgets/QMessageBox>
 
 using namespace std ;
 
@@ -368,7 +368,7 @@ void XMLEditor::placeDetector(xmlDetector * theXmlDetector)
            "</p>\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
            "and dropping this tab to another location."                    // text
            "</p></td></tr></table></body></html>" ;
-    stationWMap_[theXmlDetector->getStationId()]->setToolTip(QApplication::translate("detectorW",ss_.str().c_str(), 0, QApplication::UnicodeUTF8));
+    stationWMap_[theXmlDetector->getStationId()]->setToolTip(QApplication::translate("detectorW",ss_.str().c_str(), 0,0));
 
     theROCTW_ = new ROCTabWidget(theDetectorW_->getROCTabWidgetPlaceHolder()) ;
 
@@ -535,7 +535,7 @@ void XMLEditor::placeROC(xmlROC * theXmlROC)
         << "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p>\n"
         << "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; te"
         <<                   "xt-indent:0px;\">Unlike stations and detectors, ROC positions in the xml files CANNOT be changed </p></td></tr></table></body></html>" ;
-    detROCsWMap_[theXmlROC->getStationId()][theXmlROC->getDetectorId()]->setToolTip(QApplication::translate("detectorW",ss_.str().c_str(), 0, QApplication::UnicodeUTF8));
+    detROCsWMap_[theXmlROC->getStationId()][theXmlROC->getDetectorId()]->setToolTip(QApplication::translate("detectorW",ss_.str().c_str(), 0, 0));
 
     for(xmlROC::nonStandardPitchDef::iterator it =theXmlROC->nonStandardRowPitch_.begin();
         it!=theXmlROC->nonStandardRowPitch_.end();

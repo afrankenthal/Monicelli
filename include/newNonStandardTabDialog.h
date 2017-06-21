@@ -32,7 +32,7 @@
 #define NEWNONSTANDARDTABDIALOG_H
 
 #include <sstream>
-#include <QDialog>
+#include <QtWidgets/QDialog>
 
 class QString ;
 

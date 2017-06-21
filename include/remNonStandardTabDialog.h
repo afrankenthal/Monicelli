@@ -33,7 +33,7 @@
 
 #include <sstream>
 #include <vector>
-#include <QDialog>
+#include <QtWidgets/QDialog>
 
 namespace Ui {
     class remNonStandardTabDialog;

@@ -34,11 +34,12 @@
 #include <sstream>
 
 #include <QResizeEvent> // ToROOT6
-#include <QWidget>
+#include <QtWidgets/QWidget>
 #include "TCanvas.h"
 #include "qrootcanvas.h"
 
-namespace Ui {
+namespace Ui 
+{
     class canvasWidget;
 }
 

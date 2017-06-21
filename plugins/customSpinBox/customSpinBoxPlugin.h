@@ -31,7 +31,7 @@
 #ifndef CUSTOMSPINBOXPLUGIN_H
 #define CUSTOMSPINBOXPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 
 class customSpinBoxPlugin : public QObject, public QDesignerCustomWidgetInterface
 {

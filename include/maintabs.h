@@ -44,21 +44,21 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/regex.hpp>
 
-#include <QButtonGroup>
-#include <QFileDialog>
-#include <QFutureWatcher>
-#include <QListWidgetItem>
-#include <QImage>
-#include <QProgressBar>
-#include <QScrollArea>
-#include <QStatusBar>
-#include <QString>
-#include <QTableWidget>
-#include <QTimer>
-#include <QVBoxLayout>
-#include <QWidget>
+#include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QFileDialog>
+#include <QtCore/QFutureWatcher>
+#include <QtWidgets/QListWidgetItem>
+#include <QtGui/QImage>
+#include <QtWidgets/QProgressBar>
+#include <QtWidgets/QScrollArea>
+#include <QtWidgets/QStatusBar>
+#include <QtCore/QString>
+#include <QtWidgets/QTableWidget>
+#include <QtCore/QTimer>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QWidget>
 
-#include <qtconcurrentrun.h>
+#include <QtConcurrent/qtconcurrentrun.h>
 
 #include "aligner.h"
 #include "beamSimulator.h"
@@ -373,9 +373,8 @@ private slots:
     void on_geometryClearAllCorrectionsPB_clicked                 (                                             );
     void on_trackFitNameCB_currentIndexChanged                    (const QString           & arg1               );
     void on_clearBulkFilesPB_clicked                              (                                             );
-    void on_residualsMonitorTW_selected                           (const QString           & arg1               );
     void on_setLimitsMakePlotPB_clicked                           (                                             );
-    void on_GeometryTabW_selected                                 (const QString           &                    );
+    void on_GeometryTabW_currentChanged                           (int                       tabNumber          );
 
     void on_cal1Chi2PB_clicked                                    (void                                         );
     void on_cal2Chi2PB_clicked                                    (void                                         );
@@ -384,6 +383,7 @@ private slots:
     void on_removeCalibFilesPB_clicked                            (void                                         );
     void on_restoreCalibFilesPB_clicked                           (void                                         );
     void optimizePlot                                             (TH2                     * plot               );
+    void on_residualsMonitorTW_currentChanged                     (int                       tabNumber          );
 };
 
 #endif // MAINTABS_H

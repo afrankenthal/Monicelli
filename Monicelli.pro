@@ -28,13 +28,15 @@
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # ================================================================================*/
 
-include("$(ROOTINC)/rootcint.pri")
+# include("$(ROOTINC)/rootcint.pri")
 
 QMAKE_CFLAGS_RELEASE   = $(CPLUSPLUSFLAGS)
 QMAKE_CXXFLAGS_RELEASE = $(CPLUSPLUSFLAGS)
 
 target.path          = ./
 sources.path         = ./
+
+QT                  += widgets
 
 HEADERS              = include/aligner.h                         	      		   \
                        include/ANSIColors.h                      	      		   \
@@ -91,8 +93,6 @@ HEADERS              = include/aligner.h                         	      		   \
                        plugins/customSpinBox/customSpinBox.h     	      		   \
                        plugins/customTableView/customTableView.h
 
-
-                                                                    	      		    
 SOURCES              = main.cpp                                  	      		   \
                        src/aligner.cpp                           	      		   \
                        src/beamSimulator.cpp                     	      		   \
@@ -155,6 +155,7 @@ sources.files        = $$SOURCES                                 	      		   \
 DEFINES              = USE_QT
 
 INCLUDEPATH	    += ./include				 	      		   \
+                       ./uiFiles                                                           \
 		       -pthread $(ROOTINC)   		         	      		   \
 		       $(QTDIR)/include/QtXml			 	      		   \
 		       $(XERCESCINC)				 	      		   \
@@ -168,7 +169,20 @@ INCLUDEPATH	    += plugins/customCheckBox			 	      		   \
 		       plugins/customTableView
 		       
 LIBS                += -L$(ROOTLIB)                              	      		   \
-               
+                       -lCore                                                              \
+                       -lRIO                                                               \
+                       -lNet                                                               \
+                       -lHist                                                              \
+                       -lGraf                                                              \
+                       -lGraf3d                                                            \
+                       -lGpad                                                              \
+                       -lTree                                                              \
+                       -lRint                                                              \
+                       -lPostscript                                                        \
+                       -lMatrix                                                            \
+                       -lPhysics                                                           \
+                       -lMathCore                                                          \
+                       -lThread
 
 LIBS                += -L$(BOOSTLIB)                             	      		   \
                        -lboost_regex                             	      		   \
@@ -186,6 +200,13 @@ LIBS                += -Lplugins/libs                            	      		   \
 LIBS                += -L$(XERCESCLIB)                           	      		   \
                        -lxerces-c
 
+LIBS                += -L$(QTDIR)                                                          \
+                       -lQt5Widgets                                                        \
+                       -lQt5Gui                                                            \
+                       -lQt5Xml                                                            \
+                       -lQt5Core                                                           \
+                       -lQt5OpenGL
+                       
 INSTALLS            += target sources
 
 header.depends       = include/EventHeader.h

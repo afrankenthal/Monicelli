@@ -122,5 +122,5 @@ QString customTextEditPlugin::includeFile() const
     return "customTextEdit.h";
 }
 //=============================================================================
-Q_EXPORT_PLUGIN2(customTextEditPlugin, customTextEditPlugin)
+//Q_EXPORT_PLUGIN2(customTextEditPlugin, customTextEditPlugin)
 

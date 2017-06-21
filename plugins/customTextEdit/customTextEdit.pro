@@ -28,30 +28,33 @@
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # ================================================================================*/
 
-QT          += core gui
+QMAKE_CFLAGS_RELEASE   = -std=c++11
+QMAKE_CXXFLAGS_RELEASE = -std=c++11
 
-TARGET       = customTextEdit
-TEMPLATE     = lib
+QT                    += core gui designer
 
-INCLUDEPATH += ../../include
+TARGET                 = customTextEdit
+TEMPLATE               = lib
 
-CONFIG      += qt warn_on release designer plugin
+INCLUDEPATH           += ../../include
 
-SOURCES     += customTextEdit.cpp                      \
-               customTextEditPlugin.cpp
+CONFIG                += qt warn_on release plugin
 
-HEADERS     += customTextEdit.h                        \
-               customTextEditPlugin.h
+SOURCES               += customTextEdit.cpp                 \
+                         customTextEditPlugin.cpp
 
-FORMS       += customTextEdit.ui
+HEADERS               += customTextEdit.h                   \
+                         customTextEditPlugin.h
 
-target.path  = ../libs
+FORMS                 += customTextEdit.ui
 
-INSTALLS    += target
+target.path            = ../libs
 
-extraclean.commands  = rm -rf Makefile                 \
-                       plugins/customTextEdit/moc_*    \
-                       plugins/customTextEdit/Makefile \
-                       plugins/customTextEdit/ui_*     \
+INSTALLS              += target
 
-distclean.depends    = extraclean
+extraclean.commands    = rm -rf Makefile                    \
+                         plugins/customTextEdit/moc_*       \
+                         plugins/customTextEdit/Makefile    \
+                         plugins/customTextEdit/ui_*        \
+
+distclean.depends      = extraclean

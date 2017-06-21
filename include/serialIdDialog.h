@@ -31,8 +31,8 @@
 #ifndef SERIALIDDIALOG_H
 #define SERIALIDDIALOG_H
 
-#include "QButtonGroup"
-#include <QDialog>
+#include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QDialog>
 #include <vector>
 #include <sstream>
 

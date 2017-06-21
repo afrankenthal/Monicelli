@@ -30,7 +30,7 @@
  
 #ifndef CUSTOMTEXTEDITPLUGIN_H
 #define CUSTOMTEXTEDITPLUGIN_H
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 
 class customTextEditPlugin : public QObject, public QDesignerCustomWidgetInterface
 {

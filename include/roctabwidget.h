@@ -32,7 +32,7 @@
 #define ROCTABWIDGET_H
 
 #include <sstream>
-#include <QTabWidget>
+#include <QtWidgets/QTabWidget>
 
 namespace Ui {
     class ROCTabWidget;

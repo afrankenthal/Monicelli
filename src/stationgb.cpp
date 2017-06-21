@@ -35,8 +35,8 @@
 #include "MessageTools.h"
 #include "serialIdDialog.h"
 
-#include <QInputDialog>
-#include <QMessageBox>
+#include <QtWidgets/QInputDialog>
+#include <QtWidgets/QMessageBox>
 
 //================================================================================
 stationGB::stationGB(QWidget *parent) : QWidget(parent),

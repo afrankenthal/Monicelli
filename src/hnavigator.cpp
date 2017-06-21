@@ -36,8 +36,8 @@
 #include <TKey.h>
 #include <TIterator.h>
 
-#include <QFileDialog>
-#include <QList>
+#include <QtWidgets/QFileDialog>
+#include <QtCore/QList>
 
 //===========================================================================
 HNavigator::HNavigator(QWidget * parent) :

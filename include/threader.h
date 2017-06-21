@@ -32,9 +32,9 @@
 #ifndef THREADERCLASS_H
 #define THREADERCLASS_H
 
-#include <QThread>
+#include <QtCore/QThread>
 #include <sstream>
-#include <QtConcurrentRun>
+#include <QtConcurrent/QtConcurrentRun>
 #include "MessageTools.h"
 #include "HManager.h"
 #include "process.h"

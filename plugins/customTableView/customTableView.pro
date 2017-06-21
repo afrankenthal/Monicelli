@@ -28,33 +28,33 @@
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # ================================================================================*/
 
-QMAKE_CFLAGS_RELEASE = -g
-QMAKE_CXXFLAGS_RELEASE = -g
+QMAKE_CFLAGS_RELEASE   = -std=c++11
+QMAKE_CXXFLAGS_RELEASE = -std=c++11
 
-QT          += core gui
+QT                    += core gui designer
 
-TARGET       = customTableView
-TEMPLATE     = lib
+TARGET                 = customTableView
+TEMPLATE               = lib
 
-INCLUDEPATH += ../../include
+INCLUDEPATH           += ../../include
 
-CONFIG      += qt warn_on release designer plugin
+CONFIG                += qt warn_on release plugin
 
-SOURCES     += customTableView.cpp                      \
-               customTableViewPlugin.cpp
+SOURCES               += customTableView.cpp                \
+                         customTableViewPlugin.cpp
 
-HEADERS     += customTableView.h                        \
-               customTableViewPlugin.h
+HEADERS               += customTableView.h                  \
+                         customTableViewPlugin.h
 
-FORMS       += customTableView.ui
+FORMS                 += customTableView.ui
 
-target.path  = ../libs
+target.path            = ../libs
 
-INSTALLS    += target
+INSTALLS              += target
 
-extraclean.commands  = rm -rf Makefile                  \
-                       plugins/customTableView/moc_*    \
-                       plugins/customTableView/Makefile \
-                       plugins/customTableView/ui_*     \
+extraclean.commands    = rm -rf Makefile                    \
+                         plugins/customTableView/moc_*      \
+                         plugins/customTableView/Makefile   \
+                         plugins/customTableView/ui_*       \
 
-distclean.depends    = extraclean
+distclean.depends      = extraclean

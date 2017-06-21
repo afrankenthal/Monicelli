@@ -28,9 +28,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ================================================================================*/
  
-#include <QDomNode>
-#include <QDoubleValidator>
-#include <QTextStream>
+#include <QtXml/QDomNode>
+#include <QtGui/QDoubleValidator>
+#include <QtCore/QTextStream>
 
 #include "detectorw.h"
 #include "MessageTools.h"

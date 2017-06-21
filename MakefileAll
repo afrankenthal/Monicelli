@@ -129,19 +129,19 @@ clean:
 	make clean
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customCheckBox  =======================================<<$(ACPlain)'
-	cd plugins/customCheckBox  && make clean && cd ../ 
+	cd plugins/customCheckBox    && qmake && make clean && cd ../ 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customComboBox =======================================<<$(ACPlain)'
-	cd plugins/customComboBox && make clean && cd ../ 
+	cd plugins/customComboBox    && qmake && make clean && cd ../ 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customLineEdit =======================================<<$(ACPlain)'
-	cd plugins/customLineEdit && make clean && cd ../ 
+	cd plugins/customLineEdit    && qmake && make clean && cd ../ 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customSpinBox  =======================================<<$(ACPlain)'
-	cd plugins/customSpinBox  && make clean && cd ../ 
+	cd plugins/customSpinBox     && qmake && make clean && cd ../ 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTableView  =======================================<<$(ACPlain)'
-	cd plugins/customTableView  && make clean && cd ../ 
+	cd plugins/customTableView   && qmake && make clean && cd ../ 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTableWidget  =======================================<<$(ACPlain)'
-	cd plugins/customTableWidget  && make clean && cd ../ 
+	cd plugins/customTableWidget && qmake && make clean && cd ../ 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTextEdit =======================================<<$(ACPlain)'
-	cd plugins/customTextEdit && make clean && cd ../ 
+	cd plugins/customTextEdit    && qmake && make clean && cd ../ 
 
 ###############################################################
 distclean:
@@ -150,22 +150,22 @@ distclean:
 	make distclean && qmake
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customCheckBox  =======================================<<$(ACPlain)'
-	cd plugins/customCheckBox  && make distclean && qmake
+	cd plugins/customCheckBox    && qmake && make distclean && qmake
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customComboBox =======================================<<$(ACPlain)'
-	cd plugins/customComboBox && make distclean && qmake
+	cd plugins/customComboBox    && qmake && make distclean && qmake
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customLineEdit =======================================<<$(ACPlain)'
-	cd plugins/customLineEdit && make distclean && qmake
+	cd plugins/customLineEdit    && qmake && make distclean && qmake
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customSpinBox  =======================================<<$(ACPlain)'
-	cd plugins/customSpinBox  && make distclean && qmake
+	cd plugins/customSpinBox     && qmake && make distclean && qmake
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTableView  =======================================<<$(ACPlain)'
-	cd plugins/customTableView  && make distclean && qmake
+	cd plugins/customTableView   && qmake && make distclean && qmake
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTableWidget  =======================================<<$(ACPlain)'
-	cd plugins/customTableWidget  && make distclean && qmake
+	cd plugins/customTableWidget && qmake && make distclean && qmake
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTextEdit =======================================<<$(ACPlain)'
-	cd plugins/customTextEdit && make distclean && qmake
+	cd plugins/customTextEdit    && qmake && make distclean && qmake

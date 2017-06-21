@@ -33,8 +33,8 @@
 
 #include <sstream>
 #include <map>
-#include <QFrame>
-#include <QTabWidget>
+#include <QtWidgets/QFrame>
+#include <QtWidgets/QTabWidget>
 
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>

@@ -34,7 +34,7 @@
 #include "customLineEdit.h"
 #include "xmlParser.h"
 
-#include <QFrame>
+#include <QtWidgets/QFrame>
 
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>

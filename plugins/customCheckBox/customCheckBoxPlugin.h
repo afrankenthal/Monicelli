@@ -31,7 +31,7 @@
 #ifndef CUSTOMCHECKBOXPLUGIN_H
 #define CUSTOMCHECKBOXPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 
 class customCheckBoxPlugin : public QObject, public QDesignerCustomWidgetInterface
 {

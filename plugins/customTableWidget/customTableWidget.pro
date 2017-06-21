@@ -28,33 +28,33 @@
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # ================================================================================*/
 
-QMAKE_CFLAGS_RELEASE = -g
-QMAKE_CXXFLAGS_RELEASE = -g
+QMAKE_CFLAGS_RELEASE   = -std=c++11
+QMAKE_CXXFLAGS_RELEASE = -std=c++11
 
-QT          += core gui
+QT                    += core gui designer
 
-TARGET       = customTableWidget
-TEMPLATE     = lib
+TARGET                 = customTableWidget
+TEMPLATE               = lib
 
-INCLUDEPATH += ../../include
+INCLUDEPATH           += ../../include
 
-CONFIG      += qt warn_on release designer plugin
+CONFIG                += qt warn_on release plugin
 
-SOURCES     += customTableWidget.cpp                      \
-               customTableWidgetPlugin.cpp
+SOURCES               += customTableWidget.cpp              \
+                         customTableWidgetPlugin.cpp
 
-HEADERS     += customTableWidget.h                        \
-               customTableWidgetPlugin.h
+HEADERS               += customTableWidget.h                \
+                         customTableWidgetPlugin.h
 
-FORMS       += customTableWidget.ui
+FORMS                 += customTableWidget.ui
 
-target.path  = ../libs
+target.path            = ../libs
 
-INSTALLS    += target
+INSTALLS              += target
 
-extraclean.commands  = rm -rf Makefile                    \
-                       plugins/customTableWidget/moc_*    \
-                       plugins/customTableWidget/Makefile \
-                       plugins/customTableWidget/ui_*     \
+extraclean.commands    = rm -rf Makefile                    \
+                         plugins/customTableWidget/moc_*    \
+                         plugins/customTableWidget/Makefile \
+                         plugins/customTableWidget/ui_*     \
 
-distclean.depends    = extraclean
+distclean.depends      = extraclean

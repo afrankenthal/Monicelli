@@ -30,9 +30,14 @@
  
 #include <iostream>
 
-#include <QApplication>
-#include <QBrush>
-#include <QtGui>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QMdiArea>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QMenuBar>
+#include <QtWidgets/QToolBar>
+#include <QtGui/QBrush>
+#include <QtGui/QtGui>
 
 #include <TBrowser.h>
 #include <TSystem.h>
@@ -104,9 +109,8 @@ MainWindow::MainWindow()
     theXMLEditor_      = NULL ;
     
     mainTabsActivated_ = false ;
-
-    theFileEater_ = new fileEater();
-    theHManager_  = new HManager(theFileEater_);
+    theFileEater_      = new fileEater();
+    theHManager_       = new HManager(theFileEater_);
     theFileEater_->setHManger(theHManager_);
 
     usePartitions_ = false;
@@ -316,7 +320,6 @@ void MainWindow::createActions()
     exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
 
-
     separatorAct = new QAction(this);
     separatorAct->setSeparator(true);
 
@@ -471,7 +474,7 @@ void MainWindow::buildMainPanel()
 //===========================================================================
 void MainWindow::buildHNavigator()
 {
-
+STDLINE("",ACWhite) ;
     if( !theHNavigator_)
     {
         theHNavigator_ = new HNavigator(this) ;
@@ -494,6 +497,7 @@ void MainWindow::buildHNavigator()
     }
 
     theHNavigator_->collectExistingWidgets(this);
+STDLINE("",ACWhite) ;
 }
 //===========================================================================
 void MainWindow::showHNavigator()

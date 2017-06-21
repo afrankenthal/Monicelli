@@ -31,7 +31,7 @@
 #ifndef CUSTOMCOMBOBOXPLUGIN_H
 #define CUSTOMCOMBOBOXPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 
 class customComboBoxPlugin : public QObject, public QDesignerCustomWidgetInterface
 {

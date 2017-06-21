@@ -33,8 +33,8 @@
 
 #include <sstream>
 #include <map>
-#include <QTabWidget>
-#include <QDomNode>
+#include <QtWidgets/QTabWidget>
+#include <QtXml/QDomNode>
 
 namespace Ui {
     class stationTabWidget;
