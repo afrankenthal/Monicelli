@@ -1,0 +1,1563 @@
+<?xml version='1.0' encoding='iso-8859-1'?>
+<!DOCTYPE testBeamGeometry SYSTEM '../dtd/geometry.dtd'>
+<!--   Author  : D. Menasce, S. Terzo   -->
+<!--   @version: 1.0                    -->
+<testBeamGeometry run="1" description="A prototype" date="16/05/2016">
+  <stations inUse="3" gCalibrationFitFunction="tanh" gDUTFitFunction="linear">
+    <station serial="0" description="" id="0" used="yes" sCalibrationFitFunction="tanh" >
+      <detectors inUse="4" daCalibrationFitFunction="parabolic" >
+        <detector serial="0" description="" id="0" name="CMS FPIX" used="yes" dCalibrationFitFunction="tanh">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>-0.582668</xPosition>
+            <yPosition>-1.55725</yPosition>
+            <zPosition>46.5</zPosition>
+            <xRotation>-25</xRotation>
+            <yRotation>     0   </yRotation>
+            <zRotation>     0   </zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>-0.0152487</xPosCorrection>
+            <xPositionError>            0  </xPositionError>
+            <yPosCorrection>0.007769</yPosCorrection>
+            <yPositionError>            0  </yPositionError>
+            <zPosCorrection>0.45</zPosCorrection>
+            <zPositionError>            0  </zPositionError>
+            <xRotationCorrection>0.0839817</xRotationCorrection>
+            <xRotationCorrectionError>  0  </xRotationCorrectionError>
+            <yRotationCorrection>-0.226146</yRotationCorrection>
+            <yRotationCorrectionError>  0  </yRotationCorrectionError>
+            <zRotationCorrection>-0.832047</zRotationCorrection>
+            <zRotationCorrectionError>  0  </zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="2" xChipsNumber="4" inUse="8" raCalibrationFitFunction="tanh">
+            <ROC serial="0" id="0" pos="0" used="yes" rCalibrationFitFunction="linear">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_0_0.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="1" id="1" pos="1" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_0_1.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="2" id="2" pos="2" used="yes" rCalibrationFitFunction="parabolic">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_0_2.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="3" id="3" pos="3" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_0_3.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="4" id="4" pos="4" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_0_4.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="5" id="5" pos="5" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_0_5.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="6" id="6" pos="6" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_0_6.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="7" id="7" pos="7" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_0_7.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="1" description="" id="1" name="CMS FPIX" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>-0.28793</xPosition>
+            <yPosition>-1.61033</yPosition>
+            <zPosition>42.7</zPosition>
+            <xRotation>-25</xRotation>
+            <yRotation>     0    </yRotation>
+            <zRotation>     0    </zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>-0.0161282</xPosCorrection>
+            <xPositionError>            0  </xPositionError>
+            <yPosCorrection>0.00971376</yPosCorrection>
+            <yPositionError>            0  </yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>            0  </zPositionError>
+            <xRotationCorrection>-1.00007</xRotationCorrection>
+            <xRotationCorrectionError>  0  </xRotationCorrectionError>
+            <yRotationCorrection>0.683884</yRotationCorrection>
+            <yRotationCorrectionError>  0  </yRotationCorrectionError>
+            <zRotationCorrection>-0.921899</zRotationCorrection>
+            <zRotationCorrectionError>  0  </zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="2" xChipsNumber="4" inUse="8">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_10_0.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="1" id="1" pos="1" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_10_1.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="2" id="2" pos="2" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_10_2.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="3" id="3" pos="3" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_10_3.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="4" id="4" pos="4" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_10_4.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="5" id="5" pos="5" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_10_5.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="6" id="6" pos="6" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_10_6.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="7" id="7" pos="7" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_05_3_10_7.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="2" description="" id="2" name="CMS FPIX" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>-1.23297</xPosition>
+            <yPosition>-0.515543</yPosition>
+            <zPosition>29.7</zPosition>
+            <xRotation>     0    </xRotation>
+            <yRotation>25</yRotation>
+            <zRotation>90</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>-0.00841867</xPosCorrection>
+            <xPositionError>            0  </xPositionError>
+            <yPosCorrection>0.0444372</yPosCorrection>
+            <yPositionError>            0  </yPositionError>
+            <zPosCorrection>       0  </zPosCorrection>
+            <zPositionError>            0  </zPositionError>
+            <xRotationCorrection>0.890645</xRotationCorrection>
+            <xRotationCorrectionError>  0  </xRotationCorrectionError>
+            <yRotationCorrection>-0.0577</yRotationCorrection>
+            <yRotationCorrectionError>  0  </yRotationCorrectionError>
+            <zRotationCorrection>0.23497</zRotationCorrection>
+            <zRotationCorrectionError>  0  </zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="2" xChipsNumber="3" inUse="6">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_01_0_20_0.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="1" id="1" pos="1" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_01_0_20_1.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="2" id="2" pos="2" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_01_0_20_2.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="3" id="3" pos="3" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_01_0_20_3.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="4" id="4" pos="4" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_01_0_20_4.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="5" id="5" pos="5" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_01_0_20_5.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="3" description="" id="3" name="CMS FPIX" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>-1.22924</xPosition>
+            <yPosition>-0.602909</yPosition>
+            <zPosition>25.9</zPosition>
+            <xRotation>     0    </xRotation>
+            <yRotation>25</yRotation>
+            <zRotation>90</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>-0.00401176</xPosCorrection>
+            <xPositionError>            0  </xPositionError>
+            <yPosCorrection>0.0196134</yPosCorrection>
+            <yPositionError>            0  </yPositionError>
+            <zPosCorrection>       0  </zPosCorrection>
+            <zPositionError>            0  </zPositionError>
+            <xRotationCorrection>0.0308267</xRotationCorrection>
+            <xRotationCorrectionError>  0  </xRotationCorrectionError>
+            <yRotationCorrection>-0.234911</yRotationCorrection>
+            <yRotationCorrectionError>  0  </yRotationCorrectionError>
+            <zRotationCorrection>0.116188</zRotationCorrection>
+            <zRotationCorrectionError>  0  </zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="2" xChipsNumber="3" inUse="6">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_01_0_30_0.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="1" id="1" pos="1" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_01_0_30_1.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="2" id="2" pos="2" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_01_0_30_2.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="3" id="3" pos="3" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_01_0_30_3.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="4" id="4" pos="4" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_01_0_30_4.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="5" id="5" pos="5" used="yes">
+              <calibrationFilePath>CalGain_downstream_2016_04_01_0_30_5.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+      </detectors>
+    </station>
+    <station serial="1" description="" id="4" used="yes" sCalibrationFitFunction="parabolic" >
+      <detectors inUse="3">
+        <detector serial="0" isDUT="yes" description="" id="0" name="DUT0" used="no">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>-1.52374</xPosition>
+            <yPosition>-1.70858</yPosition>
+            <zPosition>6</zPosition>
+            <xRotation>     0    </xRotation>
+            <yRotation>0</yRotation>
+            <zRotation>90</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>0.0833057</xPosCorrection>
+            <xPositionError>            0  </xPositionError>
+            <yPosCorrection>0.593959</yPosCorrection>
+            <yPositionError>            0  </yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>            0  </zPositionError>
+            <xRotationCorrection>0</xRotationCorrection>
+            <xRotationCorrectionError>  0  </xRotationCorrectionError>
+            <yRotationCorrection>0</yRotationCorrection>
+            <yRotationCorrectionError>  0  </yRotationCorrectionError>
+            <zRotationCorrection>0.231799</zRotationCorrection>
+            <zRotationCorrectionError>  0  </zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>Gain_Fine_w63_12_63A_3_0_0.txt</calibrationFilePath>
+              <standardRowPitch>0.010</standardRowPitch>
+              <standardColPitch>0.015</standardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="1" isDUT="yes" description="" id="1" name="DUT1" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>0.627446</xPosition>
+            <yPosition>-0.60732</yPosition>
+            <zPosition>-6</zPosition>
+            <xRotation>     0    </xRotation>
+            <yRotation>0</yRotation>
+            <zRotation>90</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>-2.06957</xPosCorrection>
+            <xPositionError>            0  </xPositionError>
+            <yPosCorrection>-1.14875</yPosCorrection>
+            <yPositionError>            0  </yPositionError>
+            <zPosCorrection>       0  </zPosCorrection>
+            <zPositionError>            0  </zPositionError>
+            <xRotationCorrection>0</xRotationCorrection>
+            <xRotationCorrectionError>  0  </xRotationCorrectionError>
+            <yRotationCorrection>0</yRotationCorrection>
+            <yRotationCorrectionError>  0  </yRotationCorrectionError>
+            <zRotationCorrection>0.929011</zRotationCorrection>
+            <zRotationCorrectionError>  0  </zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>Gain_Fine_w49_x1y1_31D_irrP_3_10_0.txt</calibrationFilePath>
+              <standardRowPitch>0.01</standardRowPitch>
+              <standardColPitch>0.015</standardColPitch>
+              <MAX_ROWS>79</MAX_ROWS>
+              <MAX_COLS>51</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="2" isDUT="yes" description="" id="2" name="DUT2" used="no">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>0.27321</xPosition>
+            <yPosition>0.620732</yPosition>
+            <zPosition>0</zPosition>
+            <xRotation>     0    </xRotation>
+            <yRotation>0</yRotation>
+            <zRotation>90</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>-1.40845</xPosCorrection>
+            <xPositionError>            0  </xPositionError>
+            <yPosCorrection>-1.02177</yPosCorrection>
+            <yPositionError>            0  </yPositionError>
+            <zPosCorrection>       0  </zPosCorrection>
+            <zPositionError>            0  </zPositionError>
+            <xRotationCorrection>0</xRotationCorrection>
+            <xRotationCorrectionError>  0  </xRotationCorrectionError>
+            <yRotationCorrection>0</yRotationCorrection>
+            <yRotationCorrectionError>  0  </yRotationCorrectionError>
+            <zRotationCorrection>-0.01</zRotationCorrection>
+            <zRotationCorrectionError>  0  </zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>Gain_51A_nonRad_0_20_0.txt</calibrationFilePath>
+              <standardRowPitch>0.010</standardRowPitch>
+              <standardColPitch>0.015</standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>51</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+      </detectors>
+    </station>
+    <station serial="2" description="" id="2" used="yes">
+      <detectors inUse="4">
+        <detector serial="0" description="" id="0" name="CMS FPIX" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>-1.35806</xPosition>
+            <yPosition>-0.727452</yPosition>
+            <zPosition>-24.9</zPosition>
+            <xRotation>     0    </xRotation>
+            <yRotation>25</yRotation>
+            <zRotation>90</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>0.0240656</xPosCorrection>
+            <xPositionError>            0  </xPositionError>
+            <yPosCorrection>-0.0185271</yPosCorrection>
+            <yPositionError>            0  </yPositionError>
+            <zPosCorrection>       0  </zPosCorrection>
+            <zPositionError>            0  </zPositionError>
+            <xRotationCorrection>-1.68696</xRotationCorrection>
+            <xRotationCorrectionError>  0  </xRotationCorrectionError>
+            <yRotationCorrection>-0.0686524</yRotationCorrection>
+            <yRotationCorrectionError>  0  </yRotationCorrectionError>
+            <zRotationCorrection>1.60334</zRotationCorrection>
+            <zRotationCorrectionError>  0  </zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="2" xChipsNumber="3" inUse="6">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_25_3_0_0.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="1" id="1" pos="1" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_25_3_0_1.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="2" id="2" pos="2" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_25_3_0_2.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="3" id="3" pos="3" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_25_3_0_3.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="4" id="4" pos="4" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_25_3_0_4.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="5" id="5" pos="5" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_25_3_0_5.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="1" description="" id="1" name="CMS FPIX" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>-1.21066</xPosition>
+            <yPosition>-0.706056</yPosition>
+            <zPosition>-28.7</zPosition>
+            <xRotation>     0    </xRotation>
+            <yRotation>25</yRotation>
+            <zRotation>90</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>0.0126107</xPosCorrection>
+            <xPositionError>            0  </xPositionError>
+            <yPosCorrection>-0.0133629</yPosCorrection>
+            <yPositionError>            0  </yPositionError>
+            <zPosCorrection>       0  </zPosCorrection>
+            <zPositionError>            0  </zPositionError>
+            <xRotationCorrection>0.146373</xRotationCorrection>
+            <xRotationCorrectionError>  0  </xRotationCorrectionError>
+            <yRotationCorrection>-0.430737</yRotationCorrection>
+            <yRotationCorrectionError>  0  </yRotationCorrectionError>
+            <zRotationCorrection>0.738646</zRotationCorrection>
+            <zRotationCorrectionError>  0  </zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="2" xChipsNumber="3" inUse="6">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_10_0.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="1" id="1" pos="1" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_10_1.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="2" id="2" pos="2" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_10_2.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="3" id="3" pos="3" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_10_3.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="4" id="4" pos="4" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_10_4.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="5" id="5" pos="5" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_10_5.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="2" description="" id="2" name="CMS FPIX" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>-0.084623</xPosition>
+            <yPosition>-1.45343</yPosition>
+            <zPosition>-39.2</zPosition>
+            <xRotation>-25</xRotation>
+            <yRotation>     0    </yRotation>
+            <zRotation>     0    </zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>0.0056364</xPosCorrection>
+            <xPositionError>            0  </xPositionError>
+            <yPosCorrection>-0.00281953</yPosCorrection>
+            <yPositionError>            0  </yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>            0  </zPositionError>
+            <xRotationCorrection>-0.666989</xRotationCorrection>
+            <xRotationCorrectionError>  0  </xRotationCorrectionError>
+            <yRotationCorrection>-0.230611</yRotationCorrection>
+            <yRotationCorrectionError>  0  </yRotationCorrectionError>
+            <zRotationCorrection>0.140899</zRotationCorrection>
+            <zRotationCorrectionError>  0  </zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="2" xChipsNumber="4" inUse="8">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_20_0.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="1" id="1" pos="1" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_20_1.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="2" id="2" pos="2" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_20_2.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="3" id="3" pos="3" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_20_3.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="4" id="4" pos="4" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_20_4.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="5" id="5" pos="5" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_20_5.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="6" id="6" pos="6" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_20_6.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="07" id="7" pos="7" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_20_7.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="3" description="" id="3" name="CMS FPIX" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>-0.280941</xPosition>
+            <yPosition>-1.65679</yPosition>
+            <zPosition>-43</zPosition>
+            <xRotation>-25</xRotation>
+            <yRotation>     0    </yRotation>
+            <zRotation>     0    </zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>0.0047827</xPosCorrection>
+            <xPositionError>            0  </xPositionError>
+            <yPosCorrection>-0.00172122</yPosCorrection>
+            <yPositionError>            0  </yPositionError>
+            <zPosCorrection>       0  </zPosCorrection>
+            <zPositionError>            0  </zPositionError>
+            <xRotationCorrection>-1.34401</xRotationCorrection>
+            <xRotationCorrectionError>  0  </xRotationCorrectionError>
+            <yRotationCorrection>-1.21323</yRotationCorrection>
+            <yRotationCorrectionError>  0  </yRotationCorrectionError>
+            <zRotationCorrection>1.38773</zRotationCorrection>
+            <zRotationCorrectionError>  0  </zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="2" xChipsNumber="4" inUse="8">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_30_0.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="1" id="1" pos="1" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_30_1.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="2" id="2" pos="2" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_30_2.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="3" id="3" pos="3" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_30_3.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>   0    </orientation>
+            </ROC>
+            <ROC serial="4" id="4" pos="4" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_30_4.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="5" id="5" pos="5" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_30_5.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="6" id="6" pos="6" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_30_6.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+            <ROC serial="7" id="7" pos="7" used="yes">
+              <calibrationFilePath>CalGain_upstream_2016_03_29_3_30_7.txt</calibrationFilePath>
+              <standardRowPitch>   0.010   </standardRowPitch>
+              <standardColPitch>   0.015   </standardColPitch>
+              <nonStandardRowPitch rowNum="79">   0.02  </nonStandardRowPitch>
+              <nonStandardColPitch colNum="0">    0.03  </nonStandardColPitch>
+              <nonStandardColPitch colNum="51">   0.03  </nonStandardColPitch>
+              <MAX_ROWS>     79    </MAX_ROWS>
+              <MAX_COLS>     51    </MAX_COLS>
+              <orientation>  180   </orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+      </detectors>
+    </station>
+    <station serial="3" description="" id="5" used="no">
+      <detectors inUse="4">
+        <detector serial="0" description="" id="0" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>-0.033253</xPosition>
+            <yPosition>-0.610118</yPosition>
+            <zPosition>-99.3</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>-15</yRotation>
+            <zRotation>0</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>0.0129543</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>-0.000184671</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>0.221348</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>0.411464</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>-0.842896</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="1" description="" id="1" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>no</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>0.073596</xPosition>
+            <yPosition>-0.607137</yPosition>
+            <zPosition>-98.7</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>0</yRotation>
+            <zRotation>90</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>-0.000628091</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>0.000355972</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>2.31745</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>0.00311067</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>-1.4659</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="2" description="" id="2" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>0.005825</xPosition>
+            <yPosition>-0.396801</yPosition>
+            <zPosition>-87.3</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>-15</yRotation>
+            <zRotation>0</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>0.00262683</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>-0.00763694</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>-0.211536</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>0.603657</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>0.855298</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="3" description="" id="3" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>no</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>-0.02225</xPosition>
+            <yPosition>-0.419567</yPosition>
+            <zPosition>-86.7</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>0</yRotation>
+            <zRotation>90</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>-0.00138722</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>0.0110219</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>2.32426</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>-0.00438326</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>1.10837</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+      </detectors>
+    </station>
+    <station serial="4" description="" id="6" used="no">
+      <detectors inUse="4">
+        <detector serial="0" description="" id="0" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>0.023931</xPosition>
+            <yPosition>-0.353403</yPosition>
+            <zPosition>-75.3</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>-15</yRotation>
+            <zRotation>0</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>0.00916209</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>0.00209211</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>0.136039</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>0.659745</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>-0.555678</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="1" description="" id="1" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>no</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>0.006384</xPosition>
+            <yPosition>-0.368914</yPosition>
+            <zPosition>-74.7</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>0</yRotation>
+            <zRotation>90</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>-0.000724491</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>0.00528511</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>-2.87965</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>0.000127015</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>-0.222152</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="2" description="" id="2" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>-0.047173</xPosition>
+            <yPosition>-0.249198</yPosition>
+            <zPosition>-63.3</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>-15</yRotation>
+            <zRotation>0</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>0.00898601</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>0.00161864</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>0.128961</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>0.509951</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>-0.505484</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="3" description="" id="3" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>no</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>0.018325</xPosition>
+            <yPosition>-0.267429</yPosition>
+            <zPosition>-62.7</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>0</yRotation>
+            <zRotation>90</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>-0.000737995</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>0.00667532</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>2.81628</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>-0.00140072</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>0.187882</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+      </detectors>
+    </station>
+    <station serial="5" description="" id="7" used="no">
+      <detectors inUse="4">
+        <detector serial="0" description="" id="0" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>0.569461</xPosition>
+            <yPosition>0.663026</yPosition>
+            <zPosition>66.2</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>-15</yRotation>
+            <zRotation>0</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>-0.00236133</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>-0.000277629</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>-0.0533319</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>0.756072</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>0.214231</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="1" description="" id="1" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>no</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>0.032497</xPosition>
+            <yPosition>0.637087</yPosition>
+            <zPosition>66.8</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>0</yRotation>
+            <zRotation>90</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>-0.000386344</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>0.00246043</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>3.431</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>0.00789465</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>0.283017</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="2" description="" id="2" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>0.537978</xPosition>
+            <yPosition>0.655391</yPosition>
+            <zPosition>78.2</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>-15</yRotation>
+            <zRotation>0</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>0.000245415</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>0.00127775</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>0.16975</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>0.048567</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>-0.647965</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="3" description="" id="3" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>no</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>0.056664</xPosition>
+            <yPosition>0.664625</yPosition>
+            <zPosition>78.8</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>0</yRotation>
+            <zRotation>90</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>-0.00114249</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>0.000338722</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>3.72331</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>0.0110541</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>-0.375014</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="4" description="" id="4" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>0.545525</xPosition>
+            <yPosition>0.745461</yPosition>
+            <zPosition>90.2</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>-15</yRotation>
+            <zRotation>0</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>-0.00321823</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>0.000216901</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>0.0419847</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>-0.166865</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>-0.139291</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="5" description="" id="5" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>no</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>0.087785</xPosition>
+            <yPosition>0.736571</yPosition>
+            <zPosition>90.8</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>0</yRotation>
+            <zRotation>90</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>-0.000606519</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>0.000911824</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>-3.91686</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>-0.000694367</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>0.0508411</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+      </detectors>
+    </station>
+    <station serial="6" description="" id="1" used="no">
+      <detectors inUse="2">
+        <detector serial="0" description="" id="0" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>yes</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>-0.685622</xPosition>
+            <yPosition>0.65</yPosition>
+            <zPosition>1500</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>0</yRotation>
+            <zRotation>0</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>0.0602285</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>-0.00495177</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>0.19</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>0</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>-0.71</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+        <detector serial="1" description="" id="1" name="FSSR2" used="yes">
+          <largeGranularity relativeRotations="beam">
+            <xBackFlipped>no</xBackFlipped>
+            <yBackFlipped>no</yBackFlipped>
+            <xPosition>-0.580362</xPosition>
+            <yPosition>0.65</yPosition>
+            <zPosition>1500.6</zPosition>
+            <xRotation>0</xRotation>
+            <yRotation>0</yRotation>
+            <zRotation>90</zRotation>
+          </largeGranularity>
+          <fineGranularity relativeRotations="beam">
+            <xPosCorrection>0.0598679</xPosCorrection>
+            <xPositionError>0</xPositionError>
+            <yPosCorrection>-0.00474383</yPosCorrection>
+            <yPositionError>0</yPositionError>
+            <zPosCorrection>0</zPosCorrection>
+            <zPositionError>0</zPositionError>
+            <xRotationCorrection>0</xRotationCorrection>
+            <xRotationCorrectionError>0</xRotationCorrectionError>
+            <yRotationCorrection>0</yRotationCorrection>
+            <yRotationCorrectionError>0</yRotationCorrectionError>
+            <zRotationCorrection>-1.1</zRotationCorrection>
+            <zRotationCorrectionError>0</zRotationCorrectionError>
+          </fineGranularity>
+          <ROCs yChipsNumber="1" xChipsNumber="1" inUse="1">
+            <ROC serial="0" id="0" pos="0" used="yes">
+              <calibrationFilePath>No_Telescope.txt</calibrationFilePath>
+              <standardRowPitch>0.006</standardRowPitch>
+              <standardColPitch>0.006</standardColPitch>
+              <MAX_ROWS>640</MAX_ROWS>
+              <MAX_COLS>640</MAX_COLS>
+              <orientation>0</orientation>
+            </ROC>
+          </ROCs>
+        </detector>
+      </detectors>
+    </station>
+  </stations>
+</testBeamGeometry>
