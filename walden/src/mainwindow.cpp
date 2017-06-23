@@ -487,16 +487,16 @@ void MainWindow::on_fitPlotPB_clicked()
             }
         }
 
-       TGaxis *myX = (TGaxis*)plot->GetXaxis();
+        c_->GetPad(1)->cd();
+        plot->Draw("e1");
+        langausFit(plot);
+
+        TGaxis *myX = (TGaxis*)plot->GetXaxis();
         myX->SetMaxDigits(3);
         plot->GetXaxis()->SetRangeUser(0,20000);
         plot->SetYTitle("entries (#)");
         plot->GetYaxis()->SetTitleOffset(1.2);
         plot->GetYaxis()->SetTitleSize(0.04);
-
-        c_->GetPad(1)->cd();
-        plot->Draw("e1");
-        langausFit(plot);
 
         c_->GetPad(1)->Modified();
         c_->GetPad(1)->Update();
@@ -529,9 +529,7 @@ void MainWindow::on_fitPlotPB_clicked()
 //===========================================================================
 void MainWindow::langausFit(TH1* histo)
 {
-        TAxis* xAxis           ;
-        double range           ;
-        double integral        ;
+
         double gausPar      [3];
         double landauPar    [3];
         double fitRange     [2];
@@ -545,6 +543,9 @@ void MainWindow::langausFit(TH1* histo)
         fitRange[0]=0.4*(histo->GetMean());
         fitRange[1]=1.8*(histo->GetMean());
 
+        if(!ui->xMinLE->text().isEmpty()) fitRange[0]= ui->xMinLE->text().toInt();
+        if(!ui->xMaxLE->text().isEmpty()) fitRange[1]= ui->xMaxLE->text().toInt();
+
         gaus->SetRange(fitRange[0],fitRange[1]);
         histo->Fit(gaus,"0QR");
         for(int p=0; p<3; p++)
@@ -555,13 +556,11 @@ void MainWindow::langausFit(TH1* histo)
         for(int p=0; p<3; p++)
             landauPar[p] = landau->GetParameter(p);
 
-        xAxis    = histo->GetXaxis();
-        range    = xAxis->GetXmax() - xAxis->GetXmin();
-        integral = ((histo->Integral())*range)/(histo->GetNbinsX());
+
 
         startValues[0]=landauPar[2];
         startValues[1]=landauPar[1];
-        startValues[2]=integral    ;
+        startValues[2]=histo->Integral("width");
         startValues[3]=gausPar[2]  ;
 
         parsLowLimit [0] = startValues[0] - 0.68*startValues[0];
