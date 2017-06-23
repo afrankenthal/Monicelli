@@ -68,12 +68,19 @@ class MainWindow : public QMainWindow
     void openFile();
 
 private slots:
-    void on_expandPB_clicked();
+    void on_expandPB_clicked           (void                         );
+    void on_collapsePB_clicked         (void                         );
+    void on_findUsedStationsPB_clicked (void                         );
+    void on_expandDetectorsPB_clicked  (void                         );
+    void on_collapseDetectorsPB_clicked(void                         );
+    void on_expandROCsPb_clicked       (void                         );
+    void on_collapseROCsPB_clicked     (void                         );
 
 private:
-    void expandChildrenBelow(const QModelIndex & index,
-                                   QTreeView   * view) ;
-
+    void expandChildrenBelow           (const QModelIndex & index   ,
+                                              QTreeView   * view    ,
+                                              QStringList   elements,
+                                              bool  expand           ) ;
     Ui::MainWindow * ui      ;
     DomModel       * model_  ;
     QMenu          * fileMenu;

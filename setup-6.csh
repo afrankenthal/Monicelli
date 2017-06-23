@@ -48,6 +48,7 @@ alias distCleanAll 'make -f MakefileAll distclean'
 #===============   Personalized configuration on this computer   ==============================================
 if(${HOSTNAME} == "hal9000.mib.infn.it") then
 
+  echo "Setting up for cip"
   if(     ${USER} == "menasce") then
    setenv BASEDATADIR /raid1/menasce/AnalysisTBF/data/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
   else if(${USER} == "dinardo") then
@@ -143,4 +144,6 @@ endif
 #===== Final PATH definitions
 setenv PATH	       ${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}
 setenv LD_LIBRARY_PATH ${ROOTLIB}:${BOOSTLIB}:${QTDIR}/lib64:${QTCREATORDIR}:${XERCESCLIB}/:${MonicelliDir}/plugins/libs/:${MonicelliDir}/test/customWidgets/libs:${LD_LIBRARY_PATH}
+
+alias qt qtcreator
 #/user/service/QtCreator-4.3.0/bin:/usr/sue/sbin:/usr/sue/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/printmi/bin:/usr/bin:/root/bin

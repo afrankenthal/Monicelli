@@ -40,8 +40,6 @@
 
 #include <QFont>
 #include <QtGui>
-//#include <QtXml>
-
 
 #include <iostream>
 #include "domitem.h"
@@ -115,6 +113,11 @@ QVariant DomModel::data(const QModelIndex &index, int role) const
               n = QString("Detector Id: ") + 
                   this->getAttribute("id", attributeMap);
              }
+             if( n == "ROC" )
+             {
+              n = QString("ROC Id: ") +
+                  this->getAttribute("id", attributeMap);
+             }
              return QVariant(n);
             }
         case 1:
@@ -168,11 +171,11 @@ QVariant DomModel::headerData(int section, Qt::Orientation orientation,
         switch (section) 
         {
             case 0:
-                return tr("Node Name"      );
+                return tr("Node Name" );
             case 1:
-                return tr("Node Attributes");
+                return tr("Status"    );
             case 2:
-                return tr("Node Value"     );
+                return tr("Node Value");
             default:
                 return QVariant();
         }
@@ -230,4 +233,45 @@ int DomModel::rowCount(const QModelIndex &parent) const
         parentItem = static_cast<DomItem*>(parent.internalPointer());
 
     return parentItem->node().childNodes().count();
+}
+//===========================================================================
+bool DomModel::indexIs(const QModelIndex &index, QString elementName) const
+{
+    DomItem  * item = static_cast<DomItem*>(index.internalPointer());
+    QDomNode   node = item->node()     ;
+    QString    n    = node.nodeName();
+
+    int childCount = index.model()->rowCount(index);
+    for (int i = 0; i < childCount; i++)
+    {
+        if( n.toStdString() == elementName.toStdString() )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return false;
+}
+//===========================================================================
+bool DomModel::indexIs(const QModelIndex &index, QStringList elementsName) const
+{
+    DomItem  * item = static_cast<DomItem*>(index.internalPointer());
+    QDomNode   node = item->node()     ;
+    QString    n    = node.nodeName();
+
+    int childCount = index.model()->rowCount(index);
+    for (int i = 0; i < childCount; i++)
+    {
+        for (int i = 0; i < elementsName.size(); ++i)
+        {
+            if( n.toStdString() == elementsName.at(i).toStdString()  )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }

@@ -45,6 +45,7 @@
 #include <QtXml/QDomDocument>
 #include <QModelIndex>
 #include <QVariant>
+#include <QStringList>
 
 class DomItem;
 
@@ -68,10 +69,14 @@ class DomModel : public QAbstractItemModel
     QModelIndex    parent      (const QModelIndex & child                 ) const;
     int            rowCount    (const QModelIndex & parent = QModelIndex()) const;
     int            columnCount (const QModelIndex & parent = QModelIndex()) const;
+    bool           indexIs     (const QModelIndex & index,
+                                QString             elementName           ) const;
+    bool           indexIs     (const QModelIndex & index,
+                                QStringList         elementsName          ) const;
 
  private:
     QString        getAttribute(QString             attributeValue,
-                                QDomNamedNodeMap  & attributeMap             ) const;
+                                QDomNamedNodeMap  & attributeMap          ) const;
     QDomDocument   domDocument;
     DomItem      * rootItem;
 };
