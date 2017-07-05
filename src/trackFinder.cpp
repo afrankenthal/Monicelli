@@ -581,6 +581,7 @@ void trackFinder::fitKalmanTrackCandidates(Event* theEvent, Geometry* theGeometr
             (*cov)    = aKalmanFittedTrack.first.second;
             (*itChi2) = aKalmanFittedTrack.second      ;
         }
+
     }
 }
 

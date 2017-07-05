@@ -29,6 +29,7 @@
  ================================================================================*/
  
 #include "calibrationLoader.h"
+#include "TIterator.h"
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -705,6 +706,7 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
   double currentADC;
   int    lastBin   ;
   int    firstBin  ;
+  int	 precBin   ;
   for (calibrationLoader::pixelDataMapDef::iterator r=pixels_.begin(); r!=pixels_.end(); ++r)
   {
     int row = (*r).first ;
@@ -719,13 +721,22 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
       for(int b=lastBin-1; b>=firstBin; b--)
       {
         currentADC = calib[row][col]->GetBinContent(b);
-        if (precADC == 0) continue;
-        calibNew[row][col]->SetBinContent(b,precADC);
-        calibNew[row][col]->SetBinError(b,2.5);
-        precADC = currentADC;
+        if (std::abs(precADC-currentADC)>30*(precBin-b)) 
+	{
+	  continue; // This line was inserted to delete spikes that occurred using the old ROC
+        }
+        else
+        {
+          if (precADC == 0) continue;
+          calibNew[(*r).first][(*c).first]->SetBinContent(b,precADC);
+          calibNew[(*r).first][(*c).first]->SetBinError(b,2.5);
+          precADC = currentADC;
+          precBin = b;
+        }
       }
     }
   }
+
 
   double* pars;
   if(fit)

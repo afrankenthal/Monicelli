@@ -42,7 +42,7 @@
 // @@@ Hard coded parameters @@@ 
 #define TESTDIVIDE false     // Use this flag in case of normal incidence on DUT and in case there are problems in aligning the DUT
 #define ONLYdoubleHITS false // Use this flag in order to align on cluster size 2 only
-#define CLUSTER_CORRECTION_ITERATIONS 1
+
 // ============================
 
 
@@ -313,6 +313,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
             // #####################################
             // # Remove all clusters but of size 2 #
             // #####################################
+            //davide_solo_hit_doppi_in_x_per_Strip
             if ((ONLYdoubleHITS == true) && ((cluster->second.size() <= 1) || (cluster->second.size() > 2))) continue;
             if ((ONLYdoubleHITS == true) && (cluster->second.size() == 2))
             {
@@ -320,7 +321,6 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                 Event::hitsDef::iterator hit1 = cluster->second.begin()+1;
                 if ((*hit0)["col"] != (*hit1)["col"] && (*hit0)["row"] != (*hit1)["row"]) continue;
             }
-
 
             double& x        = clustersMap_[det->first][cluster->first]["x"];
             double& y        = clustersMap_[det->first][cluster->first]["y"];
@@ -591,17 +591,22 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                     yErr /= cluster->second.size() * sqrt(12.);
                 }
             }
-            else if(dataType==1) //Strip Data -> Still to be improved
+            else if(dataType==1) //Strip Data -> Still to be improved: Errors, cluster of size > 2
             {
-                chargeSharing       = 0.5; // charge sharing at 90 deg for strip
-                tiltedChargeSharing = (160*tan(fabs(detector->getYRotation(false))*(pi/180)))/10;; //3.7 charge sharing at 15 deg for strip
-                xChargeSharing = 4*tan(fabs(detector->getYRotation(false))*pi/180) + chargeSharing ;
+//                chargeSharing       = 0;
+//                tiltedChargeSharing = (60*tan(fabs(detector->getYRotation(false))*(pi/180)))/10; //charge sharing at 15 deg for strip
+
+                // Strip planes are coupled:
+                // even planes measure x coordinate and are tilted by -15 deg around Y
+                // odd planes measure y and therefore tilt does not affect measurements
+                // the measured coordinate is always called "x", y is assigned to be the center of the strip
 
                 // ####################
                 // # Cluster size = 1 #
                 // ####################
                 if (pixels.size() == 1)
                 {
+
                     x = pixels[0].x;
                     y = pixels[0].y;
 
@@ -611,11 +616,9 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 //                    if (fabs(detector->getXRotation(false)) > 10) yErr = tiltedChargeSharing / sqrt(12.);
 //                    else                                          yErr = (pixels[0].yPitch - 2*chargeSharing) / sqrt(12.);
 
-                    if (fabs(detector->getYRotation(false)) > 10) xErr = 3.7 / sqrt(12.);
-                    else                                          xErr = (pixels[0].xPitch - 2*chargeSharing) / sqrt(12.);
-
-                    if (fabs(detector->getXRotation(false)) > 10) yErr = 3.7 / sqrt(12.);
-                    else                                          yErr = (pixels[0].yPitch - 2*chargeSharing) / sqrt(12.);
+                    xErr = pixels[0].xPitch /(2 * sqrt(12.));
+                    yErr = 3800 / sqrt(12.); //length of the overlap area of two strip plane in tens of microns
+                    //yErr = pixels[0].yPitch /(2 * sqrt(12.));
 
                     //cout<<__PRETTY_FUNCTION__<<"x: "<<x<<" y: "<<y<<" xErr: "<<xErr<<" yErr: "<<yErr<<endl;
                 }
@@ -626,21 +629,22 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                 {
                     y = pixels[0].y;
 
+                    //yErr = pixels[0].yPitch /(2 * sqrt(12.));
+                    yErr = 3800 / sqrt(12.); //length of the overlap area of two strip plane in tens of microns
+
                     // ##############################################
                     // # Assign to DUT the coordinate of the divide #
                     // ##############################################
-                    if (TESTDIVIDE == true &&
-                            (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2"))
+                    if ((TESTDIVIDE == true)
+                        &&(det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2"))
                     {
-
-
                         // ################
                         // # Fixed errors #
                         // ################
                         xErr = 0.3;
                         yErr = 0.3;
 
-                        if (pixels[0].xPitch == pixels[1].xPitch)x = (pixels[0].x + pixels[1].x) / 2.;
+                        if (pixels[0].xPitch == pixels[1].xPitch) x = (pixels[0].x + pixels[1].x) / 2.;
 
                         else if (pixels[0].xPitch > pixels[1].xPitch)
                         {
@@ -655,29 +659,22 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                     }
                     else
                     {
-                        double center;                        
+                        //double center;
 
-                        if (fabs(detector->getXRotation(false)) > 10) yErr = tiltedChargeSharing / sqrt(12.);
-                        else                                          yErr = (pixels[0].yPitch - 2*chargeSharing) / sqrt(12.);
-
-//                        if (fabs(detector->getXRotation(false)) > 10) yErr = 1.5;
-//                        else                                          yErr = 1.0;
-
-                        if (fabs(detector->getYRotation(false)) > 10) xErr = 1.1; // 1.5;
-                        else                                          xErr = 0.7; //1.0;
+                        xErr = pixels[0].xPitch /(2 * sqrt(12.));
 
                         if (pixels[0].x < pixels[1].x)
                         {
-                            center = (pixels[0].x + pixels[0].xPitch/2.);
-                            //x = (pixels[0].charge*(center - (xChargeSharing+chargeSharing)) + pixels[1].charge*(center + (xChargeSharing+chargeSharing)))/charge;
-                            x = (pixels[0].charge*(center-tiltedChargeSharing) + pixels[1].charge*(center+tiltedChargeSharing))/charge;
+                            //center = (pixels[0].x + pixels[0].xPitch/2.);
+                            //x = (pixels[0].charge*(center-tiltedChargeSharing) + pixels[1].charge*(center+tiltedChargeSharing))/charge;
+                            x = pixels[0].x + ((pixels[1].charge)/(pixels[1].charge + pixels[0].charge))*pixels[0].xPitch;
                         }
                         else
                         {
-                            center = (pixels[1].x + pixels[1].xPitch/2.);
-                            //x = (pixels[1].charge*(center - (xChargeSharing+chargeSharing)) + pixels[0].charge*(center + (xChargeSharing+chargeSharing)))/charge;
-                            x = (pixels[1].charge*(center-tiltedChargeSharing) + pixels[0].charge*(center+tiltedChargeSharing))/charge;                        }
-
+                            //center = (pixels[1].x + pixels[1].xPitch/2.);
+                            //x = (pixels[1].charge*(center-tiltedChargeSharing) + pixels[0].charge*(center+tiltedChargeSharing))/charge;
+                            x = pixels[1].x + ((pixels[0].charge)/(pixels[1].charge + pixels[0].charge))*pixels[1].xPitch;
+                        }
 
                     }
 

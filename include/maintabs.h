@@ -375,7 +375,6 @@ private slots:
     void on_clearBulkFilesPB_clicked                              (                                             );
     void on_setLimitsMakePlotPB_clicked                           (                                             );
     void on_GeometryTabW_currentChanged                           (int                       tabNumber          );
-
     void on_cal1Chi2PB_clicked                                    (void                                         );
     void on_cal2Chi2PB_clicked                                    (void                                         );
     void on_cal1DChi2AllPB_clicked                                (void                                         );

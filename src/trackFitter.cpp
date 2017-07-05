@@ -300,7 +300,7 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
 }
 
 //===============================================================================
-trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alignedHitsCandidateMapDef& trackCandidate, Event::vectorDef& track, Event::matrixDef& cov, Event::clustersMapDef& clusters, Geometry* theGeometry, std::string excludedDetector )
+trackFitter::aFittedTrackDef trackFitter::  kalmanFitSingleTrack(const Event::alignedHitsCandidateMapDef& trackCandidate, Event::vectorDef& track, Event::matrixDef& cov, Event::clustersMapDef& clusters, Geometry* theGeometry, std::string excludedDetector )
 {
     excludedDetectorFound_ = false;
     double chi2 = 0;
@@ -322,30 +322,550 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
         }
     }
 
+    //Use maps to store estCov and trackPars for each plane to use them in the smoothing step
+
+    std::map<std::string, TVectorT<double> > trackParsMap;
+    std::map<std::string, TMatrixTSym<double> > CkMap;
+    std::map<std::string, TMatrixTSym<double> > Ckk_1Map;
+    TMatrixT<double> b(4,4);
+    TMatrixT<double> bt(4,4);
+    TMatrixT<double> temp(4,4);
+
+
 //        cout << __PRETTY_FUNCTION__ << "Initial: x int = " << trackPars[1] << " y int = " << trackPars[3] << " x slope = " << trackPars[0] << " y slope = " << trackPars[2] << endl;
-//    //    cout << __PRETTY_FUNCTION__ << "Initial Chi 2: " << chi2 << endl;
+//        cout << __PRETTY_FUNCTION__ << "Initial Chi 2: " << chi2 << endl;
 //        for ( int i=0; i<4; i++ )
 //        {
 //            std::cout << __PRETTY_FUNCTION__ << "Initial covMat line " << i << ": " << estCov[i][0] << " "<< estCov[i][1] << " "<<estCov[i][2] << " "<< estCov[i][3] <<std::endl;
 //        }
 
-    //plaqByZ is a private variable which is a vector of planes ordered from z = 0 position, corresponding to DUT
-
 //                for(unsigned int i = 0; i<theKalmanPlaneInfo_.getKalmanFilterOrder().size();i++)
 //                {
 //                    std::cout<<__PRETTY_FUNCTION__<<theKalmanPlaneInfo_.getKalmanFilterOrder().at(i).first<<" "
-//                             <<theKalmanPlaneInfo_.getKalmanFilterOrder().at(i).second<<std::endl;
+//                                                  <<theKalmanPlaneInfo_.getKalmanFilterOrder().at(i).second<<std::endl;
 //                    //std::cout<<__PRETTY_FUNCTION__<<"posPlane: "<<posPlane_<<" negPlane: "<<negPlane_<<std::endl;
 //                }
 
 //                assert(0);
 
 
-    //Now loop over all plaqs
+////  Now loop over upstream planes
+
+//    for (unsigned int plane = 0; plane < theKalmanPlaneInfo_.getKalmanFilterOrderUpstream().size(); plane++)
+//    {
+//        std::string plaqID = theKalmanPlaneInfo_.getKalmanFilterOrderUpstream().at(plane).second;
+
+//        TVectorT<double> k(4);
+//        TVectorT<double> kx(4);
+//        TVectorT<double> ky(4);
+//        TMatrixTSym<double> a(4);
+//        TMatrixTSym<double> ax(4);
+//        TMatrixTSym<double> ay(4);
+
+//        TVectorT<double> h            = theKalmanPlaneInfo_.getH(plaqID) ;
+//        TVectorT<double> hx           = theKalmanPlaneInfo_.getHx(plaqID);
+//        TVectorT<double> hy           = theKalmanPlaneInfo_.getHy(plaqID);
+//        TMatrixTSym<double> trackCov  = theKalmanPlaneInfo_.getTrackCov(plaqID);
+//        TMatrixTSym<double> trackCovx = theKalmanPlaneInfo_.getTrackCovx(plaqID);
+//        TMatrixTSym<double> trackCovy = theKalmanPlaneInfo_.getTrackCovy(plaqID);
+//        double offset                 = theKalmanPlaneInfo_.getOffset(plaqID);
+//        double offsetx                = theKalmanPlaneInfo_.getOffsetx(plaqID);
+//        double offsety                = theKalmanPlaneInfo_.getOffsety(plaqID);
+
+//        if ( theGeometry->getDetector(plaqID)->isStrip() ) //strip data
+//        {
+//            if(trackCandidate.find(plaqID) != trackCandidate.end())
+//            {
+//                for ( int i=0; i<4; i++ )
+//                {
+//                    for ( int j=0; j<4; j++ )
+//                    {
+//                        a[i][j] = h[i]*h[j];
+//                    }
+//                }
+
+//                //Residual of prediction
+//                double dist    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;//distance of the hit from origin of the sensor
+//                double distErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
+//                double res = dist - trackPars*h - offset;
+
+////                std::cout<<__PRETTY_FUNCTION__<<" trackPars: "<<trackPars[0]<<" "<<trackPars[1]<<" "<<trackPars[2]<<" "<<trackPars[3]
+////                                              <<" h: "        <<h[0]<<" "<<h[1]<<" "<<h[2]<< " "<<h[3]
+////                                              <<" offset: "   <<offset<<std::endl;
+
+//                //Calculate gain matrix
+//                double r = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
+//                k = (1/r)*(estCov*h);
+//                estCov -= (1/r)*a.Similarity(estCov);// (1/rrr)*c*a*c^t
+//                CkMap[plaqID].ResizeTo(4,4);
+//                CkMap[plaqID] = estCov;
+//                chi2 += (res*res/r)/(trackCandidate.size() - 2);
+//                if(plaqID == excludedDetector) excludedDetectorFound_ = true;
+//                else trackPars += res*k;
+//            }
+
+////            if(((plane%2 != 0)||(plane>(2*std::min(theKalmanPlaneInfo_.getKalmanFilterOrderUpstream().size(),theKalmanPlaneInfo_.getKalmanFilterOrderDownstream().size()) -1 )))&&(!excludedDetectorFound_))
+////            if(!excludedDetectorFound_)
+////            {
+//                //STDLINE(plaqID,ACRed);
+//            if(plane != (theKalmanPlaneInfo_.getKalmanFilterOrderUpstream().size()-1))
+//            {
+//                for ( int i=0; i<4; i++ )
+//                {
+//                    for ( int j=0; j<4; j++ )
+//                    {
+//                        estCov[i][j] += trackCov[i][j];
+//                    }
+//                }
+//            }
+////            }
+
+//            trackParsMap[plaqID].ResizeTo(4);
+//            trackParsMap[plaqID] = trackPars;
+//            Ckk_1Map[plaqID].ResizeTo(4,4);
+//            Ckk_1Map[plaqID] = estCov;
+
+//        }
+//        else //not strip data (pixels)
+//        {
+//            if(trackCandidate.find(plaqID) != trackCandidate.end())
+//            {
+//                for ( int i=0; i<4; i++ )
+//                {
+//                    for ( int j=0; j<4; j++ )
+//                    {
+//                        ax[i][j] = hx[i]*hx[j];
+//                    }
+//                }
+//                for ( int i=0; i<4; i++ )
+//                {
+//                    for ( int j=0; j<4; j++ )
+//                    {
+//                        ay[i][j] = hy[i]*hy[j];
+//                    }
+//                }
+
+
+//                double x    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;
+//                double xErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
+//                double resx = x - trackPars*hx - offsetx;
+
+//                double rx = estCov.Similarity(hx) + xErr*xErr;
+//                kx = (1/rx)*(estCov*hx);
+
+//                double y    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("y")->second;
+//                double yErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("yErr")->second;
+//                double resy = y - trackPars*hy - offsety;
+
+
+//                double ry = estCov.Similarity(hy) + yErr*yErr;
+//                ky = (1/ry)*(estCov*hy);
+
+//                estCov -= ((1/rx)*ax.Similarity(estCov)+(1/ry)*ay.Similarity(estCov));
+//                chi2   += ((resx*resx/rx)/(trackCandidate.size()*2 - 4)+(resy*resy/ry)/(trackCandidate.size()*2 - 4));
+//                if(!excludedDetectorFound_) trackPars += (resx*kx+resy*ky);
+//            }
+
+
+//            if(((plane%2 != 0)||(plane>(2*std::min(theKalmanPlaneInfo_.getKalmanFilterOrderUpstream().size(),theKalmanPlaneInfo_.getKalmanFilterOrderDownstream().size()) -1 )))&&(!excludedDetectorFound_))
+//            {
+//                //STDLINE(plaqID,ACRed);
+//                for ( int i=0; i<4; i++ )
+//                {
+//                    for ( int j=0; j<4; j++ )
+//                    {
+//                        estCov[i][j] += (trackCovx[i][j]+ trackCovy[i][j]);
+//                    }
+//                }
+//            }
+
+//        }
+//    }
+
+
+//    // Smoothing Upstream planes
+//    for (std::vector<std::pair<double, std::string> >::const_reverse_iterator rit = theKalmanPlaneInfo_.getKalmanFilterOrderUpstream().crbegin()+1;
+//                                                                              rit!= theKalmanPlaneInfo_.getKalmanFilterOrderUpstream().crend();
+//                                                                            ++rit)
+//    {
+////            std::cout<<__LINE__<<" PREVIOUS COV MATRIX "<<std::endl;
+////            estCov.Print();
+
+////            std::cout<<__LINE__<<" Ck Matrix "<<std::endl;
+////            CkMap[(*rit).second].Print();
+
+//            if(trackCandidate.find((*rit).second) == trackCandidate.end())continue;
+//            TVectorT<double> h = theKalmanPlaneInfo_.getH((*rit).second) ;
+//            double offset      = theKalmanPlaneInfo_.getOffset((*rit).second);
+
+
+////            std::cout<<__LINE__<<"Ckk_1 Matrix"<<std::endl;
+////            Ckk_1Map[(*rit).second].Print();
+////            std::cout<<__LINE__<<"Ckk_1 Inverted Matrix"<<std::endl;
+////            Ckk_1Map[(*rit).second].Invert().Print();
+
+//            Ckk_1Map[(*rit).second].Invert();
+
+//    //        for ( int i=0; i<4; i++ )
+//    //        {
+//    //            for ( int j=0; j<4; j++ )
+//    //            {
+//    //                b[i][j] = (CkMap[(*rit).second]*Ckk_1Map[(*rit).second])[i][j] ;
+//    //            }
+//    //        }
+
+//            b = CkMap[(*rit).second]*Ckk_1Map[(*rit).second];
+//            bt.Transpose(b);
+
+////            std::cout<<__LINE__<<"Ckk_1 Matrix After Product"<<std::endl;
+////            Ckk_1Map[(*rit).second].Print();
+
+////            std::cout<<__LINE__<<" Ak MATRIX"<<std::endl;
+////            b.Print();
+
+////            for ( int i=0; i<4; i++ )
+////            {
+////                for ( int j=0; j<4; j++ )
+////                {
+////                    bt[i][j] = b[j][i];
+////                }
+////            }
+
+////            std::cout<<__LINE__<<" Ak T MATRIX"<<std::endl;
+////            bt.Print();
+
+////            std::cout<<__LINE__<<"Ckk_1 Re-Inverted Matrix"<<std::endl;
+////            Ckk_1Map[(*rit).second].Invert().Print();
+//            Ckk_1Map[(*rit).second].Invert();
+
+////            for ( int i=0; i<4; i++ )
+////            {
+////                for ( int j=0; j<4; j++ )
+////                {
+////                    trackPars[i] = trackParsMap[(*rit).second][i] + b[i][j]*(trackPars[j]-trackParsMap[(*rit).second][j]);
+////                }
+////            }
+
+
+//            if((*rit).second != excludedDetector)
+//                trackPars = trackParsMap[(*rit).second] + b*(trackPars-trackParsMap[(*rit).second]);
+
+////            std::cout<<__LINE__<<"New Track Pars"<<std::endl;
+////            trackPars.Print();
+
+////            for(int i = 0; i < 4; ++i)
+////                    for(int j = 0; j < 4; ++j)
+////                        for(int k = 0; k < 4; ++k)
+////                        {
+////                            temp[i][j] += b[i][k] * (estCov[k][j] - Ckk_1Map[(*rit).second][k][j]) ;
+////                        }
+
+////            for(int i = 0; i < 4; ++i)
+////                    for(int j = 0; j < 4; ++j)
+////                        for(int k = 0; k < 4; ++k)
+////                        {
+////                            temp1[i][j] += temp[i][k] * bt[k][j] ;
+////                        }
+
+
+////            for ( int i=0; i<4; i++ )
+////            {
+////                for ( int j=0; j<4; j++ )
+////                {
+////                    //estCov[i][j] += (b*(estCov-Ckk_1Map[(*rit).second])*bt)[i][j];
+////                    estCov[i][j] = CkMap[(*rit).second][i][j] + temp1[i][j];
+////                }
+////            }
+
+//            temp = CkMap[(*rit).second] + b*(estCov-Ckk_1Map[(*rit).second])*bt;
+
+//            for ( int i=0; i<4; i++ )
+//            {
+//                for ( int j=0; j<4; j++ )
+//                {
+//                    estCov[i][j] = temp[i][j];
+//                }
+//            }
+
+//            //chi2 update
+//            double dist    = clusters[(*rit).second][trackCandidate.find((*rit).second)->second.find("cluster ID")->second].find("x")->second;//distance of the hit from origin of the sensor
+//            double distErr = clusters[(*rit).second][trackCandidate.find((*rit).second)->second.find("cluster ID")->second].find("xErr")->second;
+//            double res = dist - trackPars*h - offset;
+
+
+//            double r = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
+//            chi2 += (res*res/r)/(trackCandidate.size() - 2);
+
+////            std::cout<<__LINE__<<"New Cov Mat"<<std::endl;
+////            estCov.Print();
+
+//            if((*rit).second == (*(theKalmanPlaneInfo_.getKalmanFilterOrderUpstream().crend()-1)).second)
+//            {
+//                TMatrixTSym<double> trackCov  = theKalmanPlaneInfo_.getTrackCov((*rit).second);
+
+//                for ( int i=0; i<4; i++ )
+//                {
+//                    for ( int j=0; j<4; j++ )
+//                    {
+//                        estCov[i][j] += trackCov[i][j];
+//                    }
+//                }
+
+//            }
+//    }
+
+//    // Loop over downstream planes
+
+//    for (unsigned int plane = 0; plane < theKalmanPlaneInfo_.getKalmanFilterOrderDownstream().size(); plane++)
+//    {
+//        std::string plaqID = theKalmanPlaneInfo_.getKalmanFilterOrderDownstream().at(plane).second;
+
+//        TVectorT<double> k(4);
+//        TVectorT<double> kx(4);
+//        TVectorT<double> ky(4);
+//        TMatrixTSym<double> a(4);
+//        TMatrixTSym<double> ax(4);
+//        TMatrixTSym<double> ay(4);
+
+//        TVectorT<double> h            = theKalmanPlaneInfo_.getH(plaqID) ;
+//        TVectorT<double> hx           = theKalmanPlaneInfo_.getHx(plaqID);
+//        TVectorT<double> hy           = theKalmanPlaneInfo_.getHy(plaqID);
+//        TMatrixTSym<double> trackCov  = theKalmanPlaneInfo_.getTrackCov(plaqID);
+//        TMatrixTSym<double> trackCovx = theKalmanPlaneInfo_.getTrackCovx(plaqID);
+//        TMatrixTSym<double> trackCovy = theKalmanPlaneInfo_.getTrackCovy(plaqID);
+//        double offset                 = theKalmanPlaneInfo_.getOffset(plaqID);
+//        double offsetx                = theKalmanPlaneInfo_.getOffsetx(plaqID);
+//        double offsety                = theKalmanPlaneInfo_.getOffsety(plaqID);
+
+//        if ( theGeometry->getDetector(plaqID)->isStrip() ) //strip data
+//        {
+//            if(trackCandidate.find(plaqID) != trackCandidate.end())
+//            {
+//                for ( int i=0; i<4; i++ )
+//                {
+//                    for ( int j=0; j<4; j++ )
+//                    {
+//                        a[i][j] = h[i]*h[j];
+//                    }
+//                }
+
+//                //Residual of prediction
+//                double dist    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;//distance of the hit from origin of the sensor
+//                double distErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
+//                double res = dist - trackPars*h - offset;
+
+////                std::cout<<__PRETTY_FUNCTION__<<" trackPars: "<<trackPars[0]<<" "<<trackPars[1]<<" "<<trackPars[2]<<" "<<trackPars[3]
+////                                              <<" h: "        <<h[0]<<" "<<h[1]<<" "<<h[2]<< " "<<h[3]
+////                                              <<" offset: "   <<offset<<std::endl;
+
+//                //Calculate gain matrix
+//                double r = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
+//                k = (1/r)*(estCov*h);
+//                estCov -= (1/r)*a.Similarity(estCov);// (1/rrr)*c*a*c^t
+//                CkMap[plaqID].ResizeTo(4,4);
+//                CkMap[plaqID] = estCov;
+//                chi2 += (res*res/r)/(trackCandidate.size() - 2);
+//                if(plaqID == excludedDetector) excludedDetectorFound_ = true;
+//                else trackPars += res*k;
+//            }
+
+////            if(((plane%2 != 0)||(plane>(2*std::min(theKalmanPlaneInfo_.getKalmanFilterOrderUpstream().size(),theKalmanPlaneInfo_.getKalmanFilterOrderDownstream().size()) -1 )))&&(!excludedDetectorFound_))
+//            //if(!excludedDetectorFound_)
+//            //{
+//                //STDLINE(plaqID,ACRed);
+//            if(plane != (theKalmanPlaneInfo_.getKalmanFilterOrderDownstream().size()-1))
+//            {
+//            for ( int i=0; i<4; i++ )
+//                {
+//                    for ( int j=0; j<4; j++ )
+//                    {
+//                        estCov[i][j] += trackCov[i][j];
+//                    }
+//                }
+//            }
+//            //}
+
+//            trackParsMap[plaqID].ResizeTo(4);
+//            trackParsMap[plaqID] = trackPars;
+//            Ckk_1Map[plaqID].ResizeTo(4,4);
+//            Ckk_1Map[plaqID] = estCov;
+
+//        }
+//        else //not strip data (pixels)
+//        {
+//            if(trackCandidate.find(plaqID) != trackCandidate.end())
+//            {
+//                for ( int i=0; i<4; i++ )
+//                {
+//                    for ( int j=0; j<4; j++ )
+//                    {
+//                        ax[i][j] = hx[i]*hx[j];
+//                    }
+//                }
+//                for ( int i=0; i<4; i++ )
+//                {
+//                    for ( int j=0; j<4; j++ )
+//                    {
+//                        ay[i][j] = hy[i]*hy[j];
+//                    }
+//                }
+
+
+//                double x    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;
+//                double xErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
+//                double resx = x - trackPars*hx - offsetx;
+
+//                double rx = estCov.Similarity(hx) + xErr*xErr;
+//                kx = (1/rx)*(estCov*hx);
+
+//                double y    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("y")->second;
+//                double yErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("yErr")->second;
+//                double resy = y - trackPars*hy - offsety;
+
+
+//                double ry = estCov.Similarity(hy) + yErr*yErr;
+//                ky = (1/ry)*(estCov*hy);
+
+//                estCov -= ((1/rx)*ax.Similarity(estCov)+(1/ry)*ay.Similarity(estCov));
+//                chi2   += ((resx*resx/rx)/(trackCandidate.size()*2 - 4)+(resy*resy/ry)/(trackCandidate.size()*2 - 4));
+//                if(!excludedDetectorFound_) trackPars += (resx*kx+resy*ky);
+//            }
+
+
+//            if(((plane%2 != 0)||(plane>(2*std::min(theKalmanPlaneInfo_.getKalmanFilterOrderUpstream().size(),theKalmanPlaneInfo_.getKalmanFilterOrderDownstream().size()) -1 )))&&(!excludedDetectorFound_))
+//            {
+//                //STDLINE(plaqID,ACRed);
+//                for ( int i=0; i<4; i++ )
+//                {
+//                    for ( int j=0; j<4; j++ )
+//                    {
+//                        estCov[i][j] += (trackCovx[i][j]+ trackCovy[i][j]);
+//                    }
+//                }
+//            }
+
+//        }
+
+//    }
+
+//    // Smoothing Downstream planes
+//    for (std::vector<std::pair<double, std::string> >::const_reverse_iterator rit = theKalmanPlaneInfo_.getKalmanFilterOrderDownstream().crbegin()+1;
+//                                                                              rit!= theKalmanPlaneInfo_.getKalmanFilterOrderDownstream().crend();
+//                                                                            ++rit)
+//    {
+////            std::cout<<__LINE__<<" PREVIOUS COV MATRIX "<<std::endl;
+////            estCov.Print();
+
+////            std::cout<<__LINE__<<" Ck Matrix "<<std::endl;
+////            CkMap[(*rit).second].Print();
+
+//            if(trackCandidate.find((*rit).second) == trackCandidate.end())continue;
+//            TVectorT<double> h = theKalmanPlaneInfo_.getH((*rit).second) ;
+//            double offset      = theKalmanPlaneInfo_.getOffset((*rit).second);
+
+////            std::cout<<__LINE__<<"Ckk_1 Matrix"<<std::endl;
+////            Ckk_1Map[(*rit).second].Print();
+////            std::cout<<__LINE__<<"Ckk_1 Inverted Matrix"<<std::endl;
+////            Ckk_1Map[(*rit).second].Invert().Print();
+
+//            Ckk_1Map[(*rit).second].Invert();
+
+//    //        for ( int i=0; i<4; i++ )
+//    //        {
+//    //            for ( int j=0; j<4; j++ )
+//    //            {
+//    //                b[i][j] = (CkMap[(*rit).second]*Ckk_1Map[(*rit).second])[i][j] ;
+//    //            }
+//    //        }
+
+//            b = CkMap[(*rit).second]*Ckk_1Map[(*rit).second];
+//            bt.Transpose(b);
+
+////            std::cout<<__LINE__<<"Ckk_1 Matrix After Product"<<std::endl;
+////            Ckk_1Map[(*rit).second].Print();
+
+////            std::cout<<__LINE__<<" Ak MATRIX"<<std::endl;
+////            b.Print();
+
+////            for ( int i=0; i<4; i++ )
+////            {
+////                for ( int j=0; j<4; j++ )
+////                {
+////                    bt[i][j] = b[j][i];
+////                }
+////            }
+
+////            std::cout<<__LINE__<<" Ak T MATRIX"<<std::endl;
+////            bt.Print();
+
+////            std::cout<<__LINE__<<"Ckk_1 Re-Inverted Matrix"<<std::endl;
+////            Ckk_1Map[(*rit).second].Invert().Print();
+//            Ckk_1Map[(*rit).second].Invert();
+
+////            for ( int i=0; i<4; i++ )
+////            {
+////                for ( int j=0; j<4; j++ )
+////                {
+////                    trackPars[i] = trackParsMap[(*rit).second][i] + b[i][j]*(trackPars[j]-trackParsMap[(*rit).second][j]);
+////                }
+////            }
+
+//            if((*rit).second != excludedDetector)
+//                trackPars = trackParsMap[(*rit).second] + b*(trackPars-trackParsMap[(*rit).second]);
+
+////            std::cout<<__LINE__<<"New Track Pars"<<std::endl;
+////            trackPars.Print();
+
+////            for(int i = 0; i < 4; ++i)
+////                    for(int j = 0; j < 4; ++j)
+////                        for(int k = 0; k < 4; ++k)
+////                        {
+////                            temp[i][j] += b[i][k] * (estCov[k][j] - Ckk_1Map[(*rit).second][k][j]) ;
+////                        }
+
+////            for(int i = 0; i < 4; ++i)
+////                    for(int j = 0; j < 4; ++j)
+////                        for(int k = 0; k < 4; ++k)
+////                        {
+////                            temp1[i][j] += temp[i][k] * bt[k][j] ;
+////                        }
+
+
+////            for ( int i=0; i<4; i++ )
+////            {
+////                for ( int j=0; j<4; j++ )
+////                {
+////                    //estCov[i][j] += (b*(estCov-Ckk_1Map[(*rit).second])*bt)[i][j];
+////                    estCov[i][j] = CkMap[(*rit).second][i][j] + temp1[i][j];
+////                }
+////            }
+
+//            temp = CkMap[(*rit).second] + b*(estCov-Ckk_1Map[(*rit).second])*bt;
+
+//            for ( int i=0; i<4; i++ )
+//            {
+//                for ( int j=0; j<4; j++ )
+//                {
+//                    estCov[i][j] = temp[i][j];
+//                }
+//            }
+
+//            //chi2 update
+//            double dist    = clusters[(*rit).second][trackCandidate.find((*rit).second)->second.find("cluster ID")->second].find("x")->second;//distance of the hit from origin of the sensor
+//            double distErr = clusters[(*rit).second][trackCandidate.find((*rit).second)->second.find("cluster ID")->second].find("xErr")->second;
+//            double res = dist - trackPars*h - offset;
+
+
+//            double r = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
+//            chi2 += (res*res/r)/(trackCandidate.size() - 2);
+
+////            std::cout<<__LINE__<<"New Cov Mat"<<std::endl;
+////            estCov.Print();
+//    }
+
     for (unsigned int plane = 0; plane < theKalmanPlaneInfo_.getKalmanFilterOrder().size(); plane++)
     {
         std::string plaqID = theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).second;
-        if(plaqID == excludedDetector) excludedDetectorFound_ = true;
 
         TVectorT<double> k(4);
         TVectorT<double> kx(4);
@@ -364,15 +884,10 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
         double offsetx                = theKalmanPlaneInfo_.getOffsetx(plaqID);
         double offsety                = theKalmanPlaneInfo_.getOffsety(plaqID);
 
-        //if(abs(theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).first))>
-
-
-        //"Compute"
-        if ( theGeometry->getDetector(plaqID)->isStrip() ) //strip data
-        {            
+        if ( theGeometry->getDetector(plaqID)->isStrip() )//|| theGeometry->getDetector(plaqID)->isDUT() ) //strip data
+        {
             if(trackCandidate.find(plaqID) != trackCandidate.end())
             {
-
                 for ( int i=0; i<4; i++ )
                 {
                     for ( int j=0; j<4; j++ )
@@ -380,6 +895,7 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                         a[i][j] = h[i]*h[j];
                     }
                 }
+
                 //Residual of prediction
                 double dist    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;//distance of the hit from origin of the sensor
                 double distErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
@@ -393,13 +909,15 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                 double r = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
                 k = (1/r)*(estCov*h);
                 estCov -= (1/r)*a.Similarity(estCov);// (1/rrr)*c*a*c^t
+                CkMap[plaqID].ResizeTo(4,4);
+                CkMap[plaqID] = estCov;
                 chi2 += (res*res/r)/(trackCandidate.size() - 2);
-                if(!excludedDetectorFound_) trackPars += res*k;
+                if(plaqID == excludedDetector) excludedDetectorFound_ = true;
+                else trackPars += res*k;
             }
 
-            if(((plane%2 != 0)||(plane>(2*std::min(theKalmanPlaneInfo_.getPosPlane(),theKalmanPlaneInfo_.getNegPlane()) -1 )))&&(!excludedDetectorFound_))
+            if(plane != (theKalmanPlaneInfo_.getKalmanFilterOrder().size()-1))
             {
-                //STDLINE(plaqID,ACRed);
                 for ( int i=0; i<4; i++ )
                 {
                     for ( int j=0; j<4; j++ )
@@ -409,62 +927,199 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                 }
             }
 
-        }
-        else //not strip data (pixels)
-        {
-            if(trackCandidate.find(plaqID) != trackCandidate.end())
-            {
-                for ( int i=0; i<4; i++ )
-                {
-                    for ( int j=0; j<4; j++ )
-                    {
-                        ax[i][j] = hx[i]*hx[j];
-                    }
-                }
-                for ( int i=0; i<4; i++ )
-                {
-                    for ( int j=0; j<4; j++ )
-                    {
-                        ay[i][j] = hy[i]*hy[j];
-                    }
-                }
-
-
-                double x    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;
-                double xErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
-                double resx = x - trackPars*hx - offsetx;
-
-                double rx = estCov.Similarity(hx) + xErr*xErr;
-                kx = (1/rx)*(estCov*hx);
-
-                double y    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("y")->second;
-                double yErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("yErr")->second;
-                double resy = y - trackPars*hy - offsety;
-
-
-                double ry = estCov.Similarity(hy) + yErr*yErr;
-                ky = (1/ry)*(estCov*hy);
-
-                estCov -= ((1/rx)*ax.Similarity(estCov)+(1/ry)*ay.Similarity(estCov));
-                chi2   += ((resx*resx/rx)/(trackCandidate.size()*2 - 4)+(resy*resy/ry)/(trackCandidate.size()*2 - 4));
-                if(!excludedDetectorFound_) trackPars += (resx*kx+resy*ky);
-            }
-
-
-            if(((plane%2 != 0)||(plane>(2*std::min(theKalmanPlaneInfo_.getPosPlane(),theKalmanPlaneInfo_.getNegPlane()) -1 )))&&(!excludedDetectorFound_))
-            {
-                //STDLINE(plaqID,ACRed);
-                for ( int i=0; i<4; i++ )
-                {
-                    for ( int j=0; j<4; j++ )
-                    {
-                        estCov[i][j] += (trackCovx[i][j]+ trackCovy[i][j]);
-                    }
-                }
-            }
+            trackParsMap[plaqID].ResizeTo(4);
+            trackParsMap[plaqID] = trackPars;
+            Ckk_1Map[plaqID].ResizeTo(4,4);
+            Ckk_1Map[plaqID] = estCov;
 
         }
+//         else //not strip data (pixels)
+//         {
+//             if(trackCandidate.find(plaqID) != trackCandidate.end())
+//             {
+//                 for ( int i=0; i<4; i++ )
+//                 {
+//                     for ( int j=0; j<4; j++ )
+//                     {
+//                         ax[i][j] = hx[i]*hx[j];
+//                     }
+//                 }
+//                 for ( int i=0; i<4; i++ )
+//                 {
+//                     for ( int j=0; j<4; j++ )
+//                     {
+//                         ay[i][j] = hy[i]*hy[j];
+//                     }
+//                 }
+// 
+// 
+//                 double x    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;
+//                 double xErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
+//                 double resx = x - trackPars*hx - offsetx;
+// 
+//                 double rx = estCov.Similarity(hx) + xErr*xErr;
+//                 kx = (1/rx)*(estCov*hx);
+// 
+//                 double y    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("y")->second;
+//                 double yErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("yErr")->second;
+//                 double resy = y - trackPars*hy - offsety;
+// 
+// 
+//                 double ry = estCov.Similarity(hy) + yErr*yErr;
+//                 ky = (1/ry)*(estCov*hy);
+// 
+//                 estCov -= ((1/rx)*ax.Similarity(estCov)+(1/ry)*ay.Similarity(estCov));
+//                 chi2   += ((resx*resx/rx)/(trackCandidate.size()*2 - 4)+(resy*resy/ry)/(trackCandidate.size()*2 - 4));
+//                 if(!excludedDetectorFound_) trackPars += (resx*kx+resy*ky);
+//             }
+// 
+// 
+//             if(((plane%2 != 0)||(plane>(2*std::min(theKalmanPlaneInfo_.getKalmanFilterOrderUpstream().size(),theKalmanPlaneInfo_.getKalmanFilterOrderDownstream().size()) -1 )))&&(!excludedDetectorFound_))
+//             {
+//                 //STDLINE(plaqID,ACRed);
+//                 for ( int i=0; i<4; i++ )
+//                 {
+//                     for ( int j=0; j<4; j++ )
+//                     {
+//                         estCov[i][j] += (trackCovx[i][j]+ trackCovy[i][j]);
+//                     }
+//                 }
+//             }
+// 
+//         }
     }
+
+
+    // Smoothing planes
+    for (std::vector<std::pair<double, std::string> >::const_reverse_iterator rit = theKalmanPlaneInfo_.getKalmanFilterOrder().crbegin()+1;
+                                                                              rit!= theKalmanPlaneInfo_.getKalmanFilterOrder().crend();
+                                                                            ++rit)
+    {
+//            std::cout<<__LINE__<<" PREVIOUS COV MATRIX "<<std::endl;
+//            estCov.Print();
+
+//            std::cout<<__LINE__<<" Ck Matrix "<<std::endl;
+//            CkMap[(*rit).second].Print();
+
+            if(trackCandidate.find((*rit).second) == trackCandidate.end())continue;
+            TVectorT<double> h = theKalmanPlaneInfo_.getH((*rit).second) ;
+            double offset      = theKalmanPlaneInfo_.getOffset((*rit).second);
+
+
+//            std::cout<<__LINE__<<"Ckk_1 Matrix"<<std::endl;
+//            Ckk_1Map[(*rit).second].Print();
+//            std::cout<<__LINE__<<"Ckk_1 Inverted Matrix"<<std::endl;
+//            Ckk_1Map[(*rit).second].Invert().Print();
+
+            Ckk_1Map[(*rit).second].Invert();
+
+    //        for ( int i=0; i<4; i++ )
+    //        {
+    //            for ( int j=0; j<4; j++ )
+    //            {
+    //                b[i][j] = (CkMap[(*rit).second]*Ckk_1Map[(*rit).second])[i][j] ;
+    //            }
+    //        }
+
+            b = CkMap[(*rit).second]*Ckk_1Map[(*rit).second];
+            bt.Transpose(b);
+
+//            std::cout<<__LINE__<<"Ckk_1 Matrix After Product"<<std::endl;
+//            Ckk_1Map[(*rit).second].Print();
+
+//            std::cout<<__LINE__<<" Ak MATRIX"<<std::endl;
+//            b.Print();
+
+//            for ( int i=0; i<4; i++ )
+//            {
+//                for ( int j=0; j<4; j++ )
+//                {
+//                    bt[i][j] = b[j][i];
+//                }
+//            }
+
+//            std::cout<<__LINE__<<" Ak T MATRIX"<<std::endl;
+//            bt.Print();
+
+//            std::cout<<__LINE__<<"Ckk_1 Re-Inverted Matrix"<<std::endl;
+//            Ckk_1Map[(*rit).second].Invert().Print();
+            Ckk_1Map[(*rit).second].Invert();
+
+//            for ( int i=0; i<4; i++ )
+//            {
+//                for ( int j=0; j<4; j++ )
+//                {
+//                    trackPars[i] = trackParsMap[(*rit).second][i] + b[i][j]*(trackPars[j]-trackParsMap[(*rit).second][j]);
+//                }
+//            }
+
+
+            if((*rit).second != excludedDetector)
+                trackPars = trackParsMap[(*rit).second] + b*(trackPars-trackParsMap[(*rit).second]);
+
+//            std::cout<<__LINE__<<"New Track Pars"<<std::endl;
+//            trackPars.Print();
+
+//            for(int i = 0; i < 4; ++i)
+//                    for(int j = 0; j < 4; ++j)
+//                        for(int k = 0; k < 4; ++k)
+//                        {
+//                            temp[i][j] += b[i][k] * (estCov[k][j] - Ckk_1Map[(*rit).second][k][j]) ;
+//                        }
+
+//            for(int i = 0; i < 4; ++i)
+//                    for(int j = 0; j < 4; ++j)
+//                        for(int k = 0; k < 4; ++k)
+//                        {
+//                            temp1[i][j] += temp[i][k] * bt[k][j] ;
+//                        }
+
+
+//            for ( int i=0; i<4; i++ )
+//            {
+//                for ( int j=0; j<4; j++ )
+//                {
+//                    //estCov[i][j] += (b*(estCov-Ckk_1Map[(*rit).second])*bt)[i][j];
+//                    estCov[i][j] = CkMap[(*rit).second][i][j] + temp1[i][j];
+//                }
+//            }
+
+            temp = CkMap[(*rit).second] + b*(estCov-Ckk_1Map[(*rit).second])*bt;
+
+            for ( int i=0; i<4; i++ )
+            {
+                for ( int j=0; j<4; j++ )
+                {
+                    estCov[i][j] = temp[i][j];
+                }
+            }
+
+            //chi2 update
+            double dist    = clusters[(*rit).second][trackCandidate.find((*rit).second)->second.find("cluster ID")->second].find("x")->second;//distance of the hit from origin of the sensor
+            double distErr = clusters[(*rit).second][trackCandidate.find((*rit).second)->second.find("cluster ID")->second].find("xErr")->second;
+            double res = dist - trackPars*h - offset;
+
+            double r = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
+            chi2 += (res*res/r)/(trackCandidate.size() - 2);
+
+//            std::cout<<__LINE__<<"New Cov Mat"<<std::endl;
+//            estCov.Print();
+
+//            if((*rit).second == (*(theKalmanPlaneInfo_.getKalmanFilterOrder().crend()-1)).second)
+//            {
+//                TMatrixTSym<double> trackCov  = theKalmanPlaneInfo_.getTrackCov((*rit).second);
+
+//                for ( int i=0; i<4; i++ )
+//                {
+//                    for ( int j=0; j<4; j++ )
+//                    {
+//                        estCov[i][j] += trackCov[i][j];
+//                    }
+//                }
+
+//            }
+    }
+
     //Switch trackPars back to our array type
     for ( int i=0; i<4; i++ )
     {
@@ -571,17 +1226,24 @@ void trackFitter::makeDetectorTrackResiduals ( ROOT::Math::SVector<double,4>   &
     // For Local residuals
     det->getPredictedLocal(fittedTrack, xp, yp);
 
-    det->flipPositionLocal(&xm, &ym, &xmErr, &ymErr);
-    det->flipPositionLocal(&xp, &yp, &xpErr, &ypErr);
+//    if((theGeometry->getDetectorModule(detector))%2==0)
+//        cout<<__PRETTY_FUNCTION__<<" Simple Xpred before flip: "<<xp<<endl;
+
+//    else cout<<__PRETTY_FUNCTION__<<" Simple Ypred before flip: "<<yp<<endl;
+
+    // Flip operations are inlcuded in kalman fit so flip of x planes is not needed
+
+//    if((det->isStrip())&&((theGeometry->getDetectorModule(detector))%2!=0))
+//    {
+        det->flipPositionLocal(&xm, &ym, &xmErr, &ymErr);
+        det->flipPositionLocal(&xp, &yp, &xpErr, &ypErr);
+//    }
 
     //for global resiudals, not to be done
     //    det->getPredictedGlobal(fittedTrack, xp, yp, zp);
 
-        double resX  = ( xm - xp );
-        double resY  = ( ym - yp );
-
-
-    //cout << __PRETTY_FUNCTION__ << "resX: " << resX << " resY: " << resY << endl;
+    double resX  = xm-xp;
+    double resY  = ym-yp;
 
     Detector::xyPair predPair = det->getTrackErrorsOnPlane( fittedTrack, covMat );
 
@@ -591,6 +1253,43 @@ void trackFitter::makeDetectorTrackResiduals ( ROOT::Math::SVector<double,4>   &
     double pullX = resX/sqrt(predsigxx);
     double pullY = resY/sqrt(predsigyy);
 
+//    cout << __PRETTY_FUNCTION__ << "predXErr: " << predPair.first << "predyErr: " << predPair.second
+//                                << "mesXErr: " << xmErr << " mesYErr: " << ymErr<< endl;
+//    if(!det->isDUT())
+//    {
+
+//        TVectorT<double> h = theKalmanPlaneInfo_.getH(detector) ;
+//        double offset      = theKalmanPlaneInfo_.getOffset(detector);
+//        TVectorT<double> trackPars(4);
+//        for ( int i=0; i<4; i++ )
+//        {
+//            trackPars[i] = fittedTrack[i];
+//        }
+
+//        double res = cluster["x"]-(trackPars*h + offset);
+
+//        if((theGeometry->getDetectorModule(detector))%2==0)
+//        {
+//            cout<<__PRETTY_FUNCTION__<<" Simple Xmes: "<<xm<<" Kalman Xmes: "<<cluster["x"]
+//                                     <<" Simple Xpred: "<<xp<<" Kalman Xpred: "<<trackPars*h + offset
+//                                     <<" Simple res: "<<resX<<" Kalman res: "<<res
+//                                     <<" Difference: "<<resX-res<<endl;
+
+//            resX  -= res;
+
+
+//        }
+//        else
+//        {
+//            cout<<__PRETTY_FUNCTION__<<" Simple Ymes: "<<ym<<" Kalman Ymes: "<<cluster["x"]
+//                                     <<" Simple Ypred: "<<yp<<" Kalman Ypred: "<<trackPars*h + offset
+//                                     <<" Simple res: "<<resY<<" Kalman res: "<<res
+//                                     <<" Difference: "<<resY-res<<endl;
+
+//            resY  -= res;
+//        }
+
+//    }
 
     residualsMap_[trackNum][detector] = std::make_pair(resX, resY);
     pullMap_     [trackNum][detector] = std::make_pair(pullX, pullY)   ;

@@ -74,7 +74,6 @@ public:
                                                      std::string          plaqID           ) {offsetx_  [plaqID] = offsetx          ;}
     void                        setOffsety          (double               offsety  ,
                                                      std::string          plaqID           ) {offsety_  [plaqID] = offsety          ;}
-    
     unsigned int                getPosPlane         (void                                  ) {return posPlane_                      ;}
     unsigned int                getNegPlane         (void                                  ) {return negPlane_                      ;}
     kalmanFilterOrderDef      & getKalmanFilterOrder(void                                  ) {return kalmanFilterOrder_             ;}

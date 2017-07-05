@@ -54,7 +54,12 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
   else if(${USER} == "dinardo") then
    setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
   else if(${USER} == "dzuolo") then
-   setenv BASEDATADIR ../data/TestBeamFBKPlanarAfterRad_Batch01_02
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamFBK_PlanarARadBatch02_3DBRadBatch01_PlanarBRadBatch03
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamData2015
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamFBKPlanarAfterRad_Batch01_02
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamFBKPlanarBeforeRad_Batch02
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamData_February_2017
+   setenv BASEDATADIR /user/gr1/e831/dzuolo/StripTelescopeAnalysis
   endif
   
   setenv PATH /opt/rh/devtoolset-2/root/usr/bin:/bin:/usr/bin:/usr/local/bin:/usr/printmi/bin

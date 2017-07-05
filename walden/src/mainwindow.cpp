@@ -39,7 +39,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->splitter, SIGNAL(splitterMoved  (int, int)),
             this,         SLOT  (resizeChildrens(int, int))) ;
 
-    foldersInFile_=false;
 
     gStyle -> SetPalette(1); //To ROOT 5
 
@@ -68,6 +67,7 @@ void MainWindow::on_BrowsePB_clicked()
     ui->ContractPB->setEnabled(true);
 
     extract_ = new Extractor() ;
+    foldersInFile_=false;
 
     QString fileName   = extract_->getFileName();
     ui->openFileLE->setText(fileName);
@@ -250,23 +250,36 @@ void MainWindow::drawAll (void)
     if(histoMap_.size()>(unsigned int)maxPadNumber)
     {
         createStatusBar();
+<<<<<<< .mine
+        if(maxPadNumber>12) c_->DivideSquare(maxPadNumber,0,0);
+        else c_->DivideSquare(maxPadNumber);
+//        if(maxPadNumber>12) c_->Divide(maxPadNumber/2,maxPadNumber/2,0,0);
+//        else c_->Divide(maxPadNumber/2,maxPadNumber/2);
+=======
         if(maxPadNumber>12) c_->DivideSquare(maxPadNumber,0,0); //TO ROOT 6
         else c_->DivideSquare(maxPadNumber);
 //        if(maxPadNumber>12) c_->Divide(maxPadNumber/2,maxPadNumber/2,0,0);
 //        else c_->Divide(maxPadNumber/2,maxPadNumber/2);
+>>>>>>> .r143
         c_->Modified();
         c_->Update();
     }
 
     else
     {
+<<<<<<< .mine
+        if(maxPadNumber>12) c_->DivideSquare(histoMap_.size(),0,0);
+        else c_->DivideSquare(histoMap_.size());
+//        if(maxPadNumber>12) c_->Divide(histoMap_.size()/2,histoMap_.size()/2,0,0);
+//        else c_->Divide(histoMap_.size()/2,histoMap_.size()/2);
+=======
         if(maxPadNumber>12) c_->DivideSquare(histoMap_.size(),0,0); //TO ROOT 6
         else c_->DivideSquare(histoMap_.size());
 //        if(maxPadNumber>12) c_->Divide(histoMap_.size()/2,histoMap_.size()/2,0,0);
 //        else c_->Divide(histoMap_.size()/2,histoMap_.size()/2);
+>>>>>>> .r143
         c_->Modified();
         c_->Update();
-
     }
 
     for (hMapIterDef_ it=histoMap_.begin(); it!=histoMap_.end(); ++it)

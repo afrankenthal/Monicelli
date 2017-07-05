@@ -4607,7 +4607,6 @@ void mainTabs::on_GeometryTabW_currentChanged(int tabNumber)
 
     }
 }
-
 //================================================================================
 void mainTabs::on_cal1Chi2PB_clicked()
 {

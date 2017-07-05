@@ -339,18 +339,21 @@ bool ROC::calibratePixel(int row, int col, int adc, int& charge, bool isDut)
   double *par = this->getCalibrationFunction(row, col);
   
   if (par != 0)
-    {
-      if (newAdc[0] > ROC::calibrationFitFunction(maxVCal, par, isDut))
-	newAdc[0] = (int)ROC::calibrationFitFunction(maxVCal, par, isDut);
+  {
+      if (newAdc[0] >      ROC::calibrationFitFunction(maxVCal, par, isDut))
+	  newAdc[0] = (int)ROC::calibrationFitFunction(maxVCal, par, isDut);
       
       charge = (int)ROC::calibrationFitFunctionInv(newAdc , par, isDut);
-      return true;
-    }
+      //cout<<__LINE__<<__PRETTY_FUNCTION__<<" isDut: "<<isDut<<" charge: "<<charge<<endl;
+      return true;      
+  }
   else
-    {
+  {
       charge = adc;
+      //cout<<__LINE__<<__PRETTY_FUNCTION__<<" isDut: "<<isDut<<" charge: "<<charge<<endl;
       return false;
-    }
+
+  }
 }
 
 //=============================================================================

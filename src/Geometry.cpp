@@ -229,46 +229,40 @@ void Geometry::dump(void)
 //=======================================================================================
 void Geometry::orderPlanes(void)
 {
-    std::vector<std::pair<double, std::string> >  posPlaqByZ;
-    std::vector<std::pair<double, std::string> >  negPlaqByZ;
+//    std::vector<std::pair<double, std::string> >  posPlaqByZ;
+//    std::vector<std::pair<double, std::string> >  negPlaqByZ;
     std::vector<std::pair<double, std::string> >  plaqByZ;
-    double posPlane=0,negPlane=0;
+//    double posPlane=0,negPlane=0;
 
     for(std::map< std::string , Detector* >::iterator it = detectorsMap_.begin(); it!=detectorsMap_.end();++it)
     {
         std::string plaqID = it->first;
         if( it->second->isDUT() ) continue;
         double z = it->second->getZPosition();
-        if(z > 0)
-        {
-            posPlaqByZ.push_back(make_pair(z,plaqID));
-            posPlane++;
-        }
-        else
-        {
-            negPlaqByZ.push_back(make_pair(z,plaqID));
-            negPlane++;
-        }
+        plaqByZ.push_back(make_pair(z,plaqID));
     }
 
-    std::sort(posPlaqByZ.begin(),posPlaqByZ.end(),geoSorter_);
-    std::sort(negPlaqByZ.begin(),negPlaqByZ.end(),geoSorter_);
+//    std::sort(posPlaqByZ.begin(),posPlaqByZ.end(),geoSorter_);
+//    std::sort(negPlaqByZ.begin(),negPlaqByZ.end(),geoSorter_);
 
-    for(unsigned int i = 0 ; i< std::max(posPlaqByZ.size(),negPlaqByZ.size());i++)
-    {
-        if(i<posPlaqByZ.size()) plaqByZ.push_back(posPlaqByZ.at(i));
-        if(i<negPlaqByZ.size()) plaqByZ.push_back(negPlaqByZ.at(i));
-    }
+//    for(unsigned int i = 0 ; i< std::max(posPlaqByZ.size(),negPlaqByZ.size());i++)
+//    {
+//        if(i<posPlaqByZ.size()) plaqByZ.push_back(posPlaqByZ.at(i));
+//        if(i<negPlaqByZ.size()) plaqByZ.push_back(negPlaqByZ.at(i));
+//    }
 
     theKalmanPlaneInfo_.setKalmanFilterOrder(plaqByZ);
-    theKalmanPlaneInfo_.setPosPlane(posPlane);
-    theKalmanPlaneInfo_.setNegPlane(negPlane);
-    //        for(unsigned int i = 0; i<plaqByZ.size();i++)
-    //        {
-    //            std::cout<<__PRETTY_FUNCTION__<<plaqByZ.at(i).first<<" "<<plaqByZ.at(i).second<<std::endl;
-    //        }
+//    theKalmanPlaneInfo_.setKalmanFilterOrderUpstream(negPlaqByZ);
+//    theKalmanPlaneInfo_.setKalmanFilterOrderDownstream(posPlaqByZ);
 
-    //        assert(0);
+//            for(unsigned int i = 0; i<plaqByZ.size();i++)
+//            {
+//                //std::cout<<__PRETTY_FUNCTION__<<negPlaqByZ.at(i).first<<" "<<negPlaqByZ.at(i).second<<std::endl;
+//                //std::cout<<__PRETTY_FUNCTION__<<posPlaqByZ.at(i).first<<" "<<posPlaqByZ.at(i).second<<std::endl;
+//                std::cout<<__PRETTY_FUNCTION__<<plaqByZ.at(i).first<<" "<<plaqByZ.at(i).second<<std::endl;
+//            }
+
+//            assert(0);
 
 }
 //=======================================================================================
