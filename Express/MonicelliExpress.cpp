@@ -23,8 +23,8 @@
 
 // @@@ Hard coded parameters @@@
 #define DUTfreePLANES 100011 // Define the fix [1] and free [0] parameters [z,y,x,gamma,beta,alpha]
-#define DORAWALIGNMENT false // Find the transverse position of the beamspot
-#define DOSLOPEFINDER false  // Find the overall slope of the tracks
+#define DORAWALIGNMENT true  // Find the transverse position of the beamspot
+#define DOSLOPEFINDER true   // Find the overall slope of the tracks
 #define DUT2STEPS true       // Do DUT alignment in 2 steps: (1) only translations, (2) translations + angles
 // ============================
 
@@ -376,9 +376,9 @@ int main (int argc, char** argv)
 
 
 
-      // #################
-      // # Raw alignment #
-      // #################
+      // ################
+      // # Slope finder #
+      // ################
       if (DOSLOPEFINDER  == true)
 	{
 	  STDLINE("Slope Finder",ACBlue);
@@ -408,7 +408,6 @@ int main (int argc, char** argv)
 
 	  fitFunc = (TF1*)histo->FindObject("gausFitFunc");
 	  slopeY = fitFunc->GetParameter(0);
-
 
 	  for (Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); it++)
 	    {
