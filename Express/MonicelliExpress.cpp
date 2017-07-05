@@ -23,8 +23,8 @@
 
 // @@@ Hard coded parameters @@@
 #define DUTfreePLANES 100011 // Define the fix [1] and free [0] parameters [z,y,x,gamma,beta,alpha]
-#define DORAWALIGNMENT true  // Find the transverse position of the beamspot
-#define DOSLOPEFINDER true   // Find the overall slope of the tracks
+#define DORAWALIGNMENT false // Find the transverse position of the beamspot
+#define DOSLOPEFINDER false  // Find the overall slope of the tracks
 #define DUT2STEPS true       // Do DUT alignment in 2 steps: (1) only translations, (2) translations + angles
 // ============================
 
@@ -363,24 +363,24 @@ int main (int argc, char** argv)
 
 
 
-      // ################
-      // # Track finder #
-      // ################
-      STDLINE("Track Finder",ACBlue);
-
-      theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
-      theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
-      theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
-      theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
-      theFileEater.updateEvents2();
-
-
-
-      // ################
-      // # Slope finder #
-      // ################
-      if (DOSLOPEFINDER  == true)
+      if (DOSLOPEFINDER == true)
 	{
+	  // ################
+	  // # Track finder #
+	  // ################
+	  STDLINE("Track Finder",ACBlue);
+	  
+	  theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
+	  theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
+	  theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
+	  theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
+	  theFileEater.updateEvents2();
+
+
+
+	  // ################
+	  // # Slope finder #
+	  // ################
 	  STDLINE("Slope Finder",ACBlue);
 
 	  HManager::stringVDef histoType;
@@ -396,6 +396,7 @@ int main (int argc, char** argv)
 	  for (int myIt = 0; myIt < theFileEater.getEventsNumber(); myIt++)
 	    histoType = theHManager.makeTracksDistr2(theFileEater.getEvent(myIt), reDo);
 
+
 	  histo = (TH1*)theHManager.getHistogram(histoType[1]);
 	  theFitter.gaussFit(histo);
 
@@ -408,6 +409,7 @@ int main (int argc, char** argv)
 
 	  fitFunc = (TF1*)histo->FindObject("gausFitFunc");
 	  slopeY = fitFunc->GetParameter(0);
+
 
 	  for (Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); it++)
 	    {
@@ -427,6 +429,19 @@ int main (int argc, char** argv)
 	  
 	  theFileEater.updateGeometry("geometry");
 	}
+
+
+
+      // ################
+      // # Track finder #
+      // ################
+      STDLINE("Track Finder",ACBlue);
+
+      theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
+      theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
+      theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
+      theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
+      theFileEater.updateEvents2();
 
 
 
@@ -650,7 +665,7 @@ int main (int argc, char** argv)
       // #############
       STDLINE("Residuals",ACBlue);
 
-      theTrackFitter.clearSelectedDetectorsList();      
+      theTrackFitter.clearSelectedDetectorsList();
       theTrackFitter.setOperation(&trackFitter::makeFittedTracksResiduals);
       theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFitter);
       theFileEater.updateEvents2();
