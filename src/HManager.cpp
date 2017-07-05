@@ -2199,6 +2199,8 @@ HManager::stringVDef HManager::makeBeamSpots2(Event * theEvent, bool &add)
     fullPaths.push_back(std::string(BEAM_PROFILES_X   ));
     fullPaths.push_back(std::string(BEAM_PROFILES_Y   ));
 
+    theGeometry_ = theFileEater_->getGeometry();
+
     if( !redo_ && !add && runSubFolder_->FindObject(fullPaths[0].c_str()) )  return fullPaths;
 
     TH2I* flippedBeamSpotsHistos = 0;
