@@ -132,6 +132,7 @@ void detectorW::initialize(xmlDetector * theDetector)
   ui->dCalibrationFitFunctionCB ->addItem         ("tanh"                                                       ) ;
   ui->dCalibrationFitFunctionCB ->addItem         ("linear"                                                     ) ;
   ui->dCalibrationFitFunctionCB ->addItem         ("parabolic"                                                  ) ;
+  ui->dCalibrationFitFunctionCB ->addItem         ("none"                                                       ) ;
   ui->dCalibrationFitFunctionCB ->setCurrentIndex ("dCalibrationFitFunction",
                                                    QString((theDetector->getdCalibrationFitFunction()).c_str()) ) ;
   ui->dCalibrationFitFunctionCB ->setInnerGeometry(ui->dCalibrationFitFunctionCB->geometry()                    ) ;
@@ -141,6 +142,7 @@ void detectorW::initialize(xmlDetector * theDetector)
   ui->raCalibrationFitFunctionCB->addItem         ("tanh"                                                       ) ;
   ui->raCalibrationFitFunctionCB->addItem         ("linear"                                                     ) ;
   ui->raCalibrationFitFunctionCB->addItem         ("parabolic"                                                  ) ;
+  ui->raCalibrationFitFunctionCB->addItem         ("none"                                                       ) ;
   ui->raCalibrationFitFunctionCB->setCurrentIndex ("raCalibrationFitFunction",
                                                    QString((theDetector->getraCalibrationFitFunction()).c_str())) ;
   ui->raCalibrationFitFunctionCB->setInnerGeometry(ui->raCalibrationFitFunctionCB->geometry()                   ) ;

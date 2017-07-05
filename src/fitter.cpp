@@ -75,7 +75,11 @@ void fitter::setFitFunctionType(std::string type)
     {
         calibrationFitFunction_ = new TF1(calibrationFitFunctionName_, ROC::parabolicFitFunctionROOT, 0, 800000,3) ;
     }
-    else
+    else if(fitFunctionType_ == "none")
+    {
+        calibrationFitFunction_ = new TF1(calibrationFitFunctionName_, ROC::noneFitFunctionROOT, 0, 800000,3) ;
+    }
+     else
     {
         calibrationFitFunction_ = new TF1(calibrationFitFunctionName_, ROC::tanhFitFunctionROOT,      0, 800000,4) ;
     }

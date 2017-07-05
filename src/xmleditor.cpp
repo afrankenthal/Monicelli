@@ -215,6 +215,7 @@ void XMLEditor::layout()
     ui->gCalibrationFitFunctionCB->addItem         ("tanh"                                                         );
     ui->gCalibrationFitFunctionCB->addItem         ("linear"                                                       );
     ui->gCalibrationFitFunctionCB->addItem         ("parabolic"                                                    );
+    ui->gCalibrationFitFunctionCB->addItem         ("none"                                                         );
     ui->gCalibrationFitFunctionCB->setCurrentIndex ("gCalibrationFitFunction",
                                                     QString((theXMLParser_->getgCalibrationFitFunction()).c_str()) );
     ui->gCalibrationFitFunctionCB->setInnerGeometry(ui->gCalibrationFitFunctionCB->geometry()                      );
@@ -224,6 +225,7 @@ void XMLEditor::layout()
     ui->gDUTFitFunctionCB        ->addItem         ("linear"                                                       );
     ui->gDUTFitFunctionCB        ->addItem         ("tanh"                                                         );
     ui->gDUTFitFunctionCB        ->addItem         ("parabolic"                                                    );
+    ui->gDUTFitFunctionCB        ->addItem         ("none"                                                         );
     ui->gDUTFitFunctionCB        ->setCurrentIndex ("gDUTFitFunction",
                                                     QString((theXMLParser_->getgDUTFitFunction()).c_str())         );
     ui->gDUTFitFunctionCB        ->setInnerGeometry(ui->gDUTFitFunctionCB->geometry()                              );

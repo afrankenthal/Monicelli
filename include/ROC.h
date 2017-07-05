@@ -80,6 +80,8 @@ class ROC : public TObject
                                              double       * par                           );
    static double  tanhFitFunctionROOT       (double       * x,
                                              double       * par                           );
+   static double  noneFitFunctionROOT       (double       * x,
+                                             double       * par                           );
           double  calibrationFitFunction    (double       * x,
                                              double       * par,
                                              bool           isDut                         );

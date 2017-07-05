@@ -78,6 +78,7 @@ void ROCWidget::initialize(xmlROC * theROC)
   ui->rCalibrationFitFunctionCB->addItem         ("tanh"                                                 ) ;
   ui->rCalibrationFitFunctionCB->addItem         ("linear"                                               ) ;
   ui->rCalibrationFitFunctionCB->addItem         ("parabolic"                                            ) ;
+  ui->rCalibrationFitFunctionCB->addItem         ("none"                                                 ) ;
   ui->rCalibrationFitFunctionCB->setCurrentIndex ("rCalibrationFitFunction",
                                                   QString((theROC->getrCalibrationFitFunction()).c_str())) ;
   ui->rCalibrationFitFunctionCB->setInnerGeometry(ui->rCalibrationFitFunctionCB->geometry()              ) ;

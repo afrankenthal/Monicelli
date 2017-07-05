@@ -48,9 +48,10 @@ alias distCleanAll 'make -f MakefileAll distclean'
 #===============   Personalized configuration on this computer   ==============================================
 if(${HOSTNAME} == "hal9000.mib.infn.it") then
 
-  echo "Setting up for cip"
+  echo "Setting up for hal9000"
   if(     ${USER} == "menasce") then
-   setenv BASEDATADIR /raid1/menasce/AnalysisTBF/data/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
+#   setenv BASEDATADIR /raid1/menasce/AnalysisTBF/data/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
+   setenv BASEDATADIR /raid1/menasce/AnalysisTBF/dzuolo/StripTelescopeAnalysis
   else if(${USER} == "dinardo") then
    setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
   else if(${USER} == "dzuolo") then
@@ -81,6 +82,8 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
   #===== Location of the Qt components
   setenv QTDIR  		   /user/service/Qt-5.6.2/5.6/gcc_64/
   setenv QTCREATORDIR		   /raid1/menasce/qt-creator-opensource-src-4.3.0
+  setenv QTLIB                     ${QTDIR}/lib 
+  setenv QTINC                     ${QTDIR}/include 
 
   #===== Location of the BOOST components
   setenv BOOSTINC		   /usr/local/include/boost

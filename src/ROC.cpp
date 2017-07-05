@@ -80,25 +80,32 @@ double ROC::tanhFitFunctionROOT(double *x, double *par)
 }
 
 //===============================================================================
+double ROC::noneFitFunctionROOT(double *x, double */*par*/)
+{
+  return x[0];
+}
+//===============================================================================
 double ROC::calibrationFitFunction(double *x, double *par, bool isDut)
 {
   if      (isDut && calibrationFunctionType_ == "linear"   ) return x[0]*par[0] + par[1];
   else if (isDut && calibrationFunctionType_ == "parabolic") return x[0]*x[0]*par[0] + x[0]*par[1] + par[2];
+  else if (isDut && calibrationFunctionType_ == "none"     ) return x[0];
   else                                                       return par[0] + par[1]*tanh(par[2]*x[0] + par[3]);
 }
 
 //===============================================================================
 double ROC::calibrationFitFunctionInv(double *x, double *par, bool isDut)
 {
-    if      (isDut && calibrationFunctionType_ == "linear"   )  return (x[0] - par[1]) / par[0];
+    if      (isDut && calibrationFunctionType_ == "linear"   ) return (x[0] - par[1]) / par[0];
     else if (isDut && calibrationFunctionType_ == "parabolic")
     {
       if ((par[1]*par[1] - 4.*par[0]*(par[2] - x[0])) >= 0)
-         return ((-par[1] + sqrt(par[1]*par[1] - 4.*par[0]*(par[2] - x[0]))) / (2.*par[0]));
+                                                               return ((-par[1] + sqrt(par[1]*par[1] - 4.*par[0]*(par[2] - x[0]))) / (2.*par[0]));
       else
-        return 0.;
+        return                                                 0.;
     }
-    else return (atanh((x[0] - par[0]) / par[1]) - par[3]) / par[2];
+    else if (isDut && calibrationFunctionType_ == "none"     ) return x[0];
+    else                                                       return (atanh((x[0] - par[0]) / par[1]) - par[3]) / par[2];
 }
 
 //==========================================================================

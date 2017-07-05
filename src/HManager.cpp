@@ -1537,7 +1537,7 @@ HManager::stringVDef HManager::eventsCycle()
         if(fullPaths.size() == 0)
             fullPaths = (this->*subProcessFunction_)(theEvent,add);
         else
-            (this->*subProcessFunction_)(theEvent,add);
+                        (this->*subProcessFunction_)(theEvent,add);
 
         if(!add) {std::cout << std::endl ;break;}
     }
