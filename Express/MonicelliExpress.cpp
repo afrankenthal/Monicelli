@@ -6,6 +6,7 @@
 #include "Geometry.h"
 #include "aligner.h"
 #include "threader.h"
+#include "maintabs.h"
 
 #include <TApplication.h>
 
@@ -22,6 +23,8 @@
 
 // @@@ Hard coded parameters @@@
 #define DUTfreePLANES 100011 // Define the fix [1] and free [0] parameters [z,y,x,gamma,beta,alpha]
+#define DORAWALIGNMENT false // Find the transverse position of the beamspot
+#define DOSLOPEFINDER false  // Find the overall slope of the tracks
 #define DUT2STEPS true       // Do DUT alignment in 2 steps: (1) only translations, (2) translations + angles
 // ============================
 
@@ -265,6 +268,7 @@ int main (int argc, char** argv)
       aligner theDUTAligner(&theFileEater,&theHManager);
 
 
+
       // #########################
       // # Parse and make events #
       // #########################
@@ -302,6 +306,63 @@ int main (int argc, char** argv)
 
 
 
+      // #################
+      // # Raw alignment #
+      // #################
+      if (DORAWALIGNMENT == true)
+	{
+	  STDLINE("Raw Alignment",ACBlue);
+	  
+	  HManager::stringVDef histoType;
+	  fitter theFitter;
+	  TH1* histo;
+	  TF1* fitFunc;
+	  bool reDo = true;
+	  double xPosition;
+	  double yPosition;
+	  double xPositionErr;
+	  double yPositionErr;
+
+	  for (int myIt = 0; myIt < theFileEater.getEventsNumber(); myIt++)
+	    histoType = theHManager.makeBeamSpots2(theFileEater.getEvent(myIt), reDo);
+
+	  for (Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); it++)
+            {
+	      histo = (TH1*)theHManager.getHistogram(histoType[1], (*it).first);
+	      theFitter.gaussFit(histo);
+
+	      fitFunc      = (TF1*)histo->FindObject("gausFitFunc");
+	      xPosition    = fitFunc->GetParameter(0);
+	      xPositionErr = fitFunc->GetParError(0) / 2.;
+
+
+	      histo = (TH1*)theHManager.getHistogram(histoType[2], (*it).first);
+	      theFitter.gaussFit(histo);
+
+	      fitFunc      = (TF1*)histo->FindObject("gausFitFunc");
+	      yPosition    = fitFunc->GetParameter(0);
+	      yPositionErr = fitFunc->GetParError(0) / 2.;
+
+
+	      theGeometry->getDetector(it->first)->flipPositionLocal(&xPosition, &yPosition, &xPositionErr, &yPositionErr);
+	      theGeometry->getDetector(it->first)->setXPosition(xPosition);
+	      theGeometry->getDetector(it->first)->setXPositionError(xPositionErr);
+	      theGeometry->getDetector(it->first)->setYPosition(yPosition);
+	      theGeometry->getDetector(it->first)->setYPositionError(yPositionErr);
+	    }
+
+
+
+	  // ###################
+	  // # Update geometry #
+	  // ###################	
+	  STDLINE("Update Geometry",ACBlue);
+	  
+	  theFileEater.updateGeometry("geometry");
+	}
+
+
+
       // ################
       // # Track finder #
       // ################
@@ -312,6 +373,62 @@ int main (int argc, char** argv)
       theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
       theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
       theFileEater.updateEvents2();
+
+
+
+      // #################
+      // # Raw alignment #
+      // #################
+      if (DOSLOPEFINDER  == true)
+	{
+	  STDLINE("Slope Finder",ACBlue);
+
+	  HManager::stringVDef histoType;
+	  fitter theFitter;
+	  TH1* histo;
+	  TF1* fitFunc;
+	  bool reDo = true;
+	  double slopeX;
+	  double slopeY;
+	  double xPosition;
+	  double yPosition;
+
+	  for (int myIt = 0; myIt < theFileEater.getEventsNumber(); myIt++)
+	    histoType = theHManager.makeTracksDistr2(theFileEater.getEvent(myIt), reDo);
+
+	  histo = (TH1*)theHManager.getHistogram(histoType[1]);
+	  theFitter.gaussFit(histo);
+
+	  fitFunc = (TF1*)histo->FindObject("gausFitFunc");
+	  slopeX = fitFunc->GetParameter(0);
+
+	  
+	  histo = (TH1*)theHManager.getHistogram(histoType[2]);
+	  theFitter.gaussFit(histo);
+
+	  fitFunc = (TF1*)histo->FindObject("gausFitFunc");
+	  slopeY = fitFunc->GetParameter(0);
+
+
+	  for (Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); it++)
+	    {
+	      xPosition = sin(atan(slopeX)) * theGeometry->getDetector(it->first)->getZPositionTotal();
+	      yPosition = sin(atan(slopeY)) * theGeometry->getDetector(it->first)->getZPositionTotal();
+
+	      theGeometry->getDetector(it->first)->setXPositionCorrection(theGeometry->getDetector(it->first)->getXPositionCorrection() + xPosition);
+	      theGeometry->getDetector(it->first)->setYPositionCorrection(theGeometry->getDetector(it->first)->getYPositionCorrection() + yPosition);
+	    }
+
+
+
+	  // ###################
+	  // # Update geometry #
+	  // ###################	
+	  STDLINE("Update Geometry",ACBlue);
+	  
+	  theFileEater.updateGeometry("geometry");
+	}
+
 
 
       // ############################
@@ -544,17 +661,17 @@ int main (int argc, char** argv)
       // ######################
       // # Copy geometry file #
       // ######################
-      STDLINE("Copy Geometry File",ACBlue);
+      // STDLINE("Copy Geometry File",ACBlue);
 
-      string outputFilePath = filesPath;
-      outputFilePath.erase(outputFilePath.length()-8,outputFilePath.length()).append("/MonicelliOutput/");
+      // string outputFilePath = filesPath;
+      // outputFilePath.erase(outputFilePath.length()-8,outputFilePath.length()).append("/MonicelliOutput/");
 
-      string newGeoName = theXmlParser.getFileList()[f]->fileName_;
-      newGeoName.erase(newGeoName.length()-4,newGeoName.length()).append(".geo");
+      // string newGeoName = theXmlParser.getFileList()[f]->fileName_;
+      // newGeoName.erase(newGeoName.length()-4,newGeoName.length()).append(".geo");
 
-      string copyGeometryCommand = "cp " + outputFilePath + newGeoName + " " + geometriesPath + newGeoName;
-      STDLINE(copyGeometryCommand.c_str(),ACBlue);
-      system(copyGeometryCommand.c_str());
+      // string copyGeometryCommand = "cp " + outputFilePath + newGeoName + " " + geometriesPath + newGeoName;
+      // STDLINE(copyGeometryCommand.c_str(),ACBlue);
+      // system(copyGeometryCommand.c_str());
     }
   return EXIT_SUCCESS;
 }
