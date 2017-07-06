@@ -35,8 +35,8 @@
 
 
 // @@@ Hard coded parameters @@@
-#define FITTYPE "parabol" // "lin", "parabol", or "tanh": use this to set which function you want to use for the calibrations
-#define ELECTRONS_NUMBER 350 // [e- / Vcal]
+#define ELECTRONS_NUMBER 350 // [e- / VCal]
+#define ADCBITS 10           // Bits of the analog to digital converter
 // ============================
 
 
@@ -340,7 +340,7 @@ double ROC::getLengthLocalY (void)
 bool ROC::calibratePixel(int row, int col, int adc, int& charge, bool isDut)
 {
   double newAdc[1];
-  double maxVCal[1] = {255*ELECTRONS_NUMBER};
+  double maxVCal[1] = {pow(2,ADCBITS) * ELECTRONS_NUMBER};
 
   newAdc[0] = adc;
   double *par = this->getCalibrationFunction(row, col);
