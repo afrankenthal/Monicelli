@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include <helpers.h>
 #include <QApplication>
-#include <QPlastiqueStyle>
+//#include <QPlastiqueStyle>
 #include <TApplication.h>
 
 int main(int argc, char *argv[])
@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     TApplication rootapp("Extractor", &argc, argv);
 
     QApplication a(argc, argv);
-    QApplication::setStyle(new QPlastiqueStyle()) ;
+    //QApplication::setStyle(new QPlastiqueStyle()) ;
 
     MainWindow w;
     w.setWindowTitle("walden - ROOT File Navigator");

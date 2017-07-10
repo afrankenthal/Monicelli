@@ -22,7 +22,7 @@ SOURCES               += main.cpp             \
                          src/treeitem.cpp     \
                          src/treemodel.cpp    \
                          src/indent.cpp       \
-                         src/utilities.cpp
+                         src/utilities.cpp    \
 
 HEADERS               += inc/mainwindow.h     \
                          inc/qrootcanvas.h    \
@@ -32,7 +32,7 @@ HEADERS               += inc/mainwindow.h     \
                          inc/treemodel.h      \
                          inc/indent.h         \
                          inc/ANSIColors.h     \
-                         inc/utilities.h
+                         inc/utilities.h \
 
 INCLUDEPATH	      += ./inc                \
                          uiFiles              \
