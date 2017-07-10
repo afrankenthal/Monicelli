@@ -30,6 +30,7 @@
 
 #include "trackFinder.h"
 #include <iostream>
+#include <iomanip>
 #include <TVectorT.h>
 #include <TMatrixTSym.h>
 using namespace std;
@@ -52,10 +53,7 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
     Event::trackCandidatesDef                        &alignedHitsCandidates = theEvent->getAlignedHitsCandidates() ;
     //std::vector<Event::alignedHitsCandidateMapDef> &alignedHitsCandidates = theEvent->getAlignedHitsCandidates() ;
 
-
-    //cout << __PRETTY_FUNCTION__ << "First and Last track search" << endl;
-    //cout << __PRETTY_FUNCTION__ << "Event number: " << theEvent->getTrigger() << endl;
-    //cout << __PRETTY_FUNCTION__ << "Clusters size: " << clusters.size() << endl;
+//    ss_.str(""); ss_ << "Number of aligned clusters: " << alignedClusters.size() ; STDLINE(ss_.str(),ACYellow) ;
     //trackCandidates_.clear();
     //tracksFitted_   .clear();
     //covMat_         .clear();
@@ -90,34 +88,52 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
     for(unsigned int i = 0; i<clusterCorrectionIterations; i++)
     {
 
-        for(Event::clustersMapDef::const_iterator clustersIt=clusters.begin(); clustersIt!=clusters.end(); clustersIt++)
+        for(Event::clustersMapDef::const_iterator clustersIt =clusters.begin();
+                                                  clustersIt!=clusters.end();
+                                                  clustersIt++)
         {
             if ( theGeometry->getDetector(clustersIt->first)->isDUT() ) continue;
-            for (Event::aClusterMapDef::const_iterator clusterIt=clustersIt->second.begin(); clusterIt!=clustersIt->second.end(); clusterIt++)
+            for (Event::aClusterMapDef::const_iterator clusterIt =clustersIt->second.begin();
+                                                       clusterIt!=clustersIt->second.end();
+                                                       clusterIt++)
             {
+//                ss_.str(""); ss_ << clustersIt->first << " " << clusterIt->first ;
+//                STDLINE(ss_.str(),ACWhite) ;
                 Event::aClusterDef& alignedCluster = (alignedClusters[ clustersIt->first ])[clusterIt->first];
                 //cluster is a copy of the real clusters so I just change them to global coordinates
-                alignedCluster["x"]          = clusterIt->second.find("x")->second     ;
-                alignedCluster["y"]          = clusterIt->second.find("y")->second     ;
+                alignedCluster["x"]          = clusterIt->second.find("x"       )->second;
+                alignedCluster["y"]          = clusterIt->second.find("y"       )->second;
                 alignedCluster["z"]          = 0;
-                alignedCluster["xErr"]       = clusterIt->second.find("xErr")->second  ;
-                alignedCluster["yErr"]       = clusterIt->second.find("yErr")->second  ;
+                alignedCluster["xErr"]       = clusterIt->second.find("xErr"    )->second;
+                alignedCluster["yErr"]       = clusterIt->second.find("yErr"    )->second;
                 alignedCluster["zErr"]       = 0;
-                alignedCluster["size"]       = clusterIt->second.find("size")->second  ;
-                alignedCluster["charge"]     = clusterIt->second.find("charge")->second;
+                alignedCluster["size"]       = clusterIt->second.find("size"    )->second;
+                alignedCluster["charge"]     = clusterIt->second.find("charge"  )->second;
                 alignedCluster["dataType"]   = clusterIt->second.find("dataType")->second;
                 alignedCluster["cluster ID"] = clusterIt->first;
-                alignedCluster["xyErr"]      = theGeometry->getDetector( clustersIt->first )->fromLocalToGlobal( &alignedCluster["x"], &alignedCluster["y"], &alignedCluster["z"], &alignedCluster["xErr"], &alignedCluster["yErr"], &alignedCluster["zErr"] ) ;
-
+                alignedCluster["xyErr"]      = theGeometry->getDetector( clustersIt->first )->fromLocalToGlobal( &alignedCluster["x"   ],
+                                                                                                                 &alignedCluster["y"   ],
+                                                                                                                 &alignedCluster["z"   ],
+                                                                                                                 &alignedCluster["xErr"],
+                                                                                                                 &alignedCluster["yErr"],
+                                                                                                                 &alignedCluster["zErr"]) ;
+//                cout << "   x:" << setw(10) << alignedCluster["x"   ]
+//                     <<   " y:" << setw(10) << alignedCluster["y"   ]
+//                     <<   " z:" << setw(10) << alignedCluster["z"   ]
+//                     << endl ;
             }
         }
 
-        for (Event::clustersMapDef::iterator alignedClustersIt=alignedClusters.begin(); alignedClustersIt!=alignedClusters.end(); alignedClustersIt++)
+        for (Event::clustersMapDef::iterator alignedClustersIt =alignedClusters.begin();
+                                             alignedClustersIt!=alignedClusters.end();
+                                             alignedClustersIt++)
         {
             int station = theGeometry->getDetectorStation(alignedClustersIt->first);
-            int module  = theGeometry->getDetectorModule(alignedClustersIt->first);
+            int module  = theGeometry->getDetectorModule (alignedClustersIt->first);
 
-            for (Event::aClusterMapDef::iterator clusterIt=alignedClustersIt->second.begin(); clusterIt!=alignedClustersIt->second.end(); clusterIt++)
+            for (Event::aClusterMapDef::iterator clusterIt =alignedClustersIt->second.begin();
+                                                 clusterIt!=alignedClustersIt->second.end();
+                                                 clusterIt++)
             {
                 int dataType = clusterIt->second["dataType"];
                 if (dataType==1) //Strip data
@@ -126,7 +142,9 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
                     {
                         if (alignedClusters[getPlaneID(station, module+1)].size() != 0 )
                         {
-                            for (Event::aClusterMapDef::iterator nextClusterIt=alignedClusters[getPlaneID(station, module+1)].begin(); nextClusterIt!=alignedClusters[getPlaneID(station, module+1)].end(); nextClusterIt++)
+                            for (Event::aClusterMapDef::iterator nextClusterIt =alignedClusters[getPlaneID(station, module+1)].begin();
+                                                                 nextClusterIt!=alignedClusters[getPlaneID(station, module+1)].end();
+                                                                 nextClusterIt++)
                             {
                                 //cout << "  " << endl;
                                 //cout << "First" << endl;
@@ -173,7 +191,9 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
                     {
                         if (alignedClusters[getPlaneID(station, module-1)].size() != 0 )
                         {
-                            for (Event::aClusterMapDef::iterator nextClusterIt=alignedClusters[getPlaneID(station, module-1)].begin(); nextClusterIt!=alignedClusters[getPlaneID(station, module-1)].end(); nextClusterIt++)
+                            for (Event::aClusterMapDef::iterator nextClusterIt =alignedClusters[getPlaneID(station, module-1)].begin();
+                                                                 nextClusterIt!=alignedClusters[getPlaneID(station, module-1)].end();
+                                                                 nextClusterIt++)
                             {
                                 //cout << "  " << endl;
                                 //cout << "Second" << endl;
@@ -220,7 +240,9 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
             }
         }
 
-        for (Event::clustersMapDef::iterator alignedClustersIt=alignedClusters.begin(); alignedClustersIt!=alignedClusters.end(); alignedClustersIt++)
+        for (Event::clustersMapDef::iterator alignedClustersIt =alignedClusters.begin();
+                                             alignedClustersIt!=alignedClusters.end();
+                                             alignedClustersIt++)
         {
             if(alignedClustersIt->second.size() == 0)
                 alignedClusters.erase(alignedClustersIt--);
@@ -228,12 +250,16 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
 
         double xLoc, yLoc, zLoc;
         //int print = 0;
-        for (Event::clustersMapDef::iterator alignedClustersIt=alignedClusters.begin(); alignedClustersIt!=alignedClusters.end(); alignedClustersIt++)
+        for (Event::clustersMapDef::iterator alignedClustersIt =alignedClusters.begin();
+                                             alignedClustersIt!=alignedClusters.end();
+                                             alignedClustersIt++)
         {
             int station = theGeometry->getDetectorStation(alignedClustersIt->first);
-            int module  = theGeometry->getDetectorModule(alignedClustersIt->first);
+            int module  = theGeometry->getDetectorModule (alignedClustersIt->first);
 
-            for (Event::aClusterMapDef::iterator clusterIt=alignedClustersIt->second.begin(); clusterIt!=alignedClustersIt->second.end(); clusterIt++)
+            for (Event::aClusterMapDef::iterator clusterIt =alignedClustersIt->second.begin();
+                                                 clusterIt!=alignedClustersIt->second.end();
+                                                 clusterIt++)
             {
                 int dataType = clusterIt->second["dataType"];
                 if (dataType==1) //strip data
@@ -588,13 +614,13 @@ void trackFinder::fitKalmanTrackCandidates(Event* theEvent, Geometry* theGeometr
 //============================================================================
 void trackFinder::fitSimpleTrackCandidates(Event* theEvent, Geometry* theGeometry)
 {
-    Event::trackCandidatesDef                      &trackCandidates      = theEvent->getTrackCandidates()       ;
-    Event::fittedTracksDef                         &tracksFitted         = theEvent->getFittedTracks()          ;
-    Event::fittedTracksCovarianceDef               &covMat               = theEvent->getFittedTracksCovariance();
-    Event::chi2VectorDef                           &chi2                 = theEvent->getFittedTracksChi2()      ;
+    Event::trackCandidatesDef                      &trackCandidates        = theEvent->getTrackCandidates()       ;
+    Event::fittedTracksDef                         &tracksFitted           = theEvent->getFittedTracks()          ;
+    Event::fittedTracksCovarianceDef               &covMat                 = theEvent->getFittedTracksCovariance();
+    Event::chi2VectorDef                           &chi2                   = theEvent->getFittedTracksChi2()      ;
 
-    std::vector<Event::alignedHitsCandidateMapDef>  &alignedHitsCandidates = theEvent->getAlignedHitsCandidates();
-    Event::clustersMapDef                           &alignedClusters       = theEvent->getAlignedClusters();
+    std::vector<Event::alignedHitsCandidateMapDef>  &alignedHitsCandidates = theEvent->getAlignedHitsCandidates() ;
+    Event::clustersMapDef                           &alignedClusters       = theEvent->getAlignedClusters()       ;
 
     trackCandidates.clear();
     tracksFitted   .clear();

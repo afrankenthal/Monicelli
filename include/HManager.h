@@ -137,7 +137,7 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
     stringVDef             makeMeanScatterResidual   (stringVDef       histoTypes    , bool redo        = true        ) ;
     stringVDef             makeElectronDistribution  (std::vector<int> selectedEvents, int  clusterSize = -1          ) ;
     stringVDef             makeFittedTracksBeam	     (std::vector<int> selectedEvents                                 ) ;
-
+    void                   restrictSearch            (bool          restrict                                          ) {restrictSearch_ = restrict;};
     void                   setEventFilters           (int           maxTracks                                           ,
                                                       int           minPlanesWithHits                       = -1        ,
                                                       int           maxPointsPerDetector                    = -1      ) ;
@@ -154,7 +154,7 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
 
     void                   setOperation              (multiProcess_function  operation                                  ,
                                                       HManager_Make_function function                       = NULL    ) ;
-    void                   setRunSubDir	    	     (std::string            runSubDirName		             ) ;
+    void                   setRunSubDir	    	     (std::string            runSubDirName		                      ) ;
     void                   setSubProcessFunction     (HManager_Make_function function, bool        redo    = false    ) {subProcessFunction_=function; redo_=redo;}
 
     stringVDef             storeCustomTObject  	     (TObject*               object  , std::string objectType         ) ;
@@ -162,7 +162,7 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
   private:
 
     std::string	           addItem	                 (std::string            fullPath, TObject*    object             ) ;
-    static stringVDef      splitPath                 (std::string            s		    	                     ) ;
+    static stringVDef      splitPath                 (std::string            s		    	                          ) ;
 
     TH2I*                  emptyTH2I_                ;
     TH1I*                  emptyTH1I_                ;
@@ -197,6 +197,7 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
     //Counters
     int                    totalTracksFound_          ;
     int                    totalEventsWithTracksFound_;
+    bool                   restrictSearch_            ;
 
     std::vector<int>       selectedEvents_           ;
 };

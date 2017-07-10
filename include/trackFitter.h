@@ -45,7 +45,6 @@ using namespace std;
 #include "Event.h"
 #include "Geometry.h"
 #include "KalmanPlaneInfo.h"
-//#include "maintabs.h"
 
 #include "subMultiProcess.h"
 
@@ -55,8 +54,10 @@ public:
     trackFitter(void)   ;
    ~trackFitter(void)  {this->clear();}
 
-   typedef ROOT::Math::SVector<double,4>                             SV4Def ;
+   typedef ROOT::Math::SVector<double,4>                             SV4Def         ;
    typedef std::pair< std::pair< SV4Def, Event::matrixDef >, double> aFittedTrackDef;
+   typedef std::pair<double, std::string>                            pairDef        ;
+   typedef std::vector<pairDef>::const_reverse_iterator              revIterDef     ;
 
    void                             clear                           (void                                                            );
    void                             clearSelectedDetectorsList      (void                                                            ){selectedDetectors_.clear()          ;}

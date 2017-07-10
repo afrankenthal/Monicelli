@@ -303,6 +303,7 @@ private:
                                                   bool           backward = false          );
 
     void           updateNumberOfROCs            (void                                     ){numberOfROCs_=xNumberOfROCs_*yNumberOfROCs_ ;}
+    bool           isRotated                     (bool           global                    );
 
     ROCsMapDef     ROCsChipIDMap_            ;
     ROCsMapDef     ROCsPositionMap_          ;

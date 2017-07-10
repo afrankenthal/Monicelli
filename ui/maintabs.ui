@@ -594,7 +594,7 @@ p, li { white-space: pre-wrap; }
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>7</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="rawDataProcessingTabPage">
       <attribute name="title">
@@ -3471,8 +3471,8 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="geometry">
         <rect>
-         <x>444</x>
-         <y>8</y>
+         <x>882</x>
+         <y>5</y>
          <width>89</width>
          <height>20</height>
         </rect>
@@ -3913,6 +3913,25 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="text">
         <string>Cluster Profiles</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="restrictSearchCB">
+       <property name="geometry">
+        <rect>
+         <x>402</x>
+         <y>2</y>
+         <width>119</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Restrict search of beam-profile hits only to events with at least one hit in every telescope station &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Restrict search</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </widget>

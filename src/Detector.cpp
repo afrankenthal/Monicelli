@@ -185,7 +185,7 @@ void  Detector::setNumberOfROCs(unsigned int xNumberOfROCs, unsigned int yNumber
 //===============================================================================
 unsigned int Detector::getNumberOfCols(bool global)
 {
-    if( !global || (zRotation_ < 45 && zRotation_ >= 0) || (zRotation_ <= 360 && zRotation_ > 315) || (zRotation_ > 135 && zRotation_ < 225) )
+    if( this->isRotated(global) )
         return numberOfCols_;
     else
         return this->getNumberOfRows();
@@ -194,10 +194,18 @@ unsigned int Detector::getNumberOfCols(bool global)
 //===============================================================================
 unsigned int Detector::getNumberOfRows(bool global)
 {
-    if( !global || (zRotation_ < 45 && zRotation_ >= 0) || (zRotation_ <= 360 && zRotation_ > 315) || (zRotation_ > 135 && zRotation_ < 225) )
+    if( this->isRotated(global) )
         return numberOfRows_;
     else
         return this->getNumberOfCols();
+}
+//===============================================================================
+bool Detector::isRotated(bool global)
+{
+    if( !global || (zRotation_ <   45 && zRotation_ >=  0)
+                || (zRotation_ <= 360 && zRotation_ > 315)
+                || (zRotation_ >  135 && zRotation_ < 225) ) return true ;
+    return false ;
 }
 
 //===============================================================================
@@ -365,7 +373,7 @@ double Detector::getPixelPitchLocalY(unsigned int row)
 //===============================================================================
 double Detector::getDetectorLengthX(bool global)
 {
-    if( !global || (zRotation_ < 45 && zRotation_ >= 0) || (zRotation_ <= 360 && zRotation_ > 315) || (zRotation_ > 135 && zRotation_ < 225) )
+    if( this->isRotated(global) )
     {
         double length=0;
         for (unsigned int pos=0; pos < xNumberOfROCs_; pos++)
@@ -379,7 +387,7 @@ double Detector::getDetectorLengthX(bool global)
 //===============================================================================
 double Detector::getDetectorLengthY(bool global)
 {
-    if( !global || (zRotation_ < 45 && zRotation_ >= 0) || (zRotation_ <= 360 && zRotation_ > 315) || (zRotation_ > 135 && zRotation_ < 225) )
+    if( this->isRotated(global) )
     {
         double length=0;
         for (unsigned int pos=0; pos < numberOfROCs_ ; pos+=xNumberOfROCs_)
@@ -489,35 +497,36 @@ void Detector::flipPixel(unsigned int *row, unsigned int *col)
     unsigned int lastRow  = this->getLastRow();
     unsigned int lastCol  = this->getLastCol();
 
-    //reflection through orizonatal center of symmetry
-    if( this->isXBackFlipped() )
+    // reflection through horizonatal center of symmetry
+    if( this->isXBackFlipped())
         *col = lastCol - *col;
-    //reflection through vertical center of symmetry
-    if( this->isYBackFlipped() )
+    // reflection through vertical center of symmetry
+    if( this->isYBackFlipped())
         *row = lastRow - *row ;
 
-    //rotation around z axis
+    // rotation around z axis
     int tmp;
-    //vertical clockwise
-    if(zRotation_ > 225 && zRotation_ < 315)
+    // vertical clockwise
+    if(     zRotation_ > 225  && zRotation_ < 315 )
     {
-        tmp = *col           ;
+        tmp  = *col           ;
         *col = *row           ;
-        *row = lastCol - tmp ;
+        *row = lastCol - tmp  ;
     }
-    //vertical anti-clockwise
-    else if(zRotation_ > 45 && zRotation_ < 135)
+    // vertical anti-clockwise
+    else if(zRotation_ > 45   && zRotation_ < 135 )
     {
-        tmp  = *col               ;
-        *col = lastRow - *row     ;
-        *row  = tmp               ;
+        tmp  = *col           ;
+        *col = lastRow - *row ;
+        *row = tmp            ;
     }
-    //orizontal anti-clockwise
+    // horizontal anti-clockwise
     else if(zRotation_ >= 135 && zRotation_ <= 225)
     {
         *row = lastRow - *row ;
         *col = lastCol - *col ;
     }
+    // no rotation, no flip
 }
 
 //=================================================================
@@ -525,33 +534,33 @@ void Detector::flipBackPixel(unsigned int *row, unsigned int *col )
 {
     unsigned int lastRow  = this->getLastRow();
     unsigned int lastCol  = this->getLastCol();
-    //rotation around z axis
+    // rotation around z axis
     int tmp;
-    //vertical clockwise
+    // vertical clockwise
     if(zRotation_ > 225 && zRotation_ < 315)
     {
-        tmp = *row           ;
-        *row = *col           ;
+        tmp  = *row          ;
+        *row = *col          ;
         *col = lastCol - tmp ;
     }
-    //vertical anti-clockwise
+    // vertical anti-clockwise
     else if(zRotation_ > 45 && zRotation_ < 135)
     {
-        tmp  = *row               ;
-        *row = lastRow - *col     ;
-        *col  = tmp               ;
+        tmp  = *row          ;
+        *row = lastRow - *col;
+        *col = tmp           ;
     }
-    //orizontal anti-clockwise
+    // horizontal anti-clockwise
     else if(zRotation_ >= 135 && zRotation_ <= 225)
     {
-        *col = lastCol - *col ;
-        *row = lastRow - *row ;
+        *col = lastCol - *col;
+        *row = lastRow - *row;
     }
 
-    //reflection through orizonatal center of symmetry
+    // reflection through horizonatal center of symmetry
     if( this->isXBackFlipped() )
         *col = lastCol - *col;
-    //reflection through vertical center of symmetry
+    // reflection through vertical center of symmetry
     if( this->isYBackFlipped() )
         *row = lastRow - *row ;
 }
@@ -567,41 +576,41 @@ void Detector::flipPositionLocal(double *x, double *y, double *xErr, double *yEr
     //STDLINE(ss_.str(),ACPurple);
 
 
-    //reflection through vertical center of symmetry
+    // reflection through vertical center of symmetry
     if( this->isXBackFlipped() )
         *x = xLength - *x ;
-    //reflection through orizontal center of symmetry
+    // reflection through horizontal center of symmetry
     if( this->isYBackFlipped() )
         *y = yLength - *y ;
-    //rotation around z axis (only orizontal or vertical)
+    // rotation around z axis (only orizontal or vertical)
     double tmp;
-    //vertical clockwise
+    // vertical clockwise
     if(zRotation_ > 225 && zRotation_ < 315)
     {
-        tmp = *x           ;
-        *x = *y            ;
-        *y = xLength - tmp ;
+        tmp = *x            ;
+        *x  = *y            ;
+        *y  = xLength - tmp ;
         if(xErr != 0 && yErr != 0)
         {
-            tmp = *xErr        ;
-            *xErr = *yErr      ;
-            *yErr = tmp        ;
+            tmp   = *xErr   ;
+            *xErr = *yErr   ;
+            *yErr = tmp     ;
         }
     }
-    //vertical anti-clockwise
+    // vertical anti-clockwise
     else if(zRotation_ > 45 && zRotation_ < 135)
     {
-        tmp  = *x               ;
-        *x = yLength - *y       ;
-        *y  = tmp               ;
+        tmp = *x            ;
+        *x  = yLength - *y  ;
+        *y  = tmp           ;
         if(xErr != 0 && yErr != 0)
         {
-            tmp = *xErr             ;
-            *xErr = *yErr           ;
-            *yErr = tmp             ;
+            tmp   = *xErr   ;
+            *xErr = *yErr   ;
+            *yErr = tmp     ;
         }
     }
-    //orizontal anti-clockwise
+    // horizontal anti-clockwise
     else if(zRotation_ >= 135 && zRotation_ <= 225)
     {
         *y = yLength - *y ;
@@ -615,45 +624,45 @@ void Detector::flipBackPositionLocal(double *x, double *y, double *xErr, double 
     double yLength  = this->getDetectorLengthY();
     double xLength  = this->getDetectorLengthX();
 
-    //rotation around z axis (only orizontal or vertical)
+    // rotation around z axis (only orizontal or vertical)
     double tmp;
-    //vertical clockwise
+    // vertical clockwise
     if(zRotation_ > 225 && zRotation_ < 315)
     {
-        tmp = *y           ;
-        *y = *x            ;
-        *x = xLength - tmp ;
+        tmp = *y            ;
+        *y  = *x            ;
+        *x  = xLength - tmp ;
         if(xErr != 0 && yErr != 0)
         {
-            tmp = *yErr        ;
-            *yErr = *xErr      ;
-            *xErr = tmp        ;
+            tmp   = *yErr   ;
+            *yErr = *xErr   ;
+            *xErr = tmp     ;
         }
     }
-    //vertical anti-clockwise
+    // vertical anti-clockwise
     else if(zRotation_ > 45 && zRotation_ < 135)
     {
-        tmp  = *y               ;
-        *y = yLength - *x       ;
-        *x  = tmp               ;
+        tmp = *y            ;
+        *y  = yLength - *x  ;
+        *x  = tmp           ;
         if(xErr != 0 && yErr != 0)
         {
-            tmp = *yErr             ;
-            *yErr = *xErr           ;
-            *xErr = tmp             ;
+            tmp   = *yErr   ;
+            *yErr = *xErr   ;
+            *xErr = tmp     ;
         }
     }
-    //orizontal anti-clockwise
+    // horizontal anti-clockwise
     else if(zRotation_ >= 135 && zRotation_ <= 225)
     {
-        *x = xLength - *x ;
-        *y = yLength - *y ;
+        *x = xLength - *x   ;
+        *y = yLength - *y   ;
     }
 
-    //reflection through vertical center of symmetry
+    // reflection through vertical center of symmetry
     if( this->isXBackFlipped() )
         *x = xLength - *x ;
-    //reflection through orizontal center of symmetry
+    // reflection through horizontal center of symmetry
     if( this->isYBackFlipped() )
         *y = yLength - *y ;
 }

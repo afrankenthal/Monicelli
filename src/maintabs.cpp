@@ -1690,6 +1690,8 @@ void mainTabs::on_showBeamProfilesPB_clicked()
 //===========================================================================
 void mainTabs::showBeamProfiles()
 {
+    theHManager_->restrictSearch(ui->restrictSearchCB->isChecked());
+
     bool redo = (ui->showBeamProfilesPB->text() == "Fit")? false:true;
     theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
 
@@ -1715,7 +1717,7 @@ void mainTabs::showBeamProfiles_end(HManager::stringVDef histoType)
     {
         if( ui->rawAlignmentFitAllCB->isChecked() )
         {
-            int pad = 1;
+            int  pad   = 1;
             TH1* histo = 0;
             for( Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it, pad++ )
             {
@@ -1733,25 +1735,24 @@ void mainTabs::showBeamProfiles_end(HManager::stringVDef histoType)
         else
         {
             if( !ui->rawAlignmentMyFitParXCB->isChecked() )
-                theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[1], plaqSelected_ ) );
+                theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[1], plaqSelected_ )  );
             else
                 theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[1], plaqSelected_ ),
-                        Utils::toDouble( ui->xProfileMeanLE ->text().toStdString() ),
-                        Utils::toDouble( ui->xProfileSigmaLE->text().toStdString() ),
-                        ui->xProfileNsigmaSB->value()                                 );
+                                             Utils::toDouble( ui->xProfileMeanLE ->text().toStdString()),
+                                             Utils::toDouble( ui->xProfileSigmaLE->text().toStdString()),
+                                             ui->xProfileNsigmaSB->value()                             );
 
             if( !ui->rawAlignmentMyFitParYCB->isChecked() )
-                theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[2], plaqSelected_ ) );
+                theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[2], plaqSelected_ )  );
             else
                 theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[2], plaqSelected_ ),
-                        Utils::toDouble( ui->yProfileMeanLE ->text().toStdString()  ),
-                        Utils::toDouble( ui->yProfileSigmaLE->text().toStdString()  ),
-                        ui->xProfileNsigmaSB->value()                                  );
+                                             Utils::toDouble( ui->yProfileMeanLE ->text().toStdString()),
+                                             Utils::toDouble( ui->yProfileSigmaLE->text().toStdString()),
+                                             ui->xProfileNsigmaSB->value()                             );
         }
         //ui->writeAlignmentPB        ->setEnabled(true);
         ui->rawAlignmentFitComparePB->setEnabled(true);
     }
-
 
     //Draw histograms
     gStyle->SetOptFit(0);
@@ -2024,6 +2025,16 @@ void mainTabs::writeAlignment_end(HManager::stringVDef histoType)
             yPositionErr = fitFunc->GetParError(0)/2. ;
         }
         //convert to local flipped coordinate and fill geometry
+        ss_.str("") ; ss_ << histo->GetName()
+                          << " xPos="
+                          << xPosition
+                          << "+/-"
+                          << xPositionErr
+                          << " yPos="
+                          << yPosition
+                          <<"+/-"
+                          << yPositionErr ;
+        STDLINE(ss_.str(),ACCyan) ;
         if(!ui->rawAlignmentClusterProfilesRB->isChecked())
             theGeometry_->getDetector( it->first )->flipPositionLocal(&xPosition, &yPosition, &xPositionErr, &yPositionErr);
 
@@ -2031,6 +2042,17 @@ void mainTabs::writeAlignment_end(HManager::stringVDef histoType)
         theGeometry_->getDetector( it->first )->setXPositionError( xPositionErr );
         theGeometry_->getDetector( it->first )->setYPosition     ( yPosition    );
         theGeometry_->getDetector( it->first )->setYPositionError( yPositionErr );
+
+        ss_.str("") ; ss_ << histo->GetName()
+                          << " xPos="
+                          << xPosition
+                          << "+/-"
+                          << xPositionErr
+                          << " yPos="
+                          << yPosition
+                          <<"+/-"
+                          << yPositionErr ;
+        STDLINE(ss_.str(),ACCyan) ;
     }
 
     //Operations added for strip detectors...
@@ -2045,7 +2067,6 @@ void mainTabs::writeAlignment_end(HManager::stringVDef histoType)
                 {
                     theGeometry_->getDetector(getPlaneID(stat, plaq))->setYPosition(theGeometry_->getDetector(getPlaneID(stat, plaq+1))->getYPosition());
                     theGeometry_->getDetector(getPlaneID(stat, plaq))->setYPositionError(90000/sqrt(12));
-
                 }
             }
             else
@@ -2054,7 +2075,6 @@ void mainTabs::writeAlignment_end(HManager::stringVDef histoType)
                 {
                     theGeometry_->getDetector(getPlaneID(stat, plaq))->setXPosition(theGeometry_->getDetector(getPlaneID(stat, plaq-1))->getXPosition());
                     theGeometry_->getDetector(getPlaneID(stat, plaq))->setXPositionError(90000/sqrt(12));
-
                 }
             }
         }

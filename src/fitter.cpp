@@ -102,8 +102,8 @@ void fitter::gaussFit(TH1*  histo)
   gaus->SetLineColor(2);
   gaus->SetParNames("Mean", "Sigma", "Height");
   
-  for (int i = 0; i < 4; i++)
-    {
+//  for (int i = 0; i < 4; i++)
+//    {
       if ( (mean - nRMS*rms) > min ) min = mean - nRMS*rms;
       if ( (mean + nRMS*rms) < max ) max = mean + nRMS*rms;
       
@@ -111,7 +111,7 @@ void fitter::gaussFit(TH1*  histo)
       gaus->SetParameters(mean, rms, height);
       
       ss_.str("") ; ss_ << "Gaussian fit to " << histo->GetName();
-      STDLINE(ss_.str(),ACYellow);
+//      STDLINE(ss_.str(),ACYellow);
       histo->Fit("gausFitFunc", "RLQ");
       
       mean_ = gaus->GetParameter(0);
@@ -125,11 +125,21 @@ void fitter::gaussFit(TH1*  histo)
       
       gaus->SetRange(loEdge, hiEdge);
       gaus->SetParameters(mean, rms, height);
-      histo->Fit("gausFitFunc", "RLQ");
+      histo->Fit("gausFitFunc", "RL");
       
-      mean_ = gaus->GetParameter(0);
+      mean_ =       gaus->GetParameter(0);
       sigma_= fabs( gaus->GetParameter(1) );
-    }
+      ss_.str("");
+      ss_  << "Fit: "
+           << histo->GetName()
+           << " Mean="
+           << mean_
+           << " sigma="
+           << sigma_
+           << " Chi2: "
+           <<  gaus->GetChisquare()/gaus->GetNDF();
+      STDLINE(ss_.str() ,ACGreen);
+//    }
 }
 
 //===============================================================================
@@ -171,7 +181,12 @@ void fitter::gaussFit(TH1*  histo, double mean, double userRMS, double nRMS)
   sigma_= fabs(gaus->GetParameter(1));
   
   ss_.str("");
-  ss_  << "Chi2: " <<  gaus->GetChisquare()/gaus->GetNDF();
+  ss_  << "Fit: Mean="
+       << mean_
+       << " sigma="
+       << sigma_
+       << " Chi2: "
+       <<  gaus->GetChisquare()/gaus->GetNDF();
   STDLINE(ss_.str() ,ACGreen);
 }
 

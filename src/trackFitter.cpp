@@ -29,6 +29,7 @@
  ================================================================================*/
 #include <algorithm>
 #include "trackFitter.h"
+#include "MessageTools.h"
 
 //===============================================================================
 trackFitter::trackFitter(void)
@@ -300,6 +301,7 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
 }
 
 //===============================================================================
+// Original document with formalism: ../documents/StripTelescopeAlignmentFormalism.pdf
 trackFitter::aFittedTrackDef trackFitter::  kalmanFitSingleTrack(const Event::alignedHitsCandidateMapDef & trackCandidate,
                                                                        Event::vectorDef                  & track         ,
                                                                        Event::matrixDef                  & cov           ,
@@ -309,7 +311,7 @@ trackFitter::aFittedTrackDef trackFitter::  kalmanFitSingleTrack(const Event::al
 {
     excludedDetectorFound_ = false;
     double chi2 = 0;
-    //cout << __PRETTY_FUNCTION__ << "Kalman Track Fit" << endl;
+
     //Use existing trackPars and covMat
 
     TVectorT   <double> trackPars(4);
@@ -332,8 +334,8 @@ trackFitter::aFittedTrackDef trackFitter::  kalmanFitSingleTrack(const Event::al
     std::map<std::string, TVectorT   <double> > trackParsMap;
     std::map<std::string, TMatrixTSym<double> > CkMap;
     std::map<std::string, TMatrixTSym<double> > Ckk_1Map;
-    TMatrixT<double> b   (4,4);
-    TMatrixT<double> bt  (4,4);
+    TMatrixT<double> A   (4,4);
+    TMatrixT<double> At  (4,4);
     TMatrixT<double> temp(4,4);
 
 
@@ -358,22 +360,22 @@ trackFitter::aFittedTrackDef trackFitter::  kalmanFitSingleTrack(const Event::al
     {
         std::string plaqID = theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).second;
 
-        TVectorT<double> k(4);
-        TVectorT<double> kx(4);
-        TVectorT<double> ky(4);
-        TMatrixTSym<double> a(4);
-        TMatrixTSym<double> ax(4);
-        TMatrixTSym<double> ay(4);
+        TVectorT   <double> k (4);
+ //       TVectorT   <double> kx(4);
+ //       TVectorT   <double> ky(4);
+        TMatrixTSym<double> B (4);
+ //       TMatrixTSym<double> ax(4);
+ //       TMatrixTSym<double> ay(4);
 
-        TVectorT<double> h            = theKalmanPlaneInfo_.getH(plaqID) ;
-        TVectorT<double> hx           = theKalmanPlaneInfo_.getHx(plaqID);
-        TVectorT<double> hy           = theKalmanPlaneInfo_.getHy(plaqID);
-        TMatrixTSym<double> trackCov  = theKalmanPlaneInfo_.getTrackCov(plaqID);
-        TMatrixTSym<double> trackCovx = theKalmanPlaneInfo_.getTrackCovx(plaqID);
-        TMatrixTSym<double> trackCovy = theKalmanPlaneInfo_.getTrackCovy(plaqID);
-        double offset                 = theKalmanPlaneInfo_.getOffset(plaqID);
-        double offsetx                = theKalmanPlaneInfo_.getOffsetx(plaqID);
-        double offsety                = theKalmanPlaneInfo_.getOffsety(plaqID);
+        TVectorT   <double> h         = theKalmanPlaneInfo_.getH        (plaqID);
+ //       TVectorT   <double> hx        = theKalmanPlaneInfo_.getHx       (plaqID);
+ //       TVectorT   <double> hy        = theKalmanPlaneInfo_.getHy       (plaqID);
+        TMatrixTSym<double> trackCov  = theKalmanPlaneInfo_.getTrackCov (plaqID);
+ //       TMatrixTSym<double> trackCovx = theKalmanPlaneInfo_.getTrackCovx(plaqID);
+ //       TMatrixTSym<double> trackCovy = theKalmanPlaneInfo_.getTrackCovy(plaqID);
+        double offset                 = theKalmanPlaneInfo_.getOffset   (plaqID);
+//        double offsetx                = theKalmanPlaneInfo_.getOffsetx  (plaqID);
+//        double offsety                = theKalmanPlaneInfo_.getOffsety  (plaqID);
 
         if ( theGeometry->getDetector(plaqID)->isStrip() )//|| theGeometry->getDetector(plaqID)->isDUT() ) //strip data
         {
@@ -383,28 +385,34 @@ trackFitter::aFittedTrackDef trackFitter::  kalmanFitSingleTrack(const Event::al
                 {
                     for ( int j=0; j<4; j++ )
                     {
-                        a[i][j] = h[i]*h[j];
+                        B[i][j] = h[i]*h[j];
                     }
                 }
 
                 //Residual of prediction
-                double dist    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x")->second;//distance of the hit from origin of the sensor
+                double dist    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x"   )->second;//distance of the hit from origin of the sensor
                 double distErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
-                double res = dist - trackPars*h - offset;
+                double res     = dist - trackPars*h - offset;
 
 //                std::cout<<__PRETTY_FUNCTION__<<" trackPars: "<<trackPars[0]<<" "<<trackPars[1]<<" "<<trackPars[2]<<" "<<trackPars[3]
 //                                              <<" h: "        <<h[0]<<" "<<h[1]<<" "<<h[2]<< " "<<h[3]
 //                                              <<" offset: "   <<offset<<std::endl;
 
                 //Calculate gain matrix
-                double r = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
-                k = (1/r)*(estCov*h);
-                estCov -= (1/r)*a.Similarity(estCov);// (1/rrr)*c*a*c^t
+                double r       = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
+                k              = (1/r)*(estCov*h);
+                estCov        -= (1/r)*B.Similarity(estCov);// (1/rrr)*c*a*c^t
                 CkMap[plaqID].ResizeTo(4,4);
-                CkMap[plaqID] = estCov;
-                chi2 += (res*res/r)/(trackCandidate.size() - 2);
-                if(plaqID == excludedDetector) excludedDetectorFound_ = true;
-                else trackPars += res*k;
+                CkMap[plaqID]  = estCov;
+                chi2          += (res*res/r)/(trackCandidate.size() - 2);
+                if(plaqID == excludedDetector)
+                {
+                    excludedDetectorFound_ = true;
+                }
+                else
+                {
+                    trackPars += res*k;
+                }
             }
 
             if(plane != (theKalmanPlaneInfo_.getKalmanFilterOrder().size()-1))
@@ -418,10 +426,10 @@ trackFitter::aFittedTrackDef trackFitter::  kalmanFitSingleTrack(const Event::al
                 }
             }
 
-            trackParsMap[plaqID].ResizeTo(4);
-            trackParsMap[plaqID] = trackPars;
-            Ckk_1Map[plaqID].ResizeTo(4,4);
-            Ckk_1Map[plaqID] = estCov;
+            trackParsMap[plaqID].ResizeTo(4  );
+            trackParsMap[plaqID] = trackPars  ;
+            Ckk_1Map    [plaqID].ResizeTo(4,4);
+            Ckk_1Map    [plaqID] = estCov     ;
 
         }
 //         else //not strip data (pixels)
@@ -482,77 +490,55 @@ trackFitter::aFittedTrackDef trackFitter::  kalmanFitSingleTrack(const Event::al
 
 
     // Smoothing planes
-    for (std::vector<std::pair<double, std::string> >::const_reverse_iterator rit = theKalmanPlaneInfo_.getKalmanFilterOrder().crbegin()+1;
-                                                                              rit!= theKalmanPlaneInfo_.getKalmanFilterOrder().crend();
-                                                                            ++rit)
+    for (revIterDef rit = theKalmanPlaneInfo_.getKalmanFilterOrder().crbegin()+1;
+                    rit!= theKalmanPlaneInfo_.getKalmanFilterOrder().crend();
+                  ++rit)
     {
+            std::string plane = (*rit).second ;
 //            std::cout<<__LINE__<<" PREVIOUS COV MATRIX "<<std::endl;
 //            estCov.Print();
 
 //            std::cout<<__LINE__<<" Ck Matrix "<<std::endl;
 //            CkMap[(*rit).second].Print();
 
-            if(trackCandidate.find((*rit).second) == trackCandidate.end())continue;
-            TVectorT<double> h = theKalmanPlaneInfo_.getH((*rit).second) ;
-            double offset      = theKalmanPlaneInfo_.getOffset((*rit).second);
+            if(trackCandidate.find(plane) == trackCandidate.end()) continue;
+
+            TVectorT<double> h = theKalmanPlaneInfo_.getH     (plane) ;
+            double offset      = theKalmanPlaneInfo_.getOffset(plane);
 
 
 //            std::cout<<__LINE__<<"Ckk_1 Matrix"<<std::endl;
-//            Ckk_1Map[(*rit).second].Print();
+//            Ckk_1Map[plane].Print();
 //            std::cout<<__LINE__<<"Ckk_1 Inverted Matrix"<<std::endl;
-//            Ckk_1Map[(*rit).second].Invert().Print();
+//            Ckk_1Map[plane].Invert().Print();
 
-            Ckk_1Map[(*rit).second].Invert();
+            Ckk_1Map[plane].Invert();
 
-    //        for ( int i=0; i<4; i++ )
-    //        {
-    //            for ( int j=0; j<4; j++ )
-    //            {
-    //                b[i][j] = (CkMap[(*rit).second]*Ckk_1Map[(*rit).second])[i][j] ;
-    //            }
-    //        }
-
-            b = CkMap[(*rit).second]*Ckk_1Map[(*rit).second];
-            bt.Transpose(b);
+            A = CkMap[plane]*Ckk_1Map[plane];
+            At.Transpose(A);
 
 //            std::cout<<__LINE__<<"Ckk_1 Matrix After Product"<<std::endl;
 //            Ckk_1Map[(*rit).second].Print();
 
 //            std::cout<<__LINE__<<" Ak MATRIX"<<std::endl;
-//            b.Print();
+//            A.Print();
 
-//            for ( int i=0; i<4; i++ )
-//            {
-//                for ( int j=0; j<4; j++ )
-//                {
-//                    bt[i][j] = b[j][i];
-//                }
-//            }
 
 //            std::cout<<__LINE__<<" Ak T MATRIX"<<std::endl;
-//            bt.Print();
+//            At.Print();
 
 //            std::cout<<__LINE__<<"Ckk_1 Re-Inverted Matrix"<<std::endl;
 //            Ckk_1Map[(*rit).second].Invert().Print();
-            Ckk_1Map[(*rit).second].Invert();
+            Ckk_1Map[plane].Invert();
 
-//            for ( int i=0; i<4; i++ )
-//            {
-//                for ( int j=0; j<4; j++ )
-//                {
-//                    trackPars[i] = trackParsMap[(*rit).second][i] + b[i][j]*(trackPars[j]-trackParsMap[(*rit).second][j]);
-//                }
-//            }
-
-
-            if((*rit).second != excludedDetector)
-                trackPars = trackParsMap[(*rit).second] + b*(trackPars-trackParsMap[(*rit).second]);
+            if(plane != excludedDetector)
+                trackPars = trackParsMap[plane] + A*(trackPars-trackParsMap[plane]);
 
 //            std::cout<<__LINE__<<"New Track Pars"<<std::endl;
 //            trackPars.Print();
 
 
-            temp = CkMap[(*rit).second] + b*(estCov-Ckk_1Map[(*rit).second])*bt;
+            temp = CkMap[plane] + A*(estCov-Ckk_1Map[plane])*At;
 
             for ( int i=0; i<4; i++ )
             {
@@ -563,12 +549,12 @@ trackFitter::aFittedTrackDef trackFitter::  kalmanFitSingleTrack(const Event::al
             }
 
             //chi2 update
-            double dist    = clusters[(*rit).second][trackCandidate.find((*rit).second)->second.find("cluster ID")->second].find("x")->second;//distance of the hit from origin of the sensor
-            double distErr = clusters[(*rit).second][trackCandidate.find((*rit).second)->second.find("cluster ID")->second].find("xErr")->second;
-            double res = dist - trackPars*h - offset;
+            double dist    = clusters[plane][trackCandidate.find(plane)->second.find("cluster ID")->second].find("x"   )->second;//distance of the hit from origin of the sensor
+            double distErr = clusters[plane][trackCandidate.find(plane)->second.find("cluster ID")->second].find("xErr")->second;
+            double res     = dist - trackPars*h - offset;
 
-            double r = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
-            chi2 += (res*res/r)/(trackCandidate.size() - 2);
+            double r  = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
+            chi2     += (res*res/r)/(trackCandidate.size() - 2);
 
 //            std::cout<<__LINE__<<"New Cov Mat"<<std::endl;
 //            estCov.Print();
@@ -589,10 +575,10 @@ trackFitter::aFittedTrackDef trackFitter::  kalmanFitSingleTrack(const Event::al
 
     //cout << __PRETTY_FUNCTION__ << "Final:   x int = " << track[1] << " y int = " << track[3] << " x slope = " << track[0] << " y slope = " << track[2] << endl;
 
-    trackFitter::aFittedTrackDef aKalmanFittedTrack                     ;
-    aKalmanFittedTrack.first.first  = track                             ;
-    aKalmanFittedTrack.first.second = cov                               ;
-    aKalmanFittedTrack.second       = chi2                              ;
+    trackFitter::aFittedTrackDef aKalmanFittedTrack;
+    aKalmanFittedTrack.first.first  = track        ;
+    aKalmanFittedTrack.first.second = cov          ;
+    aKalmanFittedTrack.second       = chi2         ;
     //cout << __PRETTY_FUNCTION__ << "Total chi2:  " << chi2 << endl;
     //aKalmanFittedTrack.second       = chi2/(trackCandidate.size()*2 - 4); //pixels
     //aFittedTrack.second             = chi2/(alignedHits.size() - 2)   ; //strips
@@ -616,6 +602,7 @@ void trackFitter::printMatrix(std::string sm, Event::matrixDef & matrix)
     std::cout << std::endl ;
 }
 
+//===============================================================================
 void trackFitter::printMatrix(std::string sm,  ROOT::Math::SMatrix<long double,4,4> & matrix)
 {
     std::cout << sm << std::endl ;
@@ -638,7 +625,6 @@ void trackFitter::makeDetectorTrackResiduals ( ROOT::Math::SVector<double,4>   &
                                                std::string                      detector   ,
                                                int                              trackNum   )
 {
-
     //cout << __PRETTY_FUNCTION__ << "Calculating residuals" << endl;
 
     int clusterNumber;
@@ -818,7 +804,12 @@ void trackFitter::makeFittedTracksResiduals(Event *theEvent, Geometry *theGeomet
 
             trackFitter::aFittedTrackDef aFittedTrack;
 
-            if(      fitMethodName_=="Kalman") aFittedTrack = this->kalmanFitSingleTrack(*track, *trackFit, *cov, clusters, theGeometry, det->first);
+            if(      fitMethodName_=="Kalman") aFittedTrack = this->kalmanFitSingleTrack(*track      ,
+                                                                                         *trackFit   ,
+                                                                                         *cov        ,
+                                                                                          clusters   ,
+                                                                                          theGeometry,
+                                                                                          det->first);
             else if (fitMethodName_=="Simple") aFittedTrack = this->fitSingleTrack(*track, theGeometry, det->first);
             else                               aFittedTrack = this->fitSingleTrack(*track, theGeometry, det->first);
 
@@ -827,7 +818,7 @@ void trackFitter::makeFittedTracksResiduals(Event *theEvent, Geometry *theGeomet
 
 
             this->makeDetectorTrackResiduals(aFittedTrack.first.first, aFittedTrack.first.second,
-                                             clusters                , trackCandidates                   ,
+                                             clusters                , trackCandidates          ,
                                              theGeometry             , det->first               , i);
 
         }

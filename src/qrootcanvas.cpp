@@ -73,7 +73,6 @@ QRootCanvas::QRootCanvas(QWidget *parent, string title) : QWidget(parent, 0), fC
                      parent->width(),
                      parent->height()
                     );
-
    fCanvas = new TCanvas(title.c_str(), width(), height(), wid);
    TQObject::Connect("TGPopMenu", "PoppedDown()", "TCanvas", fCanvas, "Update()") ;
 }

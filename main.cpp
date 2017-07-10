@@ -169,6 +169,8 @@ int main(int argc, char *argv[])
     STDLINE("Done! Hope you enjoyed...",ACCyan);
 
     std::cout << std::endl << std::endl ;
+    QCoreApplication::quit()            ;
+    rootapp.Terminate()                      ;
 
     return 0 ;
 }

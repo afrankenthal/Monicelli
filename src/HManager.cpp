@@ -37,6 +37,7 @@ HManager::HManager(fileEater *theFileEater)
     ss_ << getenv("MonicelliDir")  << "/tmp/" << "tempCache.root";
 
     theFileEater_     = theFileEater ;
+    restrictSearch_   = true ;
     theGeometry_      = NULL;
     gROOT->Reset() ;
     mainCacheFolder_  = gROOT->GetRootFolder()->AddFolder("MainFolder","Main Folder") ;
@@ -2209,8 +2210,39 @@ HManager::stringVDef HManager::makeBeamSpots2(Event * theEvent, bool &add)
 
     Detector*    aDetector   = 0;
     std::string  aDetectorName  ;
+    bool         enoughHits  = true ;
 
     Event::plaqMapDef& plaqMap = theEvent->getRawData();
+
+    int planesWithAtLeastAHit = 0;
+    if( restrictSearch_ )
+    {
+        for(Geometry::iterator det=theGeometry_->begin(); det!=theGeometry_->end(); det++)
+        {
+            aDetectorName = det->first;
+            Event::plaqMapDef::iterator pM;
+            STDLINE(aDetectorName,ACCyan) ;
+            if( (pM = plaqMap.find(aDetectorName)) != plaqMap.end())
+            {
+                if( pM->second.size() > 0 ) planesWithAtLeastAHit++ ;
+//                ss_.str(""); ss_ << "    "
+//                                 << aDetectorName
+//                                 << " has "
+//                                 << pM->second.size()
+//                                 << " hits" ;
+//                STDLINE(ss_.str(),ACWhite) ;
+            }
+        }
+
+        if(planesWithAtLeastAHit < theGeometry_->getDetectorsNumber(true) )
+        {
+            enoughHits = false ;
+//            ss_.str(""); ss_ << "Event has only "
+//                             << planesWithAtLeastAHit
+//                             << " planes with a hit" ;
+//            STDLINE(ss_.str(),ACRed) ;
+        }
+    }
 
     for(Geometry::iterator det=theGeometry_->begin(); det!=theGeometry_->end(); det++)
     {
@@ -2224,8 +2256,11 @@ HManager::stringVDef HManager::makeBeamSpots2(Event * theEvent, bool &add)
             int          maxRows = theGeometry_->getMaxRowsNum();
             if ( maxCols < maxRows ) maxCols = maxRows;
             //beam spot
-            flippedBeamSpotsHistos = new TH2I(aDetectorName.c_str(), aDetectorName.c_str(), maxCols, 0, maxCols, maxRows, 0, maxRows);
+            ss_.str("") ; ss_ << "Beam spot: " << aDetectorName ;
+            flippedBeamSpotsHistos = new TH2I(aDetectorName.c_str(), ss_.str().c_str(), maxCols, 0, maxCols, maxRows, 0, maxRows);
             flippedBeamSpotsHistos->SetDirectory(0);
+            flippedBeamSpotsHistos->GetYaxis()->SetTitle("Y (10um)");
+            flippedBeamSpotsHistos->GetXaxis()->SetTitle("X (10um)");
             this->addItem(fullPaths[0],flippedBeamSpotsHistos);
         }
         else if(redo_) flippedBeamSpotsHistos->Reset();
@@ -2242,7 +2277,7 @@ HManager::stringVDef HManager::makeBeamSpots2(Event * theEvent, bool &add)
             xPixPitches[aDetector->getNumberOfCols()] = aDetector->getDetectorLengthX();
 
             xProfileHistos = new TH1D( aDetectorName.c_str(), aDetectorName.c_str(), aDetector->getLastCol(), xPixPitches);
-            xProfileHistos->GetYaxis()->SetTitle("Y (10um)");
+            xProfileHistos->GetYaxis()->SetTitle("Contents (area normalized)");
             xProfileHistos->GetXaxis()->SetTitle("X (10um)");
             xProfileHistos->SetDirectory(0);
             this->addItem(fullPaths[1],xProfileHistos);
@@ -2260,25 +2295,28 @@ HManager::stringVDef HManager::makeBeamSpots2(Event * theEvent, bool &add)
             }
             yPixPitches[aDetector->getNumberOfRows()] = aDetector->getDetectorLengthY();
             yProfileHistos = new TH1D( aDetectorName.c_str(), aDetectorName.c_str(), aDetector->getLastRow(), yPixPitches);
-            yProfileHistos->GetYaxis()->SetTitle("Y (10um)");
-            yProfileHistos->GetXaxis()->SetTitle("X (10um)");
+            yProfileHistos->GetYaxis()->SetTitle("Contents (area normalized)");
+            yProfileHistos->GetXaxis()->SetTitle("Y (10um)");
             yProfileHistos->SetDirectory(0);
             this->addItem(fullPaths[2],yProfileHistos);
         }
         else if(redo_) yProfileHistos->Reset();
 
+        if( !enoughHits ) continue ;
+
         Event::plaqMapDef::iterator pM;
         if( (pM = plaqMap.find(aDetectorName)) != plaqMap.end())
+        {
             for (unsigned int i=0; i<pM->second.size(); i++)
             {
                 unsigned int row = pM->second[i]["row"];
                 unsigned int col = pM->second[i]["col"];
 
-                double y = aDetector->getPixelLowEdgeLocalY(row);
-                double x = aDetector->getPixelLowEdgeLocalX(col);
+                double y    = aDetector->getPixelLowEdgeLocalY(row);
+                double x    = aDetector->getPixelLowEdgeLocalX(col);
 
-                double area = aDetector->getPixelPitchLocalY(row)*
-                        aDetector->getPixelPitchLocalX(col);
+                double area = aDetector->getPixelPitchLocalY(row)  *
+                              aDetector->getPixelPitchLocalX(col)  ;
 
                 xProfileHistos->Fill( x , 1/area );
                 yProfileHistos->Fill( y , 1/area );
@@ -2287,6 +2325,7 @@ HManager::stringVDef HManager::makeBeamSpots2(Event * theEvent, bool &add)
 
                 flippedBeamSpotsHistos->Fill( col , row );
             }
+        }
     }
 
     add   = true ;
