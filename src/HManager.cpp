@@ -2214,14 +2214,13 @@ HManager::stringVDef HManager::makeBeamSpots2(Event * theEvent, bool &add)
 
     Event::plaqMapDef& plaqMap = theEvent->getRawData();
 
-    int planesWithAtLeastAHit = 0;
+    unsigned int planesWithAtLeastAHit = 0;
     if( restrictSearch_ )
     {
         for(Geometry::iterator det=theGeometry_->begin(); det!=theGeometry_->end(); det++)
         {
             aDetectorName = det->first;
             Event::plaqMapDef::iterator pM;
-            STDLINE(aDetectorName,ACCyan) ;
             if( (pM = plaqMap.find(aDetectorName)) != plaqMap.end())
             {
                 if( pM->second.size() > 0 ) planesWithAtLeastAHit++ ;

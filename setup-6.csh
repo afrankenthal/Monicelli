@@ -59,8 +59,8 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
    #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamData2015
    #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamFBKPlanarAfterRad_Batch01_02
    #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamFBKPlanarBeforeRad_Batch02
-   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamData_February_2017
-   setenv BASEDATADIR /user/gr1/e831/dzuolo/StripTelescopeAnalysis
+   setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamData_February_2017
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/StripTelescopeAnalysis
   endif
   
   setenv PATH /opt/rh/devtoolset-2/root/usr/bin:/bin:/usr/bin:/usr/local/bin:/usr/printmi/bin

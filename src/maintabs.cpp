@@ -2055,40 +2055,6 @@ void mainTabs::writeAlignment_end(HManager::stringVDef histoType)
         STDLINE(ss_.str(),ACCyan) ;
     }
 
-    //Operations added for strip detectors...
-
-    for (int stat = 0; stat < 2; ++stat)
-    {
-        for (int plaq = 0; plaq < 8; ++plaq)
-        {
-            if (plaq%2 == 0)
-            {
-                if( theGeometry_->getDetector(getPlaneID(stat, plaq+1)) != 0 )
-                {
-                    theGeometry_->getDetector(getPlaneID(stat, plaq))->setYPosition(theGeometry_->getDetector(getPlaneID(stat, plaq+1))->getYPosition());
-                    theGeometry_->getDetector(getPlaneID(stat, plaq))->setYPositionError(90000/sqrt(12));
-                }
-            }
-            else
-            {
-                if( theGeometry_->getDetector(getPlaneID(stat, plaq-1)) != 0 )
-                {
-                    theGeometry_->getDetector(getPlaneID(stat, plaq))->setXPosition(theGeometry_->getDetector(getPlaneID(stat, plaq-1))->getXPosition());
-                    theGeometry_->getDetector(getPlaneID(stat, plaq))->setXPositionError(90000/sqrt(12));
-                }
-            }
-        }
-    }
-
-    //LUIGINO: thing added manually for calculating predicted errors on DUT, nothing more, must be cancelled soon
-
-    if(theGeometry_->getDetector(getPlaneID(0, 7)) != 0 && theGeometry_->getDetector(getPlaneID(1, 0)) != 0)
-    {
-        theGeometry_->getDetector(getPlaneID(2, 0))->setXPosition((theGeometry_->getDetector(getPlaneID(0, 7))->getXPosition()+
-                                                                   theGeometry_->getDetector(getPlaneID(1, 0))->getXPosition())/2);
-        theGeometry_->getDetector(getPlaneID(2, 0))->setYPosition((theGeometry_->getDetector(getPlaneID(0, 7))->getYPosition()+
-                                                                   theGeometry_->getDetector(getPlaneID(1, 0))->getYPosition())/2);
-    }
     theFileEater_->updateGeometry("geometry");
     theGeometry_ = theFileEater_->getGeometry();
     showGeometry();
