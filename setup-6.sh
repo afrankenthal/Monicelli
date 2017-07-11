@@ -50,7 +50,7 @@ if [ ${HOSTNAME} == "hal9000.mib.infn.it" ]; then
     if [ ${USER} == "menasce" ]; then
 	export BASEDATADIR=/raid1/menasce/AnalysisFTB/data/2015_10_October/
     elif [ ${USER} == "dinardo" ]; then
-	export BASEDATADIR=/raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
+	export BASEDATADIR=/user/gr1/e831/dinardo/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
     elif [ ${USER} == "dzuolo" ]; then
 	export BASEDATADIR=../data/TestBeamData2015
     fi
@@ -72,9 +72,11 @@ if [ ${HOSTNAME} == "hal9000.mib.infn.it" ]; then
     export ROOTLIB=$ROOTSYS/lib/root
     
     #===== Location of the Qt components
-    export QTDIR=/usr/local/Trolltech/Qt-4.8.5/
-    export QTCREATORDIR=/opt/local/qtcreator-2.7.1/bin
-    
+    export QTDIR=/user/service/Qt-5.6.2/5.6/gcc_64/
+    export QTCREATORDIR=/raid1/menasce/qt-creator-opensource-src-4.3.0
+    export QTLIB=$QTDIR/lib
+    export QTINC=$QTDIR/include
+
     #===== Location of the BOOST components
     export BOOSTINC=/usr/local/include/boost
     export BOOSTLIB=/usr/local/lib
@@ -97,7 +99,7 @@ if [ ${HOSTNAME} == "cip.mib.infn.it" ]; then
     if [ ${USER} == "menasce" ]; then
 	export BASEDATADIR=/raid1/menasce/AnalysisFTB/data/2015_10_October/
     elif [ ${USER} == "dinardo" ]; then
-	export BASEDATADIR=/raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
+	export BASEDATADIR=/user/gr1/e831/dinardo/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
     elif [ ${USER} == "dzuolo" ]; then
 	export BASEDATADIR=../data/TestBeamData2015
     fi
@@ -119,8 +121,10 @@ if [ ${HOSTNAME} == "cip.mib.infn.it" ]; then
     export ROOTLIB=$ROOTSYS/lib/root
     
     #===== Location of the Qt components
-    export QTDIR=/usr/local/Trolltech/Qt-4.8.5/
-    export QTCREATORDIR=/opt/local/qtcreator-2.7.1/bin
+    export QTDIR=/user/service/Qt-5.6.2/5.6/gcc_64
+    export QTCREATORDIR=/user/service/QtCreator-4.3.0/
+    export QTLIB=$QTDIR/lib
+    export QTINC=$QTDIR/include
     
     #===== Location of the BOOST components
     export BOOSTINC=/usr/local/include/boost
@@ -134,7 +138,7 @@ if [ ${HOSTNAME} == "cip.mib.infn.it" ]; then
     export CPLUSPLUSFLAGS=-std=c++11
    
     export LD_LIBRARY_PATH	   
-    
+     
     alias qtcreator=${QTCREATORDIR}/qtcreator
     
 fi
