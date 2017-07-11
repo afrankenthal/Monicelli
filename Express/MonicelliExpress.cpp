@@ -23,9 +23,11 @@
 
 // @@@ Hard coded parameters @@@
 #define DUTfreePLANES 100011 // Define the fix [1] and free [0] parameters [z,y,x,gamma,beta,alpha]
-#define DORAWALIGNMENT false // Find the transverse position of the beamspot
-#define DOSLOPEFINDER false  // Find the overall slope of the tracks
+#define DORAWALIGNMENT true  // Find the transverse position of the beamspot
+#define CHI2RAWALIGN 60.0    // Track Chi2 for raw alignment
+#define NTELEALIGN 2         // Maximum telescope fine alignments
 #define DUT2STEPS true       // Do DUT alignment in 2 steps: (1) only translations, (2) translations + angles
+#define COPYGEOFILE false    // Copy geo file into geometry directory
 // ============================
 
 
@@ -359,12 +361,9 @@ int main (int argc, char** argv)
 	  STDLINE("Update Geometry",ACBlue);
 	  
 	  theFileEater.updateGeometry("geometry");
-	}
 
 
 
-      if (DOSLOPEFINDER == true)
-	{
 	  // ################
 	  // # Track finder #
 	  // ################
@@ -383,15 +382,9 @@ int main (int argc, char** argv)
 	  // ################
 	  STDLINE("Slope Finder",ACBlue);
 
-	  HManager::stringVDef histoType;
-	  fitter theFitter;
-	  TH1* histo;
-	  TF1* fitFunc;
-	  bool reDo = true;
+	  reDo = true;
 	  double slopeX;
 	  double slopeY;
-	  double xPosition;
-	  double yPosition;
 
 	  for (int myIt = 0; myIt < theFileEater.getEventsNumber(); myIt++)
 	    histoType = theHManager.makeTracksDistr2(theFileEater.getEvent(myIt), reDo);
@@ -432,94 +425,100 @@ int main (int argc, char** argv)
 
 
 
-      // ################
-      // # Track finder #
-      // ################
-      STDLINE("Track Finder",ACBlue);
 
-      theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
-      theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
-      theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
-      theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
-      theFileEater.updateEvents2();
-
-
-
-      // ############################
-      // # Telescope fine alignment #
-      // ############################
-      if (doTelescopeFineAlignment == true)
+      unsigned int nAlign = doTelescopeFineAlignment;
+      if (DORAWALIGNMENT == true) nAlign = 2;
+      for (unsigned int i = 0; i < nAlign; i++)
 	{
-	  STDLINE("Telescope Fine Alignment",ACBlue);
-
-	  theTelescopeAligner.setAlignmentFitMethodName("Simple");
-	  theTelescopeAligner.setNumberOfIterations(0);
-      
-	  for (Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); it++)
-	    {
-	      if (!(*it).second->isDUT()) theTelescopeAligner.setFixParMap((*it).first, 100000);
-	      else                        theTelescopeAligner.setFixParMap((*it).first, 111111);
-	    }
-	  theTelescopeAligner.setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, "", numberOfEvents);
-	  // #############################
-	  // # The parameter meaning:    #
-	  // #############################
-	  // # - max trials              #
-	  // # - fine alignment strategy #
-	  // # - chi2cut                 #
-	  // # - max cluster size        #
-	  // # - min points              #
-	  // # - max tracks / ev         #
-	  // # - no diagonal clusters    #
-	  // # - alignment select        #
-	  // # - nEvents                 #
-	  // #############################
-	  theTelescopeAligner.setOperation(&aligner::align);
-	  theTelescopeAligner.align();
-     
-       
- 	  aligner::alignmentResultsDef alignmentResultsTelescope = theTelescopeAligner.getAlignmentResults();
-	  for (Geometry::iterator geo = theGeometry->begin(); geo != theGeometry->end(); geo++)
-	  {
-	    Detector* theDetector = theGeometry->getDetector(geo->first);
-	
-	    double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTx;
-	    double yPositionCorrection = theDetector->getYPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTy;
-	    double zPositionCorrection = theDetector->getZPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTz;
-	    double xRotationCorrection = theDetector->getXRotationCorrection() + alignmentResultsTelescope[geo->first].alpha;
-	    double yRotationCorrection = theDetector->getYRotationCorrection() + alignmentResultsTelescope[geo->first].beta;
-	    double zRotationCorrection = theDetector->getZRotationCorrection() + alignmentResultsTelescope[geo->first].gamma;
-	
-	    theDetector->setXPositionCorrection(xPositionCorrection);
-	    theDetector->setYPositionCorrection(yPositionCorrection);
-	    theDetector->setZPositionCorrection(zPositionCorrection);
-	    theDetector->setXRotationCorrection(xRotationCorrection);
-	    theDetector->setYRotationCorrection(yRotationCorrection);
-	    theDetector->setZRotationCorrection(zRotationCorrection);
-	  }
-
-
-
-	  // ###################
-	  // # Update geometry #
-	  // ###################	
-	  STDLINE("Update Geometry",ACBlue);
-
-	  theFileEater.updateGeometry("geometry");
-
-
-
 	  // ################
 	  // # Track finder #
 	  // ################
 	  STDLINE("Track Finder",ACBlue);
-
+	  
 	  theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
 	  theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
 	  theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
 	  theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
 	  theFileEater.updateEvents2();
-	}
+
+
+
+	  // ############################
+	  // # Telescope fine alignment #
+	  // ############################
+	      STDLINE("Telescope Fine Alignment",ACBlue);
+	      
+	      theTelescopeAligner.setAlignmentFitMethodName("Simple");
+	      theTelescopeAligner.setNumberOfIterations(0);
+	      
+	      for (Geometry::iterator it = theGeometry->begin(); it != theGeometry->end(); it++)
+		{
+		  if (!(*it).second->isDUT()) theTelescopeAligner.setFixParMap((*it).first, 100000);
+		  else                        theTelescopeAligner.setFixParMap((*it).first, 111111);
+		}
+	      if ((DORAWALIGNMENT == true) && (i == 0))
+		theTelescopeAligner.setAlignmentPreferences(5, 0, CHI2RAWALIGN, 2, trackPoints, 1, true, "", numberOfEvents);
+	      else
+		theTelescopeAligner.setAlignmentPreferences(5, 0, chi2Cut, 2, trackPoints, 1, true, "", numberOfEvents);
+	      // #############################
+	      // # Parameter meaning:        #
+	      // #############################
+	      // # - max trials              #
+	      // # - fine alignment strategy #
+	      // # - chi2cut                 #
+	      // # - max cluster size        #
+	      // # - min points              #
+	      // # - max tracks / ev         #
+	      // # - no diagonal clusters    #
+	      // # - alignment select        #
+	      // # - nEvents                 #
+	      // #############################
+	      theTelescopeAligner.setOperation(&aligner::align);
+	      theTelescopeAligner.align();
+	      
+	      
+	      aligner::alignmentResultsDef alignmentResultsTelescope = theTelescopeAligner.getAlignmentResults();
+	      for (Geometry::iterator geo = theGeometry->begin(); geo != theGeometry->end(); geo++)
+		{
+		  Detector* theDetector = theGeometry->getDetector(geo->first);
+		  
+		  double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTx;
+		  double yPositionCorrection = theDetector->getYPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTy;
+		  double zPositionCorrection = theDetector->getZPositionCorrection() + alignmentResultsTelescope[geo->first].deltaTz;
+		  double xRotationCorrection = theDetector->getXRotationCorrection() + alignmentResultsTelescope[geo->first].alpha;
+		  double yRotationCorrection = theDetector->getYRotationCorrection() + alignmentResultsTelescope[geo->first].beta;
+		  double zRotationCorrection = theDetector->getZRotationCorrection() + alignmentResultsTelescope[geo->first].gamma;
+		  
+		  theDetector->setXPositionCorrection(xPositionCorrection);
+		  theDetector->setYPositionCorrection(yPositionCorrection);
+		  theDetector->setZPositionCorrection(zPositionCorrection);
+		  theDetector->setXRotationCorrection(xRotationCorrection);
+		  theDetector->setYRotationCorrection(yRotationCorrection);
+		  theDetector->setZRotationCorrection(zRotationCorrection);
+		}
+
+
+
+	      // ###################
+	      // # Update geometry #
+	      // ###################	
+	      STDLINE("Update Geometry",ACBlue);
+	      
+	      theFileEater.updateGeometry("geometry");	     
+	}	      
+
+
+
+      // ################
+      // # Track finder #
+      // ################
+      STDLINE("Track Finder",ACBlue);
+      
+      theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
+      theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
+      theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
+      theTrackFinder.setOperation(&trackFinder::findAndFitTracks);
+      theFileEater.updateEvents2();
 
 
 
@@ -675,17 +674,20 @@ int main (int argc, char** argv)
       // ######################
       // # Copy geometry file #
       // ######################
-      // STDLINE("Copy Geometry File",ACBlue);
-
-      // string outputFilePath = filesPath;
-      // outputFilePath.erase(outputFilePath.length()-8,outputFilePath.length()).append("/MonicelliOutput/");
-
-      // string newGeoName = theXmlParser.getFileList()[f]->fileName_;
-      // newGeoName.erase(newGeoName.length()-4,newGeoName.length()).append(".geo");
-
-      // string copyGeometryCommand = "cp " + outputFilePath + newGeoName + " " + geometriesPath + newGeoName;
-      // STDLINE(copyGeometryCommand.c_str(),ACBlue);
-      // system(copyGeometryCommand.c_str());
+      if (COPYGEOFILE == true)
+	{
+	  STDLINE("Copy Geometry File",ACBlue);
+	  
+	  string outputFilePath = filesPath;
+	  outputFilePath.erase(outputFilePath.length()-8,outputFilePath.length()).append("/MonicelliOutput/");
+	  
+	  string newGeoName = theXmlParser.getFileList()[f]->fileName_;
+	  newGeoName.erase(newGeoName.length()-4,newGeoName.length()).append(".geo");
+	  
+	  string copyGeometryCommand = "cp " + outputFilePath + newGeoName + " " + geometriesPath + newGeoName;
+	  STDLINE(copyGeometryCommand.c_str(),ACBlue);
+	  system(copyGeometryCommand.c_str());
+	}
     }
   return EXIT_SUCCESS;
 }
