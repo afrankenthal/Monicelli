@@ -1750,7 +1750,7 @@ void mainTabs::showBeamProfiles_end(HManager::stringVDef histoType)
                                              Utils::toDouble( ui->yProfileSigmaLE->text().toStdString()),
                                              ui->xProfileNsigmaSB->value()                             );
         }
-        //ui->writeAlignmentPB        ->setEnabled(true);
+        ui->writeAlignmentPB        ->setEnabled(true);
         ui->rawAlignmentFitComparePB->setEnabled(true);
     }
 
@@ -2025,33 +2025,41 @@ void mainTabs::writeAlignment_end(HManager::stringVDef histoType)
             yPositionErr = fitFunc->GetParError(0)/2. ;
         }
         //convert to local flipped coordinate and fill geometry
-        ss_.str("") ; ss_ << histo->GetName()
-                          << " xPos="
-                          << xPosition
-                          << "+/-"
-                          << xPositionErr
-                          << " yPos="
-                          << yPosition
-                          <<"+/-"
-                          << yPositionErr ;
+
+        Detector* det = theGeometry_->getDetector( it->first );
+
+        ss_.str("") ; ss_ << setw(18) << setprecision(14)
+                          <<"Initial parameters for detector: "
+                          << det->getID()
+                          << " xPos = "
+                          << det->getXPositionTotal()
+                          << " +/- "
+                          << det->getXPositionError()
+                          << " yPos = "
+                          << det->getYPositionTotal()
+                          <<" +/- "
+                          << det->getYPositionError();
         STDLINE(ss_.str(),ACCyan) ;
+
         if(!ui->rawAlignmentClusterProfilesRB->isChecked())
-            theGeometry_->getDetector( it->first )->flipPositionLocal(&xPosition, &yPosition, &xPositionErr, &yPositionErr);
+            det->flipPositionLocal(&xPosition, &yPosition, &xPositionErr, &yPositionErr);
 
-        theGeometry_->getDetector( it->first )->setXPosition     ( xPosition    );
-        theGeometry_->getDetector( it->first )->setXPositionError( xPositionErr );
-        theGeometry_->getDetector( it->first )->setYPosition     ( yPosition    );
-        theGeometry_->getDetector( it->first )->setYPositionError( yPositionErr );
+        det->setXPosition     ( xPosition    );
+        det->setXPositionError( xPositionErr );
+        det->setYPosition     ( yPosition    );
+        det->setYPositionError( yPositionErr );
 
-        ss_.str("") ; ss_ << histo->GetName()
-                          << " xPos="
-                          << xPosition
-                          << "+/-"
-                          << xPositionErr
-                          << " yPos="
-                          << yPosition
-                          <<"+/-"
-                          << yPositionErr ;
+        ss_.str("") ; ss_ << setw(18) << setprecision(14)
+                          <<"Final parameters for detector:   "
+                          << det->getID()
+                          << " xPos = "
+                          << det->getXPositionTotal()
+                          << " +/- "
+                          << det->getXPositionError()
+                          << " yPos = "
+                          << det->getYPositionTotal()
+                          <<" +/- "
+                          << det->getYPositionError();
         STDLINE(ss_.str(),ACCyan) ;
     }
 
@@ -2966,10 +2974,37 @@ void mainTabs::on_trackFitterWriteAlignmentPB_clicked()
         }
 
         Detector* det = theGeometry_->getDetector( it->first );
+
+        ss_.str("") ; ss_ << setw(18) << setprecision(14)
+                          <<"Initial parameters for detector: "
+                          << det->getID()
+                          << " xPos = "
+                          << det->getXPositionTotal()
+                          << " +/- "
+                          << det->getXPositionError()
+                          << " yPos = "
+                          << det->getYPositionTotal()
+                          <<" +/- "
+                          << det->getYPositionError();
+        STDLINE(ss_.str(),ACCyan) ;
+
         det->setXPositionCorrection( det->getXPositionCorrection()+xPosition );
         det->setXPositionError     ( xPositionErr );
         det->setYPositionCorrection( det->getYPositionCorrection()+yPosition );
         det->setYPositionError     ( yPositionErr );
+
+        ss_.str("") ; ss_ << setw(18) << setprecision(14)
+                          <<"Final parameters for detector:   "
+                          << det->getID()
+                          << " xPos = "
+                          << det->getXPositionTotal()
+                          << " +/- "
+                          << det->getXPositionError()
+                          << " yPos = "
+                          << det->getYPositionTotal()
+                          <<" +/- "
+                          << det->getYPositionError();
+        STDLINE(ss_.str(),ACCyan) ;
     }
     theFileEater_->updateGeometry("geometry");
     theGeometry_ = theFileEater_->getGeometry();
