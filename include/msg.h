@@ -55,15 +55,14 @@
  */
 namespace Monicelli
 {
-struct msg 
-{
-  long         to                          ;
-  long         from                        ;
-  char         classname  [MAX_NAME_LENGHT];
-  char         methodname [MAX_NAME_LENGHT];
-  char         command    [MAX_CMD_LENGHT] ;
-  char         args       [MAX_CMD_LENGHT] ;
-  unsigned int priority                    ;
-};
+ struct msg {
+              long         to                          ;
+              long         from                        ;
+              char         classname  [MAX_NAME_LENGHT];
+              char         methodname [MAX_NAME_LENGHT];
+              char         command    [MAX_CMD_LENGHT] ;
+              char         args       [MAX_CMD_LENGHT] ;
+              unsigned int priority                    ;
+            };
 }
 #endif

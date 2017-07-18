@@ -49,11 +49,11 @@ class nonStandardPitch : public QWidget
 
 public:
   explicit nonStandardPitch(QWidget     * parent,
-                            std::string   type,
-                            int           value     );
-            ~nonStandardPitch();
+                            std::string   type  ,
+                            int           value  );
+          ~nonStandardPitch();
 
-    void     initialize(xmlROC * theROC) ;
+    void   initialize      (xmlROC      * theROC ) ;
 
 private:
     typedef std::map<std::string, QLineEdit*> lEditsDef ;

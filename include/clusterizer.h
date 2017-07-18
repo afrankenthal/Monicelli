@@ -49,31 +49,32 @@ class clusterizer : public subProcess<Event,Geometry>
 {
   
  public:
-  clusterizer(void);
-  ~clusterizer(void);
+                             clusterizer            (void                                             );
+                            ~clusterizer            (void                                             );
   
-  void                       clear                  (void                               );
-  bool                       isInRegion             (int, int                           );
-  void                       repartClusters         (Event::clustersHitsMapDef &        );
-  Event::clustersHitsMapDef  findClusters           (Event       * theEvent             );
-  Event::clustersMapDef      makeClusters           (Event       * theEvent, Geometry * );
-  void                       clusterize             (Event       * theEvent, Geometry * );
-  void                       execute                (Event       * theEvent, Geometry * );
-  void                       setClustersBuilt       (int           built                ) {clustersBuilt_ = built;}
-  bool                       clustersBuilt          (void                               ) {return clustersBuilt_ ;}
-  std::string                getLabel               (void                               );
-  std::string                getName                (void                               ) {return "clusterizer"        ;}
-  void                       setHeader              (EventHeader * theHeader            ) {theHeader->setClustersDone(clustersBuilt_);}
-  void                       getChargeAsymmetryPlots(Geometry    * theGeometry          );
-  void                       setUseEtaFunction      (bool          use                  ) {useEtaFunction_ = use;}
-  void                       getPartitionsInfos     (vector <int>  partitionsPoints    ,
-                                                     bool          UsePartitions       ,
-                                                     Detector*     theCurrentDUT       ,
-                                                     string        theCurrentSector     );
+  void                       clear                  (void                                             );
+  bool                       isInRegion             (int, int                                         );
+  void                       repartClusters         (Event::clustersHitsMapDef &                      );
+  Event::clustersHitsMapDef  findClusters           (Event                     * theEvent             );
+  Event::clustersMapDef      makeClusters           (Event                     * theEvent, Geometry * );
+  void                       clusterize             (Event                     * theEvent, Geometry * );
+  void                       execute                (Event                     * theEvent, Geometry * );
+  void                       setClustersBuilt       (int                         built                ) {clustersBuilt_  = built                   ;}
+  bool                       clustersBuilt          (void                                             ) {return clustersBuilt_                     ;}
+  std::string                getLabel               (void                                             );
+  std::string                getName                (void                                             ) {return "clusterizer"                      ;}
+  void                       setHeader              (EventHeader               * theHeader            ) {theHeader->setClustersDone(clustersBuilt_);}
+  void                       getChargeAsymmetryPlots(Geometry                  * theGeometry          );
+  void                       setUseEtaFunction      (bool                        use                  ) {useEtaFunction_ = use                     ;}
+  void                       getPartitionsInfos     (vector <int>                partitionsPoints    ,
+                                                     bool                        UsePartitions       ,
+                                                     Detector*                   theCurrentDUT       ,
+                                                     string                      theCurrentSector     );
 
 private:
   
-  std::string getPlaneID (int station, int plaquette);
+  std::string                getPlaneID             (int                         station, 
+                                                     int                         plaquette            );
   
   //        station             ROCID           X|Y       pars[]
   std::map<std::string,std::map<int,std::map<std::string,double* > > >chargeAsymmetryPars_;

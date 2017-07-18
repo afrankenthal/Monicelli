@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
     system("clear") ;
 
-    TApplication rootapp("Simple Qt ROOT Application", &argc, argv);
+    TApplication rootApp("Simple Qt ROOT Application", &argc, argv);
 
     QApplication app(argc, argv);
     app.setStyle("fusion") ;
@@ -74,13 +74,13 @@ int main(int argc, char *argv[])
     envVariables = getenv("MonicelliDir");
     if(envVariables == NULL)
     {
-        FATAL("The 'MonicelliDir' environment variable is not defined",ACYellow);
+        FATAL("The 'MonicelliDir' environment variable is not defined"            ,ACYellow);
         missingEnvVariable = true;
     }
     envVariables = getenv("Monicelli_RawData_Dir");
     if(envVariables == NULL)
     {
-        FATAL("The 'Monicelli_RawData_Dir' environment variable is not defined",ACYellow) ;
+        FATAL("The 'Monicelli_RawData_Dir' environment variable is not defined"   ,ACYellow) ;
         missingEnvVariable = true;
     }
     envVariables = getenv("Monicelli_DataSample_Dir");
@@ -92,13 +92,13 @@ int main(int argc, char *argv[])
     envVariables = getenv("Monicelli_CalSample_Dir");
     if(envVariables == NULL)
     {
-        FATAL("The 'Monicelli_CalSample_Dir' environment variable is not defined",ACYellow) ;
+        FATAL("The 'Monicelli_CalSample_Dir' environment variable is not defined" ,ACYellow) ;
         missingEnvVariable = true;
     }
     envVariables = getenv("MonicelliOutputDir");
     if(envVariables == NULL)
     {
-        FATAL("The 'MonicelliOutputDir' environment variable is not defined",ACYellow) ;
+        FATAL("The 'MonicelliOutputDir' environment variable is not defined"      ,ACYellow) ;
         missingEnvVariable = true;
     }
     else
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     envVariables = getenv("Monicelli_XML_Dir");
     if(envVariables == NULL)
     {
-        FATAL("The 'Monicelli_XML_Dir' environment variable is not defined",ACYellow) ;
+        FATAL("The 'Monicelli_XML_Dir' environment variable is not defined"      ,ACYellow) ;
         missingEnvVariable = true;
     }
     if(missingEnvVariable)
@@ -125,17 +125,14 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
-
-    std::string splashIcon = std::string(getenv("MonicelliDir")) + "/images/Monicelli.png" ;
-
-    QPixmap pixmap(splashIcon.c_str());
-
+    std::string   splashIcon = std::string(getenv("MonicelliDir")) + "/images/Monicelli.png" ;
+    QPixmap       pixmap(splashIcon.c_str()             );
     QSplashScreen splash(pixmap,Qt::WindowStaysOnTopHint);
 
     splash.setMask(pixmap.mask());
 
-    splash.show();
-    splash.raise() ;
+    splash.show ();
+    splash.raise();
 
     app.processEvents(QEventLoop::AllEvents);
 
@@ -152,7 +149,7 @@ int main(int argc, char *argv[])
     STDLINE("|            pattern recognition code              |",color);
     STDLINE("|    at Fermi National Accelerator Laboratory      |",color);
     STDLINE("|                                                  |",color);
-    STDLINE("|        D. Menasce, L. Moroni, S. Terzo           |",color);
+    STDLINE("|  D. Menasce, L. Moroni, S. Terzo, M. Dinardo     |",color);
     STDLINE("|      J. Ngadiuba, L. Uplegger, L. Vigani         |",color);
     STDLINE("|                   D. Zuolo                       |",color);
     STDLINE("|                                                  |",color);
@@ -169,8 +166,4 @@ int main(int argc, char *argv[])
     STDLINE("Done! Hope you enjoyed...",ACCyan);
 
     std::cout << std::endl << std::endl ;
-    QCoreApplication::quit()            ;
-    rootapp.Terminate()                      ;
-
-    return 0 ;
 }

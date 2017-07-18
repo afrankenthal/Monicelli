@@ -53,16 +53,16 @@ public:
     int      getSelectedValue       (void                            );
     bool     state                  (void                            ) {return state_;}
 private:
-    Ui::remNonStandardTabDialog *ui;
+    Ui::remNonStandardTabDialog * ui     ;
 
-    bool     state_ ;
-    QString  type_  ;
+    bool                          state_ ;
+    QString                       type_  ;
 
-    std::stringstream ss_ ;
+    std::stringstream             ss_    ;
 
 private slots:
-    void on_cancelPB_clicked();
-    void on_okPB_clicked();
+    void     on_cancelPB_clicked    (void                            );
+    void     on_okPB_clicked        (void                            );
 };
 
 #endif // REMNONSTANDARDTABDIALOG_H

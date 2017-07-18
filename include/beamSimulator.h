@@ -59,20 +59,32 @@ public:
     beamSimulator(void) {;}
    ~beamSimulator(void) {;}
 
-   bool growFakeTree (std::string inputFileName, std::string outputTreePath ,
-                      std::string outputTreeName, Event *theEvent, Geometry *theGeometry);
+   bool growFakeTree (std::string   inputFileName , 
+                      std::string   outputTreePath,
+                      std::string   outputTreeName, 
+                      Event       * theEvent      , 
+                      Geometry    * theGeometry    );
 
-   bool growFakeTree2(int trackNum, double xErr, double yErr, std::string outputTreePath ,
-                      std::string outputTreeName, Event *theEvent, Geometry *theGeometry  );
+   bool growFakeTree2(int           trackNum      ,
+                      double        xErr          ,
+                      double        yErr          ,
+                      std::string   outputTreePath,
+                      std::string   outputTreeName, 
+                      Event       * theEvent      , 
+                      Geometry    * theGeometry    );
 
-   void setErrors   (double xErr_um, double yErr_um ) {xErr_=xErr_um; yErr_ = yErr_um;}
+   void setErrors    (double        xErr_um, 
+                      double        yErr_um        ) {
+                                                      xErr_ = xErr_um; 
+                                                      yErr_ = yErr_um;
+                                                     }
 
 private:
 
-    double xErr_;
-    double yErr_;
+    double            xErr_;
+    double            yErr_;
 
-    std::stringstream                ss_              ;
+    std::stringstream ss_  ;
 };
 
 #endif // BEAMSIMULATOR_H

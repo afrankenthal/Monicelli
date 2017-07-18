@@ -58,51 +58,52 @@ public:
    typedef std::pair< std::pair< SV4Def, Event::matrixDef >, double> aFittedTrackDef;
    typedef std::pair<double, std::string>                            pairDef        ;
    typedef std::vector<pairDef>::const_reverse_iterator              revIterDef     ;
+   typedef std::map<std::string, std::pair<double, double> >         resDef         ;
 
-   void                             clear                           (void                                                            );
-   void                             clearSelectedDetectorsList      (void                                                            ){selectedDetectors_.clear()          ;}
-   Event::fittedTracksDef           fitTracks                       (const Event::trackCandidatesDef         & tracks,
-                                                                    Geometry                                 * theGeometry,
-                                                                    std::string                                excludedDetector = "" );
-   aFittedTrackDef                  fitSingleTrack                  (const Event::alignedHitsCandidateMapDef & alignedHits,
-                                                                    Geometry                                 * theGeometry,
-                                                                    std::string                                excludedDetector = "" );
-   aFittedTrackDef                  kalmanFitSingleTrack            (const Event::alignedHitsCandidateMapDef & trackCandidate,
-                                                                    Event::vectorDef                         & track,
-                                                                    Event::matrixDef                         & cov,
-                                                                    Event::clustersMapDef                    & clusters,
-                                                                    Geometry                                 * theGeometry,
-                                                                    std::string                                excludedDetector = "" );
-   void                             makeDetectorTrackResiduals      (ROOT::Math::SVector<double,4>           & fittedTrack,
-                                                                    Event::matrixDef                         & covMat,
-                                                                    const Event::clustersMapDef              & clusters,
-                                                                    const Event::trackCandidatesDef          & tracks,
-                                                                    Geometry                                 * theGeometry,
-                                                                    std::string                                detector,
-                                                                    int                                        trackNum              );
-   void                             makeFittedTracksResiduals       (Event                                   * theEvent,
-                                                                    Geometry                                 * theGeometry           );
-   void                             makeFittedTrackDeviations       (Event* theEvent, Geometry* theGeometry                          );
+   void                                   clear                           (void                                                            );
+   void                                   clearSelectedDetectorsList      (void                                                            ){selectedDetectors_.clear()          ;}
+   Event::fittedTracksDef                 fitTracks                       (const Event::trackCandidatesDef         & tracks               ,
+                                                                           Geometry                                * theGeometry          ,
+                                                                           std::string                               excludedDetector = "" );
+   aFittedTrackDef                        fitSingleTrack                  (const Event::alignedHitsCandidateMapDef & alignedHits          ,
+                                                                           Geometry                                * theGeometry          ,
+                                                                           std::string                               excludedDetector = "" );
+   aFittedTrackDef                        kalmanFitSingleTrack            (const Event::alignedHitsCandidateMapDef & trackCandidate       ,
+                                                                           Event::vectorDef                        & track                ,
+                                                                           Event::matrixDef                        & cov                  ,
+                                                                           Event::clustersMapDef                   & clusters             ,
+                                                                           Geometry                                * theGeometry          ,
+                                                                           std::string                               excludedDetector = "" );
+   void                                   makeDetectorTrackResiduals      (ROOT::Math::SVector<double,4>           & fittedTrack          ,
+                                                                           Event::matrixDef                        & covMat               ,
+                                                                           const Event::clustersMapDef             & clusters             ,
+                                                                           const Event::trackCandidatesDef         & tracks               ,
+                                                                           Geometry                                * theGeometry          ,
+                                                                           std::string                               detector             ,
+                                                                           int                                       trackNum              );
+   void                                   makeFittedTracksResiduals       (Event                                   * theEvent             ,
+                                                                           Geometry                                * theGeometry           );
+   void                                   makeFittedTrackDeviations       (Event                                   * theEvent             , 
+                                                                           Geometry                                * theGeometry           );
+   void                                   execute                         (Event                                   * theEvent             , 
+                                                                           Geometry                                * theGeometry           ); 
+   Event::fittedTracksDef               & getTracks                       (void                                                            ){return fittedTracks_                ;}
+   Event::fittedTracksCovarianceDef       getCovariance                   (void                                                            ){return covMat_                      ;}
+   Event::chi2VectorDef                   getChi2                         (void                                                            ){return chi2_                        ;}
+   std::string                            getLabel                        (void                                                            );
+   std::string                            getName                         (void                                                            ){return "trackFitter"                ;}
 
-   void                             execute                         (Event* theEvent, Geometry* theGeometry                          );
-   Event::fittedTracksDef        &  getTracks                       (void                                                            ){return fittedTracks_                ;}
-   //Event::residualsMapDef          getResiduals                     (void                                                            ){return residualsMap_                ;}
-   //Event::residualsMapDef          getPulls                         (void                                                            ){return pullMap_                     ;}
-   Event::fittedTracksCovarianceDef getCovariance                   (void                                                            ){return covMat_                      ;}
-   Event::chi2VectorDef             getChi2                         (void                                                            ){return chi2_                        ;}
-   std::string                      getLabel                        (void                                                            );
-   std::string                      getName                         (void                                                            ){return "trackFitter"                ;}
 
+   void                                   setSelectedDetectorsList        (std::set<std::string>                     selectedDetectors     ){selectedDetectors_=selectedDetectors;}
+   void                                   setTracksFitted                 (bool                                      tracksFitted          ){tracksFitted_ = tracksFitted        ;}
+   bool                                   tracksFitted                    (void                                                            ){return tracksFitted_                ;}
 
-   void                             setSelectedDetectorsList        (std::set<std::string>                     selectedDetectors     ){selectedDetectors_=selectedDetectors;}
-   void                             setTracksFitted                 (bool                                      tracksFitted          ){tracksFitted_ = tracksFitted        ;}
-   bool                             tracksFitted                    (void                                                            ){return tracksFitted_                ;}
-
-   void                             setFitMethodName                (std::string fitMethodName                                       ){fitMethodName_=fitMethodName        ;}
-   //std::string                      getFitMethodName                (void                                                            ){return fitMethodName_               ;}
-   void                             setNumberOfIterations           (int                                       iterations            ){nIterations_ = iterations           ;}
-   void                             setKalmanPlaneInfo              (KalmanPlaneInfo                          kalmanInfo             ){theKalmanPlaneInfo_ = kalmanInfo    ;}
-   static ROOT::Math::SVector<double,4> calculateParCorrections     (ROOT::Math::SVector<double,4> pars, Geometry * geo, std::map<std::string, std::pair<double, double> > res);
+   void                                   setFitMethodName                (std::string fitMethodName                                       ){fitMethodName_=fitMethodName        ;}
+   void                                   setNumberOfIterations           (int                                       iterations            ){nIterations_ = iterations           ;}
+   void                                   setKalmanPlaneInfo              (KalmanPlaneInfo                           kalmanInfo            ){theKalmanPlaneInfo_ = kalmanInfo    ;}
+   static ROOT::Math::SVector<double,4>   calculateParCorrections         (ROOT::Math::SVector<double,4>             pars                 ,
+                                                                           Geometry                                * geo                  ,
+                                                                           resDef                                    res                   );
 
 private:
 

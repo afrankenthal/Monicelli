@@ -60,16 +60,16 @@ private:
 
     std::stringstream ss_ ;
 
-    bool     state_ ;
-    QString  type_  ;
+    bool              state_ ;
+    QString           type_  ;
 
-    int      min_   ;
-    int      max_   ;
+    int               min_   ;
+    int               max_   ;
 
 private slots:
     void on_rowColSB_valueChanged(int );
-    void on_cancelPB_clicked();
-    void on_okPB_clicked();
+    void on_cancelPB_clicked     (void);
+    void on_okPB_clicked         (void);
 };
 
 #endif // NEWNONSTANDARDTABDIALOG_H

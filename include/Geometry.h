@@ -87,7 +87,7 @@ class Geometry : public TObject
   bool                        calibrationDone       (void                           ) {return calibrationDone_            ;}
 
   void                        setDUTnumbers         (unsigned int dutNumbers        ) {dutNumbers_           = dutNumbers ;}
-  void                        setGeometryFileName   (std::string  fileName          ) ;
+  void                        setGeometryFileName   (std::string  fileName          );
   void                        setCalibrationDone    (bool         done              ) {calibrationDone_      = done       ;}
   void                        setDataType           (int          station,
                                                      int          d                 ) {dataTypeMap_[station] = d          ;}

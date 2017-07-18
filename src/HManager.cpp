@@ -1498,6 +1498,10 @@ std::string HManager::getLabel (void )
      {
         return "Creating charge distributions" ;
      }
+     else if( subProcessFunction_ == &HManager::makeBeamSpots2           )
+     {
+        return "Creating beam spot distorbutions and projections" ;
+     }
     }
     return "Histogramming" ;
 }

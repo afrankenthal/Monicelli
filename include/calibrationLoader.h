@@ -58,14 +58,6 @@
 class calibrationLoader : public process
 {
  public :
-    calibrationLoader(fileEater      * theFileEater     ,
-                      HManager       * theHManager      ,
-                      fitter         * theFitter        ,
-                      geometryLoader * theGeometryLoader,
-                      QProgressBar   * parseProgressBar );
-  
-   ~calibrationLoader(void                              );
-  
     //                     row           col            plot     fitPar and covMat
     typedef       std::map<int, std::map<int, std::pair<TH1I*, fitter::fitResultDef> > > pixelPlotsMapDef       ;
     //                     detectorID          rocID   pixel
@@ -74,57 +66,65 @@ class calibrationLoader : public process
     typedef       std::map<std::string, std::map<int,TH1I*> >                            calibrationPlotsMapDefH;
     typedef       std::map<std::string, std::map<int,TH2F*> >                            calibrationPlotsMapDefS;
 
-    bool          loadASCIIcalibrationFile (std::string   fileName                       );
-    bool          loadROOTcalibrationFiles (std::string   detector,
-                                            ROC         * roc,
-                                            std::string   fileName                       );
-    bool          loadAllCalibrationFiles  (void                                         );
-    void          saveROOTcalibrationFiles (std::string   fileDirectory                  );
-    void          removeCalibrationFiles   (std::string   fileDirectory                  );
-    void          restoreCalibrationFiles  (std::string   fileDirectory                  );
-    void          listHeader               (void                                         );
-    bool          makeHistograms           (std::string   detector,
-                                            ROC         * roc,
-                                            bool          fit           = false,
-                                            bool          writeGeometry = false,
-                                            bool          writeASCII    = false          );
-    bool          makeDUTHistograms        (std::string   detector,
-                                            ROC         * roc,
-                                            bool          fit           = false,
-                                            bool          writeGeometry = false,
-                                            bool          writeASCII    = false          );
-    void          makeChi2Histograms       (void                                         );
-//  void          fitHistograms            (std::string   detector,
-//                                              ROC         * roc,
-//                                              double        xmin,
-//                                              double        xmax                       );
-    TH1*          getHistogram             (std::string   detectorID,
-                                            int           rocID,
-                                            int           row,
-                                            int           col                            );
-    bool          getCalibrationLoaded     (void                                         ){return calibrationsLoaded_;}
-    TH1I*         get1DChi2                (std::string   detectorID,
-                                            int           rocID                          );
-    TH2F*         get2DChi2                (std::string   detectorID,
-                                            int           rocID                          );
-    vector<TH1I*> getAll1DChi2             (void                                         );
-    vector<TH2F*> getAll2DChi2             (void                                         );
-    void          writeGeometry            (std::string   detector,
-                                            ROC         * roc                            );
+                  calibrationLoader        (fileEater      * theFileEater         ,
+                                            HManager       * theHManager          ,
+                                            fitter         * theFitter            ,
+                                            geometryLoader * theGeometryLoader    ,
+                                            QProgressBar   * parseProgressBar               );
+  
+                 ~calibrationLoader        (void                                            );
+  
+    bool          loadASCIIcalibrationFile (std::string      fileName                       );
+    bool          loadROOTcalibrationFiles (std::string      detector             ,
+                                            ROC            * roc                  ,
+                                            std::string      fileName                       );
+    bool          loadAllCalibrationFiles  (void                                            );
+    void          saveROOTcalibrationFiles (std::string      fileDirectory                  );
+    void          removeCalibrationFiles   (std::string      fileDirectory                  );
+    void          restoreCalibrationFiles  (std::string      fileDirectory                  );
+    void          listHeader               (void                                            );
+    bool          makeHistograms           (std::string      detector             ,
+                                            ROC            * roc                  ,
+                                            bool             fit           = false,
+                                            bool             writeGeometry = false,
+                                            bool             writeASCII    = false          );
+    bool          makeDUTHistograms        (std::string      detector             ,
+                                            ROC            * roc                  ,
+                                            bool             fit           = false,
+                                            bool             writeGeometry = false,
+                                            bool             writeASCII    = false          );
+    void          makeChi2Histograms       (void                                            );
+    TH1*          getHistogram             (std::string      detectorID           ,
+                                            int              rocID                ,
+                                            int              row                  ,
+                                            int              col                            );
+    bool          getCalibrationLoaded     (void                                            ){return calibrationsLoaded_;}
+    TH1I*         get1DChi2                (std::string      detectorID           ,
+                                            int              rocID                          );
+    TH2F*         get2DChi2                (std::string      detectorID           ,
+                                            int              rocID                          );
+    vector<TH1I*> getAll1DChi2             (void                                            );
+    vector<TH2F*> getAll2DChi2             (void                                            );
+    void          writeGeometry            (std::string      detector             ,
+                                            ROC            * roc                            );
 
-    void          setOutputASCIIfile       (bool          writeASCII,
-                                            std::string   outputFile = "calib_output.txt"){
-                                                                                           writeASCII_     =writeASCII;
-                                                                                           outputASCIIfile_=outputFile;
-                                                                                          }
-    void          setInputROOTfile         (bool          readROOT                       ){ readROOT_      =readROOT; }
+    void          setOutputASCIIfile       (bool             writeASCII,
+                                            std::string      outputFile = "calib_output.txt"){
+                                                                                              writeASCII_     = writeASCII;
+                                                                                              outputASCIIfile_= outputFile;
+                                                                                             }
+    void          setInputROOTfile         (bool             readROOT                       ){ readROOT_      = readROOT  ;}
 
-    bool          execute                  (void                                         );
+    bool          execute                  (void                                            );
 
-    std::string   getLabel                 (void                                         );
-    int           getMaxIterations         (void                                         );
-    std::string   getName                  (void                                         ){return "calibrationLoader";}
-    bool          checkFileStatus          (std::string   path                           );
+    std::string   getLabel                 (void                                            );
+    int           getMaxIterations         (void                                            );
+    std::string   getName                  (void                                            ){return "calibrationLoader"  ;}
+    bool          checkFileStatus          (std::string      path                           );
+//  void          fitHistograms            (std::string      detector,
+//                                              ROC            * roc,
+//                                              double           xmin,
+//                                              double           xmax                       );
 
 private :
 

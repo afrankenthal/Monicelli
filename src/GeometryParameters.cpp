@@ -86,18 +86,18 @@ void GeometryParameters::showDetectorPars(Detector* detector)
 {
     ui->detectorNameCB->setText(QString::fromStdString(detector->getID()));
     ui->detectorNameCB->setChecked(true);
-    ui->basePar0LE      ->setText(QString::number(detector->getXRotation          ()     ,'f',2));
-    ui->basePar1LE      ->setText(QString::number(detector->getYRotation          ()     ,'f',2));
-    ui->basePar2LE      ->setText(QString::number(detector->getZRotation          ()     ,'f',2));
-    ui->basePar3LE      ->setText(QString::number(detector->getXPosition          ()*10  ,'f',2));
-    ui->basePar4LE      ->setText(QString::number(detector->getYPosition          ()*10  ,'f',2));
-    ui->basePar5LE      ->setText(QString::number(detector->getZPosition          ()/1000,'f',2));
-    ui->correctionPar0LE->setText(QString::number(detector->getXRotationCorrection()     ,'f',2));
-    ui->correctionPar1LE->setText(QString::number(detector->getYRotationCorrection()     ,'f',2));
-    ui->correctionPar2LE->setText(QString::number(detector->getZRotationCorrection()     ,'f',2));
-    ui->correctionPar3LE->setText(QString::number(detector->getXPositionCorrection()*10  ,'f',2));
-    ui->correctionPar4LE->setText(QString::number(detector->getYPositionCorrection()*10  ,'f',2));
-    ui->correctionPar5LE->setText(QString::number(detector->getZPositionCorrection()/1000,'f',2));
+    ui->basePar0LE      ->setText(QString::number(detector->getXRotation          ()     ,'f',4));
+    ui->basePar1LE      ->setText(QString::number(detector->getYRotation          ()     ,'f',4));
+    ui->basePar2LE      ->setText(QString::number(detector->getZRotation          ()     ,'f',4));
+    ui->basePar3LE      ->setText(QString::number(detector->getXPosition          ()*10  ,'f',4));
+    ui->basePar4LE      ->setText(QString::number(detector->getYPosition          ()*10  ,'f',4));
+    ui->basePar5LE      ->setText(QString::number(detector->getZPosition          ()/1000,'f',4));
+    ui->correctionPar0LE->setText(QString::number(detector->getXRotationCorrection()     ,'f',4));
+    ui->correctionPar1LE->setText(QString::number(detector->getYRotationCorrection()     ,'f',4));
+    ui->correctionPar2LE->setText(QString::number(detector->getZRotationCorrection()     ,'f',4));
+    ui->correctionPar3LE->setText(QString::number(detector->getXPositionCorrection()*10  ,'f',4));
+    ui->correctionPar4LE->setText(QString::number(detector->getYPositionCorrection()*10  ,'f',4));
+    ui->correctionPar5LE->setText(QString::number(detector->getZPositionCorrection()/1000,'f',4));
     updateTotal();
 }
 
@@ -122,7 +122,7 @@ void GeometryParameters::checkValue(QString text)
 {
     badValue_ = true;
     text.toDouble(&badValue_);
-    badValue_= !badValue_;
+    badValue_ = !badValue_;
 }
 
 //===========================================================================

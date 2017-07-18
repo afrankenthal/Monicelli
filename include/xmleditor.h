@@ -56,47 +56,47 @@ class XMLEditor : public QWidget
     Q_OBJECT
 
 public:
-    explicit XMLEditor             (QWidget * parent = 0);
-             XMLEditor             (QString   fileName  );
-            ~XMLEditor             (void                );
-    bool     isActive              (void                ) {return isActive_ ;}
-    void     setGeometryFileName   (QString   fileName  ) ;
-    void     setXPosition          (int    stationId,
-                                    int    detectorId,
-                                    double value        ) ;
-    void     setYPosition          (int    stationId,
-                                    int    detectorId,
-                                    double value        ) ;
-    void     setZPosition          (int    stationId,
-                                    int    detectorId,
-                                    double value        ) ;
-    void     setXPositionCorrection(int    stationId,
-                                    int    detectorId,
-                                    double correction   ) ;
-    void     setYPositionCorrection(int    stationId,
-                                    int    detectorId,
-                                    double correction   ) ;
-    void     setZPositionCorrection(int    stationId,
-                                    int    detectorId,
-                                    double correction   ) ;
-    void     setXRotation          (int    stationId,
-                                    int    detectorId,
-                                    double correction   ) ;
-    void     setYRotation          (int    stationId,
-                                    int    detectorId,
-                                    double correction   ) ;
-    void     setZRotation          (int    stationId,
-                                    int    detectorId,
-                                    double correction   ) ;
-    void     setXRotationCorrection(int    stationId,
-                                    int    detectorId,
-                                    double correction   ) ;
-    void     setYRotationCorrection(int    stationId,
-                                    int    detectorId,
-                                    double correction   ) ;
-    void     setZRotationCorrection(int    stationId,
-                                    int    detectorId,
-                                    double correction   ) ;
+    explicit XMLEditor             (QWidget * parent = 0 );
+             XMLEditor             (QString   fileName   );
+            ~XMLEditor             (void                 );
+    bool     isActive              (void                 ){return isActive_ ;}
+    void     setGeometryFileName   (QString   fileName   );
+    void     setXPosition          (int       stationId ,
+                                    int       detectorId,
+                                    double    value      );
+    void     setYPosition          (int       stationId ,
+                                    int       detectorId,
+                                    double    value      );
+    void     setZPosition          (int       stationId ,
+                                    int       detectorId,
+                                    double    value      );
+    void     setXPositionCorrection(int       stationId ,
+                                    int       detectorId,
+                                    double    correction );
+    void     setYPositionCorrection(int       stationId ,
+                                    int       detectorId,
+                                    double    correction );
+    void     setZPositionCorrection(int       stationId ,
+                                    int       detectorId,
+                                    double    correction );
+    void     setXRotation          (int       stationId ,
+                                    int       detectorId,
+                                    double    correction );
+    void     setYRotation          (int       stationId ,
+                                    int       detectorId,
+                                    double    correction );
+    void     setZRotation          (int       stationId ,
+                                    int       detectorId,
+                                    double    correction );
+    void     setXRotationCorrection(int       stationId ,
+                                    int       detectorId,
+                                    double    correction );
+    void     setYRotationCorrection(int       stationId ,
+                                    int       detectorId,
+                                    double    correction );
+    void     setZRotationCorrection(int       stationId ,
+                                    int       detectorId,
+                                    double    correction );
 
 private:
 
@@ -107,16 +107,7 @@ private:
 
     typedef std::map<int, stationGB*>                 stationGBDef    ;
 
-    Ui::XMLEditor *ui;
-
-    void placeDetector      (xmlDetector * theXmlDetector) ;
-    void placeStation       (xmlStation  * theXmlStation ) ;
-    void placeROC           (xmlROC      * theXmlROC     ) ;
-    void layout             (void                        ) ;
-    void reorderStationTabs (void                        ) ;
-    void reorderDetectorTabs(int           stationId     ) ;
-    bool stationInUse       (int           station       ) ;
-    bool loadGeometryFile   (void                        ) ;
+    Ui::XMLEditor                 * ui             ;
 
     stationGB                     * theStationGB_  ;
     detectorTabWidget             * theDetectorTW_ ;
@@ -137,30 +128,41 @@ private:
 
     std::stringstream               ss_            ;
 
+private:
+    void     placeDetector                 (xmlDetector   * theXmlDetector) ;
+    void     placeStation                  (xmlStation    * theXmlStation ) ;
+    void     placeROC                      (xmlROC        * theXmlROC     ) ;
+    void     layout                        (void                          ) ;
+    void     reorderStationTabs            (void                          ) ;
+    void     reorderDetectorTabs           (int             stationId     ) ;
+    bool     stationInUse                  (int             station       ) ;
+    bool     loadGeometryFile              (void                          ) ;
+
+
 private slots:
-    void on_chooseDatePB_clicked            (void                          );
-    void on_showHierachyPB_clicked          (void                          );
-    void on_removeStationPB_clicked         (void                          );
-    void on_addNewStationPB_clicked         (void                          );
-    void on_savePB_clicked                  (void                          );
-    void toggleStationWidget                (int             id,
-                                             bool            inUse         );
-    void addNewTab                          (ROCWidget     *              ,
-                                             xmlROC        *              ,
-                                             QString                      ,
-                                             int,
-                                             double                        );
-    void placeDetectorTab                   (xmlDetector   * theXmlDetector);
-    void placeROCTab                        (xmlROC        * theXmlROC     );
-    void removeDetectorTab                  (int             stationId    ,
-                                             int             detectorSerial);
-    void removeROCTab                       (int             stationId,
-                                             int             detectorId   ,
-                                             int             ROCSerial     );
-    void textChanged                        (std::string                  ,
-                                             QString       &               );
-    void on_resetCalibFitFuncPB_clicked     (void                          );
-    void on_enableAllStationsPB_clicked     (void                          );
+    void     on_chooseDatePB_clicked       (void                          );
+    void     on_showHierachyPB_clicked     (void                          );
+    void     on_removeStationPB_clicked    (void                          );
+    void     on_addNewStationPB_clicked    (void                          );
+    void     on_savePB_clicked             (void                          );
+    void     toggleStationWidget           (int             id,
+                                            bool            inUse         );
+    void     addNewTab                     (ROCWidget     *              ,
+                                            xmlROC        *              ,
+                                            QString                      ,
+                                            int,
+                                            double                        );
+    void     placeDetectorTab              (xmlDetector   * theXmlDetector);
+    void     placeROCTab                   (xmlROC        * theXmlROC     );
+    void     removeDetectorTab             (int             stationId    ,
+                                            int             detectorSerial);
+    void     removeROCTab                  (int             stationId,
+                                            int             detectorId   ,
+                                            int             ROCSerial     );
+    void     textChanged                   (std::string                  ,
+                                            QString       &               );
+    void     on_resetCalibFitFuncPB_clicked(void                          );
+    void     on_enableAllStationsPB_clicked(void                          );
 };
 
 #endif // XMLEDITOR_H

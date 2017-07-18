@@ -232,28 +232,28 @@ class xmlStation : public QWidget
 
 private:
 
-  QDomNode                    stationNode_             ;
-  QDomNode                    childNode_               ;
+  QDomNode                     stationNode_             ;
+  QDomNode                     childNode_               ;
 
-  std::stringstream           ss_                      ;
-  int                         id_                      ;
-  int                         serial_                  ;
-  bool                        used_                    ;
-  std::string                 description_             ;
+  std::stringstream            ss_                      ;
+  int                          id_                      ;
+  int                          serial_                  ;
+  bool                         used_                    ;
+  std::string                  description_             ;
 
-  xmlDetectorsDef             detectors_               ; // Indexed by station Id
+  xmlDetectorsDef              detectors_               ; // Indexed by station Id
 
-  xmlParser                 * theParser_               ;
-  xmlParser::tabPositionDef   detectorTabPosition_     ;
-  std::string                 sCalibrationFitFunction_ ;
-  std::string                 daCalibrationFitFunction_;
+  xmlParser                  * theParser_               ;
+  xmlParser::tabPositionDef    detectorTabPosition_     ;
+  std::string                  sCalibrationFitFunction_ ;
+  std::string                  daCalibrationFitFunction_;
 
 private slots:
 
-  void setValue        (int           value     ) ;
+  void                         setValue                   (int           value      ) ;
 
-  void setAttributeText(std::string   key,
-                        QString     & textValue ) ;
+  void                         setAttributeText           (std::string   key,
+                                                           QString     & textValue  ) ;
 signals:
 };
 
@@ -279,22 +279,24 @@ public:
 
   void                         addROC                     (int         ROCId,
                                                            int         ROCSerial    ) ;
-  std::string                  getDescription             (void                     ) {return description_              ;}
-  QDomNode                   & getNode                    (void                     ) {return detectorNode_             ;}
+  std::string                  getDescription             (void                     ) {return description_                          ;}
+  QDomNode                   & getNode                    (void                     ) {return detectorNode_                         ;}
   QDomNode                   & getROCNode                 (void                     ) {
-                                                                                        ROCNode_ = detectorNode_.toElement().elementsByTagName("ROCs").at(0) ;
-                                                                                        return ROCNode_                                                      ;
+                                                                                        ROCNode_ = detectorNode_.toElement().
+                                                                                                   elementsByTagName("ROCs").
+                                                                                                   at(0) ;
+                                                                                        return ROCNode_                             ;
                                                                                       }
   std::vector<int>             getAllDetectorsId          (void                     ) ;
-  int                          getDetectorId              (void                     ) {return id_                       ;}
-  int                          getDetectorSerial          (void                     ) {return serial_                   ;}
+  int                          getDetectorId              (void                     ) {return id_                                   ;}
+  int                          getDetectorSerial          (void                     ) {return serial_                               ;}
   xmlParser::idSerialListDef   getROCList                 (void                     ) ;
-  xmlROCDef                    getXmlROCs                 (void                     ) {return ROCs_                     ;}
-  int                          getStationId               (void                     ) {return stationId_                ;}
+  xmlROCDef                    getXmlROCs                 (void                     ) {return ROCs_                                 ;}
+  int                          getStationId               (void                     ) {return stationId_                            ;}
   xmlROC                     * getXmlROCById              (int        roc           ) ;
   xmlROC                     * getXmlROCBySerial          (int        rocSerial     ) ;
-  std::string                  getdCalibrationFitFunction (void                     ) {return dCalibrationFitFunction_  ;}
-  std::string                  getraCalibrationFitFunction(void                     ) {return raCalibrationFitFunction_ ;}
+  std::string                  getdCalibrationFitFunction (void                     ) {return dCalibrationFitFunction_              ;}
+  std::string                  getraCalibrationFitFunction(void                     ) {return raCalibrationFitFunction_             ;}
   std::string                  getAddress                 (void                     ) {
                                                                                        ss_.str("");
                                                                                        ss_ << "Station "
@@ -306,37 +308,56 @@ public:
 
   void                         remDetector                (void                     ) ;
   bool                         isEnabled                  (void                     ) ;
-  bool                         isUsed                     (void                     ) {return used_                     ;}
-  bool                         isDUT                      (void                     ) {return isDUT_                    ;}
+  bool                         isUsed                     (void                     ) {return used_                                 ;}
+  bool                         isDUT                      (void                     ) {return isDUT_                                ;}
   void                         setUsed                    (bool used                ) ;
   void                         dumpROCs                   (void                     ) ;
 
-  keyValueDef          keyValue_                         ;
+  double                       getxPosition               (void                     ) {return atof(keyValue_["xPosition"               ].toStdString().c_str()) ;}
+  double                       getyPosition               (void                     ) {return atof(keyValue_["yPosition"               ].toStdString().c_str()) ;}
+  double                       getzPosition               (void                     ) {return atof(keyValue_["zPosition"               ].toStdString().c_str()) ;}
+  double                       getxRotation               (void                     ) {return atof(keyValue_["xRotation"               ].toStdString().c_str()) ;}
+  double                       getyRotation               (void                     ) {return atof(keyValue_["yRotation"               ].toStdString().c_str()) ;}
+  double                       getzRotation               (void                     ) {return atof(keyValue_["zRotation"               ].toStdString().c_str()) ;}
+  double                       getxPosCorrection          (void                     ) {return atof(keyValue_["xPosCorrection"          ].toStdString().c_str()) ;}
+  double                       getyPosCorrection          (void                     ) {return atof(keyValue_["yPosCorrection"          ].toStdString().c_str()) ;}
+  double                       getzPosCorrection          (void                     ) {return atof(keyValue_["zPosCorrection"          ].toStdString().c_str()) ;}
+  double                       getxPositionError          (void                     ) {return atof(keyValue_["xPositionError"          ].toStdString().c_str()) ;}
+  double                       getyPositionError          (void                     ) {return atof(keyValue_["yPositionError"          ].toStdString().c_str()) ;}
+  double                       getzPositionError          (void                     ) {return atof(keyValue_["zPositionError"          ].toStdString().c_str()) ;}
+  double                       getxRotationCorrection     (void                     ) {return atof(keyValue_["xRotationCorrection"     ].toStdString().c_str()) ;}
+  double                       getyRotationCorrection     (void                     ) {return atof(keyValue_["yRotationCorrection"     ].toStdString().c_str()) ;}
+  double                       getzRotationCorrection     (void                     ) {return atof(keyValue_["zRotationCorrection"     ].toStdString().c_str()) ;}
+  double                       getxRotationCorrectionError(void                     ) {return atof(keyValue_["xRotationCorrectionError"].toStdString().c_str()) ;}
+  double                       getyRotationCorrectionError(void                     ) {return atof(keyValue_["yRotationCorrectionError"].toStdString().c_str()) ;}
+  double                       getzRotationCorrectionError(void                     ) {return atof(keyValue_["zRotationCorrectionError"].toStdString().c_str()) ;}
+
+  keyValueDef                  keyValue_                         ;
 
 private:
 
-  QDomNode             detectorNode_                     ;
-  QDomNode             ROCNode_                          ;
+  QDomNode                     detectorNode_                     ;
+  QDomNode                     ROCNode_                          ;
 
-  std::stringstream    ss_                               ;
-  xmlROCDef            ROCs_                             ;
-  xmlParser::ROCsDef   ROCId_                            ;
-  xmlStation         * theStation_                       ;
-  xmlParser          * theParser_                        ;
-  int                  id_                               ;
-  int                  serial_                           ;
-  int                  stationId_                        ;
-  bool                 used_                             ;
-  bool                 isDUT_                            ;
-  std::string          description_                      ;
-  std::string          dCalibrationFitFunction_          ;
-  std::string          raCalibrationFitFunction_         ;
+  std::stringstream            ss_                               ;
+  xmlROCDef                    ROCs_                             ;
+  xmlParser::ROCsDef           ROCId_                            ;
+  xmlStation                 * theStation_                       ;
+  xmlParser                  * theParser_                        ;
+  int                          id_                               ;
+  int                          serial_                           ;
+  int                          stationId_                        ;
+  bool                         used_                             ;
+  bool                         isDUT_                            ;
+  std::string                  description_                      ;
+  std::string                  dCalibrationFitFunction_          ;
+  std::string                  raCalibrationFitFunction_         ;
 
 private slots:
-  void setValue        (int           value     ) ;
+  void                         setValue                   (int           value      ) ;
 
-  void setAttributeText(std::string   key,
-                        QString     & textValue ) ;
+  void                         setAttributeText           (std::string   key,
+                                                           QString     & textValue  ) ;
 };
 
 /*================================================================================+

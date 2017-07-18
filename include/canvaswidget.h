@@ -51,28 +51,24 @@ public:
     explicit canvasWidget(QWidget *parent = 0);
             ~canvasWidget();
 
-    void     divide      (
-                          int         nx     ,
-                          int         ny     ,
-                          float       xmargin,
-                          float       ymargin
-                         )                     ;
-    void     cd          (int         pos    ) ;
-    void     clear       (void               ) ;
-    void     flush       (void               ) ;
-    void     update      (void               ) ;
-    void     setTitle    (std::string title  ) ;
+    void     divide      (int            nx     ,
+                          int            ny     ,
+                          float          xmargin,
+                          float          ymargin) ;
+    void     cd          (int            pos    ) ;
+    void     clear       (void                  ) ;
+    void     flush       (void                  ) ;
+    void     update      (void                  ) ;
+    void     setTitle    (std::string    title  ) ;
 
 private:
-    Ui::canvasWidget  * ui;
+    void resizeEvent     (QResizeEvent * event  ) ;
 
+    Ui::canvasWidget  * ui         ;
     TCanvas           * theCanvas_ ;
-
     QRootCanvas       * canvas_    ;
+    std::stringstream   ss_        ;
 
-    std::stringstream   ss_ ;
-
-    void resizeEvent ( QResizeEvent * event ) ;
 
 private slots:
 } ;

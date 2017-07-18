@@ -41,10 +41,10 @@ class mdiSubWindow : public QMdiSubWindow
   Q_OBJECT
 
   public:
-          mdiSubWindow   (void    )  ;
-         ~mdiSubWindow   (void    ) {;}
+    mdiSubWindow   (void                ) ;
+   ~mdiSubWindow   (void                ){;}
   private:
-         void resizeEvent(QResizeEvent * event      ) ;
+   void resizeEvent(QResizeEvent * event) ;
 
 };
 

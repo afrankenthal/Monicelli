@@ -45,6 +45,7 @@
  *  \endcode
  *   </b>
  */
+#include <iostream>
 
 #define ACBlack       "\e[0;30m"
 #define ACBlue        "\e[0;34m"
@@ -76,5 +77,36 @@
 
 #define ACSave        "\e[s"
 #define ACRecall      "\e[u"
+
+static std::string ACBlack_       = ACBlack      ;
+static std::string ACBlue_        = ACBlue       ;
+static std::string ACGreen_       = ACGreen      ;
+static std::string ACCyan_        = ACCyan       ;
+static std::string ACRed_         = ACRed        ;
+static std::string ACPurple_      = ACPurple     ;
+static std::string ACBrown_       = ACBrown      ;
+static std::string ACGray_        = ACGray       ;
+static std::string ACDarkGray_    = ACDarkGray   ;
+static std::string ACLightBlue_   = ACLightBlue  ;
+static std::string ACLightGreen_  = ACLightGreen ;
+static std::string ACLightCyan_   = ACLightCyan  ;
+static std::string ACLightRed_    = ACLightRed   ;
+static std::string ACLightPurple_ = ACLightPurple;
+static std::string ACYellow_      = ACYellow     ;
+static std::string ACWhite_       = ACWhite      ;
+
+static std::string ACPlain_       = ACPlain      ;
+static std::string ACBold_        = ACBold       ;
+static std::string ACUnderline_   = ACUnderline  ;
+static std::string ACBlink_       = ACBlink      ;
+static std::string ACReverse_     = ACReverse    ;
+                                   
+static std::string ACClear_       = ACClear      ;
+static std::string ACClearL_      = ACClearL     ;
+                                   
+static std::string ACCR_          = ACCR         ;
+                                   
+static std::string ACSave_        = ACSave       ;
+static std::string ACRecall_      = ACRecall     ;
 
 #endif // _ANSICOLORS_H

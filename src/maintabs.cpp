@@ -32,9 +32,10 @@
 #include "ui_maintabs.h"
 #include <QtWidgets/qmessagebox.h>
 #include <QtWidgets/QTableWidget>
+#include <QtWidgets/QTableWidget>
+#include <QRegularExpression>
 #include "TBenchmark.h"
 #include "Geometry.h"
-
 #include <iterator>
 
 #define ZOOMFACTOR  2
@@ -1983,16 +1984,16 @@ void mainTabs::writeAlignment()
     //bool redo = (ui->showBeamProfilesPB->text() == "Fit")? false:true;
     theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
     HManager::stringVDef histoType; //(X[1],Y[2])
-    if(ui->rawAlignmentClusterProfilesRB->isChecked())
-    {
-        theHManager_->setSubProcessFunction(&HManager::makeClusterPlots2);
-        histoType = theHManager_->eventsCycle();
-    }
-    else
-    {
-        theHManager_->setSubProcessFunction(&HManager::makeBeamSpots2);
-        histoType = theHManager_->eventsCycle();
-    }
+        if(ui->rawAlignmentClusterProfilesRB->isChecked())
+        {
+            theHManager_->setSubProcessFunction(&HManager::makeClusterPlots2);
+            histoType = theHManager_->eventsCycle();
+        }
+        else
+        {
+            theHManager_->setSubProcessFunction(&HManager::makeBeamSpots2);
+            histoType = theHManager_->eventsCycle();
+        }
     emit mainTabs::processFinished(&mainTabs::writeAlignment_end,histoType);
 }
 //==============================================================================
@@ -4290,10 +4291,10 @@ void mainTabs::showGeometry()
         }
         if(row >= ui->geometryDisplayTable->rowCount())
         {
-            ui->geometryDisplayTable->insertRow(ui->geometryDisplayTable->rowCount());
-            ui->geometryDisplayTable->setRowHeight(row, tmpGeoPars->height());
-            ui->geometryDisplayTable->setColumnWidth(0, tmpGeoPars->width()+4);
-            ui->geometryDisplayTable->setCellWidget(row, 0, tmpGeoPars);
+            ui->geometryDisplayTable->insertRow     (ui->geometryDisplayTable->rowCount()                                 );
+            ui->geometryDisplayTable->setRowHeight  (row,                                 tmpGeoPars->height()            );
+            ui->geometryDisplayTable->setColumnWidth(0,                                   tmpGeoPars->width()+4           );
+            ui->geometryDisplayTable->setCellWidget (row,                                 0,                    tmpGeoPars);
         }
 
         tmpGeoPars->showDetectorPars(it->second);
@@ -4303,6 +4304,7 @@ void mainTabs::showGeometry()
     }
     ui->geometryDisplayTable->show();
     geometryDisplayShrinkFix_++;
+    //delete tmpGeoPars;
 }
 //===================================================================================================
 void mainTabs::on_geometryDisableEnableAllPB_clicked()

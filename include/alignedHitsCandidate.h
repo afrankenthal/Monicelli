@@ -46,36 +46,37 @@
 class alignedHitsCandidate : public TObject
 {
 public:
-    alignedHitsCandidate(HManager *theHManager)             ;
-    alignedHitsCandidate(Event *theEvent)                   ;
-   ~alignedHitsCandidate(void)                             {;}
+    //                  x,y,z,sz,sy,sz            | value
+    typedef std::map   <std::string,                double              > clusterCoordinateDef       ;
+    //                  planeId                   | cluster coordinate
+    typedef std::map   <std::string,                clusterCoordinateDef> alignedHitsCandidateMapDef ;
+    typedef std::vector<alignedHitsCandidateMapDef                      > trackCandidatesDef         ;
 
-    //               x,y,z,sz,sy,sz|value
-    typedef std::map<std::string,   double>               clusterCoordinateDef       ;
-    //               planeId       |cluster coordinate
-    typedef std::map<std::string,   clusterCoordinateDef> alignedHitsCandidateMapDef ;
-    typedef std::vector<alignedHitsCandidateMapDef>       trackCandidatesDef         ;
+    typedef std::map   <std::string,                float               > aClusterDef                ;
+    typedef std::map   <int,                        aClusterDef         > aClusterMapDef             ;
+    typedef std::map   <std::string,                aClusterMapDef      > clustersMapDef             ;
 
-    typedef std::map<std::string, float>                  aClusterDef                ;
-    typedef std::map<int, aClusterDef>                    aClusterMapDef             ;
-    typedef std::map<std::string, aClusterMapDef>         clustersMapDef             ;
+                                 alignedHitsCandidate (HManager    * theHManager   )                 ;
+                                 alignedHitsCandidate (Event       * theEvent      )                 ;
+                                ~alignedHitsCandidate (void                        ){;}
 
-    int                    size(void) ;
 
-    int                          findTrackCandidates(Event *theEvent, Geometry *theGeometry,
-                                                     std::string *histoTypeX, std::string *histoTypeY);
-    alignedHitsCandidateMapDef   getAlignedCombination(std::string exludedPlaneId);
+    int                          size                 (void                        )                 ;
+
+    int                          findTrackCandidates  (Event       * theEvent      , 
+                                                       Geometry    * theGeometry   ,
+                                                       std::string * histoTypeX    , 
+                                                       std::string * histoTypeY    )                 ;
+    alignedHitsCandidateMapDef   getAlignedCombination(std::string   exludedPlaneId)                 ;
 
 private:
-    alignedHitsCandidateMapDef  alignedHitsCandidate_ ;
-    trackCandidatesDef          trackCandidates_      ;
-    clustersMapDef              theClustersMap_       ;
+    alignedHitsCandidateMapDef   alignedHitsCandidate_ ;
+    trackCandidatesDef           trackCandidates_      ;
+    clustersMapDef               theClustersMap_       ;
 
-    HManager                   *theHManager_          ;
+    HManager                   * theHManager_          ;
 
-    std::stringstream             ss_                 ;
-
-    //ClassDef(alignedHitsCandidate,1)
+    std::stringstream            ss_                   ;
 };
 
 #endif // ALIGNEDHITSCANDIDATE_H

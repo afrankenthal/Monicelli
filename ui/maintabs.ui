@@ -594,7 +594,7 @@ p, li { white-space: pre-wrap; }
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>5</number>
+      <number>8</number>
      </property>
      <widget class="QWidget" name="rawDataProcessingTabPage">
       <attribute name="title">
@@ -14744,7 +14744,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QLabel" name="umUnitLabelDUT_2">
         <property name="geometry">
          <rect>
-          <x>85</x>
+          <x>94</x>
           <y>90</y>
           <width>21</width>
           <height>22</height>
@@ -14778,7 +14778,7 @@ p, li { white-space: pre-wrap; }
          <rect>
           <x>20</x>
           <y>90</y>
-          <width>62</width>
+          <width>70</width>
           <height>20</height>
          </rect>
         </property>
@@ -14814,7 +14814,7 @@ p, li { white-space: pre-wrap; }
          <number>0</number>
         </property>
         <property name="maximum">
-         <double>10000.000000000000000</double>
+         <double>10000000.000000000000000</double>
         </property>
         <property name="value">
          <double>1000.000000000000000</double>
@@ -14823,7 +14823,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QLabel" name="umUnitLabelDUT">
         <property name="geometry">
          <rect>
-          <x>85</x>
+          <x>94</x>
           <y>70</y>
           <width>21</width>
           <height>22</height>
@@ -14863,7 +14863,7 @@ p, li { white-space: pre-wrap; }
          <rect>
           <x>20</x>
           <y>70</y>
-          <width>62</width>
+          <width>70</width>
           <height>20</height>
          </rect>
         </property>
@@ -14899,7 +14899,7 @@ p, li { white-space: pre-wrap; }
          <number>0</number>
         </property>
         <property name="maximum">
-         <double>10000.000000000000000</double>
+         <double>10000000.000000000000000</double>
         </property>
         <property name="value">
          <double>1000.000000000000000</double>
@@ -17133,7 +17133,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="geometry">
         <rect>
-         <x>745</x>
+         <x>746</x>
          <y>30</y>
          <width>61</width>
          <height>21</height>
@@ -17525,9 +17525,9 @@ p, li { white-space: pre-wrap; }
       <widget class="QTextEdit" name="textEdit_3">
        <property name="geometry">
         <rect>
-         <x>808</x>
+         <x>815</x>
          <y>4</y>
-         <width>166</width>
+         <width>159</width>
          <height>76</height>
         </rect>
        </property>
@@ -17677,9 +17677,9 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="geometry">
         <rect>
-         <x>134</x>
+         <x>132</x>
          <y>5</y>
-         <width>471</width>
+         <width>473</width>
          <height>21</height>
         </rect>
        </property>
@@ -17927,7 +17927,7 @@ p, li { white-space: pre-wrap; }
         </palette>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="CorrParTab">
         <attribute name="title">
@@ -19874,9 +19874,9 @@ Cols</string>
         <widget class="QLabel" name="partitionsLB">
          <property name="geometry">
           <rect>
-           <x>460</x>
+           <x>243</x>
            <y>0</y>
-           <width>500</width>
+           <width>717</width>
            <height>470</height>
           </rect>
          </property>
@@ -19967,7 +19967,7 @@ Cols</string>
            <x>61</x>
            <y>10</y>
            <width>171</width>
-           <height>21</height>
+           <height>20</height>
           </rect>
          </property>
         </widget>
@@ -19990,7 +19990,7 @@ Cols</string>
            <x>60</x>
            <y>70</y>
            <width>171</width>
-           <height>21</height>
+           <height>20</height>
           </rect>
          </property>
         </widget>
@@ -20011,7 +20011,7 @@ Cols</string>
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>104</y>
+           <y>102</y>
            <width>19</width>
            <height>16</height>
           </rect>
@@ -20026,7 +20026,7 @@ Cols</string>
            <x>32</x>
            <y>100</y>
            <width>71</width>
-           <height>25</height>
+           <height>20</height>
           </rect>
          </property>
          <property name="text">
@@ -20036,10 +20036,10 @@ Cols</string>
         <widget class="QLineEdit" name="PartitionsC_2LE">
          <property name="geometry">
           <rect>
-           <x>130</x>
-           <y>160</y>
+           <x>158</x>
+           <y>148</y>
            <width>71</width>
-           <height>25</height>
+           <height>20</height>
           </rect>
          </property>
          <property name="text">
@@ -20049,8 +20049,8 @@ Cols</string>
         <widget class="QLabel" name="label_9">
          <property name="geometry">
           <rect>
-           <x>110</x>
-           <y>164</y>
+           <x>136</x>
+           <y>150</y>
            <width>16</width>
            <height>16</height>
           </rect>
@@ -20063,9 +20063,9 @@ Cols</string>
          <property name="geometry">
           <rect>
            <x>32</x>
-           <y>160</y>
+           <y>148</y>
            <width>71</width>
-           <height>25</height>
+           <height>20</height>
           </rect>
          </property>
          <property name="text">
@@ -20076,7 +20076,7 @@ Cols</string>
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>164</y>
+           <y>150</y>
            <width>21</width>
            <height>16</height>
           </rect>
@@ -20088,10 +20088,10 @@ Cols</string>
         <widget class="QLineEdit" name="PartitionsC_1LE">
          <property name="geometry">
           <rect>
-           <x>130</x>
-           <y>130</y>
+           <x>158</x>
+           <y>124</y>
            <width>71</width>
-           <height>25</height>
+           <height>20</height>
           </rect>
          </property>
          <property name="text">
@@ -20101,8 +20101,8 @@ Cols</string>
         <widget class="QLabel" name="label_11">
          <property name="geometry">
           <rect>
-           <x>110</x>
-           <y>134</y>
+           <x>136</x>
+           <y>126</y>
            <width>16</width>
            <height>16</height>
           </rect>
@@ -20115,9 +20115,9 @@ Cols</string>
          <property name="geometry">
           <rect>
            <x>32</x>
-           <y>130</y>
+           <y>124</y>
            <width>71</width>
-           <height>25</height>
+           <height>20</height>
           </rect>
          </property>
          <property name="text">
@@ -20128,7 +20128,7 @@ Cols</string>
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>134</y>
+           <y>126</y>
            <width>16</width>
            <height>16</height>
           </rect>
@@ -20140,10 +20140,10 @@ Cols</string>
         <widget class="QLineEdit" name="PartitionsC_0LE">
          <property name="geometry">
           <rect>
-           <x>130</x>
+           <x>158</x>
            <y>100</y>
            <width>71</width>
-           <height>25</height>
+           <height>20</height>
           </rect>
          </property>
          <property name="text">
@@ -20153,9 +20153,9 @@ Cols</string>
         <widget class="QLabel" name="label_13">
          <property name="geometry">
           <rect>
-           <x>110</x>
-           <y>104</y>
-           <width>16</width>
+           <x>136</x>
+           <y>102</y>
+           <width>21</width>
            <height>16</height>
           </rect>
          </property>
@@ -21917,7 +21917,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>344</x>
-      <y>71</y>
+      <y>70</y>
       <width>637</width>
       <height>21</height>
      </rect>

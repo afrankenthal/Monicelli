@@ -75,10 +75,10 @@ class fileEater : public multiProcess<fileEater,bool>
 
 public:
 
-    typedef std::map<std::string,TFile*>             fileMapDef     ;
-    typedef std::vector<std::string>                 fileVDef	    ;
-    typedef std::vector<subProcess<Event,Geometry>*> subProcessVDef ;
-    typedef std::map<std::string,TH2I*>              hMapDef	    ;
+    typedef std::map   <std::string                 ,TFile * > fileMapDef     ;
+    typedef std::vector<std::string                          > fileVDef       ;
+    typedef std::vector<subProcess<Event,Geometry> *         > subProcessVDef ;
+    typedef std::map   <std::string                 ,TH2I  * > hMapDef	      ;
 
                     fileEater                (void                                              ) ;
                     fileEater                (int                          argc,

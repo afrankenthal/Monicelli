@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>732</width>
+    <width>1024</width>
     <height>809</height>
    </rect>
   </property>
@@ -19,9 +19,9 @@
     <property name="geometry">
      <rect>
       <x>4</x>
-      <y>90</y>
-      <width>726</width>
-      <height>655</height>
+      <y>96</y>
+      <width>1019</width>
+      <height>649</height>
      </rect>
     </property>
     <property name="palette">
@@ -74,8 +74,8 @@
    <widget class="QPushButton" name="findUsedStationsPB">
     <property name="geometry">
      <rect>
-      <x>4</x>
-      <y>64</y>
+      <x>6</x>
+      <y>74</y>
       <width>132</width>
       <height>20</height>
      </rect>
@@ -208,8 +208,8 @@
    <widget class="QGroupBox" name="expandGB">
     <property name="geometry">
      <rect>
-      <x>2</x>
-      <y>0</y>
+      <x>4</x>
+      <y>4</y>
       <width>360</width>
       <height>59</height>
      </rect>
@@ -594,6 +594,89 @@
      </property>
      <property name="text">
       <string>ROCs</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="expandDetailsPB">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>24</y>
+       <width>86</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Text">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>107</green>
+           <blue>11</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="ButtonText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>107</green>
+           <blue>11</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Text">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>107</green>
+           <blue>11</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="ButtonText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>107</green>
+           <blue>11</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Text">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>110</red>
+           <green>109</green>
+           <blue>106</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="ButtonText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>110</red>
+           <green>109</green>
+           <blue>106</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Details</string>
      </property>
     </widget>
    </widget>
@@ -1036,13 +1119,26 @@
      </property>
     </widget>
    </widget>
+   <widget class="QCheckBox" name="detailsCB">
+    <property name="geometry">
+     <rect>
+      <x>144</x>
+      <y>72</y>
+      <width>91</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Details</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>732</width>
+     <width>1024</width>
      <height>27</height>
     </rect>
    </property>

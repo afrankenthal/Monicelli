@@ -479,6 +479,7 @@ void HNavigator::on_saveComponentsPB_clicked()
 
   tmpFile->Close() ;
   delete tmpFile ;
+  return ;
 }
 
 //===========================================================================

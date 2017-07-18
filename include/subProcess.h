@@ -45,17 +45,17 @@ template<class Arg1, class Arg2>
 class subProcess : public process
 {
   public:
-            subProcess(void) {;}
-   virtual ~subProcess(void) {;}
+               subProcess         (void                   ) {;}
+   virtual    ~subProcess         (void                   ) {;}
 
-  virtual bool execute            (void       ) {return false;}
-  virtual void execute            (Arg1 * par1,
-                                   Arg2 * par2) = 0;
+  virtual bool execute            (void                   ) {return false;}
+  virtual void execute            (Arg1        * par1     ,
+                                   Arg2        * par2     ) = 0;
 
-  virtual int  getMaxIterations   (void       ) {return -1;   }
-  virtual int  getCurrentIteration(void       ) {return -1;   }
+  virtual int  getMaxIterations   (void                   ) {return -1;   }
+  virtual int  getCurrentIteration(void                   ) {return -1;   }
 
-  virtual void setHeader          (EventHeader *theHeader) {
+  virtual void setHeader          (EventHeader * theHeader) {
                                                             ss_.str("");
                                                             ss_ << "No header settings implemented(" 
 							        << theHeader 

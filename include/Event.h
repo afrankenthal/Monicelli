@@ -178,76 +178,76 @@
 class Event : public TObject
 {
 public:
-    typedef ROOT::Math::SMatrix<double,4,4>                matrixDef                    	  ;
-    typedef ROOT::Math::SVector<double,4>                  vectorDef                    	  ;
-    typedef std::map<std::string, int>                     aHitDef                      	  ;
-    typedef std::vector<aHitDef>                           hitsDef                      	  ;
-    typedef std::map<std::string, hitsDef>                 plaqMapDef                   	  ;
-    typedef std::map<std::string, double>                  aClusterDef                  	  ;
-    typedef std::map<int, aClusterDef>                     aClusterMapDef               	  ;
-    typedef std::map<int, hitsDef>                         aClusterHitsMapDef           	  ;
-    typedef std::map<std::string, aClusterMapDef>          clustersMapDef               	  ;
-    typedef std::map<std::string, aClusterHitsMapDef>      clustersHitsMapDef           	  ;
-    typedef std::map<std::string, double>                  clusterCoordinateDef         	  ;
-    typedef std::map<std::string, clusterCoordinateDef>    alignedHitsCandidateMapDef   	  ;
-    typedef std::vector<alignedHitsCandidateMapDef>        trackCandidatesDef           	  ;
-    typedef std::pair<double, double>                      xyResiduePairDef             	  ;
-    typedef std::map<std::string, xyResiduePairDef>        trackResidualsMapDef         	  ;
-    typedef std::map<unsigned int, trackResidualsMapDef>   residualsMapDef              	  ;
-    typedef std::vector<vectorDef>                         fittedTracksDef              	  ;
-    typedef std::vector<matrixDef>                         fittedTracksCovarianceDef    	  ;
-    typedef std::vector<double>                            chi2VectorDef                	  ;
-    typedef std::vector<std::map<std::string, vectorDef> > unconstrainedFittedTracksDef 	  ;
-    typedef std::vector<std::map<std::string, matrixDef> > unconstrainedFittedTracksCovarianceDef ;
-    typedef std::vector<std::map<std::string, double> >    unconstrainedChi2VectorDef             ;
+    typedef ROOT::Math::SMatrix<double                          , 4                   ,4 > matrixDef                              ;
+    typedef ROOT::Math::SVector<double                          , 4                      > vectorDef                              ;
+    typedef std::map           <std::string                     , int                    > aHitDef                                ;
+    typedef std::vector        <aHitDef                                                  > hitsDef                                ;
+    typedef std::map           <std::string                     , hitsDef                > plaqMapDef                             ;
+    typedef std::map           <std::string                     , double                 > aClusterDef                            ;
+    typedef std::map           <int                             , aClusterDef            > aClusterMapDef                         ;
+    typedef std::map           <int                             , hitsDef                > aClusterHitsMapDef                     ;
+    typedef std::map           <std::string                     , aClusterMapDef         > clustersMapDef                         ;
+    typedef std::map           <std::string                     , aClusterHitsMapDef     > clustersHitsMapDef                     ;
+    typedef std::map           <std::string                     , double                 > clusterCoordinateDef                   ;
+    typedef std::map           <std::string                     , clusterCoordinateDef   > alignedHitsCandidateMapDef             ;
+    typedef std::vector        <alignedHitsCandidateMapDef                               > trackCandidatesDef                     ;
+    typedef std::pair          <double                          , double                 > xyResiduePairDef                       ;
+    typedef std::map           <std::string                     , xyResiduePairDef       > trackResidualsMapDef                   ;
+    typedef std::map           <unsigned int                    , trackResidualsMapDef   > residualsMapDef                        ;
+    typedef std::vector        <vectorDef                                                > fittedTracksDef                        ;
+    typedef std::vector        <matrixDef                                                > fittedTracksCovarianceDef              ;
+    typedef std::vector        <double                                                   > chi2VectorDef                          ;
+    typedef std::vector        <std::map<std::string, vectorDef>                         > unconstrainedFittedTracksDef           ;
+    typedef std::vector        <std::map<std::string, matrixDef>                         > unconstrainedFittedTracksCovarianceDef ;
+    typedef std::vector        <std::map<std::string, double   >                         >    unconstrainedChi2VectorDef          ;
 
-    Event(void) ;
-    ~Event(void);
-
-    void                                    clear                                 (void);
+                                            Event                                 (void                                     );
+                                           ~Event                                 (void                                     );
+                                                                                                                            
+    void                                    clear                                 (void                                     );
 
     //Getters
-    unconstrainedFittedTracksDef&           getUnconstrainedFittedTracks          (void){return unconstrainedFittedTracks_          ;}
-    unconstrainedFittedTracksCovarianceDef& getUnconstrainedFittedTracksCovariance(void){return unconstrainedFittedTracksCovariance_;}
-    unconstrainedChi2VectorDef&             getUnconstrainedFittedTracksChi2      (void){return unconstrainedFittedTracksChi2_      ;}
-    clustersMapDef&                         getClusters                           (void){return clusters_                           ;}
-    clustersHitsMapDef&                     getClustersHits                       (void){return clustersHits_                       ;}
-    plaqMapDef&                             getRawData                            (void){return theRawData_                         ;}
-    trackCandidatesDef&                     getTrackCandidates                    (void){return trackCandidates_                    ;}
-    trackCandidatesDef&                     getAlignedHitsCandidates              (void){return alignedHitsCandidates_              ;}
-    clustersMapDef&                         getAlignedClusters                    (void){return alignedClusters_                    ;}
-    residualsMapDef&                        getFittedTrackDeviations              (void){return fittedTrackDeviations_              ;}
-    residualsMapDef&                        getFittedTrackResiduals               (void){return fittedTrackResiduals_               ;}
-    residualsMapDef&                        getFittedTrackPulls                   (void){return fittedTrackPulls_                   ;}
-    fittedTracksDef&                        getFittedTracks                       (void){return fittedTracks_                       ;}
-    fittedTracksCovarianceDef&              getFittedTracksCovariance             (void){return fittedTracksCovariance_             ;}
-    chi2VectorDef&                          getFittedTracksChi2                   (void){return fittedTracksChi2_                   ;}
-    int                                     getTrigger                            (void){return trig_                               ;}
-    long long                               getUTC                                (void){return utc_                                ;}
-    long long                               getBCO                                (void){return bco_                                ;}
-    unsigned int                            getTimestamp                          (void){return timestamp_                          ;}
-    bool                                    getBubbleSignal                       (void){return bubbleSignal_                       ;}
-    bool                                    getBubbleAltSignal                    (void){return bubbleAltSignal_                    ;}
+    unconstrainedFittedTracksDef&           getUnconstrainedFittedTracks          (void                                     ){return unconstrainedFittedTracks_          ;}
+    unconstrainedFittedTracksCovarianceDef& getUnconstrainedFittedTracksCovariance(void                                     ){return unconstrainedFittedTracksCovariance_;}
+    unconstrainedChi2VectorDef&             getUnconstrainedFittedTracksChi2      (void                                     ){return unconstrainedFittedTracksChi2_      ;}
+    clustersMapDef&                         getClusters                           (void                                     ){return clusters_                           ;}
+    clustersHitsMapDef&                     getClustersHits                       (void                                     ){return clustersHits_                       ;}
+    plaqMapDef&                             getRawData                            (void                                     ){return theRawData_                         ;}
+    trackCandidatesDef&                     getTrackCandidates                    (void                                     ){return trackCandidates_                    ;}
+    trackCandidatesDef&                     getAlignedHitsCandidates              (void                                     ){return alignedHitsCandidates_              ;}
+    clustersMapDef&                         getAlignedClusters                    (void                                     ){return alignedClusters_                    ;}
+    residualsMapDef&                        getFittedTrackDeviations              (void                                     ){return fittedTrackDeviations_              ;}
+    residualsMapDef&                        getFittedTrackResiduals               (void                                     ){return fittedTrackResiduals_               ;}
+    residualsMapDef&                        getFittedTrackPulls                   (void                                     ){return fittedTrackPulls_                   ;}
+    fittedTracksDef&                        getFittedTracks                       (void                                     ){return fittedTracks_                       ;}
+    fittedTracksCovarianceDef&              getFittedTracksCovariance             (void                                     ){return fittedTracksCovariance_             ;}
+    chi2VectorDef&                          getFittedTracksChi2                   (void                                     ){return fittedTracksChi2_                   ;}
+    int                                     getTrigger                            (void                                     ){return trig_                               ;}
+    long long                               getUTC                                (void                                     ){return utc_                                ;}
+    long long                               getBCO                                (void                                     ){return bco_                                ;}
+    unsigned int                            getTimestamp                          (void                                     ){return timestamp_                          ;}
+    bool                                    getBubbleSignal                       (void                                     ){return bubbleSignal_                       ;}
+    bool                                    getBubbleAltSignal                    (void                                     ){return bubbleAltSignal_                    ;}
 
     //Setters
     void                                    setRawData                            (int                       trig,
-                                                                                   const plaqMapDef&         theRawData     );
+                                                                                   const plaqMapDef        & theRawData     );
     void                                    setClustersHits                       (const clustersHitsMapDef& clustersHits   );
-    void                                    setClusters                           (const clustersMapDef&     clusters       );
+    void                                    setClusters                           (const clustersMapDef    & clusters       );
     void                                    addUnconstrainedFittedTrack           (unsigned int              trackN,
                                                                                    std::string               detector,
-                                                                                   const vectorDef&          fittedTrack,
-                                                                                   const matrixDef&          covarianceMatrix,
+                                                                                   const vectorDef         & fittedTrack,
+                                                                                   const matrixDef         & covarianceMatrix,
                                                                                    double                    fittedTrackChi2);
-    void                                    setFittedTrackResiduals               (const residualsMapDef&    residuals       ){fittedTrackResiduals_   = residuals   ;}
-    void                                    setFittedTrackDeviations              (const residualsMapDef&    residuals       ){fittedTrackDeviations_  = residuals   ;}
-    void                                    setFittedTrackPulls                   (const residualsMapDef&    pulls           ){fittedTrackPulls_       = pulls       ;}
-    void                                    setTrigger                            (int                       trigger         ){trig_                   = trigger     ;}
-    void                                    setUTC                                (long long                 utc             ){utc_                    = utc         ;}
-    void                                    setBCO                                (long long                 bco             ){bco_                    = bco         ;}
-    void                                    setTimestamp                          (unsigned int              timestamp       ){timestamp_              = timestamp   ;}
-    void                                    setBubbleSignal                       (bool                      bubbleSignal    ){bubbleSignal_           = bubbleSignal;}
-    void                                    setBubbleAltSignal                    (bool                      bubbleSignal    ){bubbleAltSignal_        = bubbleSignal;}
+    void                                    setFittedTrackResiduals               (const residualsMapDef   & residuals      ){fittedTrackResiduals_   = residuals        ;}
+    void                                    setFittedTrackDeviations              (const residualsMapDef   & residuals      ){fittedTrackDeviations_  = residuals        ;}
+    void                                    setFittedTrackPulls                   (const residualsMapDef   & pulls          ){fittedTrackPulls_       = pulls            ;}
+    void                                    setTrigger                            (int                       trigger        ){trig_                   = trigger          ;}
+    void                                    setUTC                                (long long                 utc            ){utc_                    = utc              ;}
+    void                                    setBCO                                (long long                 bco            ){bco_                    = bco              ;}
+    void                                    setTimestamp                          (unsigned int              timestamp      ){timestamp_              = timestamp        ;}
+    void                                    setBubbleSignal                       (bool                      bubbleSignal   ){bubbleSignal_           = bubbleSignal     ;}
+    void                                    setBubbleAltSignal                    (bool                      bubbleSignal   ){bubbleAltSignal_        = bubbleSignal     ;}
 
     residualsMapDef                         makeFittedTrackDeviations             (int                       trackNumber = -1);
 

@@ -48,12 +48,12 @@ class stationGB : public QWidget
     Q_OBJECT
 
 public:
-    explicit        stationGB (QWidget    * parent = 0) ;
-                   ~stationGB (void                   ) ;
+    explicit            stationGB               (QWidget      * parent = 0   ) ;
+                       ~stationGB               (void                        ) ;
 
-    void            initialize(xmlStation * theStation) ;
-    void            setEnabled(bool         enable    ) ;
-    Ui::stationGB * getUi     (void                   ) {return ui;}
+    void                initialize              (xmlStation   * theStation   ) ;
+    void                setEnabled              (bool           enable       ) ;
+    Ui::stationGB     * getUi                   (void                        ) {return ui;}
 
 private:
     Ui::stationGB     * ui       ;
@@ -61,16 +61,16 @@ private:
     std::stringstream   ss_      ;
 
 private slots:
-    void on_remDetectorPB_clicked(void                        ) ;
-    void on_addDetectorPB_clicked(void                        ) ;
-    void stationToggled          (bool          inUse         ) ;
+    void                on_remDetectorPB_clicked(void                        ) ;
+    void                on_addDetectorPB_clicked(void                        ) ;
+    void                stationToggled          (bool          inUse         ) ;
 
 signals:
-    void stationIsToggled        (int           id,
-                                  bool          inUse         ) ;
-    void placeDetectorTab        (xmlDetector * theXmlDetector) ;
-    void removeDetectorTab       (int           stationId,
-                                  int           detectorSerial) ;
+    void                stationIsToggled        (int           id,
+                                                 bool          inUse         ) ;
+    void                placeDetectorTab        (xmlDetector * theXmlDetector) ;
+    void                removeDetectorTab       (int           stationId,
+                                                 int           detectorSerial) ;
 
 };
 

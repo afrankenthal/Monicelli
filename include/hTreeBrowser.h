@@ -60,28 +60,28 @@ class hTreeBrowser : public QTreeWidget
     Q_OBJECT
 
 public:
-  typedef std::vector<TObject *                >  tFileVDef         ;
-  typedef std::map<std::string, tFileVDef      > selectedObjectsDef ;
-  typedef std::map<int,         canvasWidget * > canvasWidgetDef    ;
+  typedef std::vector<TObject *                   >  tFileVDef         ;
+  typedef std::map   <std::string, tFileVDef      > selectedObjectsDef ;
+  typedef std::map   <int,         canvasWidget * > canvasWidgetDef    ;
 
-                       hTreeBrowser     (QWidget         * parent,
-                                         MainWindow      * mainWindow      ) ;
-                      ~hTreeBrowser     (void                              ) ;
+                       hTreeBrowser     (QWidget                          * parent,
+                                         MainWindow                       * mainWindow      ) ;
+                      ~hTreeBrowser     (void                                               ) ;
 
-    void               populate         (TDirectory      * currentDirectory) ;
-    void               populate         (TFolder         * currentFolder   ) ;
-    void               populate         (TDirectory      * currentDirectory,
-                                         QTreeWidgetItem * wItem           ) ;
-    void               populate         (TFolder         * currentFolder,
-                                         QTreeWidgetItem * wItem           ) ;
-    selectedObjectsDef getSelectedItems (void                              ) ;
-    void               setCurrentCanvas (int               currentCanvas   ) {currentCanvas_ = currentCanvas;}
-    void               setCanvasSize    (std::string       canvasSize      ) ;
-    int                getCurrentCanvas (void                              ) {return currentCanvas_         ;}
-    canvasWidgetDef    getCanvases      (void                              ) {return serviceCanvas_         ;}
-    void               unZoom           (void                              ) ;
-    void               selectAllFromHere(QTreeWidgetItem * wi,
-                                         int               cl              ) {this->manipulateFolder(wi,cl) ;}
+    void               populate         (TDirectory                       * currentDirectory) ;
+    void               populate         (TFolder                          * currentFolder   ) ;
+    void               populate         (TDirectory                       * currentDirectory,
+                                         QTreeWidgetItem                  * wItem           ) ;
+    void               populate         (TFolder                          * currentFolder,
+                                         QTreeWidgetItem                  * wItem           ) ;
+    selectedObjectsDef getSelectedItems (void                                               ) ;
+    void               setCurrentCanvas (int                                currentCanvas   ) {currentCanvas_ = currentCanvas;}
+    void               setCanvasSize    (std::string                        canvasSize      ) ;
+    int                getCurrentCanvas (void                                               ) {return currentCanvas_         ;}
+    canvasWidgetDef    getCanvases      (void                                               ) {return serviceCanvas_         ;}
+    void               unZoom           (void                                               ) ;
+    void               selectAllFromHere(QTreeWidgetItem                  * wi,
+                                         int                                cl              ) {this->manipulateFolder(wi,cl) ;}
 
 public slots:
 
@@ -89,28 +89,29 @@ protected:
 
 private slots:
 
-     void              showContextMenu  (const QPoint           & pos      ) ;
-     void              cleanDestroy     (void                              ) ;
-     void              resizeEvent      (      QResizeEvent     *          ) ;
-     void              manipulateFolder (      QTreeWidgetItem  *,
-                                         int                               ) ;
-     void              showHint         (      QTreeWidgetItem  *,
-                                         int                               ) ;
+     void              showContextMenu  (const QPoint                     & pos             ) ;
+     void              cleanDestroy     (void                                               ) ;
+     void              resizeEvent      (      QResizeEvent               *                 ) ;
+     void              manipulateFolder (      QTreeWidgetItem            *,
+                                         int                                                ) ;
+     void              showHint         (      QTreeWidgetItem            *,
+                                         int                                                ) ;
 private:
-    typedef std::vector<std::string>                dirPathDef         ;
-    typedef std::map<int,         QMdiSubWindow  *> cSwDef             ;
-    typedef std::map<std::string, QTreeWidgetItem*> existingWItemsDef  ;
-
-    dirPathDef  getFullPath      (      QTreeWidgetItem                  * wItem          ) ;
-    void        collectItems     (      QTreeWidgetItem                  * wItem,
-                                        hTreeBrowser::selectedObjectsDef & selectedObjects) ;
-    void        getAllItems      (      QTreeWidgetItem                  * wItem          ) ;
-    void        selectAllChildren(      QTreeWidgetItem                  * wItem,
-                                        bool                                              ) ;
-    std::string getObjectType    (      TObject                          * obj            ) ;
+    typedef std::vector<std::string                      > dirPathDef         ;
+    typedef std::map   <int        , QMdiSubWindow   *   > cSwDef             ;
+    typedef std::map   <std::string, QTreeWidgetItem *   > existingWItemsDef  ;
+    typedef std::map   <int        , std::pair<int, int> > zonesDef           ;
+  
+    dirPathDef         getFullPath      (QTreeWidgetItem                  * wItem           ) ;
+    void               collectItems     (QTreeWidgetItem                  * wItem,
+                                         hTreeBrowser::selectedObjectsDef & selectedObjects ) ;
+    void               getAllItems      (QTreeWidgetItem                  * wItem           ) ;
+    void               selectAllChildren(QTreeWidgetItem                  * wItem,
+                                         bool                                               ) ;
+    std::string        getObjectType    (TObject                          * obj             ) ;
 
     std::stringstream                     ss_               ;
-    std::map<int, std::pair<int, int> >   zones_            ;
+    zonesDef                              zones_            ;
 
     int                                   currentCanvas_    ;
 

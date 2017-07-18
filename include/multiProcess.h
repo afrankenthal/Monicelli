@@ -43,14 +43,14 @@ template<class Class,class Output>
 class multiProcess : public process
 {
  public:
-            multiProcess(void) {;}
-   virtual ~multiProcess(void) {;}
+                         multiProcess(void                          ) {;}
+   virtual              ~multiProcess(void                          ) {;}
 
-  typedef Output (Class::*multiProcess_function)();
+  typedef                Output      (Class::*multiProcess_function )();
 
   virtual bool           execute     (void                          ) = 0;
-  virtual void           setOperation(multiProcess_function function){processOperation_=function;}
-  multiProcess_function  getOperation(void                          ){return processOperation_  ;}
+  virtual void           setOperation(multiProcess_function function) {processOperation_=function;}
+  multiProcess_function  getOperation(void                          ) {return processOperation_  ;}
 
  protected:
   multiProcess_function  processOperation_;

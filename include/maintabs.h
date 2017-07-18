@@ -71,6 +71,7 @@
 #include "trackFinder.h"
 #include "xmleditor.h"
 #include "qrootcanvas.h" // ToROOT6
+#include "xmlParser.h"
 
 class MainWindow ;
 class HNavigator ;
@@ -89,51 +90,51 @@ public:
     typedef void (mainTabs::*threadEnd_Function)(HManager::stringVDef );
     typedef std::map<std::string,GeometryParameters*> geometryParametersDef ;
 
-    explicit       mainTabs                 (MainWindow           * mainWindow = 0 );
-                  ~mainTabs                 (void                                  );
+    explicit       mainTabs                  (MainWindow           * mainWindow = 0 );
+                  ~mainTabs                  (void                                  );
 
-    fileEater    * getFileEater             (void                                  ) {return theFileEater_ ;}
-    void           collectExistingWidgets   (MainWindow           * mainWindow = 0 );
-    Ui::mainTabs * getUi                    (void                                  ) {return ui;           ;}
+    fileEater    * getFileEater              (void                                  ) {return theFileEater_ ;}
+    void           collectExistingWidgets    (MainWindow           * mainWindow = 0 );
+    Ui::mainTabs * getUi                     (void                                  ) {return ui;           ;}
 
 private:
-    void           initializeSingletons     (void                                  );
-    void           getNxNy                  (int                    divider,
-                                             int                  & nx,
-                                             int                  & ny             );
-    QString        getEnvPath               (QString                environmentName);
+    void           initializeSingletons      (void                                  );
+    void           getNxNy                   (int                    divider,
+                                              int                  & nx,
+                                              int                  & ny             );
+    QString        getEnvPath                (QString                environmentName);
 
     template<class Class>
-    void launchThread3                      (process              * theProcess,
-                                             Class                * object    ,
-                                             void (Class::*fn)()                   );
-    void signalNewAction                    (std::string            newAction      );
-    void showBeamProfiles                   (void                                  );
-    void showBeamProfiles_end               (HManager::stringVDef   histoType      );
-    void showChi2Distributions              (void                                  );
-    void showChi2Distributions_end          (HManager::stringVDef   histoType      );
-    void showTrackErrorsOnDut               (void                                  );
-    void showTrackErrorsOnDut_end           (HManager::stringVDef   xyHList        );
-    void showSlopeDistributions             (void                                  );
-    void showSlopeDistributions_end         (HManager::stringVDef   xyStringVec    );
-    void trackFinderFitSlope                (void                                  );
-    void trackFinderFitSlope_end            (HManager::stringVDef   xyStringVec    );
-    void rawAlignmentFitCompare             (void                                  );
-    void rawAlignmentFitCompare_end         (HManager::stringVDef   histoType      );
-    void writeAlignment                     (void                                  );
-    void writeAlignment_end                 (HManager::stringVDef   histoType      );
-    void buildClusterPlots                  (void                                  );
-    void buildClusterPlots_end              (HManager::stringVDef   histoType      );
-    bool loadGeometry                       (QString                type=""        );
-    void showGeometry                       (void                                  );
-    void copyGeoFileTo                      (QString                fileName       );
+    void           launchThread3             (process              * theProcess,
+                                              Class                * object    ,
+                                              void (Class::*fn)()                   );
+    void           signalNewAction           (std::string            newAction      );
+    void           showBeamProfiles          (void                                  );
+    void           showBeamProfiles_end      (HManager::stringVDef   histoType      );
+    void           showChi2Distributions     (void                                  );
+    void           showChi2Distributions_end (HManager::stringVDef   histoType      );
+    void           showTrackErrorsOnDut      (void                                  );
+    void           showTrackErrorsOnDut_end  (HManager::stringVDef   xyHList        );
+    void           showSlopeDistributions    (void                                  );
+    void           showSlopeDistributions_end(HManager::stringVDef   xyStringVec    );
+    void           trackFinderFitSlope       (void                                  );
+    void           trackFinderFitSlope_end   (HManager::stringVDef   xyStringVec    );
+    void           rawAlignmentFitCompare    (void                                  );
+    void           rawAlignmentFitCompare_end(HManager::stringVDef   histoType      );
+    void           writeAlignment            (void                                  );
+    void           writeAlignment_end        (HManager::stringVDef   histoType      );
+    void           buildClusterPlots         (void                                  );
+    void           buildClusterPlots_end     (HManager::stringVDef   histoType      );
+    bool           loadGeometry              (QString                type=""        );
+    void           showGeometry              (void                                  );
+    void           copyGeoFileTo             (QString                fileName       );
 
-    void showResiduals2                     (void                                  );
-  //void showResiduals2_end                 (HManager::stringVDef   histoType      );
-    void findAndFitTrack                    (std::string            searchMethod,
-                                             std::string            fitMethod      );
-    void findTrack                          (std::string            searchMethod   );
-    void fitTrack                           (std::string            fitMethod      );
+    void           showResiduals2            (void                                  );
+  //void           showResiduals2_end        (HManager::stringVDef   histoType      );
+    void           findAndFitTrack           (std::string            searchMethod,
+                                              std::string            fitMethod      );
+    void           findTrack                 (std::string            searchMethod   );
+    void           fitTrack                  (std::string            fitMethod      );
 
 
     std::string getPlaneID (int station, int plaquette);
@@ -167,9 +168,9 @@ private:
     bool                           redoChi2_                                    ;
     geometryParametersDef          geometryParameters_                          ;
     int                            geometryDisplayShrinkFix_                    ;
-    std::map< int,std::string>     folderMap_;
-    std::map< int,QTableWidget*>   tableMap_;
-
+    std::map< int,std::string>     folderMap_                                   ;
+    std::map< int,QTableWidget*>   tableMap_                                    ;
+    xmlParser                    * theXMLParser_                                ;
     TBenchmark                   * theBenchmark_                                ;
 
     std::string                    theThreadProcess_                            ;

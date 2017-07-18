@@ -162,11 +162,13 @@ void MainWindow::on_expandPB_clicked()
              << "station"
              << "stations" ;
     this->expandChildrenBelow(model_->index(3,0),view,elements,true)  ;
+    expanded_["Stations"] = true ;
 }
 //===========================================================================
 void MainWindow::on_collapsePB_clicked()
 {
     view->collapseAll() ;
+    expanded_["Stations"] = false ;
 }
 
 //===========================================================================
@@ -185,11 +187,13 @@ void MainWindow::on_expandDetectorsPB_clicked()
              << "detectors"
              << "detector";
     this->expandChildrenBelow(model_->index(3,0),view,elements,true)  ;
+    expanded_["Detectors"] = true ;
 }
 //===========================================================================
 void MainWindow::on_collapseDetectorsPB_clicked()
 {
    on_expandPB_clicked() ;
+   expanded_["Detectors"] = false ;
 }
 //===========================================================================
 void MainWindow::on_expandROCsPb_clicked()
@@ -205,9 +209,24 @@ void MainWindow::on_expandROCsPb_clicked()
              << "ROC";
 
     this->expandChildrenBelow(model_->index(3,0),view,elements,true)  ;
+    expanded_["ROCs"] = true ;
 }
 //===========================================================================
 void MainWindow::on_collapseROCsPB_clicked()
 {
     on_expandDetectorsPB_clicked() ;
+    expanded_["ROCs"] = false ;
+}
+//===========================================================================
+void MainWindow::on_detailsCB_clicked(bool checked)
+{
+    cout << endl ;
+    for(map<string, bool>::iterator it=expanded_.begin(); it!=expanded_.end(); ++it)
+    {
+        cout << it->first << ": " << it->second << endl ;
+    }
+}
+//===========================================================================
+void MainWindow::on_expandDetailsPB_clicked()
+{
 }

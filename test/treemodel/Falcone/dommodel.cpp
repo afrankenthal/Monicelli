@@ -62,7 +62,7 @@ DomModel::~DomModel()
 //===========================================================================
 int DomModel::columnCount(const QModelIndex &/*parent*/) const
 {
-    return 3;
+    return 4;
 }
 
 //===========================================================================
@@ -78,9 +78,13 @@ QVariant DomModel::data(const QModelIndex &index, int role) const
 
     if (     index.isValid() && role == Qt::ForegroundRole )
     {
-        if ( index.column() == 1 )
+        if (     index.column() == 1 )
         {
             return QVariant( QColor( Qt::red ) );
+        }
+        else if (index.column() == 2 )
+        {
+            return QVariant( QColor( Qt::blue ) );
         }
         return QVariant( QColor( Qt::black ) );
     }
@@ -132,7 +136,29 @@ QVariant DomModel::data(const QModelIndex &index, int role) const
             }
             return attributes.join(" ");
         case 2:
-            return node.nodeValue().split("\n").join(" ");
+            cout << __LINE__ << "] " << node.nodeName().toStdString() << " -> " << node.nodeValue().toStdString() << endl ;
+            if( node.nodeName() == "xPosition")
+            {
+               cout << __LINE__ << "] " << node.nodeName().toStdString() << " -> " << node.nodeValue().toStdString() << endl ;
+               return node.nodeValue() ;
+            }
+//            for (int i = 0; i < attributeMap.count(); ++i)
+//            {
+//                QDomNode attribute = attributeMap.item(i);
+//                    cout << __LINE__ << "] " << attribute.nodeName().toStdString() << " -> " << attribute.nodeValue().toStdString() << endl ;
+//                    return attribute.nodeValue() ;
+//                if(attribute.nodeName()  == "used" &&
+//                   attribute.nodeValue() == "yes"    )
+//                {
+
+//                }
+//                else
+//                {
+//                    attributes << attribute.nodeValue() ;
+//                }
+//            }
+            return attributes.join(" ");
+//            return node.nodeValue().split("\n").join(" ");
         default:
             return QVariant();
     }
@@ -176,6 +202,8 @@ QVariant DomModel::headerData(int section, Qt::Orientation orientation,
                 return tr("Status"    );
             case 2:
                 return tr("Node Value");
+            case 3:
+                return tr("Pippo"     );
             default:
                 return QVariant();
         }

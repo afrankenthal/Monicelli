@@ -44,12 +44,15 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QFileDialog>
 #include <QtCore/QString>
+#include <map>
 
 class DomModel;
 QT_BEGIN_NAMESPACE
 class QMenu;
 class QTreeView;
 QT_END_NAMESPACE
+
+using namespace std;
 
 namespace Ui
 {
@@ -76,16 +79,21 @@ private slots:
     void on_expandROCsPb_clicked       (void                         );
     void on_collapseROCsPB_clicked     (void                         );
 
+    void on_detailsCB_clicked(bool checked);
+
+    void on_expandDetailsPB_clicked();
+
 private:
     void expandChildrenBelow           (const QModelIndex & index   ,
                                               QTreeView   * view    ,
                                               QStringList   elements,
                                               bool  expand           ) ;
-    Ui::MainWindow * ui      ;
-    DomModel       * model_  ;
-    QMenu          * fileMenu;
-    QString          xmlPath ;
-    QTreeView      * view    ;
+    Ui::MainWindow    * ui        ;
+    DomModel          * model_    ;
+    QMenu             * fileMenu  ;
+    QString             xmlPath   ;
+    QTreeView         * view      ;
+    map<string, bool>   expanded_ ;
 };
 
 #endif

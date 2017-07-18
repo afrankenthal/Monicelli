@@ -146,7 +146,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     theHNavigator_->getTheHTreeBrowser()->expandAll() ;
     theHNavigator_->saveAll() ;
-
     mdiArea->closeAllSubWindows();
 
     if (mdiArea->currentSubWindow())
@@ -159,7 +158,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         event->accept();
     }
 
-    qApp->exit() ;
+//    qApp->exit() ;    
 }
 
 //===========================================================================
@@ -474,7 +473,6 @@ void MainWindow::buildMainPanel()
 //===========================================================================
 void MainWindow::buildHNavigator()
 {
-STDLINE("",ACWhite) ;
     if( !theHNavigator_)
     {
         theHNavigator_ = new HNavigator(this) ;
@@ -497,7 +495,6 @@ STDLINE("",ACWhite) ;
     }
 
     theHNavigator_->collectExistingWidgets(this);
-STDLINE("",ACWhite) ;
 }
 //===========================================================================
 void MainWindow::showHNavigator()

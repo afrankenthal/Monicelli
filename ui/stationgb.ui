@@ -106,7 +106,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>308</x>
-      <y>53</y>
+      <y>56</y>
       <width>100</width>
       <height>20</height>
      </rect>
@@ -154,9 +154,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="daCalibrationsFitFunctionLB">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>454</x>
       <y>56</y>
-      <width>281</width>
+      <width>193</width>
       <height>16</height>
      </rect>
     </property>
@@ -173,9 +173,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="sCalibrationsFitFunctionLB">
     <property name="geometry">
      <rect>
-      <x>208</x>
+      <x>222</x>
       <y>56</y>
-      <width>101</width>
+      <width>83</width>
       <height>16</height>
      </rect>
     </property>
@@ -186,14 +186,14 @@ p, li { white-space: pre-wrap; }
      </font>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;THIS&lt;/span&gt; station&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;THIS &lt;/span&gt;station:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="customComboBox" name="daCalibrationFitFunctionCB">
     <property name="geometry">
      <rect>
       <x>652</x>
-      <y>53</y>
+      <y>56</y>
       <width>100</width>
       <height>20</height>
      </rect>
@@ -208,7 +208,7 @@ p, li { white-space: pre-wrap; }
      <cursorShape>PointingHandCursor</cursorShape>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the &lt;span style=&quot; font-weight:600;&quot;&gt;default&lt;/span&gt; type of function used to calibrate all detectors of &lt;span style=&quot; font-weight:600; text-decoration: underline; color:#0000ff;&quot;&gt;this&lt;/span&gt; station with a fit, &lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;unless specifically overridden&lt;/span&gt; by individual detectors.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the type of function &lt;span style=&quot; font-weight:600; font-style:italic; text-decoration: underline;&quot;&gt;forced&lt;/span&gt; to be used to calibrate all detectors of &lt;span style=&quot; font-weight:600; text-decoration: underline; color:#0000ff;&quot;&gt;this&lt;/span&gt; station with a fit, &lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;unless specifically overridden&lt;/span&gt; by individual detectors.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="editable">
      <bool>false</bool>
@@ -583,11 +583,6 @@ p, li { white-space: pre-wrap; }
    <header location="global">customLineEdit.h</header>
   </customwidget>
   <customwidget>
-   <class>customTextEdit</class>
-   <extends>QTextEdit</extends>
-   <header location="global">customTextEdit.h</header>
-  </customwidget>
-  <customwidget>
    <class>customComboBox</class>
    <extends>QComboBox</extends>
    <header location="global">customComboBox.h</header>
@@ -596,6 +591,11 @@ p, li { white-space: pre-wrap; }
    <class>customCheckBox</class>
    <extends>QCheckBox</extends>
    <header location="global">customCheckBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>customTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header location="global">customTextEdit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

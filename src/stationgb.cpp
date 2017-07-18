@@ -80,6 +80,7 @@ void stationGB::initialize(xmlStation * theStation)
   ui->sCalibrationFitFunctionCB->addItem          ("tanh"                                                      );
   ui->sCalibrationFitFunctionCB->addItem          ("linear"                                                    );
   ui->sCalibrationFitFunctionCB->addItem          ("parabolic"                                                 );
+  ui->sCalibrationFitFunctionCB->addItem          ("none"                                                      );
   ui->sCalibrationFitFunctionCB->setCurrentIndex  ("sCalibrationFitFunction",
                                                    QString((theStation->getsCalibrationFitFunction()).c_str()) );
   ui->sCalibrationFitFunctionCB->setInnerGeometry (ui->sCalibrationFitFunctionCB->geometry()                   );
@@ -89,6 +90,7 @@ void stationGB::initialize(xmlStation * theStation)
   ui->daCalibrationFitFunctionCB->addItem         ("tanh"                                                      );
   ui->daCalibrationFitFunctionCB->addItem         ("linear"                                                    );
   ui->daCalibrationFitFunctionCB->addItem         ("parabolic"                                                 );
+  ui->daCalibrationFitFunctionCB->addItem         ("none"                                                      );
   ui->daCalibrationFitFunctionCB->setCurrentIndex ("daCalibrationFitFunction",
                                                    QString((theStation->getdaCalibrationFitFunction()).c_str()));
   ui->daCalibrationFitFunctionCB->setInnerGeometry(ui->daCalibrationFitFunctionCB->geometry()                  );

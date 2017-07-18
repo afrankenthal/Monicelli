@@ -38,26 +38,26 @@ class MdiChild : public QTextEdit
     Q_OBJECT
 
 public:
-    MdiChild();
+            MdiChild               (void                        ) ;
 
-    bool    loadFile               (const QString  & fileName)   ;
-    QString currentFile            ()                             { return curFile; } 
-    void    newFile                ()                            ;            
-    bool    save                   ()                            ;            
-    bool    saveAs                 ()                            ;            
-    bool    saveFile               (const QString  & fileName)   ;
-    QString userFriendlyCurrentFile()                            ;
+    bool    loadFile               (const QString & fileName    ) ;
+    QString currentFile            (void                        )   { return curFile; } 
+    void    newFile                (void                        ) ;            
+    bool    save                   (void                        ) ;            
+    bool    saveAs                 (void                        ) ;            
+    bool    saveFile               (const QString & fileName    ) ;
+    QString userFriendlyCurrentFile(void                        ) ;
 
 protected:
-    void    closeEvent             (QCloseEvent    * event)      ;
+    void    closeEvent             (QCloseEvent   * event)        ;
 
 private slots:
-    void    documentWasModified    ()                            ;
+    void    documentWasModified    (void                        ) ;
 
 private:
-    bool    maybeSave              ()                            ;
-    void    setCurrentFile         (const QString & fileName)    ;
-    QString strippedName           (const QString & fullFileName);
+    bool    maybeSave              (void                        ) ;
+    void    setCurrentFile         (const QString & fileName    ) ;
+    QString strippedName           (const QString & fullFileName) ;
 
     QString curFile   ;
     bool    isUntitled;

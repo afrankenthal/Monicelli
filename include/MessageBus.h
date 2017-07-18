@@ -76,128 +76,115 @@ class MessageBus
 {
 public:
 
-   MessageBus(long source);
-  ~MessageBus()             {STDLINE("Empty destructor",ACWhite);}
+  MessageBus(long source);
+ ~MessageBus()             {STDLINE("Empty destructor",ACWhite);}
 
-         struct Monicelli::msg * ReadWait   ( long           from                     );  
-         struct Monicelli::msg * ReadNoWait ( long           from                     );  
-         bool         Write      ( long           to                      ,
-                                   const char   * clsn                    ,
-                                   const char   * mthn                    ,
-                                   const char   * cmd                     ,
-                                   const char   * args                    ,
-                                   unsigned int   priority=LOWEST_PRIORITY );
+  struct Monicelli::msg         * ReadWait  (long           from                     );  
+  struct Monicelli::msg         * ReadNoWait(long           from                     );  
+  bool                            Write     (long           to                      ,
+                                             const char   * clsn                    ,
+                                             const char   * mthn                    ,
+                                             const char   * cmd                     ,
+                                             const char   * args                    ,
+                                             unsigned int   priority=LOWEST_PRIORITY );
 
-         struct Monicelli::msg * Replay     ( long           to                      ,
-                                   const char   * clsn                    ,
-                                   const char   * mthn                    ,
-                                   const char   * cmd                     ,
-                                   const char   * args                    ,
-                                   unsigned int   priority=LOWEST_PRIORITY );
-                                   
-  inline bool         Write      ( long           to                      ,
-                                   std::string    clsn                    ,
-                                   std::string    mthn                    ,
-                                   std::string    cmd                     ,
-                                   std::string    args                    ,
-                                   unsigned int   priority=LOWEST_PRIORITY ) 
-                                 {                                        
-                                   return Write(  to                      ,
-                                                  clsn.c_str()            ,
-                                                  mthn.c_str()            ,
-                                                  cmd.c_str()             ,
-                                                  args.c_str()            ,
-                                                  priority                 );
-                                 }
-                                                                          
-   inline struct Monicelli::msg * Replay    ( long           to                      ,
-                                   std::string    clsn                    ,
-                                   std::string    mthn                    ,
-                                   std::string    cmd                     ,
-                                   std::string    args                    ,
-                                   unsigned int   priority=LOWEST_PRIORITY ) 
-                                 { 
-                                   return Replay( to                      ,
-                                                  clsn.c_str()            ,
-                                                  mthn.c_str()            ,
-                                                  cmd.c_str()             ,
-                                                  args.c_str()            ,
-                                                  priority                 );
-                                 }
+  struct Monicelli::msg         * Replay    (long           to                      ,
+                                             const char   * clsn                    ,
+                                             const char   * mthn                    ,
+                                             const char   * cmd                     ,
+                                             const char   * args                    ,
+                                             unsigned int   priority=LOWEST_PRIORITY );
+                                    
+  inline bool                    Write      (long           to                      ,
+                                             std::string    clsn                    ,
+                                             std::string    mthn                    ,
+                                             std::string    cmd                     ,
+                                             std::string    args                    ,
+                                             unsigned int   priority=LOWEST_PRIORITY ) {                                          
+                                                                                        return Write(  to           ,
+                                                                                                       clsn.c_str() ,
+                                                                                                       mthn.c_str() ,
+                                                                                                       cmd.c_str()  ,
+                                                                                                       args.c_str() ,
+                                                                                                       priority      );
+                                                                                       }
+  inline struct Monicelli::msg  * Replay    (long           to                      ,
+                                             std::string    clsn                    ,
+                                             std::string    mthn                    ,
+                                             std::string    cmd                     ,
+                                             std::string    args                    ,
+                                             unsigned int   priority=LOWEST_PRIORITY ) {                                
+                                                                                        return Replay( to           ,
+                                                                                                       clsn.c_str() ,
+                                                                                                       mthn.c_str() ,
+                                                                                                       cmd.c_str()  ,
+                                                                                                       args.c_str() ,
+                                                                                                       priority      );
+                                                                                       }
+  inline bool                     Write     (long           to                      ,
+	                                     std::string    clsn                    ,
+	                                     std::string    mthn                    ,
+	                                     std::string    cmd                     ,
+	                                     unsigned int   priority=LOWEST_PRIORITY ) {
+	                                                                                return Write(   to           ,
+                                                                                                        clsn.c_str() ,
+                                                                                                        mthn.c_str() ,
+                                                                                                        cmd.c_str()  ,
+                                                                                                        ""           ,
+                                                                                                        priority      );
+                                                                                       }
+  inline struct Monicelli::msg * Replay     (long           to                      ,
+	                                     std::string    clsn                    ,
+	                                     std::string    mthn                    ,
+	                                     std::string    cmd                     ,
+	                                     unsigned int   priority=LOWEST_PRIORITY ) {
+	                                                                                return Replay(  to           ,
+                                                                                                        clsn.c_str() ,
+                                                                                                        mthn.c_str() ,
+                                                                                                        cmd.c_str()  ,
+                                                                                                        ""           ,
+                                                                                                        priority      );
+                                                                                       }
+                                            
 
-  inline bool         Write      ( long           to                      ,
-	                           std::string    clsn                    ,
-	                           std::string    mthn                    ,
-	                           std::string    cmd                     ,
-	                           unsigned int   priority=LOWEST_PRIORITY )
-	                         {
-                                  return Write(   to                      ,
-                                                  clsn.c_str()            ,
-                                                  mthn.c_str()            ,
-                                                  cmd.c_str()             ,
-                                                  ""                      ,
-                                                  priority                 );
-                                 }
+  inline bool                    Write      (long           to                      ,
+	                                     const char   * clsn                    ,
+	                                     const char   * mthn                    ,
+	                                     const char   * cmd                     ,
+	                                     unsigned int priority=LOWEST_PRIORITY   ) {
+	                                                                                return Write(   to           ,
+                                                                                                        clsn         ,
+                                                                                                        mthn         ,
+                                                                                                        cmd          ,
+                                                                                                        ""           ,
+                                                                                                        priority      );
+                                                                                       };
+  inline struct Monicelli::msg * Replay     (long           to                      ,
+	                                     const char   * clsn                    ,
+	                                     const char   * mthn                    ,
+	                                     const char   * cmd                     ,
+	                                     unsigned int priority=LOWEST_PRIORITY   ) {
+	                                                                                return Replay(  to           ,
+                                                                                                        clsn         ,
+                                                                                                        mthn         ,
+                                                                                                        cmd          ,
+                                                                                                        ""           ,
+                                                                                                        priority      );
+                                                                                       };
+         bool                    Check      (long to                                 );
+         void                    Clear      (long to                                 );
 
-  inline struct Monicelli::msg * Replay     ( long           to                      ,
-	                           std::string    clsn                    ,
-	                           std::string    mthn                    ,
-	                           std::string    cmd                     ,
-	                           unsigned int   priority=LOWEST_PRIORITY )
-	                         {
-                                  return Replay(  to                      ,
-                                                  clsn.c_str()            ,
-                                                  mthn.c_str()            ,
-                                                  cmd.c_str()             ,
-                                                  ""                      ,
-                                                  priority                 );
-                                 }
+         void                    Remove     (void                                    );
 
-  inline bool         Write      ( long           to                      ,
-	                           const char   * clsn                    ,
-	                           const char   * mthn                    ,
-	                           const char   * cmd                     ,
-	                           unsigned int priority=LOWEST_PRIORITY   ) 
-	                         {
-                                  return Write(   to                      ,
-                                                  clsn                    ,
-                                                  mthn                    ,
-                                                  cmd                     ,
-                                                  ""                      ,
-                                                  priority                 );
-                                 };
-
-  inline struct Monicelli::msg * Replay     ( long           to                      ,
-	                           const char   * clsn                    ,
-	                           const char   * mthn                    ,
-	                           const char   * cmd                     ,
-	                           unsigned int priority=LOWEST_PRIORITY   ) 
-	                         {
-                                  return Replay(  to                      ,
-                                                  clsn                    ,
-                                                  mthn                    ,
-                                                  cmd                     ,
-                                                  ""                      ,
-                                                  priority                 );
-                                 };
-
-         bool         Check      ( long to                                 );
-         void         Clear      ( long to                                 );
-
-         void         Remove     ( void                                    );
-
-  inline const char * GetProcId  (int id) 
-                                 {
-                                  return proc_id[id];
-                                 }
+  inline const char *            GetProcId  (int id                                  ) {return proc_id[id];}
   
 private:
 
-  int        msgqueue_id;
-  struct Monicelli::msg themessage ; 
-  long       source_    ;
+  int                         msgqueue_id;
+  struct Monicelli::msg       themessage ;
+  long                        source_    ;
 
-  std::map<int, const char *> proc_id ;
+  std::map<int, const char *> proc_id    ;
 
 };
 
