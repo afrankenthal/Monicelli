@@ -45,13 +45,13 @@ alias cleanAll='make -f MakefileAll clean'
 alias distCleanAll='make -f MakefileAll distclean'
 
 #===============   Personalized configuration on this computer   ==============================================
-if [ ${HOSTNAME} == "hal9000.mib.infn.it" ]; then
+if [ $HOSTNAME == "hal9000.mib.infn.it" ]; then
 
-    if [ ${USER} == "menasce" ]; then
+    if [ $USER == "menasce" ]; then
 	export BASEDATADIR=/raid1/menasce/AnalysisFTB/data/2015_10_October/
-    elif [ ${USER} == "dinardo" ]; then
+    elif [ $USER == "dinardo" ]; then
 	export BASEDATADIR=/user/gr1/e831/dinardo/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
-    elif [ ${USER} == "dzuolo" ]; then
+    elif [ $USER == "dzuolo" ]; then
 	export BASEDATADIR=../data/TestBeamData2015
     fi
 
@@ -59,11 +59,11 @@ if [ ${HOSTNAME} == "hal9000.mib.infn.it" ]; then
 
     #===== Local directories
     export MonicelliDir=`pwd`
-    export Monicelli_RawData_Dir=${BASEDATADIR}/Merged
-    export Monicelli_DataSample_Dir=${BASEDATADIR}/Merged
-    export Monicelli_CalSample_Dir=${BASEDATADIR}/Calibrations
-    export MonicelliOutputDir=${BASEDATADIR}/MonicelliOutput
-    export Monicelli_XML_Dir=${BASEDATADIR}/Geometries
+    export Monicelli_RawData_Dir=$BASEDATADIR/Merged
+    export Monicelli_DataSample_Dir=$BASEDATADIR/Merged
+    export Monicelli_CalSample_Dir=$BASEDATADIR/Calibrations
+    export MonicelliOutputDir=$BASEDATADIR/MonicelliOutput
+    export Monicelli_XML_Dir=$BASEDATADIR/Geometries
     
     #===== Location of the ROOT components
     export ROOTVER=SIX
@@ -88,19 +88,19 @@ if [ ${HOSTNAME} == "hal9000.mib.infn.it" ]; then
     #===== C++ flags
     export CPLUSPLUSFLAGS=-std=c++11
    
-    export LD_LIBRARY_PATH	   
+    export LD_LIBRARY_PATH=/usr/lib64
     
-    alias qtcreator=${QTCREATORDIR}/qtcreator
+    alias qtcreator=$QTCREATORDIR/qtcreator
     
 fi
 #===============   Personalized configuration on this computer   ==============================================
-if [ ${HOSTNAME} == "cip.mib.infn.it" ]; then
+if [ $HOSTNAME == "cip.mib.infn.it" ]; then
 
-    if [ ${USER} == "menasce" ]; then
+    if [ $USER == "menasce" ]; then
 	export BASEDATADIR=/raid1/menasce/AnalysisFTB/data/2015_10_October/
-    elif [ ${USER} == "dinardo" ]; then
+    elif [ $USER == "dinardo" ]; then
 	export BASEDATADIR=/user/gr1/e831/dinardo/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
-    elif [ ${USER} == "dzuolo" ]; then
+    elif [ $USER == "dzuolo" ]; then
 	export BASEDATADIR=../data/TestBeamData2015
     fi
 
@@ -108,11 +108,11 @@ if [ ${HOSTNAME} == "cip.mib.infn.it" ]; then
 
     #===== Local directories
     export MonicelliDir=`pwd`
-    export Monicelli_RawData_Dir=${BASEDATADIR}/Merged
-    export Monicelli_DataSample_Dir=${BASEDATADIR}/Merged
-    export Monicelli_CalSample_Dir=${BASEDATADIR}/Calibrations
-    export MonicelliOutputDir=${BASEDATADIR}/MonicelliOutput
-    export Monicelli_XML_Dir=${BASEDATADIR}/Geometries
+    export Monicelli_RawData_Dir=$BASEDATADIR/Merged
+    export Monicelli_DataSample_Dir=$BASEDATADIR/Merged
+    export Monicelli_CalSample_Dir=$BASEDATADIR/Calibrations
+    export MonicelliOutputDir=$BASEDATADIR/MonicelliOutput
+    export Monicelli_XML_Dir=$BASEDATADIR/Geometries
     
     #===== Location of the ROOT components
     export ROOTVER=SIX
@@ -137,12 +137,12 @@ if [ ${HOSTNAME} == "cip.mib.infn.it" ]; then
     #===== C++ flags
     export CPLUSPLUSFLAGS=-std=c++11
    
-    export LD_LIBRARY_PATH	   
+    export LD_LIBRARY_PATH=/usr/lib64
      
-    alias qtcreator=${QTCREATORDIR}/qtcreator
+    alias qtcreator=$QTCREATORDIR/qtcreator
     
 fi
 	
 #===== Final PATH definitions
-export PATH=${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}
-export LD_LIBRARY_PATH=${ROOTLIB}:${BOOSTLIB}:${QTDIR}/lib:${XERCESCLIB}/:${MonicelliDir}/plugins/libs/:${MonicelliDir}/test/customWidgets/libs:${LD_LIBRARY_PATH}
+export PATH=$ROOTSYS/bin:$QTDIR/bin:$QTCREATORDIR/bin:$PATH
+export LD_LIBRARY_PATH=$ROOTLIB:$BOOSTLIB:$QTDIR/lib:$XERCESCLIB/:$MonicelliDir/plugins/libs/:$MonicelliDir/test/customWidgets/libs:$LD_LIBRARY_PATH

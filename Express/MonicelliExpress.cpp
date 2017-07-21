@@ -27,6 +27,7 @@
 #define CHI2RAWALIGN 60.0    // Track Chi2 for raw alignment
 #define NTELEALIGN 2         // Maximum telescope fine alignments
 #define DUT2STEPS true       // Do DUT alignment in 2 steps: (1) only translations, (2) translations + angles
+#define LARGEROD 10000.      // 
 #define COPYGEOFILE false    // Copy geo file into geometry directory
 // ============================
 
@@ -529,19 +530,17 @@ int main (int argc, char** argv)
 	{
 	  if (DUT2STEPS == true)
 	    {
-	      double largeRod = 10000.;
-
 	      // #########################################
 	      // # Track finder on DUT: large rod search #
 	      // #########################################
 	      STDLINE("Track Finder on DUT: large rod search",ACBlue);
 	      
-	      theTrackFinder.setTrackSearchParameters(largeRod*(1e-4)*CONVF, largeRod*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
+	      theTrackFinder.setTrackSearchParameters(LARGEROD*(1e-4)*CONVF, LARGEROD*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
 	      theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
 	      theTrackFinder.setOperation(&trackFinder::findDUTCandidates);
 	      theFileEater.updateEvents2();
-	      
-	      
+
+
 
 	      // ###############################
 	      // # Fine alignment DUT: only XY #
@@ -555,7 +554,7 @@ int main (int argc, char** argv)
 		  string dut = it->first;
 		  
 		  theDUTAligner.setFixParMap(dut,100111); // Here is where I choose which parameters must be kept constant
-		  theDUTAligner.setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
+		  theDUTAligner.setAlignmentPreferences(5, 0, CHI2RAWALIGN, 2, trackPoints, 1, true, dut, numberOfEvents);
 		  theDUTAligner.setOperation(&aligner::alignDUT);
 	          theDUTAligner.alignDUT();
 
@@ -613,7 +612,7 @@ int main (int argc, char** argv)
 	      string dut = it->first;
 
 	      theDUTAligner.setFixParMap(dut,DUTfreePLANES); // Here is where I choose which parameters must be kept constant
-	      theDUTAligner.setAlignmentPreferences(5, 0, 20., 2, trackPoints, 1, true, dut, numberOfEvents);
+	      theDUTAligner.setAlignmentPreferences(5, 0, chi2Cut, 2, trackPoints, 1, true, dut, numberOfEvents);
 	      theDUTAligner.setOperation(&aligner::alignDUT);
 	      theDUTAligner.alignDUT();
 
