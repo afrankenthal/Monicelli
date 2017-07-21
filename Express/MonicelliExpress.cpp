@@ -27,7 +27,7 @@
 #define CHI2RAWALIGN 60.0    // Track Chi2 for raw alignment
 #define NTELEALIGN 2         // Maximum telescope fine alignments
 #define DUT2STEPS true       // Do DUT alignment in 2 steps: (1) only translations, (2) translations + angles
-#define LARGEROD 10000.      // 
+#define LARGEROD 10000.      // DUT larger rod search
 #define COPYGEOFILE false    // Copy geo file into geometry directory
 // ============================
 
