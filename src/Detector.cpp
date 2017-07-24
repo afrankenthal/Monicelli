@@ -780,8 +780,8 @@ double Detector::getYRotation(bool global)
 double Detector::fromLocalToGlobal(double* x, double* y, double* z, double* xErr, double* yErr, double* zErr)
 {
 
-    this->flipPositionLocal(x,y,xErr,yErr);
-    this->translateXY(x,y);
+    this->flipPositionLocal  (x,y,xErr,yErr);
+    this->translateXY        (x,y);
     this->translateCorrection(x,y);
     Detector::matrix33Def R = this->getRotationMatrix();
 

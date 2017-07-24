@@ -36,13 +36,15 @@ trackFitter::trackFitter(void)
 {
     count=0;
     //STDLINE("Empty constructor",ACWhite);
-    debug_        = false;
+    debug_        = true;
     tracksFitted_ = false ;
     nIterations_  = 0;
 }
 
 //===============================================================================
-Event::fittedTracksDef trackFitter::fitTracks(const Event::trackCandidatesDef&  tracks, Geometry *theGeometry, std::string excludedDetector )
+Event::fittedTracksDef trackFitter::fitTracks(const Event::trackCandidatesDef & tracks,
+                                              Geometry                        * theGeometry,
+                                              std::string                       excludedDetector )
 {
     fittedTracks_.clear();
     chi2_.clear()        ;
@@ -72,7 +74,9 @@ Event::fittedTracksDef trackFitter::fitTracks(const Event::trackCandidatesDef&  
 }
 
 //===============================================================================
-trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHitsCandidateMapDef& alignedHits, Geometry* theGeometry, std::string excludedDetector )
+trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHitsCandidateMapDef & alignedHits,
+                                                         Geometry                                * theGeometry,
+                                                         std::string                               excludedDetector )
 {
     ROOT::Math::SMatrix<double,4,4> AtVA      ;
     ROOT::Math::SMatrix<double,4,4> AtVAInv   ;
@@ -84,8 +88,6 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
     double chi2=0;
     excludedDetectorFound_ = false;
 
-    //cout << __PRETTY_FUNCTION__ << "Simple Track Fit" << endl;
-
     for(Event::alignedHitsCandidateMapDef::const_iterator tr=alignedHits.begin(); tr!=alignedHits.end(); tr++)
     {
         if( theGeometry->getDetector( (*tr).first )->isDUT() ) continue;
@@ -95,7 +97,7 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
             excludedDetectorFound_ = true;
             continue;
         }
-
+// Dario e Luigi: verificare se slope e intercette sono in ordine corretto rispetto al formalismo
         Event::aClusterDef hit = tr->second;
         double x     = hit["x"];
         double y     = hit["y"];
@@ -121,28 +123,41 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
 
         if(debug_)
         {
-            ss_.str("");
-            ss_ << "Filling matrix";
-            //STDLINE(ss_.str(),ACYellow);
+//            ss_.str("");
+//            ss_ << "Filling matrix";
+//            STDLINE(ss_.str(),ACYellow);
 
             ss_.str("");
-            ss_ << "Detector "  << tr->first;
-            ss_ << ": Rotation alpha: " << -(theGeometry->getDetector( (*tr).first )->getXRotation() + theGeometry->getDetector( (*tr).first )->getXRotationCorrection())
-                << " - beta: "  << -(theGeometry->getDetector( (*tr).first )->getYRotation() + theGeometry->getDetector( (*tr).first )->getYRotationCorrection())
-                << " - gamma: " << -(theGeometry->getDetector( (*tr).first )->getZRotationCorrection());
+            ss_ << "Detector "
+                << tr->first;
+            ss_ << ": Rotation alpha: "
+                << -(theGeometry->getDetector( (*tr).first )->getXRotation() +
+                     theGeometry->getDetector( (*tr).first )->getXRotationCorrection())
+                << " - beta: "
+                << -(theGeometry->getDetector( (*tr).first )->getYRotation() +
+                     theGeometry->getDetector( (*tr).first )->getYRotationCorrection())
+                << " - gamma: "
+                << -(theGeometry->getDetector( (*tr).first )->getZRotationCorrection());
             STDLINE(ss_.str(),ACRed);
 
 
             ss_.str("");
-            ss_ << "x prime: "  << clusters_[(*tr).first][(int)hit["cluster ID"]]["x"] - theGeometry->getDetector( (*tr).first )->getXPosition()
-                    << "+-" << clusters_[(*tr).first][(int)hit["cluster ID"]]["xErr"]
-                    << " y prime: " << clusters_[(*tr).first][(int)hit["cluster ID"]]["y"] - theGeometry->getDetector( (*tr).first )->getYPosition()
-                    << "+-" << clusters_[(*tr).first][(int)hit["cluster ID"]]["yErr"]
-                    << " z center: " << theGeometry->getDetector( (*tr).first )->getZPositionTotal();
+            ss_ << " x prime: "
+                << clusters_[(*tr).first][(int)hit["cluster ID"]]["x"] -
+                   theGeometry->getDetector( (*tr).first )->getXPosition()
+                << "+-"
+                << clusters_[(*tr).first][(int)hit["cluster ID"]]["xErr"]
+                << " y prime: "
+                << clusters_[(*tr).first][(int)hit["cluster ID"]]["y"] -
+                   theGeometry->getDetector( (*tr).first )->getYPosition()
+                << "+-"
+                << clusters_[(*tr).first][(int)hit["cluster ID"]]["yErr"]
+                << " z center: "
+                << theGeometry->getDetector( (*tr).first )->getZPositionTotal();
             STDLINE(ss_.str(),ACPurple);
 
             ss_.str("");
-            ss_ << "x: "   << hit["x"] << "+-" << hit["xErr"]
+            ss_ << " x: "  << hit["x"] << "+-" << hit["xErr"]
                 << " y: "  << hit["y"] << "+-" << hit["yErr"]
                 << " z: "  << hit["z"];
             STDLINE(ss_.str(),ACPurple);
@@ -166,12 +181,12 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
 
         printMatrix("AtVAInv: ",AtVAInv);
 
-        //assert(0);
-        ss_.str("");
-        //ss_ << "faild count " << count++;
-        //STDLINE(ss_.str(),ACPurple);
+//        assert(0);
+//        ss_.str("");
+//        ss_ << "faild count " << count++;
+//        STDLINE(ss_.str(),ACPurple);
 
-        //continue;
+//        continue;
     }
 
     pars = AtVAInv*AtVxy;
@@ -179,9 +194,9 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
     ss_.str("");
     ss_ << "alignedHits.size: " << alignedHits.size();
     std::map<std::string, std::pair<double, double> > resMap; //residuals for each plane used for successive iterations
-    double xPredLoc, yPredLoc ;
-    double xHitLoc, yHitLoc, zHitLoc;
-    double xErrLoc, yErrLoc, zErrLoc;
+    double xPredLoc, yPredLoc        ;
+    double xHitLoc , yHitLoc, zHitLoc;
+    double xErrLoc , yErrLoc, zErrLoc;
     for(Event::alignedHitsCandidateMapDef::const_iterator tr=alignedHits.begin(); tr!=alignedHits.end(); tr++)
     {
         if( theGeometry->getDetector( tr->first )->isDUT() )  continue;
@@ -193,29 +208,10 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
         chi2 += pow( hit["x"] - pars[0]*hit["z"] - pars[1], 2 )/(hit["xErr"]*hit["xErr"]) +
                 pow( hit["y"] - pars[2]*hit["z"] - pars[3], 2 )/(hit["yErr"]*hit["yErr"])  ;
 
-        //local coordinates
-        /*       xPredLoc = pars[0]*hit["z"] + pars[1];
-       yPredLoc = pars[2]*hit["z"] + pars[3];
-       zPredLoc = theGeometry->getDetector( tr->first )->getZPosition();
-       theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
-       xHitLoc = hit["x"];
-       yHitLoc = hit["y"];
-       zHitLoc = hit["z"];
-       xErrLoc = hit["xErr"];
-       yErrLoc = hit["yErr"];
-       zErrLoc = hit["zErr"];
-       theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xHitLoc, &yHitLoc, &zHitLoc, &xErrLoc, &yErrLoc, &zErrLoc);
-       chi2 += pow(xHitLoc - xPredLoc, 2 )/(xErrLoc*xErrLoc) +
-               pow(yHitLoc - yPredLoc, 2 )/(yErrLoc*yErrLoc)  ;
-*/
         if (nIterations_ == 0)
             continue;
 
-        //        xPredLoc = pars[0]*hit["z"] + pars[1];
-        //        yPredLoc = pars[2]*hit["z"] + pars[3];
         theGeometry->getDetector(tr->first)->getPredictedLocal(pars, xPredLoc, yPredLoc);
-        //        zPredLoc = theGeometry->getDetector( tr->first )->getZPosition();
-        //        theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
         xHitLoc = hit["x"];
         yHitLoc = hit["y"];
         zHitLoc = hit["z"];
@@ -247,14 +243,7 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
             chi2 += pow( hit["x"] - pars[0]*hit["z"] - pars[1], 2 )/(hit["xErr"]*hit["xErr"]) +
                     pow( hit["y"] - pars[2]*hit["z"] - pars[3], 2 )/(hit["yErr"]*hit["yErr"])  ;
 
-            //            if (iter == nIterations_-1)
-            //                continue;
-
-            //            xPredLoc = pars[0]*hit["z"] + pars[1];
-            //            yPredLoc = pars[2]*hit["z"] + pars[3];
             theGeometry->getDetector(tr->first)->getPredictedLocal(pars, xPredLoc, yPredLoc);
-            //            zPredLoc = theGeometry->getDetector( tr->first )->getZPosition();
-            //            theGeometry->getDetector( tr->first )->fromGlobalToLocal(&xPredLoc, &yPredLoc, &zPredLoc);
             xHitLoc = hit["x"];
             yHitLoc = hit["y"];
             zHitLoc = hit["z"];
@@ -277,37 +266,30 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
         STDLINE(ss_.str(),ACYellow);
 
         ss_.str("");
-        ss_ << "Fit Results sx: "  << pars[0]
+        ss_ << "Fit Results"
+            << " sx: " << pars[0]
             << " qx: " << pars[1]
             << " sy: " << pars[2]
             << " qy: " << pars[3];
         STDLINE(ss_.str(), ACYellow);
     }
 
-    //cout << __PRETTY_FUNCTION__ << "Final: x int = " << pars[1] << " y int = " << pars[3] << " x slope = " << pars[0] << " y slope = " << pars[2] << endl;
-
     trackFitter::aFittedTrackDef aFittedTrack;
     aFittedTrack.first.first = pars          ;
     aFittedTrack.first.second= AtVAInv         ;
-//    cout << __PRETTY_FUNCTION__ << "Initial: x int = " << pars[1] << " y int = " << pars[3] << " x slope = " << pars[0] << " y slope = " << pars[2] << endl;
-//    for ( int i=0; i<4; i++ )
-//    {
-//        std::cout << __PRETTY_FUNCTION__ << "Initial covMat line " << i << ": " << AtVAInv[i][0] << " "<< AtVAInv[i][1] << " "<<AtVAInv[i][2] << " "<< AtVAInv[i][3] <<std::endl;
-//    }
     aFittedTrack.second      = chi2/(alignedHits.size()*2 - 4)          ; //pixels
-    //    aFittedTrack.second      = chi2/(alignedHits.size() - 2)          ; //strips
 
     return aFittedTrack;
 }
 
 //===============================================================================
 // Original document with formalism: ../documents/StripTelescopeAlignmentFormalism.pdf
-trackFitter::aFittedTrackDef trackFitter::  kalmanFitSingleTrack(const Event::alignedHitsCandidateMapDef & trackCandidate,
-                                                                       Event::vectorDef                  & track         ,
-                                                                       Event::matrixDef                  & cov           ,
-                                                                       Event::clustersMapDef             & clusters      ,
-                                                                       Geometry                          * theGeometry   ,
-                                                                       std::string                         excludedDetector )
+trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alignedHitsCandidateMapDef & trackCandidate,
+                                                                     Event::vectorDef                  & track         ,
+                                                                     Event::matrixDef                  & cov           ,
+                                                                     Event::clustersMapDef             & clusters      ,
+                                                                     Geometry                          * theGeometry   ,
+                                                                     std::string                         excludedDetector )
 {
     excludedDetectorFound_ = false;
     double chi2 = 0;
@@ -548,13 +530,13 @@ trackFitter::aFittedTrackDef trackFitter::  kalmanFitSingleTrack(const Event::al
                 }
             }
 
-            //chi2 update
-            double dist    = clusters[plane][trackCandidate.find(plane)->second.find("cluster ID")->second].find("x"   )->second;//distance of the hit from origin of the sensor
+            //chi2 update. dist is the distance of the hit from origin of the sensor
+            double dist    = clusters[plane][trackCandidate.find(plane)->second.find("cluster ID")->second].find("x"   )->second;
             double distErr = clusters[plane][trackCandidate.find(plane)->second.find("cluster ID")->second].find("xErr")->second;
             double res     = dist - trackPars*h - offset;
 
-            double r  = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
-            chi2     += (res*res/r)/(trackCandidate.size() - 2);
+            double r       = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
+            chi2          += (res*res/r)/(trackCandidate.size() - 2);
 
 //            std::cout<<__LINE__<<"New Cov Mat"<<std::endl;
 //            estCov.Print();
@@ -584,7 +566,6 @@ trackFitter::aFittedTrackDef trackFitter::  kalmanFitSingleTrack(const Event::al
     //aFittedTrack.second             = chi2/(alignedHits.size() - 2)   ; //strips
 
     return aKalmanFittedTrack;
-
 }
 
 //===============================================================================
@@ -617,13 +598,13 @@ void trackFitter::printMatrix(std::string sm,  ROOT::Math::SMatrix<long double,4
     std::cout << std::endl ;
 }
 //================================================================
-void trackFitter::makeDetectorTrackResiduals ( ROOT::Math::SVector<double,4>   &fittedTrack,
-                                               Event::matrixDef                &covMat     ,
-                                               const Event::clustersMapDef     &clusters   ,
-                                               const Event::trackCandidatesDef &tracks     ,
-                                               Geometry*                        theGeometry,
-                                               std::string                      detector   ,
-                                               int                              trackNum   )
+void trackFitter::makeDetectorTrackResiduals ( ROOT::Math::SVector<double,4>   & fittedTrack,
+                                               Event::matrixDef                & covMat     ,
+                                               const Event::clustersMapDef     & clusters   ,
+                                               const Event::trackCandidatesDef & tracks     ,
+                                               Geometry*                         theGeometry,
+                                               std::string                       detector   ,
+                                               int                               trackNum   )
 {
     //cout << __PRETTY_FUNCTION__ << "Calculating residuals" << endl;
 
@@ -644,7 +625,8 @@ void trackFitter::makeDetectorTrackResiduals ( ROOT::Math::SVector<double,4>   &
     Detector* det = theGeometry->getDetector( detector );
     Event::clustersMapDef::const_iterator clustersIt;
     Event::aClusterMapDef::const_iterator clusterIt;
-    if( (clustersIt = clusters.find(detector)) == clusters.end() || (clusterIt = clustersIt->second.find(clusterNumber)) == clustersIt->second.end())
+    if( (clustersIt = clusters.find(detector)) == clusters.end() ||
+        (clusterIt  = clustersIt->second.find(clusterNumber)) == clustersIt->second.end())
         return;
 
     Event::aClusterDef cluster = clusterIt->second;
@@ -897,7 +879,9 @@ void trackFitter::makeFittedTrackDeviations(Event * theEvent, Geometry*)
 }
 //=======================================================================================
 
-ROOT::Math::SVector<double,4> trackFitter::calculateParCorrections (ROOT::Math::SVector<double,4> pars, Geometry * geo, std::map<std::string, std::pair<double, double> > res)
+ROOT::Math::SVector<double,4> trackFitter::calculateParCorrections (ROOT::Math::SVector<double,4>                       pars,
+                                                                    Geometry                                          * geo ,
+                                                                    std::map<std::string, std::pair<double, double> >   res )
 {
     ROOT::Math::SMatrix<double,4,4> AtVA      ;
     ROOT::Math::SMatrix<double,4,4> AtVAInv   ;
@@ -925,9 +909,9 @@ ROOT::Math::SVector<double,4> trackFitter::calculateParCorrections (ROOT::Math::
         if (geo->getDetectorModule(it->first)%2 == 0)
         {
             N = (pars(0)*z + pars(1))*(RM(1,1) - pars(2)*RM(2,1)) -
-                    (pars(2)*z + pars(3))*(RM(0,1) - pars(0)*RM(2,1));
+                (pars(2)*z + pars(3))*(RM(0,1) - pars(0)*RM(2,1));
             D = (RM(0,0) - pars(0)*RM(2,0))*(RM(1,1) - pars(2)*RM(2,1)) -
-                    (RM(1,0) - pars(2)*RM(2,0))*(RM(0,1) - pars(0)*RM(2,1));
+                (RM(1,0) - pars(2)*RM(2,0))*(RM(0,1) - pars(0)*RM(2,1));
             dmq(0) = ((z*(RM(1,1) - pars(2)*RM(2,1)) + RM(2,1)*(pars(2)*z + pars(3)))*D -
                       (-RM(2,0)*(RM(1,1) - pars(2)*RM(2,1)) + RM(2,1)*(RM(1,0) - pars(2)*RM(2,0)))*N)/(D*D);
             dmq(1) = (RM(1,1) - pars(2)*RM(2,1))/(D);
@@ -938,9 +922,9 @@ ROOT::Math::SVector<double,4> trackFitter::calculateParCorrections (ROOT::Math::
         else
         {
             N = (pars(2)*z + pars(3))*(RM(0,0) - pars(0)*RM(2,0)) -
-                    (pars(0)*z + pars(1))*(RM(1,0) - pars(2)*RM(2,0));
+                (pars(0)*z + pars(1))*(RM(1,0) - pars(2)*RM(2,0));
             D = (RM(1,1) - pars(2)*RM(2,1))*(RM(0,0) - pars(0)*RM(2,0)) -
-                    (RM(0,1) - pars(0)*RM(2,1))*(RM(1,0) - pars(2)*RM(2,0));
+                (RM(0,1) - pars(0)*RM(2,1))*(RM(1,0) - pars(2)*RM(2,0));
             dmq(2) = ((z*(RM(0,0) - pars(0)*RM(2,0)) + RM(2,0)*(pars(0)*z + pars(1)))*D -
                       (-RM(2,1)*(RM(0,0) - pars(0)*RM(2,0)) + RM(2,0)*(RM(0,1) - pars(0)*RM(2,1)))*N)/(D*D);
             dmq(3) = (RM(0,0) - pars(0)*RM(2,0))/(D);

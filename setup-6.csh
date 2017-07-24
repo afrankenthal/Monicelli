@@ -50,8 +50,8 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
 
   echo "Setting up for hal9000"
   if(     ${USER} == "menasce") then
-   setenv BASEDATADIR /raid1/menasce/AnalysisTBF/data/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
-#   setenv BASEDATADIR /raid1/menasce/AnalysisTBF/dzuolo/StripTelescopeAnalysis
+#   setenv BASEDATADIR /raid1/menasce/AnalysisTBF/data/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
+   setenv BASEDATADIR /raid1/menasce/AnalysisTBF/data/StripTelescopeAnalysis
   else if(${USER} == "dinardo") then
    setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
   else if(${USER} == "dzuolo") then

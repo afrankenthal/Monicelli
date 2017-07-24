@@ -1264,7 +1264,16 @@ void mainTabs::advanceProgressBar2()
         }
         else
         {
-            STDLINE("=============== Benchmark =====================",ACWhite) ;
+            stringstream zz ;
+            zz.str("") ; zz << ACYellow << ACBold
+                              << "=============== "
+                              << ACPlain
+                              << ACCyan   << ACBold << ACReverse
+                              << "Benchmark"
+                              << ACPlain
+                              << ACYellow << ACBold
+                              << "=============== "  ;
+            STDLINE(zz.str(),ACWhite) ;
             cout << endl ;
             theBenchmark_->Stop(theThreadProcess_.c_str());
             Float_t realTime = 0 ;
@@ -1273,7 +1282,7 @@ void mainTabs::advanceProgressBar2()
             cout << endl ;
             ss_.str("") ; ss_ << "Process: " << theThreadProcess_ << "\t\t\tElapsed time: " << realTime << "\tCPU time: " << CPUTime << "\n";
             ui->benchmarksTE->insertPlainText(ss_.str().c_str()) ;
-            STDLINE("=============== Benchmark =====================",ACWhite) ;
+            STDLINE(zz.str(),ACWhite) ;
         }
         delete theBenchmark_ ;
         theBenchmark_ = NULL ;
@@ -1573,6 +1582,7 @@ void mainTabs::on_calibrationLoaderPB_clicked()
     theCalibrationLoader_->setOutputASCIIfile(ui->writeASCIIcalibrationFileCB->isChecked());
     theCalibrationLoader_->setInputROOTfile(  ui->readROOTcalibrationFileCB->isChecked()  );
     this->launchThread2(theCalibrationLoader_);
+    STDLINE("a",ACWhite) ;
 }
 
 //===========================================================================
@@ -2152,10 +2162,10 @@ void mainTabs::findAndFitTrack(std::string findMethod, std::string fitMethod)
     }
 
     double chi2Cut = -1 ;
-    if( ui->trackFinderChi2cutCB->isChecked() ) chi2Cut = ui->trackFinderChi2cutSB->value() ;
+    if( ui->trackFinderChi2cutCB    ->isChecked() ) chi2Cut        = ui->trackFinderChi2cutSB->value() ;
 
     double trackPoints = -1;
-    if( ui->trackFinderTrackPointsCB->isChecked() ) trackPoints = ui->trackFinderTrackPointsSB->value();
+    if( ui->trackFinderTrackPointsCB->isChecked() ) trackPoints    = ui->trackFinderTrackPointsSB->value();
 
     double maxPlanePoints = -1;
     if( ui->trackFinderPlanePointsCB->isChecked() ) maxPlanePoints = ui->trackFinderPlanePointsSB->value();
