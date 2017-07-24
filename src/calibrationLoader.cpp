@@ -41,7 +41,7 @@
 #define FITMINPOINTS        10
 #define MAXTHRESHOLD     10000 // [e-]
 #define DYNAMICRANGE       200
-#define ELECTRONS_NUMBER   350 // [e- / Vcal]
+#define ELECTRONS_NUMBER   329 // [e- / Vcal]
 // ============================
 
 //=========================================================

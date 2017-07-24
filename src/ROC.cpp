@@ -35,7 +35,7 @@
 
 
 // @@@ Hard coded parameters @@@
-#define ELECTRONS_NUMBER 350 // [e- / VCal]
+#define ELECTRONS_NUMBER 329 // [e- / VCal]
 #define ADCBITS 10           // Bits of the analog to digital converter
 // ============================
 
