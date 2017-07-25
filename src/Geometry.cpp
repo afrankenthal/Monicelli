@@ -318,29 +318,29 @@ void Geometry::calculatePlaneMCS(void)
             double den = upVector[1]*rightVector[0]-upVector[0]*rightVector[1];
             offset= -sensorOrigin[0]*rightVector[0] - sensorOrigin[1]*rightVector[1]+
                     rightVector[2]*(-sensorOrigin[2]+(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                    sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                    sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))/den);
+                                                      sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
+                                                      sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))/den);
             h[1] = rightVector[0]+rightVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
             h[3] = rightVector[1]+rightVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
             h[0] =(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                    sensorOrigin[1]*(upVector[0]*rightVector[2]-rightVector[0]*upVector[2])+
-                    sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
+                   sensorOrigin[1]*(upVector[0]*rightVector[2]-rightVector[0]*upVector[2])+
+                   sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
                     (upVector[1]*(rightVector[0]*rightVector[0]+rightVector[2]*rightVector[2])-
                     rightVector[1]*(upVector[0]*rightVector[0]+upVector[2]*rightVector[2]))/(den*den);
             h[2] =(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                    sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                    sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
+                   sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
+                   sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
                     (rightVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
                     upVector[0]*(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
 
-            trackCov[1][1] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[1][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[3][3] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[3][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[0][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[2][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[1][1] =  zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[1][0] = -zValue       *multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[3][3] =  zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[3][2] = -zValue       *multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[0][1] = -zValue       *multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[0][0] =                multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[2][3] = -zValue       *multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCov[2][2] =                multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
         }
 
         else //not strip data (pixels)

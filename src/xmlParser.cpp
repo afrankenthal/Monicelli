@@ -182,7 +182,7 @@ void xmlParser::buildTelescope(void)
   }
   if(gDUTFitFunction_ == "" )
   {
-      gDUTFitFunction_ = "linear" ;
+      gDUTFitFunction_ = "parabolic" ;
       stationsEle.setAttribute(QString("gDUTFitFunction"       ),
                                QString( gDUTFitFunction_.c_str())) ;
   }

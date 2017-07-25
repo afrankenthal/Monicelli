@@ -292,7 +292,7 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                                                                      std::string                         excludedDetector )
 {
     excludedDetectorFound_ = false;
-    double chi2 = 0;
+    double chi2            = 0;
 
     //Use existing trackPars and covMat
 
@@ -307,7 +307,7 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
     {
         for ( int j=0; j<4; j++ )
         {
-            estCov[i][j] = cov[i][j];
+            estCov[i][j] = cov[i][j]; // Dario e Luigi: moltiplicare per un fattore 10^4 (minimo)
         }
     }
 
@@ -338,9 +338,11 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
 //                assert(0);
 
 
-    for (unsigned int plane = 0; plane < theKalmanPlaneInfo_.getKalmanFilterOrder().size(); plane++)
+    for (unsigned int plane = 0; plane < theKalmanPlaneInfo_.getKalmanFilterOrder().size(); plane++) // Dario e Luigi: forzare riordinamento al load della Geometry
     {
         std::string plaqID = theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).second;
+//        double      theZ   = theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).first ;
+//        ss_.str("") ; ss_ << "PlaqID: " << plaqID << " z: " << theZ ; STDLINE(ss_.str(),ACCyan_+ACReverse_) ;
 
         TVectorT   <double> k (4);
  //       TVectorT   <double> kx(4);
