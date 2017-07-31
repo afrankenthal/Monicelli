@@ -138,7 +138,7 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
                      theGeometry->getDetector( (*tr).first )->getYRotationCorrection())
                 << " - gamma: "
                 << -(theGeometry->getDetector( (*tr).first )->getZRotationCorrection());
-            STDLINE(ss_.str(),ACRed);
+            // STDLINE(ss_.str(),ACRed);
 
 
             ss_.str("");
@@ -154,13 +154,13 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
                 << clusters_[(*tr).first][(int)hit["cluster ID"]]["yErr"]
                 << " z center: "
                 << theGeometry->getDetector( (*tr).first )->getZPositionTotal();
-            STDLINE(ss_.str(),ACPurple);
+            // STDLINE(ss_.str(),ACPurple);
 
             ss_.str("");
             ss_ << " x: "  << hit["x"] << "+-" << hit["xErr"]
                 << " y: "  << hit["y"] << "+-" << hit["yErr"]
                 << " z: "  << hit["z"];
-            STDLINE(ss_.str(),ACPurple);
+            // STDLINE(ss_.str(),ACPurple);
         }
     }
 
@@ -177,7 +177,7 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
         ss_.str("");
         ss_ << "det: " << std::setprecision(15) << det
                ;
-        STDLINE(ss_.str(),ACRed);
+        // STDLINE(ss_.str(),ACRed);
 
         printMatrix("AtVAInv: ",AtVAInv);
 
@@ -263,7 +263,7 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
     {
         ss_.str("");
         ss_ << " chi2: " << chi2;
-        STDLINE(ss_.str(),ACYellow);
+        // STDLINE(ss_.str(),ACYellow);
 
         ss_.str("");
         ss_ << "Fit Results"
@@ -271,7 +271,7 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
             << " qx: " << pars[1]
             << " sy: " << pars[2]
             << " qy: " << pars[3];
-        STDLINE(ss_.str(), ACYellow);
+        // STDLINE(ss_.str(), ACYellow);
     }
 
     trackFitter::aFittedTrackDef aFittedTrack;
@@ -721,15 +721,15 @@ void trackFitter::makeDetectorTrackResiduals ( ROOT::Math::SVector<double,4>   &
 
     if(debug_)
     {
-        std::cout << "****************************************************************************************" << std::endl;
+        // std::cout << "****************************************************************************************" << std::endl;
         ss_.str("");
         ss_ << "Detector: " << detector;
-        STDLINE(ss_.str(), ACGreen);
+        // STDLINE(ss_.str(), ACGreen);
         ss_.str("");
         ss_ << "ResX: " << resX;
         ss_ << " ResY: " << resY;
-        STDLINE(ss_.str(), ACGreen);
-        std::cout << "****************************************************************************************" << std::endl;
+        // STDLINE(ss_.str(), ACGreen);
+        // std::cout << "****************************************************************************************" << std::endl;
     }
     /*
     xm    = cluster["x"];
@@ -783,7 +783,7 @@ void trackFitter::makeFittedTracksResiduals(Event *theEvent, Geometry *theGeomet
                 ss_.str("");
 
                 ss_ << "Track n " << i << " - Excluded detector: " << det->first;
-                STDLINE(ss_.str(),ACGreen);
+                // STDLINE(ss_.str(),ACGreen);
             }
 
             trackFitter::aFittedTrackDef aFittedTrack;

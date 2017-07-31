@@ -27,7 +27,7 @@
 #define CHI2RAWALIGN 60.0    // Track Chi2 for raw alignment
 #define NTELEALIGN 2         // Maximum telescope fine alignments
 #define DUT2STEPS true       // Do DUT alignment in 2 steps: (1) only translations, (2) translations + angles
-#define LARGEROD 10000.      // DUT larger rod search
+#define LARGEROD 100000.     // DUT larger rod search
 #define COPYGEOFILE false    // Copy geo file into geometry directory
 // ============================
 
@@ -346,7 +346,6 @@ int main (int argc, char** argv)
 	      yPosition    = fitFunc->GetParameter(0);
 	      yPositionErr = fitFunc->GetParError(0) / 2.;
 
-
 	      theGeometry->getDetector(it->first)->flipPositionLocal(&xPosition, &yPosition, &xPositionErr, &yPositionErr);
 	      theGeometry->getDetector(it->first)->setXPosition(xPosition);
 	      theGeometry->getDetector(it->first)->setXPositionError(xPositionErr);
@@ -369,7 +368,7 @@ int main (int argc, char** argv)
 	  // # Track finder #
 	  // ################
 	  STDLINE("Track Finder",ACBlue);
-	  
+
 	  theTrackFinder.setTrackSearchParameters(xTolerance*(1e-4)*CONVF, yTolerance*(1e-4)*CONVF, chi2Cut, trackPoints, maxPlanePoints);
 	  theTrackFinder.setTrackingOperationParameters(trackFindingAlgorithm, trackFittingAlgorithm, findDut);
 	  theFileEater.setOperation(&fileEater::updateEvents2,&theTrackFinder);
