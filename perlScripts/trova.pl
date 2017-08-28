@@ -6,6 +6,7 @@ use Getopt::Long;
 
 my $cmd = &buildFindCommand() ;
 
+&executeCommand($cmd) ;
 
 #======================================================
 sub defineColors
@@ -37,54 +38,129 @@ sub defineColors
   $ACClearL	 = "\x1B[2K";
 }
 #================================================================
+sub executeCommand
+{
+ my $cmd = shift   ;
+ 
+ @suffixExclusions = split(/\s+/, $excludeSuffix) ;
+ @pathExclusions   = split(/\s+/, $excludePath  ) ;
+ 
+ print ("\n") ;
+
+ print("${ACRed}${ACBold}") ;
+ @unfilteredList = `$cmd` ;
+ print("${ACPlain}") ;
+ 
+ if( ${^CHILD_ERROR_NATIVE} > 0 ) 
+ {
+  print("\n${ACRed}${ACBold}${ACReverse}Aborting with code${ACPlain} ${^CHILD_ERROR_NATIVE}\n\n") ;
+  exit(0) ;
+ }
+ 
+ foreach $f (@unfilteredList)
+ {
+  chomp($f) ;
+  my @pathParts = split(/\//, $f) ;
+  my $fileName  = $pathParts[-1]  ;
+  my $dir       = $f              ;
+  $dir =~ s/\/$fileName// ;
+
+  my $excludeSuffix  = 'false' ;
+  my $excludedSuffix = 0 ;
+  my $excludePath    = 'false' ;
+  my $excludedPath   = 0 ;
+  
+  foreach $e (@suffixExclusions)
+  {
+   if( $fileName =~ m/$e/ && $searchLogic eq "or" ) {$excludeSuffix = 'true';}
+   if( $fileName =~ m/$e/ && $searchLogic eq "and") {$excludedSuffix++;}
+  }
+  if( $searchLogic eq "and" && scalar @suffixExclusions == $excludedSuffix) {$excludeSuffix = 'true';}
+
+  foreach $e (@pathExclusions)
+  {
+   if( $dir =~ m/$e/ && $searchLogic eq "or" ) {$excludePath = 'true';}
+   if( $dir =~ m/$e/ && $searchLogic eq "and") {$excludedPath++;}
+  }
+  if( $searchLogic eq "and" && scalar @pathExclusions == $excludedPath) {$excludePath = 'true';}
+
+  if( $excludeSuffix eq 'true' || $excludePath eq 'true' )
+  {
+    print("${ACRed}${ACBold}${f}${ACPlain}\n") ;
+  }
+  else 
+  {
+    print("$f\n") ;
+  }
+ }
+}
+#================================================================
 sub buildFindCommand
 {
- my $searchPath    = "."      ;
- my $searchSuffix  = "*"      ;
- my $searchLogic   = "or"     ;
- my $excludePath   = ""       ;
- my $excludeSuffix = ".svn"   ;
- my $verbose                  ;
- my $help                     ;
+ $searchPath    = "."  ;
+ $searchSuffix  = "*"  ;
+ $searchLogic   = "or" ;
+ $matchLogic    = "or" ;
+ $excludePath   = ""   ; 
+ $excludeSuffix = ""   ; 
+ $verbose              ;
+ $help                 ;
 
  GetOptions (
              "sp=s" => \$searchPath   ,  
              "s=s"  => \$searchSuffix ,  
              "sl=s" => \$searchLogic  , 
-             "ep=s" => \$excludePath  , 
+             "ep=s" => \$excludePath  ,
              "e=s"  => \$excludeSuffix,
-             "v"    => \$verbose      ,     
+             "ml=s" => \$matchLogic   , 
+             "v"    => \$verbose      ,
+             "help" => \$help         ,
              "h"    => \$help          
             )   ;    
 
  if( $help != 0 )
  {
   print <<EOB ;
-  
-${ACBold}Usage${ACPlain}: ./trova.pl ....
+__________________________________________________________________________________________________________  
+${ACBold}Usage${ACPlain}: ${ACGreen}${ACBold}./trova.pl${ACPlain} [${ACCyan}${ACBold}qualifier${ACPlain}] [${ACCyan}${ACBold}qualifier${ACPlain}] ... [${ACCyan}${ACBold}qualifier${ACPlain}] [${ACYellow}${ACBold}searchstring${ACPlain}]
 
+where
 
+${ACCyan}${ACBold}qualifier${ACPlain} can be any of the following:
+
+${ACCyan}${ACBold}--sp${ACPlain} "${ACBold}${ACRed}search-path-1 search-path-2${ACPlain} ... ${ACBold}${ACRed}search-path-n${ACPlain}" 
+     where ${ACBold}${ACRed}search-path-j${ACPlain} is a relative or absolute directory path-name
+     (${ACBold}${ACRed}.${ACPlain}, which is the default, stands for "any directory path below the current one, included")
+${ACCyan}${ACBold}--s${ACPlain}  "${ACBold}${ACRed}filename-1 filename-2${ACPlain} ... ${ACBold}${ACRed}filename-n${ACPlain}" 
+     where ${ACBold}${ACRed}filename-j${ACPlain} is a part of or a whole filename to search for
+     (${ACBold}${ACRed}*${ACPlain}, which is the default, stands for "${ACBold}${ACRed}any filename${ACPlain}") 
+${ACCyan}${ACBold}--sl${ACPlain}  [${ACBold}${ACRed}and${ACPlain}|${ACBold}${ACRed}or${ACPlain}]
+     use any of these two booleans to specify the search logic with the above filenames
+${ACCyan}${ACBold}--e${ACPlain} "match-1 match-2 ... match-n"
+     ...
+     ...
+     ...
+     
 EOB
   exit(0) ;
  }
 
- print <<EOB;
-
- searchpath    $searchPath  
- searchSuffix  $searchSuffix  
- searchLogic   $searchLogic  
- excludePath   $excludePath  
- excludeSuffix $excludeSuffix 
- help          $help
- verbose       $verbose       
-
-EOB
+# print <<EOB;
+#
+# --sp searchpath    $searchPath  
+# --s  searchSuffix  $searchSuffix  
+# --sl searchLogic   $searchLogic  
+# --e  excludeSuffix $excludeSuffix 
+# --ml matchLogic    $matchLogic  
+# --h  help          $help
+# --v  verbose       $verbose       
+#
+#EOB
 
  my $cmd = "find " ;
  
  $cmd = &addPathList($cmd,          $searchPath                ) ;
  $cmd = &addList    ($cmd, "-name", $searchSuffix, $searchLogic) ;
- $cmd = &addList    ($cmd, "-name", $excludePath , "exclude"   ) ;
  
  return $cmd ;
 }
@@ -101,7 +177,6 @@ sub addPathList
   $cmd .= "${sp} " ;
  }
  
- print ("\n$cmd\n\n") ;
  return $cmd ;
 }
 #================================================================
@@ -117,10 +192,6 @@ sub addList
  my $c = 0 ;
  foreach $sp (sort @v)
  {
-  if( $logic =~ m/exclude/ )
-  {
-   $cmd .= "-and -not ";
-  }
   $cmd .= "$key \"${sp}\" " ;
   if( scalar @v > 1 && $c++ < scalar @v - 1) 
   {
@@ -129,6 +200,5 @@ sub addList
  }
  
  
- print ("\n$cmd\n\n") ;
  return $cmd ;
 }

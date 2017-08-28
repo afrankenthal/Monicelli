@@ -93,6 +93,9 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
   setenv XERCESCINC		   /opt/local/xerces/include
   setenv XERCESCLIB		   /opt/local/xerces/lib
   
+  #===== Location of the FINDER components
+  setenv FINDERHOME		   ${MonicelliDir}/finder
+  
   #===== C++ flags
   setenv CPLUSPLUSFLAGS            "-std=c++11"
 
