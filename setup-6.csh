@@ -46,6 +46,60 @@ alias cleanAll     'make -f MakefileAll clean'
 alias distCleanAll 'make -f MakefileAll distclean'
 
 #===============   Personalized configuration on this computer   ==============================================
+if(${HOSTNAME} == "MAC") then
+
+  echo "Setting up Monicelli for MAC"
+
+  if(     ${USER} == "menasce") then
+   setenv BASEDATADIR /Users/menasce/AnalysisTBF/data/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
+  else if(${USER} == "dinardo") then
+   setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
+  else if(${USER} == "dzuolo") then
+   setenv BASEDATADIR ../data/TestBeamFBKPlanarAfterRad_Batch01_02
+  endif
+  
+#  setenv PATH /opt/rh/devtoolset-2/root/usr/bin:/bin:/usr/bin:/usr/local/bin:/usr/printmi/bin
+
+  #===== Local directories
+  setenv MonicelliDir		   `pwd`
+  setenv Monicelli_RawData_Dir     ${BASEDATADIR}/Merged
+  setenv Monicelli_DataSample_Dir  ${BASEDATADIR}/Merged
+  setenv Monicelli_CalSample_Dir   ${BASEDATADIR}/Calibrations
+  setenv MonicelliOutputDir	   ${BASEDATADIR}/MonicelliOutput
+  setenv Monicelli_XML_Dir	   ${BASEDATADIR}/Geometries
+  
+  #===== Location of the ROOT components
+  setenv ROOTVER                   SIX
+  setenv ROOTSYS		   /Applications/root_v6.04.02/
+#  setenv ROOTSYS		   /Users/menasce/AnalysisTBF/root-v6.10.00.build
+  setenv ROOTINC		   $ROOTSYS/include
+  setenv ROOTLIB		   $ROOTSYS/lib
+
+  #===== Location of the Qt components
+  setenv QTDIR  		   /Applications/Qt5.9/5.9/clang_64
+#  setenv QTDIR  		   /Users/menasce/AnalysisTBF/qt-v5.9.0
+
+  setenv QTCREATORDIR		   '/Applications/Qt5.9/Qt\ Creator.app/Contents/MacOS/Qt\ Creator'
+  setenv QTASSISTANTDIR            '/Applications/Qt5.9/5.9/clang_64/bin/Assistant.app/Contents/MacOS/'
+  
+  #===== Location of the BOOST components
+  setenv BOOSTINC		   /Users/menasce/AnalysisTBF/boost_1_64_0
+  setenv BOOSTLIB		   /Users/menasce/AnalysisTBF/boost_1_64_0/stage/lib
+
+  #===== Location of the XERCES components
+  setenv XERCESCINC		   /usr/local/include
+  setenv XERCESCLIB		   /usr/local/lib
+  
+  #===== C++ flags
+  setenv CPLUSPLUSFLAGS            "-std=c++11"
+
+  setenv LD_LIBRARY_PATH	   ""
+
+  alias  qt                        "${QTCREATORDIR}"
+  alias  assistant                 "${QTASSISTANTDIR}/Assistant"
+    
+endif
+#===============   Personalized configuration on this computer   ==============================================
 if(${HOSTNAME} == "hal9000.mib.infn.it") then
 
   echo "Setting up for hal9000"
