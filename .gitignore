@@ -1,0 +1,8 @@
+*.o
+moc_*
+*.so
+Makefile
+Monicelli
+ui_*
+*.pcm
+qrc_*
