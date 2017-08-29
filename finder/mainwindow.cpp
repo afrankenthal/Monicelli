@@ -7,6 +7,11 @@ MainWindow::MainWindow (QWidget *parent   ) :
 {
     ui_ ->setupUi      (this              ) ;
 
+    QList<int> vSizes ;
+    vSizes << 336 << 191 << 408 ;
+    ui_->splitter->setSizes(vSizes) ;
+    ui_->splitter->show() ;
+
     char* homePath   = getenv ("HOME"      ) ;
     char* finderHome = getenv ("FINDERHOME") ;
     HOME_            = QString(homePath    ) ;
@@ -49,6 +54,8 @@ void MainWindow::initializeCompareFiles(void)
     ui_->rDirTV->setExpanded    (rModel->index(rRootPath_), true) ;
     ui_->lDirTV->setCurrentIndex(lModel->index(lRootPath_)      ) ;
     ui_->rDirTV->setCurrentIndex(rModel->index(rRootPath_)      ) ;
+    ui_->lPanelTE->ensureCursorVisible() ;
+    ui_->rPanelTE->ensureCursorVisible() ;
 
     connect(ui_->lDirTV, SIGNAL(activated(const QModelIndex &))  ,
             this,        SLOT  (selectL  (const QModelIndex &))) ;
@@ -140,11 +147,11 @@ void MainWindow::compareFiles(QString lFileName, QString rFileName)
             this->formatLine(r, rLine) ;
             string ls = l.toStdString();
             string rs = r.toStdString();
-            lcs.Correspondence(ls,rs) ;
-            l = QString(ls.c_str()) ;
-            r = QString(rs.c_str()) ;
-            bf.setBackground(QBrush(QColor(100,100,0)));
-//            cout << __LINE__ << "] " << endl ;
+            lcs.Correspondence(ls,rs)  ;
+            l = QString(ls.c_str())    ;
+            r = QString(rs.c_str())    ;
+            bf.setBackground(QBrush(QColor(255,255,0,90)));
+            cout << __LINE__ << "] " << ls << endl ;
         }
         else if( c == QString("<") )
         {
@@ -153,7 +160,7 @@ void MainWindow::compareFiles(QString lFileName, QString rFileName)
             this->formatLine(r, 0    ) ;
             l = QString("<font color=\"yellow\" wheight=\"bold\">") + l + QString("</font>") ;
             r = QString("<font color=\"cyan\" wheight=\"bold\">"  ) + r + QString("</font>") ;
-            bf.setBackground(QBrush(QColor(75,75,75)));
+            bf.setBackground(QBrush(QColor(0,180,255,50)));
 //            cout << __LINE__ << "] " << endl ;
         }
         else if( c == QString(">") )
@@ -163,7 +170,7 @@ void MainWindow::compareFiles(QString lFileName, QString rFileName)
             this->formatLine(r, rLine) ;
             l = QString("<font color=\"cyan\" wheight=\"bold\">"  ) + l + QString("</font>") ;
             r = QString("<font color=\"yellow\" wheight=\"bold\">") + r + QString("</font>") ;
-            bf.setBackground(QBrush(QColor(50,50,50)));
+            bf.setBackground(QBrush(QColor(255,0,50,50)));
 //            cout << __LINE__ << "] " << endl ;
         }
         else
@@ -314,9 +321,11 @@ void MainWindow::initializeStringFinder(void)
 
     this->readQSettings(QString(""));
 
-    ui_       ->rootPathLE      ->insert        (rootPath_                          ) ;
+    ui_       ->rootPathLE      ->insert        (rootPath_                          );
     ui_       ->matchedFilesTE  ->viewport      (                                   )->installEventFilter(this);
     ui_       ->matchedResultsTE->viewport      (                                   )->installEventFilter(this);
+    ui_       ->lPanelTE        ->viewport      (                                   )->installEventFilter(this);
+    ui_       ->rPanelTE        ->viewport      (                                   )->installEventFilter(this);
     this                        ->setRootPath   (ui_->rootPathLE->text()            );
     this                        ->updateListView(                                   );
     logViewer_                  ->setSizePolicy (QSizePolicy(QSizePolicy::Preferred,
@@ -490,13 +499,14 @@ cout << __LINE__ << "] " << script.toStdString() << " " << arguments.join(QStrin
 void MainWindow::editFile(void)
 {
     QTextCursor textCursor = ui_->matchedResultsTE->textCursor() ;
+    if(textCursor.isNull()) return ;
     int         tc         = textCursor.blockNumber() ;
     QTextBlock  textBlock  = ui_->matchedResultsTE->document()->findBlockByNumber(tc) ;
+    if( textBlock.text() == "") return ;
     QStringList parts      = textBlock.text().split(QRegExp("^\\d+\\]"), QString::SkipEmptyParts);
     QString     candidate  = parts.at(0);
                 candidate  = candidate.replace(QString(" "),QString("")) ;
     int         lineNumber = 0 ;
-
     QFile candidateFile(candidate) ;
     if( candidateFile.exists() )
     {
@@ -506,7 +516,7 @@ void MainWindow::editFile(void)
     {
         QStringList ln  = textBlock.text().split(QRegExp("\\]"), QString::SkipEmptyParts);
         lineNumber      = ln.at(0).toInt() ;
-        for(int pBlockN = tc-1; pBlockN > 0; --pBlockN)
+        for(int pBlockN = tc; pBlockN > 0; --pBlockN)
         {
             textBlock      = ui_->matchedResultsTE->document()->findBlockByNumber(pBlockN-1) ;
             parts          = textBlock.text().split(QRegExp("^\\d+\\]"), QString::SkipEmptyParts);
@@ -520,20 +530,85 @@ void MainWindow::editFile(void)
 }
 
 //===========================================================================
+void MainWindow::mergeFiles(QTextEdit * fTE, QTextEdit * tTE)
+{
+    QTextCursor fCursor = fTE->textCursor();
+    QTextCursor tCursor = tTE->textCursor();
+    if(!fCursor.hasSelection())
+    {
+        cout << __LINE__ << "] No selection available" << endl ;
+        return ;
+    }
+
+    int start = fCursor.selectionStart();
+    int end   = fCursor.selectionEnd  ();
+
+    fCursor.setPosition(start                       );
+    int firstLine = fCursor.blockNumber()            ;
+    fCursor.setPosition(end, QTextCursor::KeepAnchor);
+    int lastLine  = fCursor.blockNumber()            ;
+
+    QString                 fText = fTE->toPlainText()          ;
+    QString                 tText = tTE->toPlainText()          ;
+    QStringList             allF  = QString(fText).split('\n')  ;
+    QStringList             allT  = QString(tText).split('\n')  ;
+    QString                 fline                               ;
+    QRegularExpressionMatch match                               ;
+    QRegularExpression      lineNumber("^\\s+(\\d+)]")          ;
+    stringstream            ss                                  ;
+
+    for (int n = 0; n<allF.size(); ++n)
+    {
+        if( n >= firstLine && n < lastLine )
+        {
+          fline = allF[n] ;
+          fline = fline.replace(QString("<")                     , QString("&lt;"  ));
+          fline = fline.replace(QString(">")                     , QString("&gt;"  ));
+          fline = fline.replace(QRegularExpression("^\\s+\\d*] "), QString(""      ));
+          fline = fline.replace(QString(" ")                     , QString("&nbsp;"));
+          this->formatLine(fline, n+1)                                               ;
+          QTextBlock fTextBlock = fTE->document()->findBlockByLineNumber(n)          ; // Restart always from top
+          QTextBlock tTextBlock = tTE->document()->findBlockByLineNumber(n)          ; // Restart always from top
+
+          fCursor.setPosition(fTextBlock.position())   ;
+          fCursor.clearSelection()                     ;
+          fCursor.select(QTextCursor::LineUnderCursor) ;
+          fCursor.deleteChar()                         ;
+          fCursor.insertHtml(fline)                    ;
+          tCursor.setPosition(tTextBlock.position())   ;
+          tCursor.clearSelection()                     ;
+          tCursor.select(QTextCursor::LineUnderCursor) ;
+          tCursor.deleteChar()                         ;
+          tCursor.insertHtml(fline)                    ;
+          QTextBlockFormat ff = fCursor.blockFormat()  ;
+          QTextBlockFormat tf = tCursor.blockFormat()  ;
+          ff.setBackground(QBrush(QColor(0,255,0,80))) ;
+          tf.setBackground(QBrush(QColor(0,255,0,80))) ;
+          fCursor.setBlockFormat(ff)                   ;
+          tCursor.setBlockFormat(tf)                   ;
+        }
+    }
+}
+
+//===========================================================================
 bool MainWindow::eventFilter(QObject *obj, QEvent * event)
 {
   if      (event->type() == QEvent::Resize && obj == this)
   {
 
   }
-  else if ((obj           == ui_->matchedResultsTE              ||
-            obj           == ui_->matchedResultsTE->viewport()) &&
+  else if (obj           == ui_->matchedResultsTE->viewport() &&
             event->type() == QMouseEvent::MouseButtonDblClick  )
   {
       this->editFile();
   }
-  else if ((obj           == ui_->matchedFilesTE                ||
-            obj           == ui_->matchedFilesTE->viewport())   &&
+  else if ((obj           == ui_->lPanelTE->viewport()  ||
+            obj           == ui_->rPanelTE->viewport()) &&
+            event->type() == QMouseEvent::MouseButtonDblClick  )
+  {
+
+  }
+  else if ( obj           == ui_->matchedFilesTE->viewport()   &&
             event->type() == QMouseEvent::MouseButtonDblClick  )
   {
       QTextCursor textCursor = ui_->matchedFilesTE->textCursor() ;
@@ -580,19 +655,38 @@ bool MainWindow::eventFilter(QObject *obj, QEvent * event)
           newLine++ ;
       }
 
-//      QTextBlock  textBlock  = ui_->matchedResultsTE->document()->findBlockByLineNumber(newLine-1);
-//      QTextCursor textCursor = ui_->matchedResultsTE->textCursor ();
+      textBlock  = ui_->matchedResultsTE->document()->findBlockByLineNumber(0); // Restart always from top
+      textCursor = ui_->matchedResultsTE->textCursor ();
+      textCursor.setPosition (textBlock.position());
+
       textBlock  = ui_->matchedResultsTE->document()->findBlockByLineNumber(newLine-1);
       textCursor = ui_->matchedResultsTE->textCursor ();
       textCursor.setPosition (textBlock.position());
-      selection.cursor = textCursor;
       selection.cursor.clearSelection();
+      selection.cursor = textCursor;
       extraSelections.append(selection);
       ui_->matchedResultsTE->setExtraSelections(extraSelections);
-      if(newLine>2) for(int i=0; i<11; ++i ) textCursor.movePosition(QTextCursor::Down) ;
+//      cout << __LINE__ << "] " << endl << endl ;
+//      cout << __LINE__ << "] lineNumber       : " << newLine-1                       << endl ;
+//      cout << __LINE__ << "] blockNumber      : " << textCursor.blockNumber()        << endl ;
+//      cout << __LINE__ << "] position         : " << textCursor.position()           << endl ;
+//      cout << __LINE__ << "] position in block: " << textCursor.positionInBlock()    << endl ;
+//      cout << __LINE__ << "] selectionStart   : " << textCursor.selectionStart()     << endl ;
+//      cout << __LINE__ << "] selectionEnd     : " << textCursor.selectionEnd()       << endl ;
+//      cout << __LINE__ << "] height           : " << ui_->matchedResultsTE->height() << endl ;
+      int nLinesBack = ui_->matchedResultsTE->height() / 17 - 2 ;
+//      cout << __LINE__ << "] back             : " << nLinesBack                      << endl ;
+
+      if(newLine>2) for(int i=0; i<nLinesBack; ++i ) textCursor.movePosition(QTextCursor::Down) ;
       ui_->matchedResultsTE->setTextCursor(textCursor);
-    }
-    return QWidget::eventFilter(obj, event);
+//      cout << __LINE__ << "] " << endl ;
+//      cout << __LINE__ << "] blockNumber      : " << textCursor.blockNumber()     << endl ;
+//      cout << __LINE__ << "] position         : " << textCursor.position()        << endl ;
+//      cout << __LINE__ << "] position in block: " << textCursor.positionInBlock() << endl ;
+//      cout << __LINE__ << "] selectionStart   : " << textCursor.selectionStart()  << endl ;
+//      cout << __LINE__ << "] selectionEnd     : " << textCursor.selectionEnd()    << endl ;
+  }
+  return QWidget::eventFilter(obj, event);
 }
 
 //===========================================================================
@@ -683,6 +777,8 @@ void MainWindow::on_findPB_clicked()
     QStringList   arguments                                                               ;
     QString       parts    = "\""                                                         ;
     QProcess    * process  = new QProcess(this)                                           ;
+
+    QApplication::setOverrideCursor(Qt::WaitCursor) ;
 
     arguments << QString("--html") ;
     arguments << QString("--ps") ;
@@ -794,6 +890,7 @@ void MainWindow::on_findPB_clicked()
     QString cmd = QString(ss.str().c_str()) ;
     cmd.replace(QRegExp("--html"),"") ;
     ui_->commandLineTE->setText(cmd) ;
+
     cout << __LINE__ << "] " << ss.str() << endl ;
 
     process->waitForFinished() ;
@@ -876,6 +973,7 @@ void MainWindow::dispatchResults(QString & results, QString & errors)
         if (match.hasMatch()) {ui_->totalStringMatchesFoundLE->setText(match.captured(1));}
 
     }
+    QApplication::restoreOverrideCursor() ;
 }
 
 //===========================================================================
@@ -946,10 +1044,11 @@ void MainWindow::enableLogicCB(QComboBox * theCombo, QTextEdit * theTextEdit)
 //===========================================================================
 void MainWindow::on_addSettingsPB_clicked()
 {
+    if( ui_->settingsLE->text() == "" ) return ;
     int lastOne = ui_->settingsCB->count() ;
     for(int i=0; i<lastOne; ++i)
     {
-        cout << __LINE__ << "] [finder] item: " << i << " " << ui_->settingsCB->itemData(i).toString().toStdString() << endl ;
+//        cout << __LINE__ << "] [finder] item: " << i << " " << ui_->settingsCB->itemData(i).toString().toStdString() << endl ;
         if( ui_->settingsCB->itemData(i).toString() == ui_->settingsLE->text() )
         {
             ui_->settingsLE->clear() ;
@@ -1030,4 +1129,59 @@ void MainWindow::on_editPB_clicked()
     this->startEditorProcess(ui_->lSelectedLE->text(),1);
     sleep(1) ;
     this->startEditorProcess(ui_->rSelectedLE->text(),1);
+}
+
+//===========================================================================
+void MainWindow::on_deleteSettingsPB_clicked()
+{
+    ui_->settingsCB->removeItem(ui_->settingsCB->currentIndex()) ;
+}
+
+//===========================================================================
+void MainWindow::on_toRightCB_clicked()
+{
+    this->mergeFiles(ui_->lPanelTE, ui_->rPanelTE) ;
+}
+
+//===========================================================================
+void MainWindow::on_toLeftCB_clicked()
+{
+    this->mergeFiles(ui_->rPanelTE, ui_->lPanelTE) ;
+}
+
+//===========================================================================
+void MainWindow::on_lSavePB_clicked()
+{
+    this->saveToFile(ui_->lPanelTE) ;
+}
+
+//===========================================================================
+void MainWindow::on_rSavePB_clicked()
+{
+    this->saveToFile(ui_->rPanelTE) ;
+}
+//===========================================================================
+void MainWindow::saveToFile(QTextEdit * te)
+{
+    QString text = te->toPlainText() ;
+    text.replace(QRegularExpression("\n\\s+\\d+] "),QString("\n")) ;
+    text.replace(QRegularExpression("\\s+1] "     ),QString(""  )) ;
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    tr("Save File")         ,
+                                                    ui_->lSelectedLE->text(),
+                                                    tr("ASCII (*)"));
+    if(fileName.isEmpty()) return ;
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        cout << __LINE__ << "] Could not open output file!... " << endl ;
+        return;
+    }
+
+    QTextStream out(&file);
+    text = text.replace(QRegularExpression("\\s+\n"),QString("\n")) ;
+    out << text ;
+    file.close() ;
+    statusBar()->showMessage(tr("File saved"));
 }

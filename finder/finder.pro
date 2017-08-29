@@ -30,8 +30,10 @@ SOURCES  +=                  \
 
 HEADERS  +=                  \
             mainwindow.h     \
-            filelistmodel.h \
-    marker.h
+            filelistmodel.h  \
+            marker.h
 
 FORMS    +=                  \
             mainwindow.ui
+
+message("[1;33mSetting up Makefile for finder[0;0m")

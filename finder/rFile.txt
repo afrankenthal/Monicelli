@@ -29,7 +29,7 @@ MainWindow::~mainwindow()
 void MainWindow::initializeCompareFiles(void)
 {
     QString rootPath = "/Users/menasce/AnalysisTBF/" ;
-    QDir    sourceDir(rootPath) ;
+    QDir       sourceDir(rootPath) ;
 //    fileModel_["left" ] = new QFileSystemModel() ;
 //    fileModel_["right"] = new QFileSystemModel() ;
 

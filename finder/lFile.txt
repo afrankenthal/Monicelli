@@ -29,8 +29,8 @@ MainWindow::~MainWindow()
 //==================================================================
 void MainWindow::initializeCompareFiles(void)
 {
-    delete ui_;
-    QString rootPath = "/Users/menasce/AnalysisTBF/" ;
+    delete ui_; // sto cazzo
+    QString rootPath =    "/Users/menasce/AnalysisTBF/" ;
     QDir    sourceDir(rootPath) ;
 //    fileModel_["left" ] = new QFileSystemModel() ;
 //    fileModel_["right"] = new QFileSystemModel() ;

@@ -17,9 +17,11 @@
 #include <QComboBox>
 #include <QProcess>
 #include <QListWidgetItem>
+#include <QList>
 #include <QSettings>
 #include <QEvent>
 #include <QTextBlock>
+#include <QTextStream>
 #include <QScrollBar>
 #include <QMenu>
 #include <QStringList>
@@ -29,6 +31,8 @@
 #include <QPalette>
 #include <QColor>
 #include <QColorDialog>
+#include <QSplitter>
+#include <QFileDialog>
 
 #include "filelistmodel.h" 
 #include "marker.h"
@@ -64,6 +68,9 @@ private:
                                                    QString       rFile      );
     void     formatLine                     (      QString     & line      ,
                                                    int           lineNumber );
+    void     mergeFiles                     (      QTextEdit   * fTE       ,
+                                                   QTextEdit   * tTE        );
+    void     saveToFile                     (      QTextEdit   * te         );
 
 protected:
     void     closeEvent                     (      QCloseEvent * event      );
@@ -101,6 +108,11 @@ private slots:
     void     on_synchronizeCB_clicked       (      bool          checked    );
     void     on_comparePB_clicked           (void                           );
     void     on_editPB_clicked              (void                           );
+    void     on_deleteSettingsPB_clicked    (void                          );
+    void     on_toRightCB_clicked           (void                          );
+    void     on_toLeftCB_clicked            (void                          );
+    void     on_lSavePB_clicked             (void                          );
+    void     on_rSavePB_clicked             ();
 
 private:
     typedef map<string , QFileSystemModel *> fileModelDef  ;
