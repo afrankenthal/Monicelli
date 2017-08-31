@@ -209,6 +209,9 @@ LIBS                += -L$(QTDIR)                                               
                        
 INSTALLS            += target sources
 
+mkdirtmp.target = $$OUT_PWD/tmp
+mkdirtmp.commands = $(MKDIR) $$OUT_PWD/tmp
+
 header.depends       = include/EventHeader.h
 
 header.target        = tmp/EventHeaderDict.C
@@ -229,7 +232,8 @@ contains(ROOTVERSION, "FIVE") {
                        cp tmp/*.pcm .                                           
 }
 
-trees.depends        = include/Event.h                        		   	     	   \
+trees.depends        = mkdirtmp                                                            \
+                       include/Event.h                        		   	     	   \
                        include/Geometry.h                     		   	     	   \
                        include/Detector.h                     		   	     	   \
                        include/ROC.h
@@ -237,7 +241,7 @@ trees.depends        = include/Event.h                        		   	     	   \
 trees.target         = tmp/EventDict.C
 
 contains(ROOTVERSION, "FIVE") {
- trees.commands      = @echo "'[1;33m------ ROOT5 full dictionary -[0;0m'" &&    \
+ trees.commands      = @echo "'[1;33m------ ROOT5 full dictionary -[0;0m'" &&          \
                        rootcint -f tmp/EventDict.C               	      		   \
                                 -c include/Event.h+              	      		   \
                                    include/Geometry.h+           	      		   \
@@ -253,6 +257,7 @@ contains(ROOTVERSION, "FIVE") {
                                    cp tmp/*.pcm .
 }
 
+QMAKE_EXTRA_TARGETS += mkdirtmp
 QMAKE_EXTRA_TARGETS += trees
 QMAKE_EXTRA_TARGETS += header
 
@@ -296,4 +301,5 @@ extraclean.commands  = rm -rf Makefile                           			   \
                        MakefileExpress
 
 distclean.depends    = extraclean
-QMAKE_EXTRA_TARGETS += distclean extraclean
+
+QMAKE_EXTRA_TARGETS += distclean extraclean 
