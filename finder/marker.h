@@ -155,7 +155,7 @@ class LCS
     bool atL = false ;
     bool atH = false ;
     bool atB = false ;
-    
+
     for(size_t c=0; c<s1.size(); ++c)
     {
      atL = false ;

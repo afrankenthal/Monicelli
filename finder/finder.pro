@@ -31,7 +31,9 @@ SOURCES  +=                  \
 HEADERS  +=                  \
             mainwindow.h     \
             filelistmodel.h  \
-            marker.h
+            marker.h \
+    ANSIColors.h \
+    MessageTools.h
 
 FORMS    +=                  \
             mainwindow.ui

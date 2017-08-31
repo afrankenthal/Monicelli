@@ -17,6 +17,7 @@ MainWindow::MainWindow (QWidget *parent   ) :
     HOME_            = QString(homePath    ) ;
     FINDERHOME_      = QString(finderHome  ) ;
     qsettingPath_    = HOME_ + QString("/.config/finder/");
+    finderProcess_   = NULL ;
 
     if( FINDERHOME_.isEmpty())
     {
@@ -91,12 +92,14 @@ void MainWindow::compareFiles(QString lFileName, QString rFileName)
     QString       command     = "diff"        ;
     QStringList   arguments                   ;
 
-    if( ui_->ignoreCaseCB  ->isChecked() ) arguments << "-i -B" ;
+    if( ui_->ignoreCaseCB  ->isChecked() ) arguments << "-i" << "-B" ;
     if( ui_->ignoreBlanksCB->isChecked() ) arguments << "-b" ;
-     arguments << "-t" << "-y" << "-W" << "270" << lFileName << rFileName ;
+    arguments << "-t" << "-y" << "-W" << "270" << lFileName << rFileName ;
     diffProcess->start(command,arguments) ;
     diffProcess->waitForFinished (3000)   ;
     diffProcess->waitForReadyRead(3000)   ;
+
+    cout << __LINE__ << "] diff " << arguments.join(QString(" ")).toStdString() << endl ;
 
     QByteArray  result = diffProcess->readAllStandardOutput();
     QByteArray  error  = diffProcess->readAllStandardError ();
@@ -143,15 +146,15 @@ void MainWindow::compareFiles(QString lFileName, QString rFileName)
         if(      c == QString("|") )
         {
             lLine++; rLine++ ;
-            this->formatLine(l, lLine) ;
-            this->formatLine(r, rLine) ;
+
             string ls = l.toStdString();
             string rs = r.toStdString();
             lcs.Correspondence(ls,rs)  ;
             l = QString(ls.c_str())    ;
             r = QString(rs.c_str())    ;
+            this->formatLine(l, lLine) ;
+            this->formatLine(r, rLine) ;
             bf.setBackground(QBrush(QColor(255,255,0,90)));
-            cout << __LINE__ << "] " << ls << endl ;
         }
         else if( c == QString("<") )
         {
@@ -161,7 +164,6 @@ void MainWindow::compareFiles(QString lFileName, QString rFileName)
             l = QString("<font color=\"yellow\" wheight=\"bold\">") + l + QString("</font>") ;
             r = QString("<font color=\"cyan\" wheight=\"bold\">"  ) + r + QString("</font>") ;
             bf.setBackground(QBrush(QColor(0,180,255,50)));
-//            cout << __LINE__ << "] " << endl ;
         }
         else if( c == QString(">") )
         {
@@ -171,7 +173,6 @@ void MainWindow::compareFiles(QString lFileName, QString rFileName)
             l = QString("<font color=\"cyan\" wheight=\"bold\">"  ) + l + QString("</font>") ;
             r = QString("<font color=\"yellow\" wheight=\"bold\">") + r + QString("</font>") ;
             bf.setBackground(QBrush(QColor(255,0,50,50)));
-//            cout << __LINE__ << "] " << endl ;
         }
         else
         {
@@ -182,10 +183,8 @@ void MainWindow::compareFiles(QString lFileName, QString rFileName)
             l = QString("<font wheight=\"bold\">")                  + l + QString("</font>") ;
             r = QString("<font wheight=\"bold\">")                  + r + QString("</font>") ;
             bf.setBackground(QBrush(QColor(0,0,0)));
-//            cout << __LINE__ << "] " << endl ;
         }
-//        cout << __LINE__ << "] l " << lLine << " " << l.toStdString() << endl ;
-//        cout << __LINE__ << "] r " << rLine << " " << r.toStdString() << endl ;
+
         ui_->lPanelTE->textCursor().setBlockFormat(bf);
         ui_->rPanelTE->textCursor().setBlockFormat(bf);
         ui_->lPanelTE->textCursor().insertHtml(l);
@@ -1179,4 +1178,43 @@ void MainWindow::saveToFile(QTextEdit * te, QLineEdit * le)
     out << text ;
     file.close() ;
     statusBar()->showMessage(tr("File saved"));
+}
+
+//===========================================================================
+void MainWindow::on_louvrePB_clicked()
+{
+    STDLINE("",ACWhite) ;
+    QProcess    psProcess ;
+    QStringList arguments ;
+    arguments << " " << "-a" ;
+    psProcess.start(QString("/bin/ps"));
+    STDLINE(psProcess.program().toStdString() + arguments.join(QString("")).toStdString(),ACYellow) ;
+
+    if (psProcess.waitForStarted(100000) == false)
+    {
+        STDLINE("Error starting ps process",ACRed) ;
+        STDLINE(psProcess.errorString().toStdString(),ACRed) ;
+        return;
+    }
+
+    psProcess.waitForFinished (100000) ;
+    psProcess.waitForReadyRead(100000);
+
+    QString                 result = psProcess.readAllStandardOutput() ;
+    QRegularExpression      regexFind("\n\\s*(\\d+)\\s+(.+)?Louvre"  ) ;
+    QRegularExpressionMatch match ;
+
+    match  = regexFind.match(result);
+    if (match.hasMatch())
+    {
+      STDLINE("Louvre is already running... ",ACCyan) ;
+    }
+    else
+    {
+        char * MONICELLIDIR = getenv("MonicelliDir") ;
+        ss_.str("") ; ss_ << MONICELLIDIR << "/Louvre/Louvre" ;
+        if( finderProcess_ ) delete finderProcess_ ;
+        finderProcess_ = new QProcess() ;
+        finderProcess_->start(QString(ss_.str().c_str())) ;
+    }
 }

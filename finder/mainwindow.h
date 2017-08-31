@@ -35,6 +35,7 @@
 #include <QFileDialog>
 
 #include "filelistmodel.h" 
+#include "MessageTools.h"
 #include "marker.h"
 
 namespace Ui 
@@ -115,6 +116,8 @@ private slots:
     void     on_lSavePB_clicked             (void                          );
     void     on_rSavePB_clicked             ();
 
+    void on_louvrePB_clicked();
+
 private:
     typedef map<string , QFileSystemModel *> fileModelDef  ;
     typedef map<QString, QProcess         *> processMapDef ;
@@ -136,6 +139,8 @@ private:
     QTimer         * editorTimer_      ;
     QString          lRootPath_        ;
     QString          rRootPath_        ;
+    stringstream     ss_               ;
+    QProcess       * finderProcess_    ;
 };
 
 #endif // MAINWINDOW_H

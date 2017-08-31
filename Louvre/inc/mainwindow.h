@@ -139,6 +139,7 @@ private:     // method members
     int                             chekColumn_                            ;
     int                             numColumns_                            ;
     QProcess                      * batchProcess_                          ;
+    QProcess                      * finderProcess_                         ;
     int                             counts_                                ;
     stringstream                    ss_                                    ;
     bool                            firstPopulate_                         ;

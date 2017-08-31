@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     scaleFactor_   = 3    ;
     batchProcess_  = NULL ;
+    finderProcess_ = NULL ;
     firstPopulate_ = true ;
 
     char * LOUVREHOME = getenv("LOUVREHOME") ;
@@ -1464,20 +1465,20 @@ void MainWindow::on_finderPB_clicked()
    psProcess.waitForReadyRead(100000);
 
    QString                 result = psProcess.readAllStandardOutput() ;
-   QString                 errors = psProcess.readAllStandardError () ;
    QRegularExpression      regexFind("\n\\s*(\\d+)\\s+(.+)?finder"    ) ;
    QRegularExpressionMatch match ;
 
    match  = regexFind.match(result);
    if (match.hasMatch())
    {
-     cout << __LINE__ << "] finder is already running " << match.captured(1).toStdString() << endl ;
+     STDLINE("finder is already running... ",ACCyan) ;
    }
    else
    {
        char * MONICELLIDIR = getenv("MonicelliDir") ;
        ss_.str("") ; ss_ << MONICELLIDIR << "/finder/finder" ;
-       QProcess fProcess ;
-       fProcess.start(QString(ss_.str().c_str())) ;
+       if( finderProcess_ ) delete finderProcess_ ;
+       finderProcess_ = new QProcess() ;
+       finderProcess_->start(QString(ss_.str().c_str())) ;
    }
 }
