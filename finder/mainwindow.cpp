@@ -549,13 +549,8 @@ void MainWindow::mergeFiles(QTextEdit * fTE, QTextEdit * tTE)
     int lastLine  = fCursor.blockNumber()            ;
 
     QString                 fText = fTE->toPlainText()          ;
-    QString                 tText = tTE->toPlainText()          ;
     QStringList             allF  = QString(fText).split('\n')  ;
-    QStringList             allT  = QString(tText).split('\n')  ;
     QString                 fline                               ;
-    QRegularExpressionMatch match                               ;
-    QRegularExpression      lineNumber("^\\s+(\\d+)]")          ;
-    stringstream            ss                                  ;
 
     for (int n = 0; n<allF.size(); ++n)
     {
@@ -1152,23 +1147,23 @@ void MainWindow::on_toLeftCB_clicked()
 //===========================================================================
 void MainWindow::on_lSavePB_clicked()
 {
-    this->saveToFile(ui_->lPanelTE) ;
+    this->saveToFile(ui_->lPanelTE,ui_->lSelectedLE) ;
 }
 
 //===========================================================================
 void MainWindow::on_rSavePB_clicked()
 {
-    this->saveToFile(ui_->rPanelTE) ;
+    this->saveToFile(ui_->rPanelTE,ui_->rSelectedLE) ;
 }
 //===========================================================================
-void MainWindow::saveToFile(QTextEdit * te)
+void MainWindow::saveToFile(QTextEdit * te, QLineEdit * le)
 {
     QString text = te->toPlainText() ;
-    text.replace(QRegularExpression("\n\\s+\\d+] "),QString("\n")) ;
-    text.replace(QRegularExpression("\\s+1] "     ),QString(""  )) ;
-    QString fileName = QFileDialog::getSaveFileName(this,
-                                                    tr("Save File")         ,
-                                                    ui_->lSelectedLE->text(),
+    text.replace(QRegularExpression("\n\\s+\\d+] "),QString("\n"))  ;
+    text.replace(QRegularExpression("\\s+1] "     ),QString(""  ))  ;
+    QString fileName = QFileDialog::getSaveFileName(this            ,
+                                                    tr("Save File") ,
+                                                    le->text(),
                                                     tr("ASCII (*)"));
     if(fileName.isEmpty()) return ;
 

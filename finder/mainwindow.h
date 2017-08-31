@@ -70,7 +70,8 @@ private:
                                                    int           lineNumber );
     void     mergeFiles                     (      QTextEdit   * fTE       ,
                                                    QTextEdit   * tTE        );
-    void     saveToFile                     (      QTextEdit   * te         );
+    void     saveToFile                     (      QTextEdit   * te        ,
+                                                   QLineEdit   * le         );
 
 protected:
     void     closeEvent                     (      QCloseEvent * event      );
