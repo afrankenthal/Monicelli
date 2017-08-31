@@ -1,0 +1,7 @@
+export MAGICK_HOME=/Applications/ImageMagick-7.0.1
+export PATH=$MAGICK_HOME/bin:$PATH
+export DYLD_LIBRARY_PATH=$MAGICK_HOME/lib
+
+alias  identify=$MAGICK_HOME/bin/identify 
+
+identify -verbose "$1"
