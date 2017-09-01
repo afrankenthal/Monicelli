@@ -90,6 +90,14 @@ if(${HOSTNAME} == "MAC") then
   setenv XERCESCINC		   /usr/local/include
   setenv XERCESCLIB		   /usr/local/lib
   
+  #===== Location of the FINDER components
+  setenv FINDERHOME		   "${MonicelliDir}/finder"
+  setenv FINDER                    "${FINDERHOME}/finder.app/Contents/MacOS/finder"
+  
+  #===== Location of the FINDER components
+  setenv LOUVREHOME		   "${MonicelliDir}/Louvre"
+  setenv LOUVRE   		   "${LOUVREHOME}/Louvre.app/Contents/MacOS/Louvre"
+  
   #===== C++ flags
   setenv CPLUSPLUSFLAGS            "-std=c++11"
 
@@ -97,7 +105,9 @@ if(${HOSTNAME} == "MAC") then
 
   alias  qt                        "${QTCREATORDIR}"
   alias  assistant                 "${QTASSISTANTDIR}/Assistant"
-    
+  alias  finder                    "${FINDER}"
+  alias  Louvre                    "${LOUVRE}"
+      
 endif
 #===============   Personalized configuration on this computer   ==============================================
 if(${HOSTNAME} == "hal9000.mib.infn.it") then
@@ -149,13 +159,20 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
   
   #===== Location of the FINDER components
   setenv FINDERHOME		   ${MonicelliDir}/finder
+  setenv FINDER   		   ${FINDERHOME}/finder
   
+  #===== Location of the FINDER components
+  setenv LOUVREHOME		   ${MonicelliDir}/Louvre
+  setenv LOUVRE 		   ${LOUVREHOME}/Louvre
+
   #===== C++ flags
   setenv CPLUSPLUSFLAGS            "-std=c++11"
 
   setenv LD_LIBRARY_PATH	   
   
-  unalias qtcreator
+  alias  qt                        qtcreator
+  alias  finder                    "${FINDER}"
+  alias  Louvre                    "${LOUVRE}"
     
 endif
 #===============   Personalized configuration on this computer   ==============================================
@@ -197,18 +214,25 @@ if(${HOSTNAME} == "cip.mib.infn.it") then
   setenv XERCESCINC		   /opt/local/xerces/include
   setenv XERCESCLIB		   /opt/local/xerces/lib
   
+  #===== Location of the FINDER components
+  setenv FINDERHOME		   ${MonicelliDir}/finder
+  setenv FINDER   		   ${FINDERHOME}/finder
+  
+  #===== Location of the FINDER components
+  setenv LOUVREHOME		   ${MonicelliDir}/Louvre
+  setenv LOUVRE 		   ${LOUVREHOME}/Louvre
+
   #===== C++ flags
   setenv CPLUSPLUSFLAGS            "-std=c++11"
 
   setenv LD_LIBRARY_PATH	   
   
-  unalias qtcreator
+  alias  qt                        qtcreator
+  alias  finder                    "${FINDER}"
+  alias  Louvre                    "${LOUVRE}"
     
 endif
 
 #===== Final PATH definitions
-setenv PATH	       ${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}
-setenv LD_LIBRARY_PATH ${ROOTLIB}:${BOOSTLIB}:${QTDIR}/lib64:${QTCREATORDIR}:${XERCESCLIB}/:${MonicelliDir}/plugins/libs/:${MonicelliDir}/test/customWidgets/libs:${LD_LIBRARY_PATH}
-
-alias qt qtcreator
-#/user/service/QtCreator-4.3.0/bin:/usr/sue/sbin:/usr/sue/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/printmi/bin:/usr/bin:/root/bin
+setenv PATH	       "${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}"
+setenv LD_LIBRARY_PATH "${ROOTLIB}:${BOOSTLIB}:${QTDIR}/lib64:${QTCREATORDIR}:${XERCESCLIB}/:${MonicelliDir}/plugins/libs/:${MonicelliDir}/test/customWidgets/libs:${LD_LIBRARY_PATH}"

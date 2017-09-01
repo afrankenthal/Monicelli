@@ -99,7 +99,7 @@ void MainWindow::compareFiles(QString lFileName, QString rFileName)
     diffProcess->waitForFinished (3000)   ;
     diffProcess->waitForReadyRead(3000)   ;
 
-    cout << __LINE__ << "] diff " << arguments.join(QString(" ")).toStdString() << endl ;
+    ui_->commandLineTE->setText(QString("diff ")+arguments.join(QString(" ")));
 
     QByteArray  result = diffProcess->readAllStandardOutput();
     QByteArray  error  = diffProcess->readAllStandardError ();
@@ -1183,7 +1183,6 @@ void MainWindow::saveToFile(QTextEdit * te, QLineEdit * le)
 //===========================================================================
 void MainWindow::on_louvrePB_clicked()
 {
-    STDLINE("",ACWhite) ;
     QProcess    psProcess ;
     QStringList arguments ;
     arguments << " " << "-a" ;
@@ -1197,22 +1196,24 @@ void MainWindow::on_louvrePB_clicked()
         return;
     }
 
-    psProcess.waitForFinished (100000) ;
+    psProcess.waitForFinished (100000);
     psProcess.waitForReadyRead(100000);
 
     QString                 result = psProcess.readAllStandardOutput() ;
-    QRegularExpression      regexFind("\n\\s*(\\d+)\\s+(.+)?Louvre"  ) ;
+    QRegularExpression      regexFind("\n\\s*(\\d+)(.+)?Louvre$"     ) ;
     QRegularExpressionMatch match ;
+
+    cout << __LINE__ << "] " << result.toStdString() << endl ;
 
     match  = regexFind.match(result);
     if (match.hasMatch())
     {
-      STDLINE("Louvre is already running... ",ACCyan) ;
+        STDLINE("Louvre is already running... ",ACCyan) ;
     }
     else
     {
-        char * MONICELLIDIR = getenv("MonicelliDir") ;
-        ss_.str("") ; ss_ << MONICELLIDIR << "/Louvre/Louvre" ;
+        char * LOUVRE = getenv("LOUVRE") ;
+        ss_.str("") ; ss_ << LOUVRE  ;
         if( finderProcess_ ) delete finderProcess_ ;
         finderProcess_ = new QProcess() ;
         finderProcess_->start(QString(ss_.str().c_str())) ;

@@ -209,8 +209,8 @@ LIBS                += -L$(QTDIR)                                               
                        
 INSTALLS            += target sources
 
-mkdirtmp.target = $$OUT_PWD/tmp
-mkdirtmp.commands = $(MKDIR) $$OUT_PWD/tmp
+mkdirtmp.target      = $$OUT_PWD/tmp
+mkdirtmp.commands    = $(MKDIR) $$OUT_PWD/tmp
 
 header.depends       = include/EventHeader.h
 
