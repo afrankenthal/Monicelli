@@ -328,7 +328,7 @@
       </column>
       <column>
        <property name="text">
-        <string> </string>
+        <string/>
        </property>
       </column>
       <column>
@@ -422,7 +422,7 @@
       </column>
       <column>
        <property name="text">
-        <string> </string>
+        <string/>
        </property>
       </column>
       <column>
@@ -848,6 +848,9 @@ all</string>
       <property name="text">
        <string>Synch sliders</string>
       </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
      </widget>
      <widget class="QCheckBox" name="abortComparisonCB">
       <property name="geometry">
@@ -958,7 +961,7 @@ order</string>
      <widget class="QPushButton" name="finderPB">
       <property name="geometry">
        <rect>
-        <x>740</x>
+        <x>774</x>
         <y>0</y>
         <width>59</width>
         <height>19</height>
@@ -972,6 +975,25 @@ order</string>
       </property>
       <property name="text">
        <string>Finder</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="scrollToPB">
+      <property name="geometry">
+       <rect>
+        <x>692</x>
+        <y>0</y>
+        <width>71</width>
+        <height>19</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Scroll to</string>
       </property>
      </widget>
     </widget>

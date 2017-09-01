@@ -121,7 +121,6 @@ void MainWindow::populateTreeView(QString target)
     statusBar()->showMessage(tr("Begin populating view"));
 
     QString rootPath = "/" ;
-//    QDir    sourceDir(rootPath) ;
 
     model_[target]->setRootPath(rootPath);
     model_[target]->setFilter(QDir::Files         |
@@ -145,11 +144,13 @@ void MainWindow::populateTreeView(QString target)
             if( i < list.size()-2) tmpPath += QString("/") ;
         }
         quadrant_[target].first->scrollTo       (model_[target]->index(tmpPath), QAbstractItemView::PositionAtCenter) ;
+        quadrant_[target].first->scrollTo       (model_[target]->index("/raid1/menasce/AnalysisTBF/Monicelli"), QAbstractItemView::PositionAtCenter) ;
         quadrant_[target].first->setExpanded    (model_[target]->index(tmpPath), true                               ) ;
         quadrant_[target].first->setCurrentIndex(model_[target]->index(tmpPath)                                     ) ;
     }
 
     statusBar()->showMessage(tr("View populated"));
+    this->on_scrollToPB_clicked() ;
 //    firstPopulate_ = false ;
 }
 //=========================================================================================
@@ -171,7 +172,9 @@ void MainWindow::targetFolder(const QModelIndex & targetFolder,
     if(targetFolder.column() > 0 )
     {
         STDLINE("[WARNING] To select a folder, click in the 'Name' column",ACWhite) ;
-        STDLINE(targetFolder.row(),ACCyan) ;
+//        STDLINE(targetFolder.row(),ACCyan) ;
+//        STDLINE(targetFolder.data().toString().toStdString(),ACCyan) ;
+//        QAbstractItemModel * m = targetFolder.model() ;
         return ;
     }
     differencesAnalyzed_ = false ;
@@ -301,6 +304,7 @@ void MainWindow::targetFolder(const QModelIndex & targetFolder,
         diffTable_[target].first->item   (indx,sizeColumn_)->setTextAlignment(Qt::AlignRight);
         diffTable_[target].first->item   (indx,dirsColumn_)->setTextAlignment(Qt::AlignRight);
         diffTable_[target].first->item   (indx,fileColumn_)->setTextAlignment(Qt::AlignRight);
+        diffTable_[target].first->item   (indx,timeColumn_)->setTextAlignment(Qt::AlignRight);
 //        diffTable_[target].first->item   (indx,sizeColumn_)->setFont(sizeFont);
         diffTable_[target].first->item   (indx,timeColumn_)->setFont(timeFont);
 
@@ -382,7 +386,7 @@ void MainWindow::analizeDifferences(bool ignoreDiffs)
 
     QString s = listS[listS.size()-2] ;
     QString d = listD[listD.size()-2] ;
-STDLINE(ignoreDiffs,ACRed) ;
+
     if( (s != d) && !ignoreDiffs )
     {
         QMessageBox msgBox;
@@ -449,6 +453,9 @@ STDLINE(ignoreDiffs,ACRed) ;
     vector<string>::iterator itd;
     int row = 0 ;
 
+    QFont timeFont("Courier",  9, QFont::Bold);
+    QFont sizeFont("Courier", 10, QFont::Bold);
+
     for (itu=unionSet.begin(); itu!=unionSet.end(); ++itu)
     {
         QTableWidgetItem * newSFileItem = new QTableWidgetItem() ;
@@ -480,8 +487,6 @@ STDLINE(ignoreDiffs,ACRed) ;
             diffTable_["destination"].first->setItem(row,nameColumn_, newDFileItem);
             diffTable_["destination"].first->setItem(row,sizeColumn_, newDSizeItem);
             diffTable_["destination"].first->setItem(row,timeColumn_, newDTimeItem);
-            diffTable_["source"     ].first->item   (row,sizeColumn_              )->setTextAlignment(Qt::AlignRight);
-            diffTable_["destination"].first->item   (row,sizeColumn_              )->setTextAlignment(Qt::AlignRight);
             if( fileSSizes[indexS] != fileDSizes[indexD])
             {
                 diffSizes++ ;
@@ -577,6 +582,16 @@ STDLINE(ignoreDiffs,ACRed) ;
             ui_->sourceTW->setItem(row,moveColumn_,iconItem);
             noMatchReason_ = "differentSizes" ;
         }
+
+        diffTable_["source"     ].first->item   (row,sizeColumn_              )->setTextAlignment(Qt::AlignRight);
+        diffTable_["destination"].first->item   (row,sizeColumn_              )->setTextAlignment(Qt::AlignRight);
+        diffTable_["source"     ].first->item   (row,timeColumn_              )->setTextAlignment(Qt::AlignRight);
+        diffTable_["destination"].first->item   (row,timeColumn_              )->setTextAlignment(Qt::AlignRight);
+        diffTable_["source"     ].first->item   (row,timeColumn_              )->setFont         (timeFont      );
+        diffTable_["destination"].first->item   (row,timeColumn_              )->setFont         (timeFont      );
+        diffTable_["source"     ].first->item   (row,sizeColumn_              )->setFont         (sizeFont      );
+        diffTable_["destination"].first->item   (row,sizeColumn_              )->setFont         (sizeFont      );
+
         QString tmpPathS = ui_->sourceLE     ->text() +
                            ui_->sourceTW     ->item(row,nameColumn_)->text() ;
         QString tmpPathD = ui_->destinationLE->text() +
@@ -1082,8 +1097,6 @@ void MainWindow::on_drillDownPB_clicked(QString target)
     }
     diffTable_[target].first->item(rows-1, nameColumn_)->setBackgroundColor(QColor::fromRgb(255,255,255)) ;
     diffTable_[target].first->scrollToTop() ;
-    diffTable_["source"     ].first->scrollToTop() ;
-    diffTable_["destination"].first->scrollToTop() ;
     fileNamesForTarget_[target] = fileNamesForPath_ ;
 
 }
@@ -1456,7 +1469,7 @@ void MainWindow::on_finderPB_clicked()
    psProcess.waitForReadyRead(100000);
 
    QString                 result = psProcess.readAllStandardOutput() ;
-   QRegularExpression      regexFind("\n\\s*(\\d+)(.+)?finder" ) ;
+   QRegularExpression      regexFind("\n\\s*(\\d+)(.+)?finder\n" ) ;
    QRegularExpressionMatch match ;
 
    cout << __LINE__ << "] " << result.toStdString() << endl ;
@@ -1472,6 +1485,15 @@ void MainWindow::on_finderPB_clicked()
        ss_.str("") ; ss_ << FINDER ;
        if( finderProcess_ ) delete finderProcess_ ;
        finderProcess_ = new QProcess() ;
+       STDLINE(ss_.str(),ACWhite) ;
        finderProcess_->start(QString(ss_.str().c_str())) ;
    }
+}
+//=========================================================================================
+void MainWindow::on_scrollToPB_clicked()
+{
+    quadrant_["source"     ].first->scrollTo(model_["source"     ]->index(lastExpandedFolder_["source"     ]), QAbstractItemView::PositionAtCenter);
+    quadrant_["destination"].first->scrollTo(model_["destination"]->index(lastExpandedFolder_["destination"]), QAbstractItemView::PositionAtCenter);
+    targetFolder(model_["source"     ]->index(lastExpandedFolder_["source"     ]),"source"     ) ;
+    targetFolder(model_["destination"]->index(lastExpandedFolder_["destination"]),"destination") ;
 }

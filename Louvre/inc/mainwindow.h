@@ -79,8 +79,8 @@ class MainWindow : public QMainWindow
     void     targetSFolder                    (const QModelIndex &          ) ;
     void     targetFolder                     (const QModelIndex &,
                                                      QString                ) ;
-
-    void on_finderPB_clicked();
+    void     on_finderPB_clicked              (void                         ) ;
+    void     on_scrollToPB_clicked            (void                         ) ;
 
 private:    // typedef members
     typedef  map<QString, pair<QTreeView    *, QLineEdit *> > quadrantDef_           ;

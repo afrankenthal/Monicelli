@@ -1200,7 +1200,7 @@ void MainWindow::on_louvrePB_clicked()
     psProcess.waitForReadyRead(100000);
 
     QString                 result = psProcess.readAllStandardOutput() ;
-    QRegularExpression      regexFind("\n\\s*(\\d+)(.+)?Louvre$"     ) ;
+    QRegularExpression      regexFind("\n\\s*(\\d+)(.+)?Louvre\n"    ) ;
     QRegularExpressionMatch match ;
 
     cout << __LINE__ << "] " << result.toStdString() << endl ;
