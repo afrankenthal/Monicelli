@@ -33,6 +33,7 @@
 #include <QColorDialog>
 #include <QSplitter>
 #include <QFileDialog>
+#include <QClipboard>
 
 #include "filelistmodel.h" 
 #include "MessageTools.h"
@@ -66,6 +67,8 @@ private:
     void     findFullPath                   (const QModelIndex & ,
                                                    QString     &            );
     void     compareFiles                   (      QString       lFile     ,
+                                                   QString       rFile      );
+    void     compareDirs                    (      QString       lFile     ,
                                                    QString       rFile      );
     void     formatLine                     (      QString     & line      ,
                                                    int           lineNumber );
@@ -110,13 +113,19 @@ private slots:
     void     on_synchronizeCB_clicked       (      bool          checked    );
     void     on_comparePB_clicked           (void                           );
     void     on_editPB_clicked              (void                           );
-    void     on_deleteSettingsPB_clicked    (void                          );
-    void     on_toRightCB_clicked           (void                          );
-    void     on_toLeftCB_clicked            (void                          );
-    void     on_lSavePB_clicked             (void                          );
-    void     on_rSavePB_clicked             ();
-
-    void on_louvrePB_clicked();
+    void     on_deleteSettingsPB_clicked    (void                           );
+    void     on_toRightCB_clicked           (void                           );
+    void     on_toLeftCB_clicked            (void                           );
+    void     on_lSavePB_clicked             (void                           );
+    void     on_rSavePB_clicked             (void                           );
+    void     on_louvrePB_clicked            (void                           );
+    void     synchLPanelSplitter            (      int           pos       ,
+                                                   int                      );
+    void     synchRPanelSplitter            (      int           pos       ,
+                                                   int                      );
+    void     on_saveToClipboardPB_clicked   (void                           );
+    void     on_lSelectedLE_textChanged     (const QString     & lFileName  );
+    void     on_rSelectedLE_textChanged     (const QString     & rFileName  );
 
 private:
     typedef map<string , QFileSystemModel *> fileModelDef  ;

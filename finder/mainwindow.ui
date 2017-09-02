@@ -32,7 +32,7 @@
     <property name="currentIndex">
      <number>1</number>
     </property>
-    <widget class="QWidget" name="tab">
+    <widget class="QWidget" name="mainPanelTab">
      <attribute name="title">
       <string>Main panel</string>
      </attribute>
@@ -121,7 +121,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QSplitter" name="splitter">
+     <widget class="QSplitter" name="mainPanelSplitter">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -4208,7 +4208,7 @@ p, li { white-space: pre-wrap; }
          <string>Louvre</string>
         </property>
        </widget>
-       <widget class="QSplitter" name="splitter_2">
+       <widget class="QSplitter" name="matchPanelsSplitter">
         <property name="geometry">
          <rect>
           <x>2</x>
@@ -4513,504 +4513,44 @@ p, li { white-space: pre-wrap; }
       </widget>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab_3">
+    <widget class="QWidget" name="findDifferencesTab">
      <attribute name="title">
       <string>Find differences</string>
      </attribute>
-     <widget class="QTreeView" name="lDirTV">
-      <property name="geometry">
-       <rect>
-        <x>6</x>
-        <y>6</y>
-        <width>690</width>
-        <height>153</height>
-       </rect>
-      </property>
-      <property name="palette">
-       <palette>
-        <active>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>255</red>
-            <green>248</green>
-            <blue>217</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </active>
-        <inactive>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>255</red>
-            <green>248</green>
-            <blue>217</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </inactive>
-        <disabled>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>127</red>
-            <green>127</green>
-            <blue>127</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>236</red>
-            <green>236</green>
-            <blue>236</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </disabled>
-       </palette>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Panel</enum>
-      </property>
-      <property name="lineWidth">
-       <number>3</number>
-      </property>
-     </widget>
-     <widget class="QTextEdit" name="rPanelTE">
-      <property name="geometry">
-       <rect>
-        <x>698</x>
-        <y>212</y>
-        <width>690</width>
-        <height>787</height>
-       </rect>
-      </property>
-      <property name="palette">
-       <palette>
-        <active>
-         <colorrole role="Text">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </active>
-        <inactive>
-         <colorrole role="Text">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </inactive>
-        <disabled>
-         <colorrole role="Text">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>127</red>
-            <green>127</green>
-            <blue>127</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>236</red>
-            <green>236</green>
-            <blue>236</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </disabled>
-       </palette>
-      </property>
-      <property name="font">
-       <font>
-        <family>Monospace</family>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Panel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
-      </property>
-      <property name="lineWidth">
-       <number>3</number>
-      </property>
-      <property name="lineWrapMode">
-       <enum>QTextEdit::NoWrap</enum>
-      </property>
-      <property name="textInteractionFlags">
-       <set>Qt::TextSelectableByMouse</set>
-      </property>
-     </widget>
-     <widget class="QTextEdit" name="lPanelTE">
-      <property name="geometry">
-       <rect>
-        <x>6</x>
-        <y>212</y>
-        <width>690</width>
-        <height>787</height>
-       </rect>
-      </property>
-      <property name="palette">
-       <palette>
-        <active>
-         <colorrole role="Text">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </active>
-        <inactive>
-         <colorrole role="Text">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </inactive>
-        <disabled>
-         <colorrole role="Text">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>127</red>
-            <green>127</green>
-            <blue>127</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>236</red>
-            <green>236</green>
-            <blue>236</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </disabled>
-       </palette>
-      </property>
-      <property name="font">
-       <font>
-        <family>Monospace</family>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Panel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
-      </property>
-      <property name="lineWidth">
-       <number>3</number>
-      </property>
-      <property name="lineWrapMode">
-       <enum>QTextEdit::NoWrap</enum>
-      </property>
-      <property name="html">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Monospace'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Source Code Pro'; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-      <property name="textInteractionFlags">
-       <set>Qt::TextSelectableByMouse</set>
-      </property>
-     </widget>
-     <widget class="QCheckBox" name="synchronizeCB">
-      <property name="geometry">
-       <rect>
-        <x>778</x>
-        <y>188</y>
-        <width>137</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Synchronize scroll</string>
-      </property>
-      <property name="checked">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QTreeView" name="rDirTV">
-      <property name="geometry">
-       <rect>
-        <x>696</x>
-        <y>6</y>
-        <width>690</width>
-        <height>153</height>
-       </rect>
-      </property>
-      <property name="palette">
-       <palette>
-        <active>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>255</red>
-            <green>248</green>
-            <blue>217</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </active>
-        <inactive>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>255</red>
-            <green>248</green>
-            <blue>217</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </inactive>
-        <disabled>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>127</red>
-            <green>127</green>
-            <blue>127</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>236</red>
-            <green>236</green>
-            <blue>236</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </disabled>
-       </palette>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Panel</enum>
-      </property>
-      <property name="lineWidth">
-       <number>3</number>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="lSelectedLE">
-      <property name="geometry">
-       <rect>
-        <x>70</x>
-        <y>164</y>
-        <width>519</width>
-        <height>21</height>
-       </rect>
-      </property>
-     </widget>
      <widget class="QLineEdit" name="rSelectedLE">
       <property name="geometry">
        <rect>
-        <x>778</x>
-        <y>166</y>
-        <width>519</width>
+        <x>698</x>
+        <y>0</y>
+        <width>689</width>
         <height>21</height>
        </rect>
       </property>
      </widget>
-     <widget class="QPushButton" name="comparePB">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
+     <widget class="QPushButton" name="toLeftCB">
       <property name="geometry">
        <rect>
-        <x>654</x>
-        <y>164</y>
-        <width>85</width>
-        <height>20</height>
+        <x>740</x>
+        <y>992</y>
+        <width>21</width>
+        <height>19</height>
        </rect>
       </property>
-      <property name="palette">
-       <palette>
-        <active>
-         <colorrole role="ButtonText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>17</red>
-            <green>129</green>
-            <blue>4</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </active>
-        <inactive>
-         <colorrole role="ButtonText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>17</red>
-            <green>129</green>
-            <blue>4</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </inactive>
-        <disabled>
-         <colorrole role="ButtonText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>148</red>
-            <green>148</green>
-            <blue>148</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </disabled>
-       </palette>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
       <property name="text">
-       <string>Compare</string>
+       <string>&lt;</string>
       </property>
      </widget>
-     <widget class="QCheckBox" name="diffOnlyCB">
+     <widget class="QPushButton" name="lSavePB">
       <property name="geometry">
        <rect>
-        <x>12</x>
-        <y>188</y>
-        <width>129</width>
-        <height>20</height>
+        <x>4</x>
+        <y>968</y>
+        <width>53</width>
+        <height>21</height>
        </rect>
       </property>
       <property name="text">
-       <string>Differences only</string>
-      </property>
-     </widget>
-     <widget class="QCheckBox" name="ignoreCaseCB">
-      <property name="geometry">
-       <rect>
-        <x>154</x>
-        <y>188</y>
-        <width>129</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Ignore case</string>
-      </property>
-     </widget>
-     <widget class="QCheckBox" name="ignoreBlanksCB">
-      <property name="geometry">
-       <rect>
-        <x>266</x>
-        <y>188</y>
-        <width>129</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Ignore blanks</string>
-      </property>
-      <property name="checked">
-       <bool>true</bool>
+       <string>Save</string>
       </property>
      </widget>
      <widget class="QPushButton" name="editPB">
@@ -5019,8 +4559,8 @@ p, li { white-space: pre-wrap; }
       </property>
       <property name="geometry">
        <rect>
-        <x>654</x>
-        <y>188</y>
+        <x>650</x>
+        <y>992</y>
         <width>85</width>
         <height>20</height>
        </rect>
@@ -5077,8 +4617,8 @@ p, li { white-space: pre-wrap; }
      <widget class="QPushButton" name="toRightCB">
       <property name="geometry">
        <rect>
-        <x>626</x>
-        <y>188</y>
+        <x>622</x>
+        <y>992</y>
         <width>21</width>
         <height>19</height>
        </rect>
@@ -5087,37 +4627,140 @@ p, li { white-space: pre-wrap; }
        <string>&gt;</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="toLeftCB">
+     <widget class="QCheckBox" name="synchronizeCB">
       <property name="geometry">
        <rect>
-        <x>744</x>
-        <y>188</y>
-        <width>21</width>
-        <height>19</height>
+        <x>774</x>
+        <y>992</y>
+        <width>137</width>
+        <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;</string>
+       <string>Synchronize scroll</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
       </property>
      </widget>
-     <widget class="QPushButton" name="lSavePB">
+     <widget class="QLineEdit" name="lSelectedLE">
       <property name="geometry">
        <rect>
-        <x>8</x>
-        <y>164</y>
-        <width>53</width>
+        <x>4</x>
+        <y>0</y>
+        <width>685</width>
         <height>21</height>
        </rect>
       </property>
+     </widget>
+     <widget class="QCheckBox" name="diffOnlyCB">
+      <property name="geometry">
+       <rect>
+        <x>8</x>
+        <y>992</y>
+        <width>129</width>
+        <height>20</height>
+       </rect>
+      </property>
       <property name="text">
-       <string>Save</string>
+       <string>Differences only</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="comparePB">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>650</x>
+        <y>968</y>
+        <width>85</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="palette">
+       <palette>
+        <active>
+         <colorrole role="ButtonText">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>17</red>
+            <green>129</green>
+            <blue>4</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </active>
+        <inactive>
+         <colorrole role="ButtonText">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>17</red>
+            <green>129</green>
+            <blue>4</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </inactive>
+        <disabled>
+         <colorrole role="ButtonText">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>148</red>
+            <green>148</green>
+            <blue>148</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </disabled>
+       </palette>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Compare</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="ignoreBlanksCB">
+      <property name="geometry">
+       <rect>
+        <x>262</x>
+        <y>992</y>
+        <width>129</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Ignore blanks</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="ignoreCaseCB">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>992</y>
+        <width>129</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Ignore case</string>
       </property>
      </widget>
      <widget class="QPushButton" name="rSavePB">
       <property name="geometry">
        <rect>
-        <x>1332</x>
-        <y>166</y>
+        <x>1330</x>
+        <y>964</y>
         <width>53</width>
         <height>21</height>
        </rect>
@@ -5126,8 +4769,411 @@ p, li { white-space: pre-wrap; }
        <string>Save</string>
       </property>
      </widget>
+     <widget class="QGroupBox" name="dirComparisonGB">
+      <property name="geometry">
+       <rect>
+        <x>968</x>
+        <y>964</y>
+        <width>327</width>
+        <height>49</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+      <widget class="QCheckBox" name="recursiveDirCB">
+       <property name="geometry">
+        <rect>
+         <x>6</x>
+         <y>0</y>
+         <width>159</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Recursive comparison</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="reportIdenticalCB">
+       <property name="geometry">
+        <rect>
+         <x>6</x>
+         <y>18</y>
+         <width>159</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Report identical files</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="fullComparisonCB">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>0</y>
+         <width>159</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Full comparison</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QSplitter" name="lSplitter">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>24</y>
+        <width>691</width>
+        <height>937</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QTreeView" name="lDirTV">
+       <property name="palette">
+        <palette>
+         <active>
+          <colorrole role="WindowText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>0</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>255</red>
+             <green>248</green>
+             <blue>217</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </active>
+         <inactive>
+          <colorrole role="WindowText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>0</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>255</red>
+             <green>248</green>
+             <blue>217</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </inactive>
+         <disabled>
+          <colorrole role="WindowText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>127</red>
+             <green>127</green>
+             <blue>127</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>236</red>
+             <green>236</green>
+             <blue>236</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </disabled>
+        </palette>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Panel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>3</number>
+       </property>
+      </widget>
+      <widget class="QTextEdit" name="lPanelTE">
+       <property name="palette">
+        <palette>
+         <active>
+          <colorrole role="Text">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>255</red>
+             <green>255</green>
+             <blue>255</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>0</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </active>
+         <inactive>
+          <colorrole role="Text">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>255</red>
+             <green>255</green>
+             <blue>255</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>0</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </inactive>
+         <disabled>
+          <colorrole role="Text">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>127</red>
+             <green>127</green>
+             <blue>127</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>236</red>
+             <green>236</green>
+             <blue>236</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </disabled>
+        </palette>
+       </property>
+       <property name="font">
+        <font>
+         <family>Courier 10 Pitch</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Panel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="lineWidth">
+        <number>3</number>
+       </property>
+       <property name="lineWrapMode">
+        <enum>QTextEdit::NoWrap</enum>
+       </property>
+       <property name="html">
+        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Courier 10 Pitch'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Source Code Pro'; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::TextSelectableByMouse</set>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QSplitter" name="rSplitter">
+      <property name="geometry">
+       <rect>
+        <x>698</x>
+        <y>24</y>
+        <width>689</width>
+        <height>937</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QTreeView" name="rDirTV">
+       <property name="palette">
+        <palette>
+         <active>
+          <colorrole role="WindowText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>0</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>255</red>
+             <green>248</green>
+             <blue>217</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </active>
+         <inactive>
+          <colorrole role="WindowText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>0</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>255</red>
+             <green>248</green>
+             <blue>217</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </inactive>
+         <disabled>
+          <colorrole role="WindowText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>127</red>
+             <green>127</green>
+             <blue>127</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>236</red>
+             <green>236</green>
+             <blue>236</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </disabled>
+        </palette>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Panel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>3</number>
+       </property>
+      </widget>
+      <widget class="QTextEdit" name="rPanelTE">
+       <property name="palette">
+        <palette>
+         <active>
+          <colorrole role="Text">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>255</red>
+             <green>255</green>
+             <blue>255</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>0</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </active>
+         <inactive>
+          <colorrole role="Text">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>255</red>
+             <green>255</green>
+             <blue>255</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>0</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </inactive>
+         <disabled>
+          <colorrole role="Text">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>127</red>
+             <green>127</green>
+             <blue>127</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="Base">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>236</red>
+             <green>236</green>
+             <blue>236</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </disabled>
+        </palette>
+       </property>
+       <property name="font">
+        <font>
+         <family>Courier 10 Pitch</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Panel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="lineWidth">
+        <number>3</number>
+       </property>
+       <property name="lineWrapMode">
+        <enum>QTextEdit::NoWrap</enum>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::TextSelectableByMouse</set>
+       </property>
+      </widget>
+     </widget>
     </widget>
-    <widget class="QWidget" name="tab_2">
+    <widget class="QWidget" name="commandLineStringTab">
      <attribute name="title">
       <string>Command line string</string>
      </attribute>
@@ -5153,6 +5199,19 @@ p, li { white-space: pre-wrap; }
        <number>3</number>
       </property>
      </widget>
+     <widget class="QPushButton" name="saveToClipboardPB">
+      <property name="geometry">
+       <rect>
+        <x>2</x>
+        <y>100</y>
+        <width>141</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Save to clipboard</string>
+      </property>
+     </widget>
     </widget>
    </widget>
   </widget>
@@ -5162,7 +5221,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1399</width>
-     <height>27</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFinder">

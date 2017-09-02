@@ -8,9 +8,15 @@ MainWindow::MainWindow (QWidget *parent   ) :
     ui_ ->setupUi      (this              ) ;
 
     QList<int> vSizes ;
-    vSizes << 336 << 191 << 408 ;
-    ui_->splitter->setSizes(vSizes) ;
-    ui_->splitter->show() ;
+    vSizes << 190 << 340 ;
+    ui_->matchPanelsSplitter->setSizes  (vSizes) ;
+    ui_->matchPanelsSplitter->show      (      ) ;
+    vSizes << 300 << 630 ;
+    ui_->lSplitter          ->setSizes  (vSizes) ;
+    ui_->rSplitter          ->setSizes  (vSizes) ;
+    ui_->lSplitter          ->show      (      ) ;
+    ui_->rSplitter          ->show      (      ) ;
+    ui_->dirComparisonGB    ->setVisible(false ) ;
 
     char* homePath   = getenv ("HOME"      ) ;
     char* finderHome = getenv ("FINDERHOME") ;
@@ -25,6 +31,11 @@ MainWindow::MainWindow (QWidget *parent   ) :
         exit(0) ;
     }
 
+    connect(ui_->lSplitter, SIGNAL(splitterMoved      (int,int)),
+            this          , SLOT  (synchRPanelSplitter(int,int))) ;
+    connect(ui_->rSplitter, SIGNAL(splitterMoved      (int,int)),
+            this          , SLOT  (synchLPanelSplitter(int,int))) ;
+
     this->initializeStringFinder() ;
 
     // Things connected to file differences
@@ -36,12 +47,29 @@ MainWindow::~MainWindow()
 {
     delete ui_;
 }
+//==================================================================
+void MainWindow::synchRPanelSplitter(int pos, int)
+{
+    QList<int> vSizes ;
+    vSizes << pos << 930 - pos  ;
+    ui_->rSplitter->setSizes(vSizes) ;
+    ui_->rSplitter->show    (      ) ;
+}
+//==================================================================
+void MainWindow::synchLPanelSplitter(int pos, int)
+{
+    QList<int> vSizes ;
+    vSizes << pos << 930 - pos  ;
+    ui_->lSplitter->setSizes(vSizes) ;
+    ui_->lSplitter->show    (      ) ;
+}
 
 //==================================================================
 void MainWindow::initializeCompareFiles(void)
 {
-//    lRootPath_ = "/Users/menasce/AnalysisTBF/" ;
-//    rRootPath_ = "/Users/menasce/" ;
+    this->on_lSelectedLE_textChanged(ui_->lSelectedLE->text()) ;
+    this->on_rSelectedLE_textChanged(ui_->rSelectedLE->text()) ;
+    this->on_synchronizeCB_clicked  (true                    ) ;
 
     QFileSystemModel *lModel = new QFileSystemModel;
     QFileSystemModel *rModel = new QFileSystemModel;
@@ -84,8 +112,172 @@ void MainWindow::formatLine(QString & line, int lineNumber)
     return ;
 }
 //==================================================================
+void MainWindow::compareDirs(QString lFileName, QString rFileName)
+{
+    statusBar()->showMessage(tr("View populated"));
+
+    QProcess    * diffProcess = new QProcess();
+    QString       command     = "diff"        ;
+    QStringList   arguments                   ;
+
+    if( !ui_->fullComparisonCB ->isChecked() ) arguments << "-q" ;
+    if(  ui_->reportIdenticalCB->isChecked() ) arguments << "-s" ;
+    if(  ui_->recursiveDirCB   ->isChecked() ) arguments << "-r" ;
+    arguments << lFileName << rFileName ;
+
+    diffProcess->start(command,arguments) ;
+    diffProcess->waitForFinished (3000)   ;
+    diffProcess->waitForReadyRead(3000)   ;
+
+    ui_->commandLineTE->setText(QString("diff ")+arguments.join(QString(" ")));
+
+    QByteArray  result = diffProcess->readAllStandardOutput();
+    QByteArray  error  = diffProcess->readAllStandardError ();
+    if( result.toStdString().size() == 0 )
+    {
+        STDLINE("[WARNING] Requested comparison of the same directory",ACRed) ;
+        return ;
+    }
+
+    ui_->lPanelTE->clear();
+    ui_->rPanelTE->clear();
+
+    QStringList             lines = QString(result.data()).split("\n", QString::SkipEmptyParts) ;
+    QRegularExpression      regexDiffer   ("^Files\\s+(.+)?\\s+and\\s+(.+)?differ$"           ) ;
+    QRegularExpression      regexOnlyIn   ("^Only in\\s+(.+)?:\\s+(.+)$"                      ) ;
+    QRegularExpression      regexCommon   ("^Common subdirectories:\\s+(.+)?\\s+and\\s+(.+)$" ) ;
+    QRegularExpression      regexIdentical("^Files\\s+(.+)?\\s+and\\s+(.+)?are identical$"    ) ;
+    QRegularExpression      regexFullCompA("^diff\\s+"                                        ) ;
+    QRegularExpression      regexFullCompB("^(\\d+|<|>|---)"                                  ) ;
+    QRegularExpressionMatch match ;
+    QTextCursor             lCursor = ui_->lPanelTE  ->textCursor ();
+    QTextCursor             rCursor = ui_->rPanelTE->textCursor ();
+    QTextBlockFormat        lBlockF = lCursor.blockFormat();
+    QTextBlockFormat        rBlockF = rCursor.blockFormat();
+
+    for( int l=0; l<lines.size(); ++l)
+    {
+        STDLINE(lines.at(l).toStdString(),ACWhite) ;
+        match  = regexDiffer.match(lines.at(l));
+        if (match.hasMatch())
+        {
+            QString lFound = match.captured(1).replace(lFileName+QString("/"),QString("")) ;
+            QString rFound = match.captured(2).replace(rFileName+QString("/"),QString("")) ;
+            lBlockF.setBackground(QBrush(QColor(255,0,0,90)));
+            rBlockF.setBackground(QBrush(QColor(255,0,0,90)));
+            lCursor.setBlockFormat(lBlockF);
+            rCursor.setBlockFormat(rBlockF);
+            lCursor.insertHtml(lFound) ;
+            lCursor.insertBlock() ;
+            rCursor.insertHtml(rFound) ;
+            rCursor.insertBlock() ;
+        }
+        match  = regexOnlyIn.match(lines.at(l));
+        if (match.hasMatch())
+        {
+            if( match.captured(1) == lFileName )
+            {
+                lBlockF.setBackground(QBrush(QColor(255,255,  0, 90)));
+                rBlockF.setBackground(QBrush(QColor(255,255,  0, 90)));
+                lCursor.setBlockFormat(lBlockF);
+                rCursor.setBlockFormat(rBlockF);
+                lCursor.insertHtml(match.captured(2)) ;
+                lCursor.insertBlock() ;
+                rCursor.insertHtml(QString("--")) ;
+                rCursor.insertBlock() ;
+            }
+            if( match.captured(1) == rFileName )
+            {
+                lBlockF.setBackground(QBrush(QColor(255,255,  0, 90)));
+                rBlockF.setBackground(QBrush(QColor(255,255,  0, 90)));
+                lCursor.setBlockFormat(lBlockF);
+                rCursor.setBlockFormat(rBlockF);
+                rCursor.insertHtml(match.captured(2)) ;
+                rCursor.insertBlock() ;
+                lCursor.insertHtml(QString("--")) ;
+                lCursor.insertBlock() ;
+            }
+        }
+        match  = regexCommon.match(lines.at(l));
+        if (match.hasMatch())
+        {
+            QString lFound = match.captured(1).replace(lFileName+QString("/"),QString("")) ;
+            QString rFound = match.captured(2).replace(rFileName+QString("/"),QString("")) ;
+            lBlockF.setBackground(QBrush(QColor(  90,  90,  90, 90)));
+            rBlockF.setBackground(QBrush(QColor(  90,  90,  90, 90)));
+            lCursor.setBlockFormat(lBlockF);
+            rCursor.setBlockFormat(rBlockF);
+            lCursor.insertHtml(lFound) ;
+            lCursor.insertBlock() ;
+            rCursor.insertHtml(rFound) ;
+            rCursor.insertBlock() ;
+        }
+        match  = regexIdentical.match(lines.at(l));
+        if (match.hasMatch())
+        {
+            QString lFound = match.captured(1).replace(lFileName+QString("/"),QString("")) ;
+            QString rFound = match.captured(2).replace(rFileName+QString("/"),QString("")) ;
+            lBlockF.setBackground(QBrush(QColor(  0,  0,  0, 255)));
+            rBlockF.setBackground(QBrush(QColor(  0,  0,  0, 255)));
+            lCursor.setBlockFormat(lBlockF);
+            rCursor.setBlockFormat(rBlockF);
+            lCursor.insertHtml(lFound) ;
+            lCursor.insertBlock() ;
+            rCursor.insertHtml(rFound) ;
+            rCursor.insertBlock() ;
+        }
+        match  = regexFullCompA.match(lines.at(l));
+        if (match.hasMatch())
+        {
+            QString theL = lines.at(l) ;
+            theL.replace(QRegularExpression("( -s| -r)"),QString("")) ;
+            theL.replace(QRegularExpression("^diff"),QString("")) ;
+            STDLINE(theL.toStdString(),ACYellow) ;
+            QStringList pairs = theL.split(QRegularExpression("\\s+\\/")) ;
+            STDLINE(pairs[1].toStdString(),ACCyan) ;
+            STDLINE(pairs[2].toStdString(),ACCyan) ;
+            lBlockF.setBackground(QBrush(QColor( 20,255,120, 80)));
+            rBlockF.setBackground(QBrush(QColor( 20,255,120, 80)));
+            lCursor.setBlockFormat(lBlockF);
+            rCursor.setBlockFormat(rBlockF);
+            lCursor.insertHtml(pairs[1]) ;
+            lCursor.insertBlock() ;
+            rCursor.insertHtml(pairs[2]) ;
+            rCursor.insertBlock() ;
+        }
+        match  = regexFullCompB.match(lines.at(l));
+        if (match.hasMatch())
+        {
+            QString lFound = lines.at(l) ;
+            QString rFound = lines.at(l) ;
+            lBlockF.setBackground(QBrush(QColor(  0,  0,200, 95)));
+            rBlockF.setBackground(QBrush(QColor(  0,  0,200, 95)));
+            lCursor.setBlockFormat(lBlockF);
+            rCursor.setBlockFormat(rBlockF);
+            lCursor.insertHtml(lFound) ;
+            lCursor.insertBlock() ;
+            rCursor.insertHtml(rFound) ;
+            rCursor.insertBlock() ;
+        }
+    }
+}
+
+//==================================================================
 void MainWindow::compareFiles(QString lFileName, QString rFileName)
 {
+    QFileInfo lFileInfo(lFileName) ;
+    QFileInfo rFileInfo(rFileName) ;
+
+    ui_->lSavePB->setEnabled(false);
+    ui_->rSavePB->setEnabled(false);
+
+    if(  lFileInfo.isDir() &&  lFileInfo.isDir()) {this->compareDirs(lFileName, rFileName)                ; return;}
+    if(  lFileInfo.isDir() && !lFileInfo.isDir()) {STDLINE("Cannot compare a directory with a file",ACRed); return;}
+    if( !lFileInfo.isDir() &&  lFileInfo.isDir()) {STDLINE("Cannot compare a file with a directory",ACRed); return;}
+
+    ui_->lSavePB->setEnabled(true);
+    ui_->rSavePB->setEnabled(true);
+
     statusBar()->showMessage(tr("View populated"));
 
     QProcess    * diffProcess = new QProcess();
@@ -1218,4 +1410,44 @@ void MainWindow::on_louvrePB_clicked()
         finderProcess_ = new QProcess() ;
         finderProcess_->start(QString(ss_.str().c_str())) ;
     }
+}
+
+//===========================================================================
+void MainWindow::on_saveToClipboardPB_clicked()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(ui_->commandLineTE->toPlainText());
+}
+
+//===========================================================================
+void MainWindow::on_lSelectedLE_textChanged(const QString &lFileName)
+{
+    QFileInfo fInfoL(lFileName               ) ;
+    QFileInfo fInfoR(ui_->rSelectedLE->text()) ;
+
+    if( fInfoL.isDir() && fInfoR.isDir())
+    {
+        ui_->dirComparisonGB->setVisible(true) ;
+    }
+    else
+    {
+        ui_->dirComparisonGB->setVisible(false) ;
+    }
+}
+
+//===========================================================================
+void MainWindow::on_rSelectedLE_textChanged(const QString &rFileName)
+{
+    QFileInfo fInfoL(ui_->lSelectedLE->text()) ;
+    QFileInfo fInfoR(rFileName               ) ;
+
+    if( fInfoL.isDir() && fInfoR.isDir())
+    {
+        ui_->dirComparisonGB->setVisible(true) ;
+    }
+    else
+    {
+        ui_->dirComparisonGB->setVisible(false) ;
+    }
+
 }

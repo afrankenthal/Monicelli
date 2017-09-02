@@ -34,7 +34,7 @@ ACReverse     = [7m
 ACClear       = [2J
 ACClearL      = [2K
 
-all: customComboBox customLineEdit customTextEdit customSpinBox customCheckBox customTableView customTableWidget MonicelliProject
+all: customComboBox customLineEdit customTextEdit customSpinBox customCheckBox customTableView customTableWidget MonicelliProject Louvre finder
 	
 ###############################################################
 customCheckBox:
@@ -120,6 +120,24 @@ MonicelliProject:
 	@echo '$(ACYellow)$(ACBold)|$(ACPlain)'
 	@echo '$(ACYellow)$(ACBold)v$(ACPlain)'
 	qmake && ./perlScripts/decorateMake.pl && make
+	@echo 
+
+###############################################################
+Louvre:
+	@echo 
+	@echo '$(ACYellow)$(ACBold)+=================================== Building Louvre ============================================<<$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)|$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)v$(ACPlain)'
+	cd Louvre && qmake && make
+	@echo 
+
+###############################################################
+finder:
+	@echo 
+	@echo '$(ACYellow)$(ACBold)+=================================== Building finder ============================================<<$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)|$(ACPlain)'
+	@echo '$(ACYellow)$(ACBold)v$(ACPlain)'
+	cd finder && qmake && make
 	@echo 
 
 ###############################################################
