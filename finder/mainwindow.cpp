@@ -117,7 +117,7 @@ void MainWindow::compareDirs(QString lFileName, QString rFileName)
     statusBar()->showMessage(tr("View populated"));
 
     QProcess    * diffProcess = new QProcess();
-    QString       command     = "diff"        ;
+    QString       command     = "sdiff"        ;
     QStringList   arguments                   ;
 
     if( !ui_->fullComparisonCB ->isChecked() ) arguments << "-q" ;
@@ -129,7 +129,7 @@ void MainWindow::compareDirs(QString lFileName, QString rFileName)
     diffProcess->waitForFinished (3000)   ;
     diffProcess->waitForReadyRead(3000)   ;
 
-    ui_->commandLineTE->setText(QString("diff ")+arguments.join(QString(" ")));
+    ui_->commandLineTE->setText(command+arguments.join(QString(" ")));
 
     QByteArray  result = diffProcess->readAllStandardOutput();
     QByteArray  error  = diffProcess->readAllStandardError ();
@@ -150,61 +150,84 @@ void MainWindow::compareDirs(QString lFileName, QString rFileName)
     QRegularExpression      regexFullCompA("^diff\\s+"                                        ) ;
     QRegularExpression      regexFullCompB("^(\\d+|<|>|---)"                                  ) ;
     QRegularExpressionMatch match ;
-    QTextCursor             lCursor = ui_->lPanelTE  ->textCursor ();
+    QTextCursor             lCursor = ui_->lPanelTE->textCursor ();
     QTextCursor             rCursor = ui_->rPanelTE->textCursor ();
-    QTextBlockFormat        lBlockF = lCursor.blockFormat();
-    QTextBlockFormat        rBlockF = rCursor.blockFormat();
+    QTextBlockFormat        lBlockF = lCursor.blockFormat()       ;
+    QTextBlockFormat        rBlockF = rCursor.blockFormat()       ;
+
+    QColor                  differColor = QColor(255,  0,  0, 90) ;
+    QColor                  onlyInColor = QColor(255,255,  0, 90) ;
+    QColor                  commonColor = QColor(  0,120,120,120) ;
+    QColor                  identMColor = QColor(  0,  0,  0,255) ;
+    QColor                  fullHdColor = QColor( 20,255,120, 80) ;
+    QColor                  fullBdColor = QColor(  0,  0,200, 95) ;
 
     for( int l=0; l<lines.size(); ++l)
     {
-        STDLINE(lines.at(l).toStdString(),ACWhite) ;
         match  = regexDiffer.match(lines.at(l));
         if (match.hasMatch())
         {
+            STDLINE(lines.at(l).toStdString(),ACGreen) ;
             QString lFound = match.captured(1).replace(lFileName+QString("/"),QString("")) ;
             QString rFound = match.captured(2).replace(rFileName+QString("/"),QString("")) ;
-            lBlockF.setBackground(QBrush(QColor(255,0,0,90)));
-            rBlockF.setBackground(QBrush(QColor(255,0,0,90)));
-            lCursor.setBlockFormat(lBlockF);
-            rCursor.setBlockFormat(rBlockF);
-            lCursor.insertHtml(lFound) ;
-            lCursor.insertBlock() ;
-            rCursor.insertHtml(rFound) ;
-            rCursor.insertBlock() ;
+            lBlockF.setBackground (QBrush(differColor));
+            rBlockF.setBackground (QBrush(differColor));
+            lCursor.setBlockFormat(lBlockF            );
+            rCursor.setBlockFormat(rBlockF            );
+            lCursor.insertHtml    (lFound             );
+            lCursor.insertBlock   (                   );
+            rCursor.insertHtml    (rFound             );
+            rCursor.insertBlock   (                   );
         }
         match  = regexOnlyIn.match(lines.at(l));
         if (match.hasMatch())
         {
-            if( match.captured(1) == lFileName )
+            STDLINE(lines.at(l).toStdString(),ACWhite) ;
+            if( match.captured(1).contains(lFileName ))
             {
-                lBlockF.setBackground(QBrush(QColor(255,255,  0, 90)));
-                rBlockF.setBackground(QBrush(QColor(255,255,  0, 90)));
-                lCursor.setBlockFormat(lBlockF);
-                rCursor.setBlockFormat(rBlockF);
-                lCursor.insertHtml(match.captured(2)) ;
-                lCursor.insertBlock() ;
-                rCursor.insertHtml(QString("--")) ;
-                rCursor.insertBlock() ;
+                STDLINE(lines.at(l)      .toStdString(),ACCyan  );
+                STDLINE(match.captured(1).toStdString(),ACCyan  );
+                STDLINE(lFileName        .toStdString(),ACCyan  );
+                QString lFound = match.captured(2);
+//                lFound = lFound.replace(lFileName);
+                if( match.captured(1) == lFileName ) lFound = match.captured(2) ;
+                else                                 lFound = lFound + QString("/") + match.captured(2) ;
+                lBlockF.setBackground (QBrush(onlyInColor));
+                rBlockF.setBackground (QBrush(onlyInColor));
+                lCursor.setBlockFormat(lBlockF            );
+                rCursor.setBlockFormat(rBlockF            );
+                lCursor.insertHtml    (lFound             );
+                lCursor.insertBlock   (                   );
+                rCursor.insertHtml    (QString("--")      );
+                rCursor.insertBlock   (                   );
             }
-            if( match.captured(1) == rFileName )
+            if( match.captured(1).contains(rFileName ))
             {
-                lBlockF.setBackground(QBrush(QColor(255,255,  0, 90)));
-                rBlockF.setBackground(QBrush(QColor(255,255,  0, 90)));
-                lCursor.setBlockFormat(lBlockF);
-                rCursor.setBlockFormat(rBlockF);
-                rCursor.insertHtml(match.captured(2)) ;
-                rCursor.insertBlock() ;
-                lCursor.insertHtml(QString("--")) ;
-                lCursor.insertBlock() ;
+                STDLINE(lines.at(l)      .toStdString(),ACYellow);
+                STDLINE(match.captured(1).toStdString(),ACCyan  );
+                STDLINE(rFileName        .toStdString(),ACCyan  );
+                QString rFound = match.captured(2) ;
+//                rFound = rFound.replace(rFileName);
+                if( match.captured(1) == rFileName ) rFound = match.captured(2) ;
+                else                                 rFound = rFound + QString("/") + match.captured(2) ;
+                lBlockF.setBackground (QBrush(onlyInColor));
+                rBlockF.setBackground (QBrush(onlyInColor));
+                lCursor.setBlockFormat(lBlockF            );
+                rCursor.setBlockFormat(rBlockF            );
+                rCursor.insertHtml    (rFound             );
+                rCursor.insertBlock   (                   );
+                lCursor.insertHtml    (QString("--")      );
+                lCursor.insertBlock   (                   );
             }
         }
         match  = regexCommon.match(lines.at(l));
         if (match.hasMatch())
         {
+            STDLINE(lines.at(l).toStdString(),ACRed) ;
             QString lFound = match.captured(1).replace(lFileName+QString("/"),QString("")) ;
             QString rFound = match.captured(2).replace(rFileName+QString("/"),QString("")) ;
-            lBlockF.setBackground(QBrush(QColor(  90,  90,  90, 90)));
-            rBlockF.setBackground(QBrush(QColor(  90,  90,  90, 90)));
+            lBlockF.setBackground(QBrush(commonColor));
+            rBlockF.setBackground(QBrush(commonColor));
             lCursor.setBlockFormat(lBlockF);
             rCursor.setBlockFormat(rBlockF);
             lCursor.insertHtml(lFound) ;
@@ -215,10 +238,11 @@ void MainWindow::compareDirs(QString lFileName, QString rFileName)
         match  = regexIdentical.match(lines.at(l));
         if (match.hasMatch())
         {
+            STDLINE(lines.at(l).toStdString(),ACGreen) ;
             QString lFound = match.captured(1).replace(lFileName+QString("/"),QString("")) ;
             QString rFound = match.captured(2).replace(rFileName+QString("/"),QString("")) ;
-            lBlockF.setBackground(QBrush(QColor(  0,  0,  0, 255)));
-            rBlockF.setBackground(QBrush(QColor(  0,  0,  0, 255)));
+            lBlockF.setBackground(QBrush(identMColor));
+            rBlockF.setBackground(QBrush(identMColor));
             lCursor.setBlockFormat(lBlockF);
             rCursor.setBlockFormat(rBlockF);
             lCursor.insertHtml(lFound) ;
@@ -229,15 +253,15 @@ void MainWindow::compareDirs(QString lFileName, QString rFileName)
         match  = regexFullCompA.match(lines.at(l));
         if (match.hasMatch())
         {
+            STDLINE(lines.at(l).toStdString(),ACGreen) ;
             QString theL = lines.at(l) ;
-            theL.replace(QRegularExpression("( -s| -r)"),QString("")) ;
-            theL.replace(QRegularExpression("^diff"),QString("")) ;
-            STDLINE(theL.toStdString(),ACYellow) ;
+            theL.replace(QRegularExpression("( -s| -r)") ,QString("")) ;
+            theL.replace(QRegularExpression("^diff")     ,QString("")) ;
             QStringList pairs = theL.split(QRegularExpression("\\s+\\/")) ;
-            STDLINE(pairs[1].toStdString(),ACCyan) ;
-            STDLINE(pairs[2].toStdString(),ACCyan) ;
-            lBlockF.setBackground(QBrush(QColor( 20,255,120, 80)));
-            rBlockF.setBackground(QBrush(QColor( 20,255,120, 80)));
+            pairs[1].replace(QString(ui_->lSelectedLE->text()),QString("")) ;
+            pairs[2].replace(QString(ui_->rSelectedLE->text()),QString("")) ;
+            lBlockF.setBackground(QBrush(fullHdColor));
+            rBlockF.setBackground(QBrush(fullHdColor));
             lCursor.setBlockFormat(lBlockF);
             rCursor.setBlockFormat(rBlockF);
             lCursor.insertHtml(pairs[1]) ;
@@ -248,10 +272,11 @@ void MainWindow::compareDirs(QString lFileName, QString rFileName)
         match  = regexFullCompB.match(lines.at(l));
         if (match.hasMatch())
         {
+            STDLINE(lines.at(l).toStdString(),ACGreen) ;
             QString lFound = lines.at(l) ;
             QString rFound = lines.at(l) ;
-            lBlockF.setBackground(QBrush(QColor(  0,  0,200, 95)));
-            rBlockF.setBackground(QBrush(QColor(  0,  0,200, 95)));
+            lBlockF.setBackground(QBrush(fullBdColor));
+            rBlockF.setBackground(QBrush(fullBdColor));
             lCursor.setBlockFormat(lBlockF);
             rCursor.setBlockFormat(rBlockF);
             lCursor.insertHtml(lFound) ;
@@ -1450,4 +1475,26 @@ void MainWindow::on_rSelectedLE_textChanged(const QString &rFileName)
         ui_->dirComparisonGB->setVisible(false) ;
     }
 
+}
+
+//===========================================================================
+void MainWindow::on_compareDirsLegendPB_clicked()
+{
+    QPixmap pix;
+    if( pix.load("/Users/menasce/AnalysisTBF/Monicelli/finder/dirComparisonColorLegenda.jpg") && !pix.isNull())
+    {
+    }
+    else
+    {
+        ss_.str(""); ss_ << "[WARNING] icon not found" ;
+        STDLINE(ss_.str(),ACRed) ;
+    }
+
+    QMessageBox legenda(this);
+
+    legenda.setWindowTitle  (QString("Legenda")                ) ;
+    legenda.setDefaultButton(QMessageBox::Ok                   ) ;
+    legenda.setText         (QString("Color codes description")) ;
+    legenda.setIconPixmap   (pix                               ) ;
+    legenda.exec            (                                  ) ;
 }

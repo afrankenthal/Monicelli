@@ -34,6 +34,7 @@
 #include <QSplitter>
 #include <QFileDialog>
 #include <QClipboard>
+#include <QMessageBox>
 
 #include "filelistmodel.h" 
 #include "MessageTools.h"
@@ -126,6 +127,7 @@ private slots:
     void     on_saveToClipboardPB_clicked   (void                           );
     void     on_lSelectedLE_textChanged     (const QString     & lFileName  );
     void     on_rSelectedLE_textChanged     (const QString     & rFileName  );
+    void     on_compareDirsLegendPB_clicked (void                           );
 
 private:
     typedef map<string , QFileSystemModel *> fileModelDef  ;
