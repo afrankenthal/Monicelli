@@ -94,9 +94,10 @@ MainWindow::MainWindow(QWidget *parent) :
     populateTreeView(QString("source")     ) ;
     populateTreeView(QString("destination")) ;
 
-    ui_->sourceTW->setColumnCount (7          );
-    ui_->mainTW  ->setCurrentIndex(0          );
-    statusBar()  ->showMessage    (tr("Ready"));
+    ui_->sourceTW  ->setColumnCount (7          );
+    ui_->mainTW    ->setCurrentIndex(0          );
+    ui_->scrollToPB->click          (           );
+    statusBar()    ->showMessage    (tr("Ready"));
 
 }
 //=========================================================================================
@@ -203,8 +204,8 @@ void MainWindow::targetFolder(const QModelIndex & targetFolder,
     dir.setFilter(QDir::Files         |
                   QDir::Dirs          |
                   QDir::Hidden        |
-                  QDir::NoSymLinks    |
-                  QDir::NoDotAndDotDot);
+                  QDir::NoSymLinks    );
+//                  QDir::NoDotAndDotDot);
 
     int indx      = 0 ;
     int fileSizeT = 0 ;
@@ -677,6 +678,23 @@ void MainWindow::reactToClickD(int row, int column)
 void MainWindow::reactToClick(QString target, int row, int column)
 {
     stringstream ss ;
+    QTableWidgetItem * iS = diffTable_[target].first->item(row,nameColumn_) ;
+    if(!iS)
+    {
+        ss_.str(""); ss_ << "Item not found at row " << row ; STDLINE(ss_.str(),ACWhite) ;
+        return ;
+    }
+    QString item  = iS->text() ;
+    ss_.str("") ; ss_ << item.toStdString() << " in " << target.toStdString() ;
+    QString dir   = diffTable_[target].second->text() ;
+    QString fullPath   = dir + item ;
+    STDLINE(fullPath.toStdString(),ACWhite);
+
+    QModelIndex index = model_[target]->index(fullPath) ;
+
+    this->targetFolder(index, target) ;
+    return ;
+
     if( column == nameColumn_ )
     {
         QCoreApplication::processEvents(); // Allow progress to be shown...
@@ -685,7 +703,7 @@ void MainWindow::reactToClick(QString target, int row, int column)
         for(vector<QString>::iterator it=targets_.begin(); it!=targets_.end(); ++it)
         {
             STDLINE((*it).toStdString(),ACWhite);
-            QTableWidgetItem * iS    = diffTable_[*it].first->item(row,nameColumn_) ;
+            QTableWidgetItem * iS = diffTable_[*it].first->item(row,nameColumn_) ;
             if(!iS)
             {
                 ss_.str(""); ss_ << "Item not found at row " << row ; STDLINE(ss_.str(),ACWhite) ;
@@ -693,14 +711,14 @@ void MainWindow::reactToClick(QString target, int row, int column)
             }
             QString item  = iS->text() ;
             ss_.str("") ; ss_ << item.toStdString() << " in " << (*it).toStdString() ;
-            QString dir   = diffTable_["source"].second->text() ;
+            QString dir   = diffTable_[*it].second->text() ;
             QRegExp fileType("(\\.jpg|\\.JPG|\\.png|\\.gif|\\.CR2|\\.psd)");
-            ui_->mainTW->setCurrentIndex(1) ;
-            ui_->pictureInfoLeftTA ->setLineWrapMode(QTextEdit::NoWrap) ;
-            ui_->pictureInfoRightTA->setLineWrapMode(QTextEdit::NoWrap) ;
             QString fullPath   = dir + item ;
             if( item.contains(fileType) && differencesAnalyzed_)
             {
+                ui_->mainTW->setCurrentIndex(1) ;
+                ui_->pictureInfoLeftTA ->setLineWrapMode(QTextEdit::NoWrap) ;
+                ui_->pictureInfoRightTA->setLineWrapMode(QTextEdit::NoWrap) ;
                 QPixmap thePicture = QPixmap(fullPath) ;
                 ss_.str(""); ss_ << "Treating: " << fullPath.toStdString() << "...";
                 int w = thePicture.width ()*ui_->pictureScaleSB->value() ;
@@ -720,12 +738,12 @@ void MainWindow::reactToClick(QString target, int row, int column)
 //                    cout << "Block counts: " << detailsDoc->maximumBlockCount() << endl ;
                     if( (*it) == "source")
                     {
-                        ui_->leftImageLB ->setPixmap(thePicture);
+                        ui_->leftImageLB      ->setPixmap(thePicture);
                         ui_->pictureInfoLeftTA->setDocument(detailsDoc);
                     }
                     else
                     {
-                        ui_->rightImageLB->setPixmap(thePicture);
+                        ui_->rightImageLB      ->setPixmap(thePicture);
                         ui_->pictureInfoRightTA->setDocument(detailsDoc);
                     }
                 }
@@ -751,11 +769,13 @@ void MainWindow::reactToClick(QString target, int row, int column)
                 {
                     ss_.str(""); ss_ << "Drill down to " << fullPath.toStdString() ;
                     STDLINE(ss_.str(),ACWhite) ;
+                    break ;
                 }
                 else
                 {
                     ss_.str(""); ss_ << "Could not display: " << fullPath.toStdString() << " has an unrecognized picture format" ;
                     statusBar()->showMessage(QString(ss_.str().c_str()));
+                    break ;
                 }
             }
         }

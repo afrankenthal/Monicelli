@@ -972,6 +972,7 @@ QString MainWindow::getSelectedPaths()
 void MainWindow::on_findPB_clicked()
 {
     QString       selectedPaths  = this->getSelectedPaths() ;
+    STDLINE(selectedPaths.toStdString(),ACCyan) ;
 
     QString       script         = FINDERHOME_ + QString("/trova.pl")                      ;
     QString       root           = ui_->rootPathLE      ->text()                          ;
@@ -1138,7 +1139,6 @@ void MainWindow::dispatchResults(QString & results, QString & errors)
 
     for( int l=0; l<linesR.size(); ++l)
     {
-        cout << __LINE__ << "] " << linesR.at(l).toStdString() << endl ;
         match  = regexFind.match(linesR.at(l)); // Intercept this programs's messages
         if (match.hasMatch())
         {
