@@ -38,7 +38,7 @@ struct sort_pred
                     const std::pair<double,std::string> &right
                    )
     {
-      return fabs(left.first) < fabs(right.first);
+      return left.first < right.first;
     }
 } geoSorter_;
 
@@ -229,10 +229,7 @@ void Geometry::dump(void)
 //=======================================================================================
 void Geometry::orderPlanes(void)
 {
-//    std::vector<std::pair<double, std::string> >  posPlaqByZ;
-//    std::vector<std::pair<double, std::string> >  negPlaqByZ;
     std::vector<std::pair<double, std::string> >  plaqByZ;
-//    double posPlane=0,negPlane=0;
 
     for(std::map< std::string , Detector* >::iterator it = detectorsMap_.begin(); it!=detectorsMap_.end();++it)
     {
@@ -242,28 +239,9 @@ void Geometry::orderPlanes(void)
         plaqByZ.push_back(make_pair(z,plaqID));
     }
 
-//    std::sort(posPlaqByZ.begin(),posPlaqByZ.end(),geoSorter_);
-//    std::sort(negPlaqByZ.begin(),negPlaqByZ.end(),geoSorter_);
-
-//    for(unsigned int i = 0 ; i< std::max(posPlaqByZ.size(),negPlaqByZ.size());i++)
-//    {
-//        if(i<posPlaqByZ.size()) plaqByZ.push_back(posPlaqByZ.at(i));
-//        if(i<negPlaqByZ.size()) plaqByZ.push_back(negPlaqByZ.at(i));
-//    }
+    std::sort(plaqByZ.begin(),plaqByZ.end(),geoSorter_);
 
     theKalmanPlaneInfo_.setKalmanFilterOrder(plaqByZ);
-//    theKalmanPlaneInfo_.setKalmanFilterOrderUpstream(negPlaqByZ);
-//    theKalmanPlaneInfo_.setKalmanFilterOrderDownstream(posPlaqByZ);
-
-//            for(unsigned int i = 0; i<plaqByZ.size();i++)
-//            {
-//                //std::cout<<__PRETTY_FUNCTION__<<negPlaqByZ.at(i).first<<" "<<negPlaqByZ.at(i).second<<std::endl;
-//                //std::cout<<__PRETTY_FUNCTION__<<posPlaqByZ.at(i).first<<" "<<posPlaqByZ.at(i).second<<std::endl;
-//                std::cout<<__PRETTY_FUNCTION__<<plaqByZ.at(i).first<<" "<<plaqByZ.at(i).second<<std::endl;
-//            }
-
-//            assert(0);
-
 }
 //=======================================================================================
 void Geometry::calculatePlaneMCS(void)
@@ -279,19 +257,19 @@ void Geometry::calculatePlaneMCS(void)
 
         //Define variables
         Detector* detector = getDetector(plaqID);
-        double zValue = detector->getZPositionTotal();
-        TVectorT<double> sensorOrigin(4);
-        TVectorT<double> upVector(4);
-        TVectorT<double> rightVector(4);
-        TVectorT<double> beamVector(4);
         double multipleScattering = 6.18e-6;// 4.37e-6;
         bool dataType = detector->isStrip();
-        TVectorT<double> h(4)              ;
-        TVectorT<double> hx(4)             ;
-        TVectorT<double> hy(4)             ;
-        TMatrixTSym<double> trackCov (4)   ;
-        TMatrixTSym<double> trackCovx(4)   ;
-        TMatrixTSym<double> trackCovy(4)   ;
+        double zValue = detector->getZPositionTotal();
+        TVectorT   <double> sensorOrigin(4);
+        TVectorT   <double> upVector    (4);
+        TVectorT   <double> rightVector (4);
+        TVectorT   <double> beamVector  (4);
+        TVectorT   <double> h           (4);
+        TVectorT   <double> hx          (4);
+        TVectorT   <double> hy          (4);
+        TMatrixTSym<double> trackCov    (4);
+        TMatrixTSym<double> trackCovx   (4);
+        TMatrixTSym<double> trackCovy   (4);
         double offset   = 0                ;
         double offsetx  = 0                ;
         double offsety  = 0                ;
@@ -322,25 +300,27 @@ void Geometry::calculatePlaneMCS(void)
                                                       sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))/den);
             h[1] = rightVector[0]+rightVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
             h[3] = rightVector[1]+rightVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
-            h[0] =(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                   sensorOrigin[1]*(upVector[0]*rightVector[2]-rightVector[0]*upVector[2])+
-                   sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                    (upVector[1]*(rightVector[0]*rightVector[0]+rightVector[2]*rightVector[2])-
-                    rightVector[1]*(upVector[0]*rightVector[0]+upVector[2]*rightVector[2]))/(den*den);
-            h[2] =(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                   sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                   sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                    (rightVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
-                    upVector[0]*(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
+            h[0] =(sensorOrigin[0]*(upVector[2]   *rightVector[1]-upVector[1]   *rightVector[2])+
+                   sensorOrigin[1]*(upVector[0]   *rightVector[2]-rightVector[0]*upVector[2]   )+
+                   sensorOrigin[2]*(upVector[1]   *rightVector[0]-upVector[0]   *rightVector[1]))*
+                   (upVector[1]   *(rightVector[0]*rightVector[0]+rightVector[2]*rightVector[2])-
+                    rightVector[1]*(upVector[0]   *rightVector[0]+upVector[2]   *rightVector[2]))/(den*den);
+            h[2] =(sensorOrigin[0]*(upVector[2]   *rightVector[1]-upVector[1]   *rightVector[2])+
+                   sensorOrigin[1]*(upVector[0]   *rightVector[2]-upVector[2]   *rightVector[0])+
+                   sensorOrigin[2]*(upVector[1]   *rightVector[0]-upVector[0]   *rightVector[1]))*
+                   (rightVector[0]*(upVector[1]   *rightVector[1]+upVector[2]   *rightVector[2])-
+                    upVector[0]   *(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
 
-            trackCov[1][1] =  zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[1][0] = -zValue       *multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[3][3] =  zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[3][2] = -zValue       *multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[0][1] = -zValue       *multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[0][0] =                multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[2][3] = -zValue       *multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCov[2][2] =                multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            double mmbb = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+            trackCov[1][1] =  zValue*zValue*mmbb;
+            trackCov[1][0] = -zValue       *mmbb;
+            trackCov[3][3] =  zValue*zValue*mmbb;
+            trackCov[3][2] = -zValue       *mmbb;
+            trackCov[0][1] = -zValue       *mmbb;
+            trackCov[0][0] =                mmbb;
+            trackCov[2][3] = -zValue       *mmbb;
+            trackCov[2][2] =                mmbb;
         }
 
         else //not strip data (pixels)
@@ -355,11 +335,11 @@ void Geometry::calculatePlaneMCS(void)
                     sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
                     sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))/den);
 
-            hx[1]  = rightVector[0]+rightVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
+            hx[1] = rightVector[0]+rightVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
             hy[1] = upVector[0]+upVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
-            hx[3]  = rightVector[1]+rightVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
+            hx[3] = rightVector[1]+rightVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
             hy[3] = upVector[1]+upVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
-            hx[0]  = (sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
+            hx[0] = (sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
                     sensorOrigin[1]*(upVector[0]*rightVector[2]-rightVector[0]*upVector[2])+
                     sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
                     (upVector[1]*(rightVector[0]*rightVector[0]+rightVector[2]*rightVector[2])-
@@ -369,7 +349,7 @@ void Geometry::calculatePlaneMCS(void)
                     -sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
                     (rightVector[1]*(upVector[0]*upVector[0]+upVector[2]*upVector[2])-
                     upVector[1]*(upVector[0]*rightVector[0]+upVector[2]*rightVector[2]))/(den*den);
-            hx[2]  = (sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
+            hx[2] = (sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
                     sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
                     sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
                     (rightVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
@@ -380,25 +360,27 @@ void Geometry::calculatePlaneMCS(void)
                     (upVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
                     rightVector[0]*(upVector[1]*upVector[1]+upVector[2]*upVector[2]))/(den*den);
 
-            trackCovx[1][1] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[1][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[0][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[0][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            double mmbb = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
 
-            trackCovx[3][3] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[3][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[2][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovx[2][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[1][1] =  zValue*zValue*mmbb;
+            trackCovx[1][0] = -zValue       *mmbb;
+            trackCovx[0][1] = -zValue       *mmbb;
+            trackCovx[0][0] =                mmbb;
 
-            trackCovy[3][1] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[3][0] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[2][1] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[2][0] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovx[3][3] =  zValue*zValue*mmbb;
+            trackCovx[3][2] = -zValue       *mmbb;
+            trackCovx[2][3] = -zValue       *mmbb;
+            trackCovx[2][2] =                mmbb;
 
-            trackCovy[0][2] = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[1][2] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[0][3] = -zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-            trackCovy[1][3] = zValue*zValue*multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+            trackCovy[3][1] =  zValue*zValue*mmbb;
+            trackCovy[3][0] = -zValue       *mmbb;
+            trackCovy[2][1] = -zValue       *mmbb;
+            trackCovy[2][0] =                mmbb;
+
+            trackCovy[0][2] =                mmbb;
+            trackCovy[1][2] = -zValue       *mmbb;
+            trackCovy[0][3] = -zValue       *mmbb;
+            trackCovy[1][3] =  zValue*zValue*mmbb;
         }
 
         theKalmanPlaneInfo_.setH        (h,plaqID         );

@@ -128,6 +128,8 @@ private slots:
     void     on_lSelectedLE_textChanged     (const QString     & lFileName  );
     void     on_rSelectedLE_textChanged     (const QString     & rFileName  );
     void     on_compareDirsLegendPB_clicked (void                           );
+    void     on_spinBox_valueChanged        (const QString     & fontSize   );
+    void     on_TEFontSizeSB_valueChanged   (const QString     & fontSize   );
 
 private:
     typedef map<string , QFileSystemModel *> fileModelDef  ;

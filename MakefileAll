@@ -34,7 +34,7 @@ ACReverse     = [7m
 ACClear       = [2J
 ACClearL      = [2K
 
-all: customComboBox customLineEdit customTextEdit customSpinBox customCheckBox customTableView customTableWidget MonicelliProject Louvre finder
+all: customComboBox customLineEdit customTextEdit customSpinBox customCheckBox customTableView customTableWidget MonicelliProject LouvreProject finderProject 
 	
 ###############################################################
 customCheckBox:
@@ -123,7 +123,7 @@ MonicelliProject:
 	@echo 
 
 ###############################################################
-Louvre:
+LouvreProject:
 	@echo 
 	@echo '$(ACYellow)$(ACBold)+=================================== Building Louvre ============================================<<$(ACPlain)'
 	@echo '$(ACYellow)$(ACBold)|$(ACPlain)'
@@ -132,7 +132,7 @@ Louvre:
 	@echo 
 
 ###############################################################
-finder:
+finderProject:
 	@echo 
 	@echo '$(ACYellow)$(ACBold)+=================================== Building finder ============================================<<$(ACPlain)'
 	@echo '$(ACYellow)$(ACBold)|$(ACPlain)'
@@ -160,6 +160,10 @@ clean:
 	cd plugins/customTableWidget && qmake && make clean && cd ../ 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTextEdit =======================================<<$(ACPlain)'
 	cd plugins/customTextEdit    && qmake && make clean && cd ../ 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning Louvre  =======================================<<$(ACPlain)'
+	cd Louvre                    && qmake && make clean && cd ../ 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning finder  =======================================<<$(ACPlain)'
+	cd finder                    && qmake && make clean && cd ../ 
 
 ###############################################################
 distclean:
@@ -187,3 +191,9 @@ distclean:
 	@echo 
 	@echo '$(ACRed)$(ACBold)+=================================== Cleaning customTextEdit =======================================<<$(ACPlain)'
 	cd plugins/customTextEdit    && qmake && make distclean && qmake
+	@echo 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning Louvre  =======================================<<$(ACPlain)'
+	cd Louvre    && qmake && make distclean && qmake
+	@echo 
+	@echo '$(ACRed)$(ACBold)+=================================== Cleaning finder  =======================================<<$(ACPlain)'
+	cd finder    && qmake && make distclean && qmake

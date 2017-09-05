@@ -79,9 +79,9 @@ MainWindow::MainWindow(QWidget *parent) :
      t.second.first->horizontalHeaderItem(moveColumn_)->setIcon              (cIcon             );
     }
 
-    connect(ui_->sourceTW,      SIGNAL(cellClicked      (int,  int          ))  ,
+    connect(ui_->sourceTW,      SIGNAL(cellDoubleClicked(int,  int          ))  ,
             this,               SLOT  (reactToClickS    (int,  int          ))) ;
-    connect(ui_->destinationTW, SIGNAL(cellClicked      (int,  int          ))  ,
+    connect(ui_->destinationTW, SIGNAL(cellDoubleClicked(int,  int          ))  ,
             this,               SLOT  (reactToClickD    (int,  int          ))) ;
 
     connect(ui_->sourceTV,      SIGNAL(activated        (const QModelIndex &))  ,
@@ -691,21 +691,18 @@ void MainWindow::reactToClick(QString target, int row, int column)
                 ss_.str(""); ss_ << "Item not found at row " << row ; STDLINE(ss_.str(),ACWhite) ;
                 continue ;
             }
-            QString            item  = iS->text() ;
+            QString item  = iS->text() ;
             ss_.str("") ; ss_ << item.toStdString() << " in " << (*it).toStdString() ;
-            STDLINE(ss_.str(),ACGreen) ;
-            QString            dir   = diffTable_["source"].second->text() ;
+            QString dir   = diffTable_["source"].second->text() ;
             QRegExp fileType("(\\.jpg|\\.JPG|\\.png|\\.gif|\\.CR2|\\.psd)");
+            ui_->mainTW->setCurrentIndex(1) ;
+            ui_->pictureInfoLeftTA ->setLineWrapMode(QTextEdit::NoWrap) ;
+            ui_->pictureInfoRightTA->setLineWrapMode(QTextEdit::NoWrap) ;
+            QString fullPath   = dir + item ;
             if( item.contains(fileType) && differencesAnalyzed_)
             {
-                STDLINE("Proceed with a picture...",ACCyan) ;
-                ui_->mainTW->setCurrentIndex(1) ;
-                ui_->pictureInfoLeftTA ->setLineWrapMode(QTextEdit::NoWrap) ;
-                ui_->pictureInfoRightTA->setLineWrapMode(QTextEdit::NoWrap) ;
-                QString fullPath   = dir + item ;
                 QPixmap thePicture = QPixmap(fullPath) ;
                 ss_.str(""); ss_ << "Treating: " << fullPath.toStdString() << "...";
-                STDLINE(ss_.str(),ACWhite);
                 int w = thePicture.width ()*ui_->pictureScaleSB->value() ;
                 int h = thePicture.height()*ui_->pictureScaleSB->value() ;
                 if( w < 100 ) w = 100 ;
@@ -749,9 +746,17 @@ void MainWindow::reactToClick(QString target, int row, int column)
             }
             else
             {
-                ss_.str(""); ss_ << "Could not display: " << item.toStdString() << " has an unrecognized picture format" ;
-                statusBar()->showMessage(QString(ss_.str().c_str()));
-                STDLINE(ss_.str(),ACRed) ;
+                QFileInfo fInfo(fullPath) ;
+                if(fInfo.isDir())
+                {
+                    ss_.str(""); ss_ << "Drill down to " << fullPath.toStdString() ;
+                    STDLINE(ss_.str(),ACWhite) ;
+                }
+                else
+                {
+                    ss_.str(""); ss_ << "Could not display: " << fullPath.toStdString() << " has an unrecognized picture format" ;
+                    statusBar()->showMessage(QString(ss_.str().c_str()));
+                }
             }
         }
         STDLINE("Next...", ACBlue) ;

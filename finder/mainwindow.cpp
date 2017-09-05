@@ -18,6 +18,9 @@ MainWindow::MainWindow (QWidget *parent   ) :
     ui_->rSplitter          ->show      (      ) ;
     ui_->dirComparisonGB    ->setVisible(false ) ;
 
+//    QMenu * optMenu = this->menuBar()->addMenu(tr("&Options")) ;
+//    optMenu->addAction(defineOptions) ;
+
     char* homePath   = getenv ("HOME"      ) ;
     char* finderHome = getenv ("FINDERHOME") ;
     HOME_            = QString(homePath    ) ;
@@ -117,7 +120,7 @@ void MainWindow::compareDirs(QString lFileName, QString rFileName)
     statusBar()->showMessage(tr("View populated"));
 
     QProcess    * diffProcess = new QProcess();
-    QString       command     = "sdiff"        ;
+    QString       command     = "diff"        ;
     QStringList   arguments                   ;
 
     if( !ui_->fullComparisonCB ->isChecked() ) arguments << "-q" ;
@@ -167,7 +170,7 @@ void MainWindow::compareDirs(QString lFileName, QString rFileName)
         match  = regexDiffer.match(lines.at(l));
         if (match.hasMatch())
         {
-            STDLINE(lines.at(l).toStdString(),ACGreen) ;
+//            STDLINE(lines.at(l).toStdString(),ACGreen) ;
             QString lFound = match.captured(1).replace(lFileName+QString("/"),QString("")) ;
             QString rFound = match.captured(2).replace(rFileName+QString("/"),QString("")) ;
             lBlockF.setBackground (QBrush(differColor));
@@ -182,14 +185,13 @@ void MainWindow::compareDirs(QString lFileName, QString rFileName)
         match  = regexOnlyIn.match(lines.at(l));
         if (match.hasMatch())
         {
-            STDLINE(lines.at(l).toStdString(),ACWhite) ;
+//            STDLINE(lines.at(l).toStdString(),ACWhite) ;
             if( match.captured(1).contains(lFileName ))
             {
-                STDLINE(lines.at(l)      .toStdString(),ACCyan  );
-                STDLINE(match.captured(1).toStdString(),ACCyan  );
-                STDLINE(lFileName        .toStdString(),ACCyan  );
+//                STDLINE(lines.at(l)      .toStdString(),ACCyan  );
+//                STDLINE(match.captured(1).toStdString(),ACCyan  );
+//                STDLINE(lFileName        .toStdString(),ACCyan  );
                 QString lFound = match.captured(2);
-//                lFound = lFound.replace(lFileName);
                 if( match.captured(1) == lFileName ) lFound = match.captured(2) ;
                 else                                 lFound = lFound + QString("/") + match.captured(2) ;
                 lBlockF.setBackground (QBrush(onlyInColor));
@@ -203,11 +205,10 @@ void MainWindow::compareDirs(QString lFileName, QString rFileName)
             }
             if( match.captured(1).contains(rFileName ))
             {
-                STDLINE(lines.at(l)      .toStdString(),ACYellow);
-                STDLINE(match.captured(1).toStdString(),ACCyan  );
-                STDLINE(rFileName        .toStdString(),ACCyan  );
+//                STDLINE(lines.at(l)      .toStdString(),ACYellow);
+//                STDLINE(match.captured(1).toStdString(),ACCyan  );
+//                STDLINE(rFileName        .toStdString(),ACCyan  );
                 QString rFound = match.captured(2) ;
-//                rFound = rFound.replace(rFileName);
                 if( match.captured(1) == rFileName ) rFound = match.captured(2) ;
                 else                                 rFound = rFound + QString("/") + match.captured(2) ;
                 lBlockF.setBackground (QBrush(onlyInColor));
@@ -223,7 +224,7 @@ void MainWindow::compareDirs(QString lFileName, QString rFileName)
         match  = regexCommon.match(lines.at(l));
         if (match.hasMatch())
         {
-            STDLINE(lines.at(l).toStdString(),ACRed) ;
+//            STDLINE(lines.at(l).toStdString(),ACRed) ;
             QString lFound = match.captured(1).replace(lFileName+QString("/"),QString("")) ;
             QString rFound = match.captured(2).replace(rFileName+QString("/"),QString("")) ;
             lBlockF.setBackground(QBrush(commonColor));
@@ -238,7 +239,7 @@ void MainWindow::compareDirs(QString lFileName, QString rFileName)
         match  = regexIdentical.match(lines.at(l));
         if (match.hasMatch())
         {
-            STDLINE(lines.at(l).toStdString(),ACGreen) ;
+//            STDLINE(lines.at(l).toStdString(),ACGreen) ;
             QString lFound = match.captured(1).replace(lFileName+QString("/"),QString("")) ;
             QString rFound = match.captured(2).replace(rFileName+QString("/"),QString("")) ;
             lBlockF.setBackground(QBrush(identMColor));
@@ -253,7 +254,7 @@ void MainWindow::compareDirs(QString lFileName, QString rFileName)
         match  = regexFullCompA.match(lines.at(l));
         if (match.hasMatch())
         {
-            STDLINE(lines.at(l).toStdString(),ACGreen) ;
+//            STDLINE(lines.at(l).toStdString(),ACGreen) ;
             QString theL = lines.at(l) ;
             theL.replace(QRegularExpression("( -s| -r)") ,QString("")) ;
             theL.replace(QRegularExpression("^diff")     ,QString("")) ;
@@ -272,7 +273,7 @@ void MainWindow::compareDirs(QString lFileName, QString rFileName)
         match  = regexFullCompB.match(lines.at(l));
         if (match.hasMatch())
         {
-            STDLINE(lines.at(l).toStdString(),ACGreen) ;
+//            STDLINE(lines.at(l).toStdString(),ACGreen) ;
             QString lFound = lines.at(l) ;
             QString rFound = lines.at(l) ;
             lBlockF.setBackground(QBrush(fullBdColor));
@@ -1002,12 +1003,13 @@ void MainWindow::on_findPB_clicked()
     {
         for(int i=0; i< selectedP.size(); ++i)
         {
+//            if(selectedP.at(i) == "." || selectedP.at(i) == ".." ) continue;
             parts += root + selectedP.at(i) ;
             if( i != selectedP.size()-1) parts += QString(" " ) ;
         }
         parts += "\"" ;
     }
-
+    STDLINE(parts.toStdString(),ACWhite) ;
     arguments << parts ;
 
     if( matchP.size() > 0 )
@@ -1136,7 +1138,7 @@ void MainWindow::dispatchResults(QString & results, QString & errors)
 
     for( int l=0; l<linesR.size(); ++l)
     {
-//        cout << __LINE__ << "] " << linesR.at(l).toStdString() << endl ;
+        cout << __LINE__ << "] " << linesR.at(l).toStdString() << endl ;
         match  = regexFind.match(linesR.at(l)); // Intercept this programs's messages
         if (match.hasMatch())
         {
@@ -1481,7 +1483,7 @@ void MainWindow::on_rSelectedLE_textChanged(const QString &rFileName)
 void MainWindow::on_compareDirsLegendPB_clicked()
 {
     QPixmap pix;
-    if( pix.load("/Users/menasce/AnalysisTBF/Monicelli/finder/dirComparisonColorLegenda.jpg") && !pix.isNull())
+    if( pix.load(FINDERHOME_+QString("/dirComparisonColorLegenda.jpg")) && !pix.isNull())
     {
     }
     else
@@ -1497,4 +1499,22 @@ void MainWindow::on_compareDirsLegendPB_clicked()
     legenda.setText         (QString("Color codes description")) ;
     legenda.setIconPixmap   (pix                               ) ;
     legenda.exec            (                                  ) ;
+}
+
+//===========================================================================
+void MainWindow::on_spinBox_valueChanged(const QString &fontSize)
+{
+    QFont font = ui_->lPanelTE->font()  ;
+    font.setPointSize(fontSize.toInt()) ;
+    ui_->lPanelTE->setFont(font)        ;
+    ui_->rPanelTE->setFont(font)        ;
+}
+
+//===========================================================================
+void MainWindow::on_TEFontSizeSB_valueChanged(const QString &fontSize)
+{
+    QFont font = ui_->lPanelTE->font()   ;
+    font.setPointSize(fontSize.toInt())  ;
+    ui_->matchedFilesTE  ->setFont(font) ;
+    ui_->matchedResultsTE->setFont(font) ;
 }

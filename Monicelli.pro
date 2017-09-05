@@ -240,8 +240,9 @@ trees.depends        = mkdirtmp                                                 
 
 trees.target         = tmp/EventDict.C
 
-contains(ROOTVERSION, "FIVE") {
- trees.commands      = @echo "'[1;33m------ ROOT5 full dictionary -[0;0m'" &&          \
+contains(ROOTVERSION, "FIVE")                                                              \
+{
+ trees.commands      = @echo "'[1;33m------ ROOT5 full dictionary -[0;0m'" &&    \
                        rootcint -f tmp/EventDict.C               	      		   \
                                 -c include/Event.h+              	      		   \
                                    include/Geometry.h+           	      		   \

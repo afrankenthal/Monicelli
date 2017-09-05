@@ -30,7 +30,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="mainPanelTab">
      <attribute name="title">
@@ -4510,6 +4510,38 @@ p, li { white-space: pre-wrap; }
          </property>
         </widget>
        </widget>
+       <widget class="QLabel" name="TEFontSizeLB">
+        <property name="geometry">
+         <rect>
+          <x>1276</x>
+          <y>52</y>
+          <width>64</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Font size</string>
+        </property>
+       </widget>
+       <widget class="QSpinBox" name="TEFontSizeSB">
+        <property name="geometry">
+         <rect>
+          <x>1338</x>
+          <y>50</y>
+          <width>48</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="minimum">
+         <number>6</number>
+        </property>
+        <property name="maximum">
+         <number>20</number>
+        </property>
+        <property name="value">
+         <number>14</number>
+        </property>
+       </widget>
       </widget>
      </widget>
     </widget>
@@ -4531,7 +4563,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>740</x>
-        <y>992</y>
+        <y>988</y>
         <width>21</width>
         <height>19</height>
        </rect>
@@ -4560,7 +4592,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>650</x>
-        <y>992</y>
+        <y>988</y>
         <width>85</width>
         <height>20</height>
        </rect>
@@ -4618,7 +4650,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>622</x>
-        <y>992</y>
+        <y>988</y>
         <width>21</width>
         <height>19</height>
        </rect>
@@ -4631,7 +4663,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>774</x>
-        <y>992</y>
+        <y>988</y>
         <width>137</width>
         <height>20</height>
        </rect>
@@ -4673,7 +4705,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>650</x>
-        <y>968</y>
+        <y>964</y>
         <width>85</width>
         <height>20</height>
        </rect>
@@ -4823,10 +4855,10 @@ p, li { white-space: pre-wrap; }
       <widget class="QPushButton" name="compareDirsLegendPB">
        <property name="geometry">
         <rect>
-         <x>166</x>
-         <y>16</y>
-         <width>81</width>
-         <height>32</height>
+         <x>170</x>
+         <y>20</y>
+         <width>71</width>
+         <height>22</height>
         </rect>
        </property>
        <property name="text">
@@ -5185,6 +5217,38 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </widget>
+     <widget class="QSpinBox" name="panelsFontSizeSB">
+      <property name="geometry">
+       <rect>
+        <x>138</x>
+        <y>968</y>
+        <width>48</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>6</number>
+      </property>
+      <property name="maximum">
+       <number>20</number>
+      </property>
+      <property name="value">
+       <number>14</number>
+      </property>
+     </widget>
+     <widget class="QLabel" name="panelsFontSizeLB">
+      <property name="geometry">
+       <rect>
+        <x>76</x>
+        <y>970</y>
+        <width>64</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Font size</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="commandLineStringTab">
      <attribute name="title">
@@ -5234,15 +5298,9 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1399</width>
-     <height>22</height>
+     <height>27</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFinder">
-    <property name="title">
-     <string>Finder</string>
-    </property>
-   </widget>
-   <addaction name="menuFinder"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">

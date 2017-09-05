@@ -38,6 +38,7 @@
 #include <TMath.h>
 #include <TVectorT.h>
 #include <TMatrixTSym.h>
+#include <TBenchmark.h>
 #include <iostream>
 
 using namespace std;
@@ -72,8 +73,7 @@ public:
                                                                            Event::vectorDef                        & track                ,
                                                                            Event::matrixDef                        & cov                  ,
                                                                            Event::clustersMapDef                   & clusters             ,
-                                                                           Geometry                                * theGeometry          ,
-                                                                           std::string                               excludedDetector = "" );
+                                                                           Geometry                                * theGeometry           );
    void                                   makeDetectorTrackResiduals      (ROOT::Math::SVector<double,4>           & fittedTrack          ,
                                                                            Event::matrixDef                        & covMat               ,
                                                                            const Event::clustersMapDef             & clusters             ,

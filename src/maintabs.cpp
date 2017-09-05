@@ -3073,9 +3073,9 @@ void mainTabs::on_unconstrainedResidualsPB_clicked()
     }
     else theTrackFitter_->clearSelectedDetectorsList();
 
-    theTrackFitter_->setOperation(&trackFitter::makeFittedTracksResiduals);
-    theFileEater_->setOperation(&fileEater::updateEvents2,theTrackFitter_);
-    this->launchThread2(theFileEater_);
+    theTrackFitter_->setOperation (&trackFitter::makeFittedTracksResiduals                );
+    theFileEater_  ->setOperation (&fileEater::updateEvents2              ,theTrackFitter_);
+    this           ->launchThread2(theFileEater_                                          );
 }
 //=============================================================================
 void mainTabs::on_makeFittedTracksDeviationsPB_clicked()

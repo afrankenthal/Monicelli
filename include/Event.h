@@ -199,7 +199,7 @@ public:
     typedef std::vector        <double                                                   > chi2VectorDef                          ;
     typedef std::vector        <std::map<std::string, vectorDef>                         > unconstrainedFittedTracksDef           ;
     typedef std::vector        <std::map<std::string, matrixDef>                         > unconstrainedFittedTracksCovarianceDef ;
-    typedef std::vector        <std::map<std::string, double   >                         >    unconstrainedChi2VectorDef          ;
+    typedef std::vector        <std::map<std::string, double   >                         > unconstrainedChi2VectorDef             ;
 
                                             Event                                 (void                                     );
                                            ~Event                                 (void                                     );
