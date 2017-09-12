@@ -459,8 +459,11 @@ void geometryLoader::acquireInfo(DOMElement * element)
             theGeometry_->getDetector( currentPlaqID_ )->setYPosition(Utils::toDouble(textContent)*CONVF);
 
         if( tagName == "zPosition"  && this->validContent(tagName,textContent))
+        {
             theGeometry_->getDetector( currentPlaqID_ )->setZPosition(Utils::toDouble(textContent)*CONVF);
-
+            ss_.str(""); ss_ << "Z position" << Utils::toDouble(textContent)*CONVF << endl ;
+            STDLINE(ss_.str(),ACWhite) ;
+        }
         if( tagName == "xRotation"  && this->validContent(tagName,textContent))
             theGeometry_->getDetector( currentPlaqID_ )->setXRotation( Utils::toDouble(textContent));
 

@@ -233,8 +233,16 @@ void Geometry::orderPlanes(void)
 
     for(std::map< std::string , Detector* >::iterator it = detectorsMap_.begin(); it!=detectorsMap_.end();++it)
     {
+//        ss_.str(""); ss_ << "Detector: "
+//                         << it->second->getName()
+//                         << " ID(1): "
+//                         << it->second->getID()
+//                         << " ID(2): "
+//                         << it->first
+//                         << " z: "
+//                         << it->second->getZPosition();
+//        STDLINE(ss_.str(),ACWhite) ;
         std::string plaqID = it->first;
-        if( it->second->isDUT() ) continue;
         double z = it->second->getZPosition();
         plaqByZ.push_back(make_pair(z,plaqID));
     }
@@ -250,147 +258,75 @@ void Geometry::calculatePlaneMCS(void)
     {
 
         std::string plaqID = theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).second;
+        Detector* detector = getDetector(plaqID);
 
-        if( getDetector( plaqID )->isDUT() ) continue;
-
-        //Use Kalman fit method to improve fit
+        //std::cout<<__PRETTY_FUNCTION__<<" Detector: "<<plaqID<<" zPosition: "<<theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).first<<std::endl;
 
         //Define variables
-        Detector* detector = getDetector(plaqID);
-        double multipleScattering = 6.18e-6;// 4.37e-6;
-        bool dataType = detector->isStrip();
+        double multipleScattering;
+        if     (detector->isStrip()) multipleScattering =  6.18e-6;
+        else if(detector->isDUT()  ) multipleScattering = 10.70e-6;
+        else                         multipleScattering = 10.70e-6;
+
         double zValue = detector->getZPositionTotal();
         TVectorT   <double> sensorOrigin(4);
         TVectorT   <double> upVector    (4);
         TVectorT   <double> rightVector (4);
         TVectorT   <double> beamVector  (4);
         TVectorT   <double> h           (4);
-        TVectorT   <double> hx          (4);
-        TVectorT   <double> hy          (4);
         TMatrixTSym<double> trackCov    (4);
-        TMatrixTSym<double> trackCovx   (4);
-        TMatrixTSym<double> trackCovy   (4);
         double offset   = 0                ;
-        double offsetx  = 0                ;
-        double offsety  = 0                ;
 
-       //Define local coordinates
+        //Define local coordinates
         sensorOrigin[0] = 0; sensorOrigin[1] = 0; sensorOrigin[2] = 0;
         upVector[0]     = 0; upVector[1]     = 1; upVector[2]     = 0;
         rightVector[0]  = 1; rightVector[1]  = 0; rightVector[2]  = 0;
         beamVector[0]   = 0; beamVector[1]   = 0; beamVector[2]   = 1;
 
         //Change to global coordinates
-        detector->fromLocalToGlobal(&sensorOrigin[0], &sensorOrigin[1], &sensorOrigin[2]);
-        detector->fromLocalToGlobal(&upVector[0],     &upVector[1],     &upVector[2]);
-        detector->fromLocalToGlobal(&rightVector[0],  &rightVector[1],  &rightVector[2]);
-        detector->fromLocalToGlobal(&beamVector[0],   &beamVector[1],   &beamVector[2]);
+        detector->fromLocalToGlobal(&sensorOrigin[0],&sensorOrigin[1],&sensorOrigin[2]);
+        detector->fromLocalToGlobal(&upVector    [0],&upVector    [1],&upVector    [2]);
+        detector->fromLocalToGlobal(&rightVector [0],&rightVector [1],&rightVector [2]);
+        detector->fromLocalToGlobal(&beamVector  [0],&beamVector  [1],&beamVector   [2]);
 
         //Normalize vectors
-        upVector[0]    -= sensorOrigin[0]; upVector[1]    -= sensorOrigin[1]; upVector[2]    -= sensorOrigin[2];
+        upVector   [0] -= sensorOrigin[0]; upVector   [1] -= sensorOrigin[1]; upVector   [2] -= sensorOrigin[2];
         rightVector[0] -= sensorOrigin[0]; rightVector[1] -= sensorOrigin[1]; rightVector[2] -= sensorOrigin[2];
-        beamVector[0]  -= sensorOrigin[0]; beamVector[1]  -= sensorOrigin[1]; beamVector[2]  -= sensorOrigin[2];
+        beamVector [0] -= sensorOrigin[0]; beamVector [1] -= sensorOrigin[1]; beamVector [2] -= sensorOrigin[2];
 
-        if (dataType) //strip data
-        {
-            double den = upVector[1]*rightVector[0]-upVector[0]*rightVector[1];
-            offset= -sensorOrigin[0]*rightVector[0] - sensorOrigin[1]*rightVector[1]+
-                    rightVector[2]*(-sensorOrigin[2]+(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                                                      sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                                                      sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))/den);
-            h[1] = rightVector[0]+rightVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
-            h[3] = rightVector[1]+rightVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
-            h[0] =(sensorOrigin[0]*(upVector[2]   *rightVector[1]-upVector[1]   *rightVector[2])+
-                   sensorOrigin[1]*(upVector[0]   *rightVector[2]-rightVector[0]*upVector[2]   )+
-                   sensorOrigin[2]*(upVector[1]   *rightVector[0]-upVector[0]   *rightVector[1]))*
-                   (upVector[1]   *(rightVector[0]*rightVector[0]+rightVector[2]*rightVector[2])-
-                    rightVector[1]*(upVector[0]   *rightVector[0]+upVector[2]   *rightVector[2]))/(den*den);
-            h[2] =(sensorOrigin[0]*(upVector[2]   *rightVector[1]-upVector[1]   *rightVector[2])+
-                   sensorOrigin[1]*(upVector[0]   *rightVector[2]-upVector[2]   *rightVector[0])+
-                   sensorOrigin[2]*(upVector[1]   *rightVector[0]-upVector[0]   *rightVector[1]))*
-                   (rightVector[0]*(upVector[1]   *rightVector[1]+upVector[2]   *rightVector[2])-
-                    upVector[0]   *(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
 
-            double mmbb = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+        double den = upVector[1]*rightVector[0] - upVector[0]    *rightVector[1];
+        offset= -sensorOrigin[0]*rightVector[0] - sensorOrigin[1]*rightVector[1]+
+                rightVector[2]*(-sensorOrigin[2]+(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
+                sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
+                sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))/den);
+        h[1] = rightVector[0]+rightVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
+        h[3] = rightVector[1]+rightVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
+        h[0] =(sensorOrigin[0]*(upVector[2]   *rightVector[1]-upVector[1]   *rightVector[2])+
+                sensorOrigin[1]*(upVector[0]   *rightVector[2]-rightVector[0]*upVector[2]   )+
+                sensorOrigin[2]*(upVector[1]   *rightVector[0]-upVector[0]   *rightVector[1]))*
+                (upVector[1]   *(rightVector[0]*rightVector[0]+rightVector[2]*rightVector[2])-
+                rightVector[1]*(upVector[0]   *rightVector[0]+upVector[2]   *rightVector[2]))/(den*den);
+        h[2] =(sensorOrigin[0]*(upVector[2]   *rightVector[1]-upVector[1]   *rightVector[2])+
+                sensorOrigin[1]*(upVector[0]   *rightVector[2]-upVector[2]   *rightVector[0])+
+                sensorOrigin[2]*(upVector[1]   *rightVector[0]-upVector[0]   *rightVector[1]))*
+                (rightVector[0]*(upVector[1]   *rightVector[1]+upVector[2]   *rightVector[2])-
+                upVector[0]   *(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
 
-            trackCov[1][1] =  zValue*zValue*mmbb;
-            trackCov[1][0] = -zValue       *mmbb;
-            trackCov[3][3] =  zValue*zValue*mmbb;
-            trackCov[3][2] = -zValue       *mmbb;
-            trackCov[0][1] = -zValue       *mmbb;
-            trackCov[0][0] =                mmbb;
-            trackCov[2][3] = -zValue       *mmbb;
-            trackCov[2][2] =                mmbb;
-        }
+        double mmbb = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
 
-        else //not strip data (pixels)
-        {
-            double den = upVector[1]*rightVector[0]-upVector[0]*rightVector[1];
-            offsetx = -sensorOrigin[0]*rightVector[0] - sensorOrigin[1]*rightVector[1]+
-                    rightVector[2]*(-sensorOrigin[2]+(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                    sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                    sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))/den);
-            offsety = -sensorOrigin[0]*upVector[0] - sensorOrigin[1]*upVector[1]+
-                    upVector[2]*(-sensorOrigin[2]+(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                    sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                    sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))/den);
+        trackCov[1][1] =  zValue*zValue*mmbb;
+        trackCov[1][0] = -zValue       *mmbb;
+        trackCov[3][3] =  zValue*zValue*mmbb;
+        trackCov[3][2] = -zValue       *mmbb;
+        trackCov[0][1] = -zValue       *mmbb;
+        trackCov[0][0] =                mmbb;
+        trackCov[2][3] = -zValue       *mmbb;
+        trackCov[2][2] =                mmbb;
 
-            hx[1] = rightVector[0]+rightVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
-            hy[1] = upVector[0]+upVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
-            hx[3] = rightVector[1]+rightVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
-            hy[3] = upVector[1]+upVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
-            hx[0] = (sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                    sensorOrigin[1]*(upVector[0]*rightVector[2]-rightVector[0]*upVector[2])+
-                    sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                    (upVector[1]*(rightVector[0]*rightVector[0]+rightVector[2]*rightVector[2])-
-                    rightVector[1]*(upVector[0]*rightVector[0]+upVector[2]*rightVector[2]))/(den*den);
-            hy[0] = (-sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])
-                    -sensorOrigin[1]*(upVector[0]*rightVector[2]-rightVector[0]*upVector[2])
-                    -sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                    (rightVector[1]*(upVector[0]*upVector[0]+upVector[2]*upVector[2])-
-                    upVector[1]*(upVector[0]*rightVector[0]+upVector[2]*rightVector[2]))/(den*den);
-            hx[2] = (sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
-                    sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
-                    sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                    (rightVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
-                    upVector[0]*(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
-            hy[2] = (-sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])
-                    -sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])
-                    -sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))*
-                    (upVector[0]*(upVector[1]*rightVector[1]+upVector[2]*rightVector[2])-
-                    rightVector[0]*(upVector[1]*upVector[1]+upVector[2]*upVector[2]))/(den*den);
-
-            double mmbb = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
-
-            trackCovx[1][1] =  zValue*zValue*mmbb;
-            trackCovx[1][0] = -zValue       *mmbb;
-            trackCovx[0][1] = -zValue       *mmbb;
-            trackCovx[0][0] =                mmbb;
-
-            trackCovx[3][3] =  zValue*zValue*mmbb;
-            trackCovx[3][2] = -zValue       *mmbb;
-            trackCovx[2][3] = -zValue       *mmbb;
-            trackCovx[2][2] =                mmbb;
-
-            trackCovy[3][1] =  zValue*zValue*mmbb;
-            trackCovy[3][0] = -zValue       *mmbb;
-            trackCovy[2][1] = -zValue       *mmbb;
-            trackCovy[2][0] =                mmbb;
-
-            trackCovy[0][2] =                mmbb;
-            trackCovy[1][2] = -zValue       *mmbb;
-            trackCovy[0][3] = -zValue       *mmbb;
-            trackCovy[1][3] =  zValue*zValue*mmbb;
-        }
 
         theKalmanPlaneInfo_.setH        (h,plaqID         );
-        theKalmanPlaneInfo_.setHx       (hx,plaqID        );
-        theKalmanPlaneInfo_.setHy       (hy,plaqID        );
         theKalmanPlaneInfo_.setTrackCov (trackCov,plaqID  );
-        theKalmanPlaneInfo_.setTrackCovx(trackCovx,plaqID );
-        theKalmanPlaneInfo_.setTrackCovy(trackCovy,plaqID );
         theKalmanPlaneInfo_.setOffset   (offset,plaqID    );
-        theKalmanPlaneInfo_.setOffsetx  (offsetx,plaqID   );
-        theKalmanPlaneInfo_.setOffsety  (offsety,plaqID   );
     }
 }

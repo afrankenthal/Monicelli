@@ -592,11 +592,11 @@ void trackFinder::fitKalmanTrackCandidates(Event* theEvent, Geometry* theGeometr
     fitSimpleTrackCandidates(theEvent, theGeometry);
 
     //Outputs of Simple Fit to iterate over
-    Event::trackCandidatesDef        &trackCandidates = theEvent->getTrackCandidates()       ;
-    Event::fittedTracksDef           &tracksFitted    = theEvent->getFittedTracks()          ;
-    Event::fittedTracksCovarianceDef &covMat          = theEvent->getFittedTracksCovariance();
-    Event::chi2VectorDef             &chi2            = theEvent->getFittedTracksChi2()      ;
-    Event::clustersMapDef            &clusters        = theEvent->getClusters()              ;
+    Event::trackCandidatesDef        &trackCandidates = theEvent->getTrackCandidates()            ;
+    Event::fittedTracksDef           &tracksFitted    = theEvent->getFittedTracks()               ;
+    Event::fittedTracksCovarianceDef &covMat          = theEvent->getFittedTracksCovariance()     ;
+    Event::chi2VectorDef             &chi2            = theEvent->getFittedTracksChi2()           ;
+    Event::clustersMapDef            &clusters        = theEvent->getClusters()                   ;
 
     //Define iterators
     std::vector<Event::alignedHitsCandidateMapDef>::iterator trackCandidate = trackCandidates.begin();
@@ -607,20 +607,24 @@ void trackFinder::fitKalmanTrackCandidates(Event* theEvent, Geometry* theGeometr
     //cout << __PRETTY_FUNCTION__ << "Kalman Track Fit All" << endl;
 
     //Iterate over candidate tracks, fitted tracks, and corresponding covarience matrices
+
     for (; trackCandidate!=trackCandidates.end(); trackCandidate++, track++, cov++, itChi2++)
     {
         trackFitter::aFittedTrackDef aKalmanFittedTrack = theTrackFitter_->kalmanFitSingleTrack(*trackCandidate,
                                                                                                 *track         ,
                                                                                                 *cov           ,
-                                                                                                clusters       ,
-                                                                                                theGeometry);
+                                                                                                 clusters      ,
+                                                                                                 theGeometry    );
+
         if ( aKalmanFittedTrack.second < chi2cut_ || (chi2cut_ < 0 && aKalmanFittedTrack.second < CHI2DOF_CUT) )
         {
             (*track)  = aKalmanFittedTrack.first.first ;
             (*cov)    = aKalmanFittedTrack.first.second;
             (*itChi2) = aKalmanFittedTrack.second      ;
+            cout << __LINE__ << "] Residuals confirmed " << endl ;
         }
     }
+
 }
 
 //============================================================================

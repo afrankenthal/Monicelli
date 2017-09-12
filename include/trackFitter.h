@@ -59,7 +59,8 @@ public:
    typedef std::pair< std::pair< SV4Def, Event::matrixDef >, double> aFittedTrackDef;
    typedef std::pair<double, std::string>                            pairDef        ;
    typedef std::vector<pairDef>::const_reverse_iterator              revIterDef     ;
-   typedef std::map<std::string, std::pair<double, double> >         resDef         ;
+   typedef std::map<std::string, std::pair<double, double> >         resDef         ; 
+   typedef std::vector<resDef>                                       kalmanResidualsVectorDef;
 
    void                                   clear                           (void                                                            );
    void                                   clearSelectedDetectorsList      (void                                                            ){selectedDetectors_.clear()          ;}
@@ -127,6 +128,9 @@ private:
     std::string                      fitMethodName_        ;
     int                              nIterations_          ;
     KalmanPlaneInfo                  theKalmanPlaneInfo_   ;
+    kalmanResidualsVectorDef         kalmanFittedTracksResiduals_;
+    kalmanResidualsVectorDef         kalmanFittedTracksPulls_    ;
+
 };
 
 #endif // TRACKFITTER_H

@@ -131,8 +131,8 @@ HManager::stringVDef HManager::fillResiduals (Event* theEvent   ,
                 {
                     //                    if(track[res->first]["charge"]>30000)//myTry
                     //                    {
-                    histoDevX->Fill( (*res).second.first  );
-                    histoDevY->Fill( (*res).second.second );
+                    histoDevX->Fill((*res).second.first);
+                    histoDevY->Fill((*res).second.second);
                     //                    }
                 }
             }
