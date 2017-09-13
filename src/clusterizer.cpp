@@ -616,8 +616,8 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 //                    if (fabs(detector->getXRotation(false)) > 10) yErr = tiltedChargeSharing / sqrt(12.);
 //                    else                                          yErr = (pixels[0].yPitch - 2*chargeSharing) / sqrt(12.);
 
-                    xErr = pixels[0].xPitch /(2 * sqrt(12.));
-                    yErr = 3800 / sqrt(12.); //length of the overlap area of two strip plane in tens of microns
+                    xErr = pixels[0].xPitch / sqrt(12.);
+                    yErr = 3800             / sqrt(12.); //length of the overlap area of two strip plane in tens of microns
                     //yErr = pixels[0].yPitch /(2 * sqrt(12.));
 
                     //cout<<__PRETTY_FUNCTION__<<"x: "<<x<<" y: "<<y<<" xErr: "<<xErr<<" yErr: "<<yErr<<endl;
@@ -661,7 +661,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                     {
                         //double center;
 
-                        xErr = pixels[0].xPitch /(2 * sqrt(12.));
+                        xErr = pixels[0].xPitch / sqrt(12.);
 
                         if (pixels[0].x < pixels[1].x)
                         {

@@ -48,6 +48,7 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
 
     ui->setupUi(this); // Always call this as the FIRST statement in the ctor!!
 
+//    theSettingsManager_ = new settingsManager(ui) ;
     gStyle->SetPalette(1) ;
 
     mainWindow_          = NULL;

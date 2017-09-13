@@ -264,9 +264,9 @@ void Geometry::calculatePlaneMCS(void)
 
         //Define variables
         double multipleScattering;
-        if     (detector->isStrip()) multipleScattering =  6.18e-6;
-        else if(detector->isDUT()  ) multipleScattering = 10.70e-6;
-        else                         multipleScattering = 10.70e-6;
+        if     (detector->isStrip()) multipleScattering =  8.26e-6;
+        else if(detector->isDUT()  ) multipleScattering = 16.04e-6;
+        else                         multipleScattering = 12.35e-6;
 
         double zValue = detector->getZPositionTotal();
         TVectorT   <double> sensorOrigin(4);

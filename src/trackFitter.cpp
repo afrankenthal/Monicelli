@@ -31,6 +31,8 @@
 #include "trackFitter.h"
 #include "MessageTools.h"
 
+#include <iomanip>
+
 //===============================================================================
 trackFitter::trackFitter(void)
 {
@@ -345,7 +347,11 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
     for (unsigned int plane = 0; plane < theKalmanPlaneInfo_.getKalmanFilterOrder().size(); plane++)
     {
         std::string plaqID = theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).second;
-        ss_.str("") ; ss_ << "Detector: " << plane << " plaqID: " << plaqID << " Z: " << theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).first << endl ;
+        trackParsMap[plaqID].ResizeTo(4  );
+        CkMap       [plaqID].ResizeTo(4,4);
+        Ckk_1Map    [plaqID].ResizeTo(4,4);
+        Ckk_1Org    [plaqID].ResizeTo(4,4);
+//        ss_.str("") ; ss_ << "Detector: " << plane << " plaqID: " << plaqID << " Z: " << theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).first << endl ;
 
         TVectorT   <double> k (4);
         TMatrixTSym<double> B (4);
@@ -377,7 +383,6 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                 double r       = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
                 k              = (1/r)*(estCov*h);
                 estCov        -= (1/r)*B.Similarity(estCov);// (1/r)*c*a*c^t
-                CkMap[plaqID].ResizeTo(4,4);
                 CkMap[plaqID]  = estCov;                
                 trackPars     += res*k;
                 //chi2 must be updated after filtering
@@ -406,22 +411,16 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
 //                     << endl;
             }
 
-            trackParsMap[plaqID].ResizeTo(4);
             trackParsMap[plaqID] = trackPars;
         }
         else
         {
-            CkMap[plaqID].ResizeTo(4,4);
-            CkMap[plaqID]        = estCov;
-            trackParsMap[plaqID].ResizeTo(4);
+            CkMap       [plaqID] = estCov;
             trackParsMap[plaqID] = trackPars;
         }
 
         if(plane != (theKalmanPlaneInfo_.getKalmanFilterOrder().size()-1)) //MCS correction must be applied to every plane but the last one
         {
-//            ss_.str(""); ss_<<" ADDING MCS - Detector: "<<plaqID<<" zPosition: "<<theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).first;
-//            trackCov.Print();
-
             for ( int i=0; i<4; i++ )
             {
                 for ( int j=0; j<4; j++ )
@@ -431,7 +430,6 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
             }
         }
 
-        Ckk_1Map[plaqID].ResizeTo(4,4);
         Ckk_1Map[plaqID] = estCov     ;
 
 //        estCov.Print();
@@ -442,23 +440,18 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                     rit!= theKalmanPlaneInfo_.getKalmanFilterOrder().crend();
                   ++rit)
     {
-            std::string plane = (*rit).second ;
+            std::string plaqID = (*rit).second ;
 
-//            ss_.str(""); ss_ <<" SMOOTHING - Detector: " << plane; STDLINE(ss_.str(),ACGreen) ;
-//            if(trackCandidate.find(plane) == trackCandidate.end()) continue; //Apply smoothing only to strip planes with hit
+            TVectorT<double> h = theKalmanPlaneInfo_.getH     (plaqID);
+            double offset      = theKalmanPlaneInfo_.getOffset(plaqID);
 
-            TVectorT<double> h = theKalmanPlaneInfo_.getH     (plane);
-            double offset      = theKalmanPlaneInfo_.getOffset(plane);
-
-            Ckk_1Org[plane].ResizeTo(4,4) ;
-            Ckk_1Org[plane] = Ckk_1Map[plane] ;
-            Ckk_1Map[plane].Invert();
-
-            A = CkMap[plane]*Ckk_1Map[plane];
+            Ckk_1Org[plaqID] = Ckk_1Map[plaqID] ;
+            Ckk_1Map[plaqID].Invert();
+            A = CkMap[plaqID]*Ckk_1Map[plaqID];
             At.Transpose(A);
 
-            trackPars = trackParsMap[plane] + A*(trackPars-trackParsMap[plane]);
-            temp      = CkMap[plane]        + A*(estCov-Ckk_1Org[plane])*At;
+            trackPars = trackParsMap[plaqID] + A*(trackPars-trackParsMap[plaqID]);
+            temp      = CkMap[plaqID]        + A*(estCov-Ckk_1Org[plaqID])*At;
 
             for ( int i=0; i<4; i++ )
             {
@@ -471,16 +464,18 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
 //            estCov.Print();
 
             //calculation of the residuals
-            if(trackCandidate.find(plane) != trackCandidate.end())
+            if(trackCandidate.find(plaqID) != trackCandidate.end())
             {
-                double dist    = clusters[plane][trackCandidate.find(plane)->second.find("cluster ID")->second].find("x"   )->second;
-                double distErr = clusters[plane][trackCandidate.find(plane)->second.find("cluster ID")->second].find("xErr")->second;
+
+                double dist    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x"   )->second;
+                double distErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
+
                 double res     = dist - trackPars*h - offset;
                 double r       = distErr*distErr - estCov.Similarity(h);// h*c*h^t + sigma^2
                 chi2          += (res*res/r)/(trackCandidate.size() - 2);
 
                 resX = 0; resY = 0; predsigxx = 0; predsigyy = 0; pullX = 0; pullY = 0;
-                if((theGeometry->getDetectorModule(plane))%2==0)
+                if((theGeometry->getDetectorModule(plaqID))%2==0)
                 {
                     resX        = res;
                     predsigxx   = r;
@@ -493,15 +488,15 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                     pullY       = resY/sqrt(predsigyy);
                 }
 
-                cout << __LINE__ << "] Residuals Plane: " << plane
+                cout << __LINE__ << "] Residuals Plane: " << plaqID
                      << " resX: "  << resX
                      << " resY: "  << resY
                      << " pullX: " << pullX
                      << " pullY: " << pullY
                      << endl;
 
-                tempRes[plane] = std::make_pair(resX,  resY );
-                tempErr[plane] = std::make_pair(pullX, pullY);
+                tempRes[plaqID] = std::make_pair(resX,  resY );
+                tempErr[plaqID] = std::make_pair(pullX, pullY);
             }
     }
 

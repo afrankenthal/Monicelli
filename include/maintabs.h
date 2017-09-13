@@ -67,6 +67,7 @@
 #include "customTableView.h"
 #include "GeometryParameters.h"
 #include "mainwindow.h"
+#include "settingsmanager.h"
 #include "threader.h"
 #include "trackFinder.h"
 #include "xmleditor.h"
@@ -172,7 +173,7 @@ private:
     std::map< int,QTableWidget*>   tableMap_                                    ;
     xmlParser                    * theXMLParser_                                ;
     TBenchmark                   * theBenchmark_                                ;
-
+//    settingsManager              * theSettingsManager_                          ;
     std::string                    theThreadProcess_                            ;
 
     QRootCanvas                  * beamSpot2DCanvas_                            ; // ToROOT6

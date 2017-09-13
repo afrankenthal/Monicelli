@@ -91,7 +91,8 @@ HEADERS              = include/aligner.h                         	      		   \
                        plugins/customComboBox/customComboBox.h   	      		   \
                        plugins/customLineEdit/customLineEdit.h   	      		   \
                        plugins/customSpinBox/customSpinBox.h     	      		   \
-                       plugins/customTableView/customTableView.h
+                       plugins/customTableView/customTableView.h \
+    include/settingsmanager.h
 
 SOURCES              = main.cpp                                  	      		   \
                        src/aligner.cpp                           	      		   \
@@ -140,7 +141,8 @@ SOURCES              = main.cpp                                  	      		   \
                        plugins/customComboBox/customComboBox.cpp                           \
                        plugins/customLineEdit/customLineEdit.cpp                           \
                        plugins/customSpinBox/customSpinBox.cpp                             \
-                       plugins/customTableView/customTableView.cpp
+                       plugins/customTableView/customTableView.cpp \
+    src/settingsmanager.cpp
 
 
 RESOURCES            = Monicelli.qrc

@@ -125,66 +125,57 @@ private:
 
     std::stringstream ss_            ;
 
-    mdiSubWindow  * cSw_             ;
-
-    canvasWidget  * theCanvasWidget_ ;
-    fileEater     * theFileEater_    ;
-    HManager      * theHManager_     ;
-    HNavigator    * theHNavigator_   ;
-    mainTabs      * theTabWidget_    ;
-    XMLEditor     * theXMLEditor_    ;
-
-    QAction       * aboutAct         ;
-    QAction       * aboutQtAct       ;
-    QAction       * cascadeAct       ;
-    QAction       * closeAct         ;
-    QAction       * closeAllAct      ;
-    QAction       * copyAct          ;
-    QAction       * cutAct           ;
-    QAction       * editXMLAct       ;
-    QMenu         * editMenu         ;
-    QToolBar      * editToolBar      ;
-    QAction       * exitAct          ;
-    QMenu         * fileMenu         ;
-    QToolBar      * fileToolBar      ;
-    QMenu         * helpMenu         ;
-    QMdiArea      * mdiArea          ;
-    QAction       * newAct           ;
-    QAction       * nextAct          ;
-    QAction       * hNavigatorAct    ;
-    QAction       * newMainPanelAct  ;
-    QAction       * openAct          ;
-    QAction       * pasteAct         ;
-    QString         path_            ;
-    QAction       * previousAct      ;
-    QAction       * saveAct          ;
-    QAction       * saveAsAct        ;
-    QAction       * separatorAct     ;
-    QAction       * synopticViewerAct;
-    QAction       * tileAct          ;
-    QMenu         * windowMenu       ;
-    QSignalMapper * windowMapper     ;
-
-    QSize           hNavigatorSize_  ;
-    QPoint          hNavigatorPos_   ;
-
-    bool            usePartitions_   ;
-    string          theCurrentDUT_   ;
-    string          theCurrentSector_;
-    string          geometryFileName_;
-    string          inputFileName_   ;
-
-
-    int mainWindowW_ 	    	     ;
-    int mainWindowH_ 	    	     ;
-
-    int mainPanelW_  	    	     ;
-    int mainPanelH_  	    	     ;
-
-    int xmlEditorW_  	    	     ;
-    int xmlEditorH_  	    	     ;
-    
-    bool mainTabsActivated_ 	     ;
+    mdiSubWindow    * cSw_                ;
+    canvasWidget    * theCanvasWidget_    ;
+    fileEater       * theFileEater_       ;
+    HManager        * theHManager_        ;
+    HNavigator      * theHNavigator_      ;
+    mainTabs        * theTabWidget_       ;
+    XMLEditor       * theXMLEditor_       ;
+    QAction         * aboutAct            ;
+    QAction         * aboutQtAct          ;
+    QAction         * cascadeAct          ;
+    QAction         * closeAct            ;
+    QAction         * closeAllAct         ;
+    QAction         * copyAct             ;
+    QAction         * cutAct              ;
+    QAction         * editXMLAct          ;
+    QMenu           * editMenu            ;
+    QToolBar        * editToolBar         ;
+    QAction         * exitAct             ;
+    QMenu           * fileMenu            ;
+    QToolBar        * fileToolBar         ;
+    QMenu           * helpMenu            ;
+    QMdiArea        * mdiArea             ;
+    QAction         * newAct              ;
+    QAction         * nextAct             ;
+    QAction         * hNavigatorAct       ;
+    QAction         * newMainPanelAct     ;
+    QAction         * openAct             ;
+    QAction         * pasteAct            ;
+    QString           path_               ;
+    QAction         * previousAct         ;
+    QAction         * saveAct             ;
+    QAction         * saveAsAct           ;
+    QAction         * separatorAct        ;
+    QAction         * synopticViewerAct   ;
+    QAction         * tileAct             ;
+    QMenu           * windowMenu          ;
+    QSignalMapper   * windowMapper        ;
+    QSize             hNavigatorSize_     ;
+    QPoint            hNavigatorPos_      ;
+    bool              usePartitions_      ;
+    string            theCurrentDUT_      ;
+    string            theCurrentSector_   ;
+    string            geometryFileName_   ;
+    string            inputFileName_      ;
+    int               mainWindowW_ 	      ;
+    int               mainWindowH_ 	      ;
+    int               mainPanelW_  	      ;
+    int               mainPanelH_  	      ;
+    int               xmlEditorW_  	      ;
+    int               xmlEditorH_  	      ;
+    bool              mainTabsActivated_  ;
 };
 
 #endif
