@@ -69,7 +69,11 @@ int customSpinBox::value(void)
 //================================================================================
 void customSpinBox::setValue(int value)
 {
-  //ss_.str("");ss_ << "Setting value " << value; STDLINE(ss_.str(),ACPurple) ;
+//  ss_.str("");ss_ << "Spinbox "
+//                  << ui->spinBox->objectName().toStdString()
+//                  << " Setting value "
+//                  << value;
+//  STDLINE(ss_.str(),ACPurple) ;
   ui->spinBox->setValue(value) ;
 }
 
@@ -113,13 +117,13 @@ void customSpinBox::setNodeText(std::string key,int value)
 {
   if(isAttribute_)
   {
-//    ss_.str(""); ss_<< key
-//                    << " was |"
-//                    << elementNode_.toElement().attribute(QString(key.c_str())).toStdString()
-//                    << "| now is |"
-//                    << textValue.toStdString()
-//                    << "|";
-//    STDLINE(ss_.str(),ACWhite) ;
+    ss_.str(""); ss_<< key
+                    << " was |"
+                    << elementNode_.toElement().attribute(QString(key.c_str())).toStdString()
+                    << "| now is |"
+                    << value
+                    << "|";
+    STDLINE(ss_.str(),ACWhite) ;
     elementNode_.toElement().setAttribute(QString(key.c_str()),QString("%1").arg(value));
   }
   else

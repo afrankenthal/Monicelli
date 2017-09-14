@@ -320,6 +320,9 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
     TVectorT   <double> trackPars(4);
     TMatrixTSym<double> estCov   (4);
 
+    Event::vectorDef    trackTmp ;
+    Event::matrixDef    covTmp   ;
+
     for ( int i=0; i<4; i++ )
     {
         trackPars[i] = track[i];
@@ -344,9 +347,14 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
     resDef tempRes,tempErr;
     double resX = 0, resY = 0, predsigxx = 0, predsigyy = 0, pullX = 0, pullY = 0;
 
+//    int maxPlanesToConsider = 7 ;
+
     for (unsigned int plane = 0; plane < theKalmanPlaneInfo_.getKalmanFilterOrder().size(); plane++)
     {
         std::string plaqID = theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).second;
+
+//        if( plane > maxPlanesToConsider ) continue ;
+
         trackParsMap[plaqID].ResizeTo(4  );
         CkMap       [plaqID].ResizeTo(4,4);
         Ckk_1Map    [plaqID].ResizeTo(4,4);
@@ -392,15 +400,15 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                 resX = 0; resY = 0; predsigxx = 0; predsigyy = 0; pullX = 0; pullY = 0;
                 if((theGeometry->getDetectorModule(plaqID))%2==0)
                 {
-                    resX        = filteredRes;
-                    predsigxx   = filteredR;
-                    pullX       = resX/sqrt(predsigxx);
+                    resX      = filteredRes;
+                    predsigxx = filteredR;
+                    pullX     = resX/sqrt(predsigxx);
                 }
                 else
                 {
-                    resY        = filteredRes;
-                    predsigyy   = filteredR;
-                    pullY       = resY/sqrt(predsigyy);
+                    resY      = filteredRes;
+                    predsigyy = filteredR;
+                    pullY     = resY/sqrt(predsigyy);
                 }
 
 //                cout << __LINE__ << "] Residuals Plane: " << plaqID
@@ -420,6 +428,7 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
         }
 
         if(plane != (theKalmanPlaneInfo_.getKalmanFilterOrder().size()-1)) //MCS correction must be applied to every plane but the last one
+//        if(plane != 7) //MCS correction must be applied to every plane but the last one
         {
             for ( int i=0; i<4; i++ )
             {
@@ -430,17 +439,22 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
             }
         }
 
-        Ckk_1Map[plaqID] = estCov     ;
+        Ckk_1Map[plaqID] = estCov;
 
 //        estCov.Print();
     }
 
+    // For histogramming purposes below is missing the last plane downstream: add it (to do)
+
     // Smoothing planes
+//    int plane = 21;
     for (revIterDef rit = theKalmanPlaneInfo_.getKalmanFilterOrder().crbegin()+1;
                     rit!= theKalmanPlaneInfo_.getKalmanFilterOrder().crend();
                   ++rit)
     {
             std::string plaqID = (*rit).second ;
+
+//            if( plane-- > 6 ) continue ;
 
             TVectorT<double> h = theKalmanPlaneInfo_.getH     (plaqID);
             double offset      = theKalmanPlaneInfo_.getOffset(plaqID);
@@ -450,8 +464,8 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
             A = CkMap[plaqID]*Ckk_1Map[plaqID];
             At.Transpose(A);
 
-            trackPars = trackParsMap[plaqID] + A*(trackPars-trackParsMap[plaqID]);
-            temp      = CkMap[plaqID]        + A*(estCov-Ckk_1Org[plaqID])*At;
+            trackPars = trackParsMap[plaqID] + A*(trackPars - trackParsMap[plaqID]);
+            temp      = CkMap       [plaqID] + A*(estCov    -     Ckk_1Org[plaqID])*At;
 
             for ( int i=0; i<4; i++ )
             {
@@ -466,7 +480,6 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
             //calculation of the residuals
             if(trackCandidate.find(plaqID) != trackCandidate.end())
             {
-
                 double dist    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x"   )->second;
                 double distErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
 
@@ -498,6 +511,17 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                 tempRes[plaqID] = std::make_pair(resX,  resY );
                 tempErr[plaqID] = std::make_pair(pullX, pullY);
             }
+            if( theGeometry->getDetector(plaqID)->isDUT() )
+            {
+                for ( int i=0; i<4; i++ )
+                {
+                    trackTmp[i] = trackPars[i] ;
+                    for ( int j=0; j<4; j++ )
+                    {
+                        covTmp[i][j] = estCov[i][j];
+                    }
+                }
+            }
     }
 
     kalmanFittedTracksResiduals_.push_back(tempRes);
@@ -506,23 +530,21 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
     tempErr.clear();
     tempRes.clear();
 
-
-    //Switch trackPars back to our array type
     for ( int i=0; i<4; i++ )
     {
-        track[i] = trackPars[i];
+        track[i] = trackTmp[i];
         for ( int j=0; j<4; j++ )
         {
-            cov[i][j] = estCov[i][j];
+            cov[i][j] = covTmp[i][j];
         }
     }
 
     trackFitter::aFittedTrackDef aKalmanFittedTrack;
-    aKalmanFittedTrack.first.first  = track        ;
-    aKalmanFittedTrack.first.second = cov          ;
+    aKalmanFittedTrack.first.first  = trackTmp     ;
+    aKalmanFittedTrack.first.second = covTmp       ;
     aKalmanFittedTrack.second       = chi2         ;
 
-    return aKalmanFittedTrack;
+    return aKalmanFittedTrack; // Missing chi2 contribution on last plane (after smoothing)
 }
 
 //===============================================================================

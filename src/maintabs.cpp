@@ -37,6 +37,7 @@
 #include "TBenchmark.h"
 #include "Geometry.h"
 #include <iterator>
+#include "settingsmanager.h"
 
 #define ZOOMFACTOR  2
 
@@ -48,26 +49,28 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
 
     ui->setupUi(this); // Always call this as the FIRST statement in the ctor!!
 
-//    theSettingsManager_ = new settingsManager(ui) ;
+    theSettingsManager_ = new settingsManager((QWidget*)this,ui) ;
+    theSettingsManager_->read();
+
     gStyle->SetPalette(1) ;
 
-    mainWindow_          = NULL;
-    theAligner_          = NULL;
-    theFileEater_        = NULL;
-    theGeometry_         = NULL;
-    theBeamSimulator_    = NULL;
-    theClusterizer_      = NULL;
-    theTrackFinder_      = NULL;
-    theCalibrationLoader_= NULL;
-    theTrackFitter_      = NULL;
-    theThreader_         = NULL;
-    theFitter_           = NULL;
-    theHManager_         = NULL;
-    theHNavigator_       = NULL;
-    theBenchmark_        = NULL ;
-    timer2_              = NULL;
-    redoChi2_            = true;
-    geometryDisplayShrinkFix_= 0;
+    mainWindow_              = NULL;
+    theAligner_              = NULL;
+    theFileEater_            = NULL;
+    theGeometry_             = NULL;
+    theBeamSimulator_        = NULL;
+    theClusterizer_          = NULL;
+    theTrackFinder_          = NULL;
+    theCalibrationLoader_    = NULL;
+    theTrackFitter_          = NULL;
+    theThreader_             = NULL;
+    theFitter_               = NULL;
+    theHManager_             = NULL;
+    theHNavigator_           = NULL;
+    theBenchmark_            = NULL;
+    timer2_                  = NULL;
+    redoChi2_                = true;
+    geometryDisplayShrinkFix_= 0   ;
 
     // Initialize owned classes
     this->collectExistingWidgets(mainWindow) ;
@@ -379,6 +382,8 @@ void mainTabs::initializeSingletons()
 mainTabs::~mainTabs()
 {
     STDLINE("Destructor in action: ui",ACWhite) ;
+    theSettingsManager_->save() ;
+
     if( theThreader_         ) delete theThreader_         ;
     if( theAligner_          ) delete theAligner_          ;
     if( theFitter_           ) delete theFitter_           ;
@@ -825,21 +830,25 @@ void mainTabs::on_eatFilePB_clicked()
     this->signalNewAction("Load file") ;
 
     QString localPath = this->getEnvPath("Monicelli_RawData_Dir") ;
-    QString fileName = QFileDialog::getOpenFileName(this,"Merged files",localPath,"Dat Files(*.dat);;Text files (*.txt)");
-    if (fileName.isEmpty())  return ;
+    QString fileName  = ui->loadedFileLE->text() ;
+
+    if( fileName == "No file selected" )
+    {
+        fileName = QFileDialog::getOpenFileName(this,"Merged files",localPath,"Dat Files(*.dat);;Text files (*.txt)");
+        if (fileName.isEmpty())  return ;
+    }
 
     if( !this->on_loadGeometryPB_clicked()) return ;
 
     ui->parseFilePB->setEnabled(true ) ;
 
     //theFileEater_->openFile(fileName.toStdString());
-    ui->loadedFileLE->setText   (fileName);
-    ui->loadedFileLE->setToolTip(fileName);
-    ui->loadedRootFileLE ->setText("No file loaded");
-    ui->geoFileLE ->setText("No file loaded");
-    ui->geometryGeoGeometryFileLE ->setText("No file loaded");
-    ui->geometryLoadedGeoFileLE ->setText("No file loaded");
-
+    ui->loadedFileLE             ->setText   (fileName);
+    ui->loadedFileLE             ->setToolTip(fileName);
+    ui->loadedRootFileLE         ->setText("No file loaded");
+    ui->geoFileLE                ->setText("No file loaded");
+    ui->geometryGeoGeometryFileLE->setText("No file loaded");
+    ui->geometryLoadedGeoFileLE  ->setText("No file loaded");
 
     if ( fileName.endsWith(".dat") )
     {
@@ -1312,10 +1321,11 @@ void mainTabs::on_abortActionPB_clicked()
 //=============================================================================
 void mainTabs::on_parseFilePB_clicked()
 {
-    theFileEater_->setInputFileName( ui->loadedFileLE    ->text().toStdString() );
+    this->on_eatFilePB_clicked() ;
 
-    mainWindow_->getGeometryFileName(ui->loadedGeometryLE->text().toStdString());
-    mainWindow_->getInputFileName   (ui->loadedFileLE    ->text().toStdString());
+    theFileEater_ ->setInputFileName   (ui->loadedFileLE    ->text().toStdString());
+    mainWindow_   ->getGeometryFileName(ui->loadedGeometryLE->text().toStdString());
+    mainWindow_   ->getInputFileName   (ui->loadedFileLE    ->text().toStdString());
     theHNavigator_->getGeometryFileName(ui->loadedGeometryLE->text().toStdString());
     theHNavigator_->getInputFileName   (ui->loadedFileLE    ->text().toStdString());
 
@@ -1430,8 +1440,12 @@ bool mainTabs::loadGeometry(QString type)
         fileType     = "geo Files(*.geo)";
 
     QString localPath = this->getEnvPath("Monicelli_XML_Dir") ;
-    QString fileName = QFileDialog::getOpenFileName(this,"testBeamGeometry files",localPath,fileType);
-    if (fileName.isEmpty()) return false  ;
+    QString fileName  = ui->loadedGeometryLE->text() ;
+    if( fileName == "No file selected" )
+    {
+        fileName = QFileDialog::getOpenFileName(this,"testBeamGeometry files",localPath,fileType);
+        if (fileName.isEmpty()) return false  ;
+    }
 
     theFileEater_  ->openFile(fileName.toStdString());
     theGeometry_   = theFileEater_->getGeometry();
@@ -3709,10 +3723,12 @@ void mainTabs::on_showHitsFreqPB_clicked()
 void mainTabs::on_eventSelectedSpinBox_valueChanged(int eventSelected)
 {
     //theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+    if( theFileEater_ == NULL ) return ;
 
-    STDLINE("next print is event",ACRed);
     Event* event = theFileEater_->getEvent(eventSelected);
-    STDLINE(event,ACRed);
+    if( event == NULL ) return ;
+    ss_.str("") ; ss_ << "New event number selected: " << event ;
+    STDLINE(ss_.str(),ACCyan);
 
     std::string histoType;
     if( ui->selectClusterRB->isChecked() && !event->getClusters().empty())
@@ -4190,26 +4206,26 @@ void mainTabs::on_userModeAlignPB_clicked()
 }
 
 //===================================================================================================
-void mainTabs::on_testButtonPB_clicked()
-{
-    Detector *det = theGeometry_->getDetector(ui->eventDisplayTabPagePlaqSelectCB->currentText().toStdString());
-    Event::clustersMapDef &clus = theFileEater_->getEvent(ui->eventSelectedSpinBox->value())->getClusters();
-    ss_.str("");
-    ss_ << "Detector " << ui->eventDisplayTabPagePlaqSelectCB->currentText().toStdString();
-    STDLINE(ss_.str(),ACPurple);
-    for(Event::aClusterMapDef::iterator it=clus[det->getID()].begin(); it!=clus[det->getID()].end(); ++it)
-    {
-        double x = it->second["x"];
-        double y = it->second["y"];
-        ss_.str("");
-        ss_ << "hit number " << it->first << "--> x: " << x << " y: " << y;
-        STDLINE(ss_.str(),ACPurple);
-        Detector::rowColPair rowCol = det->getPixelCellFromLocal(x,y);
-        ss_.str("");
-        ss_ << "cell " << "row: " << rowCol.first << " col: " << rowCol.second;
-        STDLINE(ss_.str(),ACGreen);
-    }
-}
+//void mainTabs::on_testButtonPB_clicked()
+//{
+//    Detector *det = theGeometry_->getDetector(ui->eventDisplayTabPagePlaqSelectCB->currentText().toStdString());
+//    Event::clustersMapDef &clus = theFileEater_->getEvent(ui->eventSelectedSpinBox->value())->getClusters();
+//    ss_.str("");
+//    ss_ << "Detector " << ui->eventDisplayTabPagePlaqSelectCB->currentText().toStdString();
+//    STDLINE(ss_.str(),ACPurple);
+//    for(Event::aClusterMapDef::iterator it=clus[det->getID()].begin(); it!=clus[det->getID()].end(); ++it)
+//    {
+//        double x = it->second["x"];
+//        double y = it->second["y"];
+//        ss_.str("");
+//        ss_ << "hit number " << it->first << "--> x: " << x << " y: " << y;
+//        STDLINE(ss_.str(),ACPurple);
+//        Detector::rowColPair rowCol = det->getPixelCellFromLocal(x,y);
+//        ss_.str("");
+//        ss_ << "cell " << "row: " << rowCol.first << " col: " << rowCol.second;
+//        STDLINE(ss_.str(),ACGreen);
+//    }
+//}
 
 //===================================================================================================
 void mainTabs::on_saveCalibToROOTPB_clicked()

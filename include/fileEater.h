@@ -87,7 +87,7 @@ public:
 
     void            addSubProcess            (subProcess<Event,Geometry> * theSubProcess        ) ;
     std::string     openFile                 (std::string                  inputFile            ) ;
-    bool            openGeometryFile         (std::string                  geometryFileNae      ) ;
+    bool            openGeometryFile         (std::string                  geometryFileName     ) ;
     void            closeFile                (void                                              ) ;
     std::string     currentAction            (void                                              ) {return currentAction_             ;}
     std::string     getInputFileName         (void                                              ) {return inputFileName_             ;}

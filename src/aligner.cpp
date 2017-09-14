@@ -69,10 +69,10 @@ bool aligner::align(void)
     std::map< std::string, double > rxprime,ryprime;
 
     std::map<int, std::map<std::string, double> > xmeas       , ymeas	  , zmeas;
-    std::map<int, std::map<std::string, double> > xmeasNoRot  , ymeasNoRot	 ;
-    std::map<int, std::map<std::string, int> >    xsizemeas   , ysizemeas	 ;
-    std::map<int, std::map<std::string, double> > sigx        , sigy		 ;
-    std::map<int, std::map<std::string, double> > sigxNoRot   , sigyNoRot	 ;
+    std::map<int, std::map<std::string, double> > xmeasNoRot  , ymeasNoRot	     ;
+    std::map<int, std::map<std::string, int> >    xsizemeas   , ysizemeas	     ;
+    std::map<int, std::map<std::string, double> > sigx        , sigy		     ;
+    std::map<int, std::map<std::string, double> > sigxNoRot   , sigyNoRot	     ;
     std::map<int, std::map<std::string, int> >    dataTypeMeas                   ;
 
     // Control Parameters

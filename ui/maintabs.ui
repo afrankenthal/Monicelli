@@ -1278,7 +1278,7 @@ p, li { white-space: pre-wrap; }
          </font>
         </property>
         <property name="text">
-         <string>No geometry xml file selected</string>
+         <string>No file selected</string>
         </property>
        </widget>
        <widget class="QLineEdit" name="loadedFileLE">
@@ -21558,7 +21558,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;event objects).&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
-     <string>No file loaded</string>
+     <string>No file selected</string>
     </property>
    </widget>
    <widget class="QLabel" name="eventInTreeLB">
@@ -22390,7 +22390,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;event objects).&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
-     <string>No file loaded</string>
+     <string>No file selected</string>
     </property>
    </widget>
    <widget class="QLabel" name="geoFileLB">

@@ -76,6 +76,7 @@
 
 class MainWindow ;
 class HNavigator ;
+class settingsManager ;
 //class TQtWidget  ; // ToROOT6
 
 namespace Ui
@@ -173,7 +174,7 @@ private:
     std::map< int,QTableWidget*>   tableMap_                                    ;
     xmlParser                    * theXMLParser_                                ;
     TBenchmark                   * theBenchmark_                                ;
-//    settingsManager              * theSettingsManager_                          ;
+    settingsManager              * theSettingsManager_                          ;
     std::string                    theThreadProcess_                            ;
 
     QRootCanvas                  * beamSpot2DCanvas_                            ; // ToROOT6
@@ -260,7 +261,7 @@ private slots:
     void on_trackFindAndFitPB_clicked                             (void                                         );
     void on_trackFitPB_clicked                                    (void                                         );
     void on_trackFindPB_clicked                                   (void                                         );
-    void on_testButtonPB_clicked                                  (void                                         );
+//    void on_testButtonPB_clicked                                  (void                                         );
     void on_showTrackErrorsOnDut_clicked                          (void                                         );
     void on_selectGeometryPB_clicked                              (void                                         );
     void on_selectFilesPB_clicked                                 (void                                         );
