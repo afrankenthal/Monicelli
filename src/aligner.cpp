@@ -128,9 +128,9 @@ bool aligner::align(void)
                 if(tracks[tr].count( git->first ) != 0 ) numberOfTelescopeHits++  ;
                 if(maxClusterSize_ > 0 && tracks[tr][(*git).first]["size"] <= maxClusterSize_ ) numberOfGoodTelescopeHits++;
             }
-            if( numberOfTelescopeHits  < theGeometry->getDetectorsNumber(true) ) continue;//minumum 22 point per track hardcoded! (all detectors must be hit)
+            if( numberOfTelescopeHits  < theGeometry->getDetectorsNumber(true)                           ) continue; // (all detectors must be hit)
             if( maxClusterSize_ > 0 && numberOfGoodTelescopeHits < theGeometry->getDetectorsNumber(true) ) continue;
-            if( chi2cut_ > 0 && tracksChi2[tr] > chi2cut_        ) continue;//chi2 cut
+            if( chi2cut_ > 0 && tracksChi2[tr] > chi2cut_                                                ) continue; //chi2 cut
 
             if(noDiagonalClusters_)
             {
@@ -165,11 +165,11 @@ bool aligner::align(void)
             {
                 if( theGeometry->getDetector(det->first)->isDUT() ) continue;
 
-                xmeas[goodTracks][det->first]      = clusters[det->first][(int)det->second["cluster ID"]]["x"];
-                ymeas[goodTracks][det->first]      = clusters[det->first][(int)det->second["cluster ID"]]["y"];
-                xmeasNoRot[goodTracks][det->first] = clusters[det->first][(int)det->second["cluster ID"]]["x"];
-                ymeasNoRot[goodTracks][det->first] = clusters[det->first][(int)det->second["cluster ID"]]["y"];
-                zmeas[goodTracks][det->first]    = det->second["z"];
+                xmeas[goodTracks][det->first]        = clusters[det->first][(int)det->second["cluster ID"]]["x"];
+                ymeas[goodTracks][det->first]        = clusters[det->first][(int)det->second["cluster ID"]]["y"];
+                xmeasNoRot[goodTracks][det->first]   = clusters[det->first][(int)det->second["cluster ID"]]["x"];
+                ymeasNoRot[goodTracks][det->first]   = clusters[det->first][(int)det->second["cluster ID"]]["y"];
+                zmeas[goodTracks][det->first]        = det->second["z"];
                 dataTypeMeas[goodTracks][det->first] = clusters[det->first][(int)det->second["cluster ID"]]["dataType"];
                 if(det->second["size"] == 1)
                 {
@@ -180,7 +180,9 @@ bool aligner::align(void)
                 {
                     std::list<unsigned int>  nRow;
                     std::list<unsigned int>  nCol;
-                    for(Event::hitsDef::iterator hIt=clustersHits[det->first][(int)det->second["cluster ID"]].begin(); hIt!=clustersHits[det->first][(int)det->second["cluster ID"]].end();hIt++)
+                    for(Event::hitsDef::iterator hIt =clustersHits[det->first][(int)det->second["cluster ID"]].begin();
+                                                 hIt!=clustersHits[det->first][(int)det->second["cluster ID"]].end();
+                                                 hIt++)
                     {
                         nRow.push_back((*hIt)["row"]);
                         nCol.push_back((*hIt)["col"]);
@@ -200,14 +202,16 @@ bool aligner::align(void)
                         ysizemeas[goodTracks][det->first] = nRow.size();
                     }
                 }
-                sigx[goodTracks][det->first] = clusters[det->first][(int)det->second["cluster ID"]]["xErr"];
-                sigy[goodTracks][det->first] = clusters[det->first][(int)det->second["cluster ID"]]["yErr"];
+                sigx     [goodTracks][det->first] = clusters[det->first][(int)det->second["cluster ID"]]["xErr"];
+                sigy     [goodTracks][det->first] = clusters[det->first][(int)det->second["cluster ID"]]["yErr"];
                 sigxNoRot[goodTracks][det->first] = clusters[det->first][(int)det->second["cluster ID"]]["xErr"];
                 sigyNoRot[goodTracks][det->first] = clusters[det->first][(int)det->second["cluster ID"]]["yErr"];
-                theGeometry->getDetector(det->first)->fromLocalToGlobalNoRotation(&xmeas[goodTracks][det->first],&ymeas[goodTracks][det->first],
-                                                                                  &sigx [goodTracks][det->first],&sigy [goodTracks][det->first]);
+                theGeometry->getDetector(det->first)->fromLocalToGlobalNoRotation(&xmeas[goodTracks][det->first],
+                                                                                  &ymeas[goodTracks][det->first],
+                                                                                  &sigx [goodTracks][det->first],
+                                                                                  &sigy [goodTracks][det->first]);
 
-                if(sigx[goodTracks][det->first]<=0 || sigy[goodTracks][det->first]<=0)
+                if(sigx[goodTracks][det->first] <=0 || sigy[goodTracks][det->first] <= 0)
                 {
                     ss_.str("");
                     ss_ << "WARNING: hit associated error is <=0 for detector: " << det->first << " ; event: " << ev;
@@ -239,17 +243,14 @@ bool aligner::align(void)
         if( detector->isDUT() ) continue;//Should be impossible
 
         // Reset Translations
-        alpha  [det->first]=0;
-        beta   [det->first]=0;
-        gamma  [det->first]=0;
-        deltaTx[det->first]=0;
-        deltaTy[det->first]=0;
-        deltaTz[det->first]=0;
-
-        fTz[det->first] = detector->getZPositionTotal();
-
-        //fake Inverse Rotation
-        fRInv[det->first] = detector->getRotationMatrix();
+        alpha  [det->first] = 0;
+        beta   [det->first] = 0;
+        gamma  [det->first] = 0;
+        deltaTx[det->first] = 0;
+        deltaTy[det->first] = 0;
+        deltaTz[det->first] = 0;
+        fTz    [det->first] = detector->getZPositionTotal();
+        fRInv  [det->first] = detector->getRotationMatrix(); //fake Inverse Rotation
 
         ss_.str(""); ss_ << "Initial Geometry for detector: " << detector->getID(); STDLINE(ss_.str(),ACRed);
         detector->dump();
@@ -281,12 +282,12 @@ bool aligner::align(void)
                 for( std::map<std::string, double>::iterator exl=xmeas[j].begin(); exl!=xmeas[j].end(); exl++ )
                 {
                     // Fit Matrices
-                    ROOT::Math::SMatrix<double,4,4> AtVA   ;
-                    ROOT::Math::SMatrix<double,2,2> sigmaXY  ;
+                    ROOT::Math::SMatrix<double,4,4> AtVA      ;
+                    ROOT::Math::SMatrix<double,2,2> sigmaXY   ;
                     ROOT::Math::SMatrix<double,2,2> sigmaXYInv;
-                    ROOT::Math::SVector<double,4>   AtVxy  ;
-                    ROOT::Math::SMatrix<double,4,4> AtVAInv;//covMat
-                    ROOT::Math::SVector<double,4>   fitpar ;//track parameters
+                    ROOT::Math::SVector<double,4>   AtVxy     ;
+                    ROOT::Math::SMatrix<double,4,4> AtVAInv   ;//covMat
+                    ROOT::Math::SVector<double,4>   fitpar    ;//track parameters
                     std::map<std::string, std::pair<double, double> > resMap;
 
                     // Loop on all planes but ii for each random track, simple fit
@@ -301,13 +302,19 @@ bool aligner::align(void)
                         double fxglo,fyglo,fzglo;
                         fxglo = rxprime[det->first]*fRInv[det->first][0][0]+ryprime[det->first]*fRInv[det->first][0][1];
                         fyglo = rxprime[det->first]*fRInv[det->first][1][0]+ryprime[det->first]*fRInv[det->first][1][1];
-                        fzglo = fTz[det->first]+rxprime[det->first]*fRInv[det->first][2][0]+ryprime[det->first]*fRInv[det->first][2][1];
+                        fzglo =     fTz[det->first]                        +rxprime[det->first]*
+                                  fRInv[det->first][2][0]                  +ryprime[det->first]*fRInv[det->first][2][1];
 
                         // Errors
-                        sigmaXY(0,0) = pow(fRInv[det->first][0][0]*sigx[j][det->first],2)+pow(fRInv[det->first][0][1]*sigy[j][det->first],2);
-                        sigmaXY(0,1) = fRInv[det->first][0][0]*fRInv[det->first][1][0]*pow(sigx[j][det->first],2)+fRInv[det->first][0][1]*fRInv[det->first][1][1]*pow(sigy[j][det->first],2);
-                        sigmaXY(1,0) = sigmaXY(0,1);
-                        sigmaXY(1,1) = pow(fRInv[det->first][1][0]*sigx[j][det->first],2)+pow(fRInv[det->first][1][1]*sigy[j][det->first],2);
+                        sigmaXY(0,0) = pow(fRInv[det->first][0][0]*    sigx[j][det->first],2)+
+                                       pow(fRInv[det->first][0][1]*    sigy[j][det->first],2);
+                        sigmaXY(0,1) =     fRInv[det->first][0][0]*
+                                           fRInv[det->first][1][0]*pow(sigx[j][det->first],2)+
+                                           fRInv[det->first][0][1]*
+                                           fRInv[det->first][1][1]*pow(sigy[j][det->first],2);
+                        sigmaXY(1,0) =     sigmaXY(0,1);
+                        sigmaXY(1,1) = pow(fRInv[det->first][1][0]*    sigx[j][det->first],2)+
+                                       pow(fRInv[det->first][1][1]*    sigy[j][det->first],2);
 
                         int ifail;
                         sigmaXYInv = sigmaXY.Inverse(ifail);
@@ -326,6 +333,10 @@ bool aligner::align(void)
                     // Simple Fit Results
                     int ifail;
                     AtVAInv = AtVA.Inverse(ifail);
+                    if( ifail != 0 )
+                    {
+                        STDLINE("Fit failed: investigate!",ACRed) ;
+                    }
                     fitpar  = AtVAInv*AtVxy;
 
                     for ( int i=0; i<4; i++ )
@@ -348,13 +359,23 @@ bool aligner::align(void)
 //                            double zHitLoc = 0;
 //                            double xErrLoc = sigx[j][det->first];
 //                            double yErrLoc = sigy[j][det->first];
-                            double xHitLoc = rxprime[det->first]*fRInv[det->first][0][0]+ryprime[det->first]*fRInv[det->first][0][1];
-                            double yHitLoc = rxprime[det->first]*fRInv[det->first][1][0]+ryprime[det->first]*fRInv[det->first][1][1];
-                            double zHitLoc = fTz[det->first]+rxprime[det->first]*fRInv[det->first][2][0]+ryprime[det->first]*fRInv[det->first][2][1];
-                            double xErrLoc = sigx[j][det->first]*fRInv[det->first][0][0]+sigy[j][det->first]*fRInv[det->first][0][1];
-                            double yErrLoc = sigx[j][det->first]*fRInv[det->first][1][0]+sigy[j][det->first]*fRInv[det->first][1][1];
+                            double xHitLoc = rxprime[det->first]*fRInv[det->first][0][0]+
+                                             ryprime[det->first]*fRInv[det->first][0][1];
+                            double yHitLoc = rxprime[det->first]*fRInv[det->first][1][0]+
+                                             ryprime[det->first]*fRInv[det->first][1][1];
+                            double zHitLoc =     fTz[det->first]      +rxprime[det->first]*
+                                               fRInv[det->first][2][0]+ryprime[det->first]*fRInv[det->first][2][1];
+                            double xErrLoc = sigx[j][det->first]*fRInv[det->first][0][0]+
+                                             sigy[j][det->first]*fRInv[det->first][0][1];
+                            double yErrLoc = sigx[j][det->first]*fRInv[det->first][1][0]+
+                                             sigy[j][det->first]*fRInv[det->first][1][1];
                             double zErrLoc = 0;
-                            theGeometry->getDetector( det->first )->fromGlobalToLocal(&xHitLoc, &yHitLoc, &zHitLoc, &xErrLoc, &yErrLoc, &zErrLoc);
+                            theGeometry->getDetector( det->first )->fromGlobalToLocal(&xHitLoc,
+                                                                                      &yHitLoc,
+                                                                                      &zHitLoc,
+                                                                                      &xErrLoc,
+                                                                                      &yErrLoc,
+                                                                                      &zErrLoc);
                             if (theGeometry->getDetectorModule(det->first)%2 == 0)
                                 resMap[det->first] = std::make_pair(xHitLoc - xPredLoc, xErrLoc); // ToROOT6
                             else
@@ -411,11 +432,11 @@ bool aligner::align(void)
                         {
                             for ( int j=0; j<4; j++ )
                             {
-                                estCov[i][j] = AtVAInv[i][j];
+                                estCov[i][j] = AtVAInv[i][j] * 10000; // Same value as in KalmanFitSingleTrack
                             }
                         }
 
-                        std::map<std::string, TVectorT<double> > trackParsMap;
+                        std::map<std::string, TVectorT<double> >    trackParsMap;
                         std::map<std::string, TMatrixTSym<double> > CkMap;
                         std::map<std::string, TMatrixTSym<double> > Ckk_1Map;
                         TMatrixT<double> b(4,4);

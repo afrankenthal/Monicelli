@@ -34,6 +34,7 @@
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QTableWidget>
 #include <QRegularExpression>
+#include <QStringList>
 #include "TBenchmark.h"
 #include "Geometry.h"
 #include <iterator>
@@ -50,7 +51,8 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
     ui->setupUi(this); // Always call this as the FIRST statement in the ctor!!
 
     theSettingsManager_ = new settingsManager((QWidget*)this,ui) ;
-    theSettingsManager_->read();
+    theSettingsManager_->read("MonicelliDefaults");
+    ui->settingsLE->setText(QString("MonicelliDefaults")) ;
 
     gStyle->SetPalette(1) ;
 
@@ -382,7 +384,7 @@ void mainTabs::initializeSingletons()
 mainTabs::~mainTabs()
 {
     STDLINE("Destructor in action: ui",ACWhite) ;
-    theSettingsManager_->save() ;
+    theSettingsManager_->save("MonicelliDefaults") ;
 
     if( theThreader_         ) delete theThreader_         ;
     if( theAligner_          ) delete theAligner_          ;
@@ -827,18 +829,23 @@ void mainTabs::selectedCanvasObjectManager(TObject *,unsigned int,TCanvas *)
 //===========================================================================
 void mainTabs::on_eatFilePB_clicked()
 {
+    this->eatFile(true) ;
+}
+//===========================================================================
+void mainTabs::eatFile(bool fromGUI)
+{
     this->signalNewAction("Load file") ;
 
     QString localPath = this->getEnvPath("Monicelli_RawData_Dir") ;
     QString fileName  = ui->loadedFileLE->text() ;
 
-    if( fileName == "No file selected" )
+    if( fromGUI )
     {
         fileName = QFileDialog::getOpenFileName(this,"Merged files",localPath,"Dat Files(*.dat);;Text files (*.txt)");
         if (fileName.isEmpty())  return ;
     }
 
-    if( !this->on_loadGeometryPB_clicked()) return ;
+    if( !this->loadGeometry(fromGUI)) return ;
 
     ui->parseFilePB->setEnabled(true ) ;
 
@@ -1305,7 +1312,9 @@ void mainTabs::on_abortActionPB_clicked()
 {
     STDLINE("Sent ABORT signal (timer stopped as well)",ACRed) ;
 
-    ui->abortActionPB->setEnabled(false ) ;
+    ui->abortActionPB ->setEnabled(false);
+    ui->eatFilePB     ->setEnabled(true );
+    ui->loadGeometryPB->setEnabled(true );
 
     QPalette palette;
     QBrush   redBrush(QColor(255, 0, 0, 255));
@@ -1321,7 +1330,7 @@ void mainTabs::on_abortActionPB_clicked()
 //=============================================================================
 void mainTabs::on_parseFilePB_clicked()
 {
-    this->on_eatFilePB_clicked() ;
+    this->eatFile(false) ;
 
     theFileEater_ ->setInputFileName   (ui->loadedFileLE    ->text().toStdString());
     mainWindow_   ->getGeometryFileName(ui->loadedGeometryLE->text().toStdString());
@@ -1408,7 +1417,13 @@ void mainTabs::on_browseOutputFilePB_clicked()
 //=====================================================================================
 bool mainTabs::on_loadGeometryPB_clicked()
 {
-    if(loadGeometry())
+    return this->loadGeometryInterface(true) ;
+}
+
+//=====================================================================================
+bool mainTabs::loadGeometryInterface(bool fromGUI)
+{
+    if(loadGeometry(fromGUI))
     {
         //Calibrations tab
         ui->calibrationsCalibrationControlsGB->setEnabled(true) ;
@@ -1421,17 +1436,17 @@ bool mainTabs::on_loadGeometryPB_clicked()
 //=====================================================================================
 bool mainTabs::on_loadXMLGeometryPB_clicked()
 {
-    return loadGeometry("xml") ;
+    return loadGeometry(true,"xml") ;
 }
 
 //=====================================================================================
 bool mainTabs::on_loadGeoGeometryPB_clicked()
 {
-    return loadGeometry("geo") ;
+    return loadGeometry(true,"geo") ;
 }
 
 //=====================================================================================
-bool mainTabs::loadGeometry(QString type)
+bool mainTabs::loadGeometry(bool fromGUI, QString type)
 {
     QString fileType = "xml Files(*.xml);;geo Files(*.geo)";
     if     (type    == "xml")
@@ -1441,7 +1456,7 @@ bool mainTabs::loadGeometry(QString type)
 
     QString localPath = this->getEnvPath("Monicelli_XML_Dir") ;
     QString fileName  = ui->loadedGeometryLE->text() ;
-    if( fileName == "No file selected" )
+    if( fromGUI )
     {
         fileName = QFileDialog::getOpenFileName(this,"testBeamGeometry files",localPath,fileType);
         if (fileName.isEmpty()) return false  ;
@@ -3502,8 +3517,8 @@ void mainTabs::on_fineAlignmentPB_clicked()
     double       chi2cut    = -1;
     int          clusterSel = -1;
     unsigned int minPoints  = -1;
-    int          maxTracks  = -1 ;
-    int          nEvents    = -1 ;
+    int          maxTracks  = -1;
+    int          nEvents    = -1;
     if( ui->fineAlignmentChi2SelectionCB       ->isChecked() ) chi2cut    = ui->fineAlignmentChi2SelectionSB       ->value();
     if( ui->fineAlignmentClusterSizeSelectionCB->isChecked() ) clusterSel = ui->fineAlignmentClusterSizeSelectionSB->value();
     if( ui->fineAlignmentMinPointsSelectionCB  ->isChecked() ) minPoints  = ui->fineAlignmentMinPointsSelectionSB  ->value();
@@ -4868,4 +4883,30 @@ void mainTabs::on_restoreCalibFilesPB_clicked()
     QString calibOutputDirectory = getEnvPath("Monicelli_CalSample_Dir");
     // Pass command to output to text file to calibrationLoader_
     theCalibrationLoader_->restoreCalibrationFiles(calibOutputDirectory.toStdString());
+}
+//================================================================================
+void mainTabs::on_selectSettingsPB_clicked()
+{
+    string HOME = getenv("HOME") ;
+    QString path = QString(HOME.c_str())+QString("/.config/CMS/") ;
+    QString fileName = QFileDialog::getOpenFileName(this,"Saved settings",path,"Settings files(*.conf)");
+    if (fileName.isEmpty())  return ;
+    STDLINE(fileName.toStdString(),ACWhite) ;
+    QStringList parts = fileName.split(QString("/")) ;
+    fileName = parts[parts.size()-1] ;
+    fileName = fileName.replace(QRegularExpression("\\.conf$"),QString("")) ;
+    theSettingsManager_->read(fileName);
+}
+//================================================================================
+void mainTabs::on_saveSettingsPB_clicked()
+{
+    string HOME = getenv("HOME") ;
+    QString path = QString(HOME.c_str())+QString("/.config/CMS/") ;
+    QString fileName = QFileDialog::getSaveFileName(this,"Save settings",path,"Settings files(*.conf)");
+    if (fileName.isEmpty())  return ;
+    STDLINE(fileName.toStdString(),ACWhite) ;
+    QStringList parts = fileName.split(QString("/")) ;
+    fileName = parts[parts.size()-1] ;
+    fileName = fileName.replace(QRegularExpression("\\.conf$"),QString("")) ;
+    theSettingsManager_->save(fileName);
 }

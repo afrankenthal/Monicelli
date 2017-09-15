@@ -22030,7 +22030,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>616</x>
       <y>44</y>
-      <width>49</width>
+      <width>58</width>
       <height>21</height>
      </rect>
     </property>
@@ -22432,6 +22432,113 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="text">
      <string>Status:</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="selectSettingsPB">
+    <property name="geometry">
+     <rect>
+      <x>616</x>
+      <y>70</y>
+      <width>58</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Browse</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="settingsLB">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>72</y>
+      <width>64</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Settings</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="saveSettingsPB">
+    <property name="geometry">
+     <rect>
+      <x>678</x>
+      <y>70</y>
+      <width>58</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Save</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="settingsLE">
+    <property name="geometry">
+     <rect>
+      <x>742</x>
+      <y>70</y>
+      <width>243</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="palette">
+     <palette>
+      <active>
+       <colorrole role="Base">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>255</red>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </active>
+      <inactive>
+       <colorrole role="Base">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>255</red>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </inactive>
+      <disabled>
+       <colorrole role="Base">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>255</red>
+          <green>230</green>
+          <blue>155</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </disabled>
+     </palette>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>8</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
     </property>
    </widget>
   </widget>

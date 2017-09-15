@@ -16,10 +16,10 @@ class settingsManager
  public:
          settingsManager(QWidget      * mainTabs,
                          Ui::mainTabs * ui      ) ;
-        ~settingsManager(void) ;
+        ~settingsManager(void                   ) ;
 
-    void save           (void) ;
-    void read           (void) ;
+    void save           (QString configuration  ) ;
+    void read           (QString configuration  ) ;
 
  private:
     QWidget      * mainTabs_ ;

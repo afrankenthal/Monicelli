@@ -98,6 +98,8 @@ public:
     fileEater    * getFileEater              (void                                  ) {return theFileEater_ ;}
     void           collectExistingWidgets    (MainWindow           * mainWindow = 0 );
     Ui::mainTabs * getUi                     (void                                  ) {return ui;           ;}
+    void           eatFile                   (bool                   fromGUI        );
+    bool           loadGeometryInterface     (bool                   fromGUI        );
 
 private:
     void           initializeSingletons      (void                                  );
@@ -127,7 +129,8 @@ private:
     void           writeAlignment_end        (HManager::stringVDef   histoType      );
     void           buildClusterPlots         (void                                  );
     void           buildClusterPlots_end     (HManager::stringVDef   histoType      );
-    bool           loadGeometry              (QString                type=""        );
+    bool           loadGeometry              (bool                   fromGUI       ,
+                                              QString                type=""        );
     void           showGeometry              (void                                  );
     void           copyGeoFileTo             (QString                fileName       );
 
@@ -386,6 +389,8 @@ private slots:
     void on_restoreCalibFilesPB_clicked                           (void                                         );
     void optimizePlot                                             (TH2                     * plot               );
     void on_residualsMonitorTW_currentChanged                     (int                       tabNumber          );
+    void on_selectSettingsPB_clicked                              (void                                         );
+    void on_saveSettingsPB_clicked                                (void                                         );
 };
 
 #endif // MAINTABS_H
