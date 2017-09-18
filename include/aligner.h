@@ -132,6 +132,7 @@ class aligner : public multiProcess<aligner,bool>
 
     void                 setAlignmentPreferences  (int                            maxtrial,
                                                    int                            strategy,
+                                                   trackFitter                  * theTrackFitter,
                                                    double                         chi2cut            = -1  ,
                                                    int                            maxClusterSize     = -1  ,
                                                    int                            minTrackPoints     = -1  ,
@@ -154,6 +155,7 @@ private :
      HManager::stringVDef                    outputPlots_       ;
      std::map< std::string, unsigned int >   parMap_            ;
      KalmanPlaneInfo                         theKalmanPlaneInfo_;
+     trackFitter                           * theTrackFitter_    ;
 
      int                                     maxtrial_          ;
      int                                     strategy_          ;

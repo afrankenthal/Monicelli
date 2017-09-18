@@ -3489,6 +3489,7 @@ void mainTabs::on_geometrySetPB_clicked()
 void mainTabs::on_fineAlignmentPB_clicked()
 {
     if(!theGeometry_) return;
+
     theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
 
     std::string alignmentFitMethod = ui->alignmentTypeCB ->currentText().toStdString();
@@ -3525,14 +3526,15 @@ void mainTabs::on_fineAlignmentPB_clicked()
     if( ui->fineAlignmentMaxTrackPerEventCB    ->isChecked() ) maxTracks  = ui->fineAlignmentMaxTrackPerEventSB    ->value();
     if( ui->fineAlignmentLimitCB               ->isChecked() ) nEvents    = ui->fineAlignmentLimitSB               ->value();
 
-    theAligner_->setAlignmentPreferences(ui->maxTrialSB->value(),
-                                         ui->fineAlignmentStrategySB->value(),
-                                         chi2cut,
-                                         clusterSel,
-                                         minPoints,
-                                         maxTracks,
+    theAligner_->setAlignmentPreferences(ui->maxTrialSB->value()                           ,
+                                         ui->fineAlignmentStrategySB->value()              ,
+                                         theTrackFitter_                                   ,
+                                         chi2cut                                           ,
+                                         clusterSel                                        ,
+                                         minPoints                                         ,
+                                         maxTracks                                         ,
                                          ui->fineAlignmentNoDiagonalClustersCB->isChecked(),
-                                         "",
+                                         ""                                                ,
                                          nEvents);
     theAligner_->setOperation(&aligner::align);
     this->launchThread2(theAligner_);
@@ -3607,13 +3609,14 @@ void mainTabs::on_dutAlignmentPB_clicked()
     if( ui->dutAlignmentMaxTrackPerEventCB    ->isChecked() ) maxTracks          = ui->dutAlignmentMaxTrackPerEventSB    ->value();
     if( ui->dutAlignmentLimitCB               ->isChecked() ) nEvents            = ui->dutAlignmentLimitSB               ->value();
 
-    theAligner_->setAlignmentPreferences(ui->dutMaxTrialsSB->value(),
-                                         minPoints,
-                                         chi2cut,
-                                         clusterSel,
-                                         minPoints,
-                                         maxTracks,
-                                         ui->dutNoDiagonalClustersCB->isChecked(),
+    theAligner_->setAlignmentPreferences(ui->dutMaxTrialsSB->value()                             ,
+                                         minPoints                                               ,
+                                         theTrackFitter_                                         ,
+                                         chi2cut                                                 ,
+                                         clusterSel                                              ,
+                                         minPoints                                               ,
+                                         maxTracks                                               ,
+                                         ui->dutNoDiagonalClustersCB->isChecked()                ,
                                          ui->dutAlignmentDutSelectCB->currentText().toStdString(),
                                          nEvents);
 

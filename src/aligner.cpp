@@ -1551,18 +1551,20 @@ bool aligner::execute()
 }
 
 //================================================================
-void aligner::setAlignmentPreferences(int    maxtrial,
-                                      int    strategy,
-                                      double chi2cut,
-                                      int    maxClusterSize,
-                                      int    minTrackPoints,
-                                      int    maxTracks,
-                                      bool   noDiagonalClusters,
-                                      std::string DUT,
-                                      int    nEvents)
+void aligner::setAlignmentPreferences(int           maxtrial,
+                                      int           strategy,
+                                      trackFitter * theTrackFitter,
+                                      double        chi2cut,
+                                      int           maxClusterSize,
+                                      int           minTrackPoints,
+                                      int           maxTracks,
+                                      bool          noDiagonalClusters,
+                                      std::string   DUT,
+                                      int           nEvents)
 {
     maxtrial_           = maxtrial          ;
     strategy_           = strategy          ;
+    theTrackFitter_     = theTrackFitter    ;
     chi2cut_            = chi2cut           ;
     maxClusterSize_     = maxClusterSize    ;
     minTrackPoints_     = minTrackPoints    ;
