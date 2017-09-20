@@ -465,7 +465,7 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
     {
             std::string plaqID = (*rit).second ;
 
-            if(trackCandidate.find(plaqID) == trackCandidate.end()) continue ;
+//            if(trackCandidate.find(plaqID) == trackCandidate.end()) continue ;
 
             TVectorT<double> h = theKalmanPlaneInfo_.getH     (plaqID);
             double offset      = theKalmanPlaneInfo_.getOffset(plaqID);
