@@ -39,6 +39,7 @@
 #include "Geometry.h"
 #include <iterator>
 #include "settingsmanager.h"
+#include <TBrowser.h>
 
 #define ZOOMFACTOR  2
 
@@ -2128,9 +2129,15 @@ void mainTabs::swapBeamProfilesHistograms(bool toggled)
 void mainTabs::on_trackFitNameCB_currentIndexChanged(const QString &arg1)
 {
     if (arg1 == "Simple")
-        ui->trackFitterIterationsSB->setEnabled(true);
+    {
+        ui->trackFitterIterationsSB->setEnabled(true );
+        ui->includeResidualsCB     ->setEnabled(false);
+    }
     else
+    {
         ui->trackFitterIterationsSB->setEnabled(false);
+        ui->includeResidualsCB     ->setEnabled(true );
+    }
 
 }
 
@@ -2141,9 +2148,14 @@ void mainTabs::on_trackFindAndFitPB_clicked()
     std::string findMethod = ui->trackFindNameCB->currentText().toStdString();
     theTrackFitter_->setFitMethodName(fitMethod);
     if (fitMethod == "Simple")
+    {
         theTrackFitter_->setNumberOfIterations(ui->trackFitterIterationsSB->value());
+    }
     else
+    {
         theTrackFitter_->setNumberOfIterations(0);
+        theTrackFitter_->includeResiduals(ui->includeResidualsCB->isChecked());
+    }
     findAndFitTrack(findMethod, fitMethod);
 }
 
@@ -2617,21 +2629,21 @@ void mainTabs::showResiduals()
 
     theHManager_->resetResidualCounters();
     theHManager_->setResidualFilters   (
-                type,
-                chi2filter,
-                maxTracksFilter,
-                maxPlanePointsFilter,
-                minTrackHitsFilter,
-                maxClusterSizeFilter,
-                onlyClusterSizeFilter
-                );
+                                        type                ,
+                                        chi2filter          ,
+                                        maxTracksFilter     ,
+                                        maxPlanePointsFilter,
+                                        minTrackHitsFilter  ,
+                                        maxClusterSizeFilter,
+                                        onlyClusterSizeFilter
+                                       );
     theHManager_->setOperation         (
-                &HManager::eventsCycle,
-                &HManager::makeResidualDistributions
-                );
+                                        &HManager::eventsCycle,
+                                        &HManager::makeResidualDistributions
+                                       );
     theHManager_->setRunSubDir         (
-                theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString())
-                );
+                                        theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString())
+                                       );
     this->launchThread2                (theHManager_);
 }
 
@@ -4890,26 +4902,32 @@ void mainTabs::on_restoreCalibFilesPB_clicked()
 //================================================================================
 void mainTabs::on_selectSettingsPB_clicked()
 {
-    string HOME = getenv("HOME") ;
-    QString path = QString(HOME.c_str())+QString("/.config/CMS/") ;
-    QString fileName = QFileDialog::getOpenFileName(this,"Saved settings",path,"Settings files(*.conf)");
+    string  HOME      = getenv("HOME") ;
+    QString path      = QString(HOME.c_str())+QString("/.config/CMS/") ;
+    QString fileName  = QFileDialog::getOpenFileName(this,"Saved settings",path,"Settings files(*.conf)");
     if (fileName.isEmpty())  return ;
     STDLINE(fileName.toStdString(),ACWhite) ;
     QStringList parts = fileName.split(QString("/")) ;
-    fileName = parts[parts.size()-1] ;
-    fileName = fileName.replace(QRegularExpression("\\.conf$"),QString("")) ;
+    fileName          = parts[parts.size()-1] ;
+    fileName          = fileName.replace(QRegularExpression("\\.conf$"),QString("")) ;
     theSettingsManager_->read(fileName);
 }
 //================================================================================
 void mainTabs::on_saveSettingsPB_clicked()
 {
-    string HOME = getenv("HOME") ;
-    QString path = QString(HOME.c_str())+QString("/.config/CMS/") ;
-    QString fileName = QFileDialog::getSaveFileName(this,"Save settings",path,"Settings files(*.conf)");
+    string  HOME      = getenv("HOME") ;
+    QString path      = QString(HOME.c_str())+QString("/.config/CMS/") ;
+    QString fileName  = QFileDialog::getSaveFileName(this,"Save settings",path,"Settings files(*.conf)");
     if (fileName.isEmpty())  return ;
     STDLINE(fileName.toStdString(),ACWhite) ;
     QStringList parts = fileName.split(QString("/")) ;
-    fileName = parts[parts.size()-1] ;
-    fileName = fileName.replace(QRegularExpression("\\.conf$"),QString("")) ;
+    fileName          = parts[parts.size()-1] ;
+    fileName          = fileName.replace(QRegularExpression("\\.conf$"),QString("")) ;
     theSettingsManager_->save(fileName);
+}
+//================================================================================
+void mainTabs::on_plotKalmanResidualsPB_clicked()
+{
+    theHManager_->makeKalmanResidualPlots(theTrackFitter_->getKalmanResidualsMap()) ;
+//    theHManager_->fitKalmanResidualPlots (theTrackFitter_->getKalmanResidualsMap()) ;
 }

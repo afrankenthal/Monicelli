@@ -21,7 +21,7 @@ class settingsManager
     void save           (QString configuration  ) ;
     void read           (QString configuration  ) ;
 
- private:
+private:
     QWidget      * mainTabs_ ;
     Ui::mainTabs * ui_       ;
     stringstream   ss_       ;

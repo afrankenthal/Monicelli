@@ -99,4 +99,15 @@
 
 #define CALIBRATIONS                   "Calibrations"
 
+#define KALMAN_FILTER_RES_X            "Kalman/FilteringX/FResidualsX"
+#define KALMAN_FILTER_RES_Y            "Kalman/FilteringY/FResidualsY"
+#define KALMAN_FILTER_PULLS_X          "Kalman/FilteringX/FPullsX"
+#define KALMAN_FILTER_PULLS_Y          "Kalman/FilteringY/FPullsY"
+#define KALMAN_FILTER_CHI2             "Kalman/Filtering/FChi2"
+#define KALMAN_SMOOTH_RES_X            "Kalman/SmoothingX/SResidualsX"
+#define KALMAN_SMOOTH_RES_Y            "Kalman/SmoothingY/SResidualsY"
+#define KALMAN_SMOOTH_PULLS_X          "Kalman/SmoothingX/SPullsX"
+#define KALMAN_SMOOTH_PULLS_Y          "Kalman/SmoothingY/SPullsY"
+#define KALMAN_SMOOTH_CHI2             "Kalman/Smoothing/SChi2"
+
 #endif // HISTOGRAMPATHS_H

@@ -391,6 +391,7 @@ private slots:
     void on_residualsMonitorTW_currentChanged                     (int                       tabNumber          );
     void on_selectSettingsPB_clicked                              (void                                         );
     void on_saveSettingsPB_clicked                                (void                                         );
+    void on_plotKalmanResidualsPB_clicked                         (void                                         );
 };
 
 #endif // MAINTABS_H

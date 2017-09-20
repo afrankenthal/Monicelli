@@ -621,7 +621,6 @@ void trackFinder::fitKalmanTrackCandidates(Event* theEvent, Geometry* theGeometr
             (*track)  = aKalmanFittedTrack.first.first ;
             (*cov)    = aKalmanFittedTrack.first.second;
             (*itChi2) = aKalmanFittedTrack.second      ;
-            cout << __LINE__ << "] Residuals confirmed " << endl ;
         }
     }
 
@@ -643,7 +642,10 @@ void trackFinder::fitSimpleTrackCandidates(Event* theEvent, Geometry* theGeometr
     covMat         .clear();
     chi2           .clear();
 
-    this->cleanUpTracks(alignedHitsCandidates, alignedClusters, theEvent, theGeometry);
+    this->cleanUpTracks(alignedHitsCandidates,
+                        alignedClusters      ,
+                        theEvent             ,
+                        theGeometry          );
 }
 
 //============================================================================

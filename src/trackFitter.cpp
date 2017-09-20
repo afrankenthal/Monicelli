@@ -311,12 +311,11 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                                                                      Event::vectorDef                  & track         ,
                                                                      Event::matrixDef                  & cov           ,
                                                                      Event::clustersMapDef             & clusters      ,
-                                                                     Geometry                          * theGeometry    )
+                                                                     Geometry                          * theGeometry   )
 {
     double chi2 = 0;
 
     //Use existing trackPars and covMat
-
     TVectorT   <double> trackPars(4);
     TMatrixTSym<double> estCov   (4);
 
@@ -344,7 +343,8 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
     TMatrixT<double> A   (4,4);
     TMatrixT<double> At  (4,4);
     TMatrixT<double> temp(4,4);
-    resDef tempRes,tempErr;
+//    resDef tempRes,tempErr;
+
     double resX = 0, resY = 0, predsigxx = 0, predsigyy = 0, pullX = 0, pullY = 0;
 
 //    int maxPlanesToConsider = 7 ;
@@ -393,32 +393,44 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                 estCov        -= (1/r)*B.Similarity(estCov);// (1/r)*c*a*c^t
                 CkMap[plaqID]  = estCov;                
                 trackPars     += res*k;
-                //chi2 must be updated after filtering
-                double filteredRes = dist - trackPars*h - offset;
-                double filteredR   = distErr*distErr - estCov.Similarity(h);// h*c*h^t + sigma^2 : Dario e Luigi dubbio, non dovrebbe essere -h*c*h^t + sigma^2 ?
-                chi2              += (filteredRes*filteredRes/filteredR)/(trackCandidate.size() - 2);
-                resX = 0; resY = 0; predsigxx = 0; predsigyy = 0; pullX = 0; pullY = 0;
-                if((theGeometry->getDetectorModule(plaqID))%2==0)
+                if( includeResiduals_ )
                 {
-                    resX      = filteredRes;
-                    predsigxx = filteredR;
-                    pullX     = resX/sqrt(predsigxx);
-                }
-                else
-                {
-                    resY      = filteredRes;
-                    predsigyy = filteredR;
-                    pullY     = resY/sqrt(predsigyy);
-                }
-
-//                cout << __LINE__ << "] Residuals Plane: " << plaqID
+                    //chi2 must be updated after filtering
+                    double filteredRes = dist - trackPars*h - offset;
+                    double filteredR   = distErr*distErr - estCov.Similarity(h);// h*c*h^t + sigma^2 : Dario e Luigi dubbio, non dovrebbe essere -h*c*h^t + sigma^2 ?
+                    chi2              += (filteredRes*filteredRes/filteredR)/(trackCandidate.size() - 2);
+                    resX = 0; resY = 0; predsigxx = 0; predsigyy = 0; pullX = 0; pullY = 0;
+                    if((theGeometry->getDetectorModule(plaqID))%2==0)
+                    {
+                        resX      = filteredRes;
+                        predsigxx = filteredR;
+                        pullX     = resX/sqrt(predsigxx);
+                    }
+                    else
+                    {
+                        resY      = filteredRes;
+                        predsigyy = filteredR;
+                        pullY     = resY/sqrt(predsigyy);
+                    }
+                    residuals_.plaqID    = plaqID      ;
+                    residuals_.trackN    = 0           ;
+                    residuals_.resX      = resX        ;
+                    residuals_.resY      = resY        ;
+                    residuals_.pullX     = pullX       ;
+                    residuals_.pullY     = pullY       ;
+                    residuals_.chi2      = chi2        ;
+                    residuals_.direction = "filtering" ;
+                    residualsV_.push_back(residuals_) ;
+//ss_.str(""); ss_ << plaqID << " -- filtering " ; STDLINE(ss_.str(),ACWhite) ;
+                    //                cout << __LINE__ << "] Residuals Plane: " << plaqID
 //                     << " resX: "  << resX
 //                     << " resY: "  << resY
 //                     << " pullX: " << pullX
 //                     << " pullY: " << pullY
 //                     << endl;
-            }
 
+                }
+            }
             trackParsMap[plaqID] = trackPars;
         }
         else
@@ -447,14 +459,13 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
     // For histogramming purposes below is missing the last plane downstream: add it (to do)
 
     // Smoothing planes
-//    int plane = 21;
     for (revIterDef rit = theKalmanPlaneInfo_.getKalmanFilterOrder().crbegin()+1;
                     rit!= theKalmanPlaneInfo_.getKalmanFilterOrder().crend();
                   ++rit)
     {
             std::string plaqID = (*rit).second ;
 
-//            if( plane-- > 6 ) continue ;
+            if(trackCandidate.find(plaqID) == trackCandidate.end()) continue ;
 
             TVectorT<double> h = theKalmanPlaneInfo_.getH     (plaqID);
             double offset      = theKalmanPlaneInfo_.getOffset(plaqID);
@@ -477,12 +488,11 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
 
 //            estCov.Print();
 
-            //calculation of the residuals
-            if(trackCandidate.find(plaqID) != trackCandidate.end())
+            if( includeResiduals_ && theGeometry->getDetector(plaqID)->isStrip())
             {
+                //calculation of the residuals
                 double dist    = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("x"   )->second;
                 double distErr = clusters[plaqID][trackCandidate.find(plaqID)->second.find("cluster ID")->second].find("xErr")->second;
-
                 double res     = dist - trackPars*h - offset;
                 double r       = distErr*distErr - estCov.Similarity(h);// h*c*h^t + sigma^2
                 chi2          += (res*res/r)/(trackCandidate.size() - 2);
@@ -501,15 +511,23 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                     pullY       = resY/sqrt(predsigyy);
                 }
 
-                cout << __LINE__ << "] Residuals Plane: " << plaqID
-                     << " resX: "  << resX
-                     << " resY: "  << resY
-                     << " pullX: " << pullX
-                     << " pullY: " << pullY
-                     << endl;
+                residuals_.plaqID    = plaqID      ;
+                residuals_.trackN    = 0           ;
+                residuals_.resX      = resX        ;
+                residuals_.resY      = resY        ;
+                residuals_.pullX     = pullX       ;
+                residuals_.pullY     = pullY       ;
+                residuals_.chi2      = chi2        ;
+                residuals_.direction = "smoothing" ;
+                residualsV_.push_back(residuals_) ;
+//                ss_.str(""); ss_ << plaqID << " -- smoothing " ; STDLINE(ss_.str(),ACWhite) ;
 
-                tempRes[plaqID] = std::make_pair(resX,  resY );
-                tempErr[plaqID] = std::make_pair(pullX, pullY);
+                //                cout << __LINE__ << "] Residuals Plane: " << plaqID
+                //                     << " resX: "  << resX
+                //                     << " resY: "  << resY
+                //                     << " pullX: " << pullX
+                //                     << " pullY: " << pullY
+                //                     << endl;
             }
             if( theGeometry->getDetector(plaqID)->isDUT() )
             {
@@ -523,12 +541,6 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                 }
             }
     }
-
-    kalmanFittedTracksResiduals_.push_back(tempRes);
-    kalmanFittedTracksPulls_    .push_back(tempErr);
-
-    tempErr.clear();
-    tempRes.clear();
 
     for ( int i=0; i<4; i++ )
     {
@@ -665,94 +677,95 @@ void trackFitter::makeDetectorTrackResiduals ( ROOT::Math::SVector<double,4>   &
 //================================================================
 void trackFitter::makeFittedTracksResiduals(Event *theEvent, Geometry *theGeometry)
 {
-    residualsMap_.clear() ;
-    pullMap_     .clear() ;
+    STDLINE("F A T A L: commented out tem[porarily",ACRed) ;
+//    residualsMap_.clear() ;
+//    pullMap_     .clear() ;
 
-    Event::clustersMapDef                  & clusters                 = theEvent->getClusters()                   ;
-    Event::trackCandidatesDef              & trackCandidates          = theEvent->getTrackCandidates()            ;
-    Event::fittedTracksDef                 & tracksFitted             = theEvent->getFittedTracks()               ;
-    Event::fittedTracksCovarianceDef       & covMat                   = theEvent->getFittedTracksCovariance()     ;
-    Event::chi2VectorDef                   & chi2                     = theEvent->getFittedTracksChi2()           ;
+//    Event::clustersMapDef                  & clusters                 = theEvent->getClusters()                   ;
+//    Event::trackCandidatesDef              & trackCandidates          = theEvent->getTrackCandidates()            ;
+//    Event::fittedTracksDef                 & tracksFitted             = theEvent->getFittedTracks()               ;
+//    Event::fittedTracksCovarianceDef       & covMat                   = theEvent->getFittedTracksCovariance()     ;
+//    Event::chi2VectorDef                   & chi2                     = theEvent->getFittedTracksChi2()           ;
 
-    std::vector<Event::alignedHitsCandidateMapDef>::iterator track      = trackCandidates.begin();
-    std::vector<Event::vectorDef>                 ::iterator trackFit   = tracksFitted   .begin();
-    std::vector<Event::matrixDef>                 ::iterator cov        = covMat         .begin();
-    std::vector<double>                           ::iterator chi2it     = chi2           .begin();
-    kalmanResidualsVectorDef                      ::iterator itKalmanRes= kalmanFittedTracksResiduals_.begin();
-    kalmanResidualsVectorDef                      ::iterator itKalmanErr= kalmanFittedTracksPulls_    .begin();
+//    std::vector<Event::alignedHitsCandidateMapDef>::iterator track      = trackCandidates.begin();
+//    std::vector<Event::vectorDef>                 ::iterator trackFit   = tracksFitted   .begin();
+//    std::vector<Event::matrixDef>                 ::iterator cov        = covMat         .begin();
+//    std::vector<double>                           ::iterator chi2it     = chi2           .begin();
+//    kalmanResidualsVectorDef                      ::iterator itKalmanRes= kalmanFittedTracksResiduals_.begin();
+//    kalmanResidualsVectorDef                      ::iterator itKalmanErr= kalmanFittedTracksPulls_    .begin();
 
-    int i = 0;
+//    int i = 0;
 
-    for (; track!=trackCandidates.end(); track++, cov++, trackFit++, itKalmanRes++, itKalmanErr++, ++i)
-    {
-        Event::alignedHitsCandidateMapDef::iterator det = (*track).begin();
+//    for (; track!=trackCandidates.end(); track++, cov++, trackFit++, itKalmanRes++, itKalmanErr++, ++i)
+//    {
+//        Event::alignedHitsCandidateMapDef::iterator det = (*track).begin();
 
-        for(; det!=(*track).end(); det++)//det++, cov++, trackFit++)
-        {
-            if(!selectedDetectors_.empty())
-            {
-                if( selectedDetectors_.find(det->first) ==  selectedDetectors_.end() )
-                {
-                    continue;
-                }
-            }
+//        for(; det!=(*track).end(); det++)//det++, cov++, trackFit++)
+//        {
+//            if(!selectedDetectors_.empty())
+//            {
+//                if( selectedDetectors_.find(det->first) ==  selectedDetectors_.end() )
+//                {
+//                    continue;
+//                }
+//            }
 
-            if(debug_)
-            {
-                ss_.str("");
+//            if(debug_)
+//            {
+//                ss_.str("");
 
-                ss_ << "Track n " << i << " - Excluded detector: " << det->first;
-                // STDLINE(ss_.str(),ACGreen);
-            }
+//                ss_ << "Track n " << i << " - Excluded detector: " << det->first;
+//                // STDLINE(ss_.str(),ACGreen);
+//            }
 
-            trackFitter::aFittedTrackDef aFittedTrack;
+//            trackFitter::aFittedTrackDef aFittedTrack;
 
-            if(fitMethodName_=="Kalman")
-            {
-                aFittedTrack.first.first  = *trackFit;
-                aFittedTrack.first.second = *cov     ;
-                aFittedTrack.second       = *chi2it  ;
-                cout<<__PRETTY_FUNCTION__<<" Plane: "<<det->first
-                                         <<" resX: " <<((*itKalmanRes)[det->first]).first
-                                         <<" resY: " <<((*itKalmanRes)[det->first]).second
-                                         <<" pullX: "<<((*itKalmanErr)[det->first]).first
-                                         <<" pullY: "<<((*itKalmanErr)[det->first]).second<<endl;
-                residualsMap_[i][det->first] = (*itKalmanRes)[det->first];
-                pullMap_     [i][det->first] = (*itKalmanErr)[det->first];
-            }
+//            if(fitMethodName_=="Kalman")
+//            {
+//                aFittedTrack.first.first  = *trackFit;
+//                aFittedTrack.first.second = *cov     ;
+//                aFittedTrack.second       = *chi2it  ;
+//                cout<<__PRETTY_FUNCTION__<<" Plane: "<<det->first
+//                                         <<" resX: " <<((*itKalmanRes)[det->first]).first
+//                                         <<" resY: " <<((*itKalmanRes)[det->first]).second
+//                                         <<" pullX: "<<((*itKalmanErr)[det->first]).first
+//                                         <<" pullY: "<<((*itKalmanErr)[det->first]).second<<endl;
+//                residualsMap_[i][det->first] = (*itKalmanRes)[det->first];
+//                pullMap_     [i][det->first] = (*itKalmanErr)[det->first];
+//            }
 
-            else //if(fitMethodName_=="Simple")
-            {
-                aFittedTrack = this->fitSingleTrack      (*track,
-                                                           theGeometry,
-                                                           det->first );
+//            else //if(fitMethodName_=="Simple")
+//            {
+//                aFittedTrack = this->fitSingleTrack      (*track,
+//                                                           theGeometry,
+//                                                           det->first );
 
-                this->makeDetectorTrackResiduals(aFittedTrack.first.first ,
-                                                 aFittedTrack.first.second,
-                                                 clusters                 ,
-                                                 trackCandidates          ,
-                                                 theGeometry              ,
-                                                 det->first               ,
-                                                 i                          );
-            }
+//                this->makeDetectorTrackResiduals(aFittedTrack.first.first ,
+//                                                 aFittedTrack.first.second,
+//                                                 clusters                 ,
+//                                                 trackCandidates          ,
+//                                                 theGeometry              ,
+//                                                 det->first               ,
+//                                                 i                          );
+//            }
 
-//            else                              aFittedTrack = this->fitSingleTrack      (*track,
-//                                                                                          theGeometry,
-//                                                                                          det->first );
-            theEvent->addUnconstrainedFittedTrack(
-                                                  i,
-                                                  det->first,
-                                                  aFittedTrack.first.first,
-                                                  aFittedTrack.first.second,
-                                                  aFittedTrack.second
-                                                 );
+////            else                              aFittedTrack = this->fitSingleTrack      (*track,
+////                                                                                          theGeometry,
+////                                                                                          det->first );
+//            theEvent->addUnconstrainedFittedTrack(
+//                                                  i,
+//                                                  det->first,
+//                                                  aFittedTrack.first.first,
+//                                                  aFittedTrack.first.second,
+//                                                  aFittedTrack.second
+//                                                 );
 
 
-       }
-    }
+//       }
+//    }
 
-    theEvent->setFittedTrackResiduals(residualsMap_);
-    theEvent->setFittedTrackPulls    (pullMap_     );
+//    theEvent->setFittedTrackResiduals(residualsMap_);
+//    theEvent->setFittedTrackPulls    (pullMap_     );
 }
 
 //================================================================

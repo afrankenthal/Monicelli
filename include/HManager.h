@@ -55,7 +55,7 @@
 #include "histogramPaths.h"
 #include "MessageTools.h"
 #include "multiProcess.h"
-
+#include "trackFitter.h"
 
 class fileEater ;
 
@@ -79,9 +79,9 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
 
     stringVDef             clearAlignmentResults        (std::string              detector = ""                  );
     void                   clearAllFilters              (void                                                    );
-    stringVDef             clearDeviations	        (void                                                    );
+    stringVDef             clearDeviations	            (void                                                    );
     stringVDef             clearPulls	    	        (void                                                    );
-    stringVDef             clearResiduals	        (void                                                    );
+    stringVDef             clearResiduals	            (void                                                    );
     stringVDef             clearScatterResidual	        (void                                                    );
 
     stringVDef             eventsCycle                  (void                                                    );
@@ -96,7 +96,7 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
                                                          double                   xPrime                        ,
                                                          double                   yPrime                        ,
                                                          bool                     clear = false                  ) ;
-    stringVDef             fillDeviations	        (Event                  * theEvent                      ,
+    stringVDef             fillDeviations	            (Event                  * theEvent                      ,
                                                          int                      trackNum    = -1              ,
                                                          int                      clusterSize = -1              ,
                                                          bool                     clear       = false            ) ;
@@ -104,7 +104,7 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
                                                          int                      trackNum    = -1              ,
                                                          int                      clusterSize = -1              ,
                                                          bool                     clear       = false            ) ;
-    stringVDef             fillResiduals	        (Event                  * theEvent       ,
+    stringVDef             fillResiduals	            (Event                  * theEvent       ,
                                                          int                      trackNum    = -1              ,
                                                          int                      clusterSize = -1              ,
                                                          bool                     clear       = false            ) ;
@@ -113,7 +113,7 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
                                                          int                      clusterSize = -1              ,
                                                          bool                     clear       = false            ) ;
 
-    TFile*                 getFileHandle	        (std::string              fullPath                       ) ;
+    TFile*                 getFileHandle	            (std::string              fullPath                       ) ;
     TObject*               getHistogram	    	        (std::string              histogramType                 ,
                                                          int                      station                       ,
                                                          int                      plaq                           ) ;
@@ -131,13 +131,15 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
     std::string            makeRawEvent	    	        (Event                  * theEvent                       ) ;
     stringVDef             makeTrackEvent               (Event                  * theEvent                       ) ;
     std::string            makeClusterEvent    	        (Event                  * theEvent                       ) ;
+    stringVDef             makeKalmanResidualPlots      (trackFitter::residualsVDef & theResiduals               ) ;
+//    stringVDef             fitKalmanResidualPlots       (trackFitter::allKalmanResidualsDef & theResiduals       ) ;
     stringVDef             makeResidualDistributions    (Event                  * theEvent                      ,
                                                          bool                   & redo                           ) ;
     stringVDef             makeAdcDistributions2        (Event                  * theEvent                      ,
                                                          bool                   & redo                           ) ;
-    stringVDef             makeBeamSpots2	        (Event                  * theEvent                      ,
+    stringVDef             makeBeamSpots2	            (Event                  * theEvent                      ,
                                                          bool                   & redo                           ) ;
-    stringVDef             makeHitsFreq2	        (Event                  * theEvent                      ,
+    stringVDef             makeHitsFreq2	            (Event                  * theEvent                      ,
                                                          bool                   & redo                           ) ;
     stringVDef             makeClusterPlots2            (Event                  * theEvent                      ,
                                                          bool                   & redo                           ) ;
@@ -153,7 +155,7 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
     stringVDef             makeElectronDistribution     (std::vector<int>         selectedEvents                , 
                                                          int                      clusterSize = -1               ) ;
     stringVDef             makeFittedTracksBeam	        (std::vector<int>         selectedEvents                 ) ;
-    void                   restrictSearch               (bool                     restrict                       ) {restrictSearch_ = restrict;};
+    void                   restrictSearch               (bool                     restrict                       ) {restrictSearch_ = restrict;}
     void                   setEventFilters              (int                      maxTracks                     ,
                                                          int                      minPlanesWithHits    = -1        ,
                                                          int                      maxPointsPerDetector = -1      ) ;
@@ -179,7 +181,7 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
 
   private:
 
-    std::string	           addItem	                (std::string              fullPath, 
+    std::string	           addItem	                    (std::string              fullPath,
                                                          TObject                * object                         ) ;
     static stringVDef      splitPath                    (std::string              s                              ) ;
 

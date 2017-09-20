@@ -168,6 +168,11 @@ hTreeBrowser::hTreeBrowser(QWidget *parent, MainWindow * mainWindow)
 //=========================================================================
 hTreeBrowser::~hTreeBrowser(void)
 {
+    ss_.str("") ; ss_ << "Window size: " << windowSize_.width() << " x " << windowSize_.height() ;
+    QSettings settings("CMS", "hTreeBrowser");
+    settings.setValue("windowWidth" , windowSize_.width()) ;
+    settings.setValue("windowHeight", windowSize_.height());
+    STDLINE(ss_.str(),ACWhite) ;
     STDLINE("Dtor",ACRed) ;
 }
 
@@ -276,7 +281,6 @@ void hTreeBrowser::populate(TFolder * currentFolder, QTreeWidgetItem * parentWIt
         if( obj->IsA() == TFolder::Class() && folderName == std::string("ROOT Files"))     continue ;
 
         objPath = std::string(currentFolder->GetName()) + std::string("-") + folderName ;
-
         if( existingWItems_.find(objPath) == existingWItems_.end())
         {
             wItem = new QTreeWidgetItem(parentWItem,0) ;
@@ -299,14 +303,12 @@ void hTreeBrowser::populate(TFolder * currentFolder, QTreeWidgetItem * parentWIt
                 wItem->setText(1, tr("Folder")) ;
                 wItem->setIcon(0, folderIcon_);
             }
-//            ss_.str("");
-//            ss_<<"Folder: "<<obj->GetName()<<" Item: "<<wItem->text(0).toStdString();
-//            STDLINE(ss_.str(),ACRed) ;
-
             this->populate((TFolder*)obj,wItem) ;
         }
         else if( this->getObjectType(obj) == "TH1" )
         {
+            ss_.str("");
+            ss_<<"Folder: "<<obj->GetName()<<" Item: "<<wItem->text(0).toStdString();
             if( !create ) continue ;
             ss_.str(""); ss_ << ((TH1*)obj)->GetEntries() ;
             wItem->setText(0, tr(obj->GetName())) ;
@@ -491,6 +493,8 @@ void hTreeBrowser::showContextMenu(const QPoint &)
             if( (*jt)->IsA() == TDirectory::Class()     ) continue ;
             if( (*jt)->IsA() == TDirectoryFile::Class() ) continue ;
             if( (*jt)->IsA() == TCanvas::Class()        ) continue ;
+            if(theHNavigator_->removeNULLRMSPlots() &&
+               ( ((TH1*)(*jt))->GetRMS() == 0 )         ) continue ;
             numberOfPlots++ ;
         }
     }
@@ -542,6 +546,7 @@ void hTreeBrowser::showContextMenu(const QPoint &)
     {
         for(tFileVDef::iterator jt=it->second.begin(); jt!=it->second.end(); ++jt)
         {
+            string errorBars = "" ;
             if( (*jt)->IsA() == TDirectory::Class()     ) continue ;
             if( (*jt)->IsA() == TFolder::Class()        ) continue ;
             if( (*jt)->IsA() == TDirectoryFile::Class() ) continue ;
@@ -550,6 +555,12 @@ void hTreeBrowser::showContextMenu(const QPoint &)
                 (*jt)->Draw() ;
                 continue ;
             }
+            ((TH1*)(*jt))->GetXaxis()->SetLabelSize  (theHNavigator_->getLabelsSize  ()) ;
+            ((TH1*)(*jt))->GetYaxis()->SetLabelSize  (theHNavigator_->getLabelsSize  ()) ;
+            ((TH1*)(*jt))->GetXaxis()->SetLabelOffset(theHNavigator_->getLabelsOffset()) ;
+            ((TH1*)(*jt))->GetYaxis()->SetLabelOffset(theHNavigator_->getLabelsOffset()) ;
+            if(theHNavigator_->removeNULLRMSPlots() && ( ((TH1*)(*jt))->GetRMS() == 0 )) continue ;
+            if(theHNavigator_->plotWithErrorBars()) errorBars = "E1" ;
             serviceCanvas_[currentCanvas_]->cd(pad++) ;
             if(this->getObjectType(*jt) == "TH2" )
             {
@@ -557,7 +568,7 @@ void hTreeBrowser::showContextMenu(const QPoint &)
             }
             else
             {
-                (*jt)->Draw() ;
+                (*jt)->Draw(errorBars.c_str()) ;
             }
         }
     }
@@ -569,8 +580,9 @@ void hTreeBrowser::showContextMenu(const QPoint &)
 }
 
 //===========================================================================
-void hTreeBrowser::resizeEvent(QResizeEvent * )
+void hTreeBrowser::resizeEvent(QResizeEvent * ev)
 {
+    windowSize_ = ev->size() ;
 }
 
 //===========================================================================

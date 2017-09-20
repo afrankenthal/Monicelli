@@ -75,7 +75,7 @@
     <property name="geometry">
      <rect>
       <x>4</x>
-      <y>552</y>
+      <y>546</y>
       <width>336</width>
       <height>157</height>
      </rect>
@@ -172,13 +172,13 @@
      </palette>
     </property>
     <property name="title">
-     <string>Controls</string>
+     <string/>
     </property>
     <widget class="QComboBox" name="hCanvasCB">
      <property name="geometry">
       <rect>
        <x>108</x>
-       <y>116</y>
+       <y>112</y>
        <width>39</width>
        <height>18</height>
       </rect>
@@ -197,7 +197,7 @@
      <property name="geometry">
       <rect>
        <x>8</x>
-       <y>116</y>
+       <y>112</y>
        <width>101</width>
        <height>16</height>
       </rect>
@@ -210,7 +210,7 @@
      <property name="geometry">
       <rect>
        <x>244</x>
-       <y>116</y>
+       <y>112</y>
        <width>82</width>
        <height>18</height>
       </rect>
@@ -220,7 +220,7 @@
      <property name="geometry">
       <rect>
        <x>164</x>
-       <y>116</y>
+       <y>112</y>
        <width>81</width>
        <height>16</height>
       </rect>
@@ -233,7 +233,7 @@
      <property name="geometry">
       <rect>
        <x>4</x>
-       <y>16</y>
+       <y>10</y>
        <width>325</width>
        <height>95</height>
       </rect>
@@ -303,7 +303,7 @@
       </palette>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="actionsTP">
       <attribute name="title">
@@ -332,6 +332,19 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="text">
         <string>Unzoom</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="removeNullMeanPlotsCB">
+       <property name="geometry">
+        <rect>
+         <x>3</x>
+         <y>28</y>
+         <width>259</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Do not display plots with null RMS</string>
        </property>
       </widget>
      </widget>
@@ -366,9 +379,30 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>1D</string>
+      </attribute>
+      <widget class="QCheckBox" name="errorBarsCB">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>4</y>
+         <width>99</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Error bars</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
      <widget class="QWidget" name="twoDPlotsTP">
       <attribute name="title">
-       <string>2D plots</string>
+       <string>2D</string>
       </attribute>
       <widget class="QGroupBox" name="twoDGB">
        <property name="geometry">
@@ -483,12 +517,93 @@ p, li { white-space: pre-wrap; }
        </widget>
       </widget>
      </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Labels</string>
+      </attribute>
+      <widget class="QDoubleSpinBox" name="labelsSizeDS">
+       <property name="geometry">
+        <rect>
+         <x>84</x>
+         <y>4</y>
+         <width>68</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="minimum">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.040000000000000</double>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label">
+       <property name="geometry">
+        <rect>
+         <x>2</x>
+         <y>6</y>
+         <width>79</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Labels size</string>
+       </property>
+      </widget>
+      <widget class="QDoubleSpinBox" name="labelsOffsetDS">
+       <property name="geometry">
+        <rect>
+         <x>84</x>
+         <y>30</y>
+         <width>68</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="minimum">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.040000000000000</double>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_2">
+       <property name="geometry">
+        <rect>
+         <x>2</x>
+         <y>30</y>
+         <width>79</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Labels offset</string>
+       </property>
+      </widget>
+     </widget>
     </widget>
     <widget class="QPushButton" name="saveComponentsPB">
      <property name="geometry">
       <rect>
        <x>7</x>
-       <y>136</y>
+       <y>134</y>
        <width>229</width>
        <height>18</height>
       </rect>
@@ -538,7 +653,7 @@ p, li { white-space: pre-wrap; }
      <property name="geometry">
       <rect>
        <x>248</x>
-       <y>136</y>
+       <y>134</y>
        <width>77</width>
        <height>19</height>
       </rect>

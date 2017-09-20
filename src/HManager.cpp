@@ -1406,6 +1406,11 @@ std::string HManager::addItem(std::string fullPath , TObject * object)
         {
             partialPath += *it ;
 
+            if( debug ) {ss_.str(""); ss_ << "Searching for "
+                                          << partialPath
+                                          << " in "
+                                          << runSubFolder_->GetName()
+                                          << std::endl ; STDLINE(ss_.str(),ACWhite) }
             target = (TFolder *)runSubFolder_->FindObject(partialPath.c_str()) ; // Get a pointer to the i-th element of the
             // requested target folder path
 
@@ -1413,7 +1418,7 @@ std::string HManager::addItem(std::string fullPath , TObject * object)
             {
                 std::string thisName = *(it) ;
 
-                if( debug ) {ss_.str(""); ss_ << "Searching for "
+                if( debug ) {ss_.str(""); ss_ << "Iterative searching for "
                                               << lastPath
                                               << " in "
                                               << runSubFolder_->GetName()
@@ -1473,10 +1478,25 @@ std::string HManager::addItem(std::string fullPath , TObject * object)
             << object->GetName()
             << " to "
             << target->GetName()
-            << " ptr: "
-            << target;
-        STDLINE(ss_.str(),ACWhite) }
+            << " target ptr: "
+            << target
+            << " histo ptr: "
+            << object
+            << " in "
+            << fullPath;
+        STDLINE(ss_.str(),ACWhite);
+    }
     target->Add(object) ;
+    if( debug && fullPath == "Kalman/Smoothing/Pulls/X")
+    {
+        STDLINE(fullPath,ACRed) ;
+        target->ls() ;
+    }
+    if( debug && fullPath == "Kalman/Filtering/Pulls/X")
+    {
+        STDLINE(fullPath,ACGreen) ;
+        target->ls() ;
+    }
 
     return fullPath ;
 }
@@ -2335,4 +2355,132 @@ HManager::stringVDef HManager::makeBeamSpots2(Event * theEvent, bool &add)
     redo_ = false;
     return fullPaths;
 }
+//====================================================================================================
+HManager::stringVDef HManager::makeKalmanResidualPlots(trackFitter::residualsVDef & theResiduals)
+{
+    static HManager::stringVDef fullPaths;
+    static bool first = true ;
+    if( first )
+    {
+        first = false ;
+        fullPaths.push_back(std::string(KALMAN_FILTER_RES_X  ));
+        fullPaths.push_back(std::string(KALMAN_FILTER_RES_Y  ));
+        fullPaths.push_back(std::string(KALMAN_FILTER_PULLS_X));
+        fullPaths.push_back(std::string(KALMAN_FILTER_PULLS_Y));
+        fullPaths.push_back(std::string(KALMAN_FILTER_CHI2   ));
+        fullPaths.push_back(std::string(KALMAN_SMOOTH_RES_X  ));
+        fullPaths.push_back(std::string(KALMAN_SMOOTH_RES_Y  ));
+        fullPaths.push_back(std::string(KALMAN_SMOOTH_PULLS_X));
+        fullPaths.push_back(std::string(KALMAN_SMOOTH_PULLS_Y));
+        fullPaths.push_back(std::string(KALMAN_SMOOTH_CHI2   ));
+    }
+    trackFitter::residualsStruct residuals ;
 
+    TH1D * theH ;
+    vector<TH1D*> plots ;
+
+    ss_.str(""); ss_ << "Data size: " << theResiduals.size();
+    STDLINE(ss_.str(),ACGreen) ;
+
+    for(trackFitter::residualsVDef::iterator it  = theResiduals.begin();
+                                             it != theResiduals.end()  ;
+                                           ++it)
+    {
+        residuals = *it ;
+//        cout << "plaqID   : " << residuals.plaqID    << endl ;
+//        cout << "trackN   : " << residuals.trackN    << endl ;
+//        cout << "resX     : " << residuals.resX      << endl ;
+//        cout << "resY     : " << residuals.resY      << endl ;
+//        cout << "pullX    : " << residuals.pullX     << endl ;
+//        cout << "pullY    : " << residuals.pullY     << endl ;
+//        cout << "chi2     : " << residuals.chi2      << endl ;
+//        cout << "direction: " << residuals.direction << endl ;
+//        cout << "----------------------------------" << endl ;
+
+        int offset = 0 ;
+        if( residuals.direction == "smoothing" ) offset = fullPaths.size() / 2;
+
+        ss_.str(""); ss_ << fullPaths[offset]  << "/" << residuals.plaqID;
+        if ( (theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str()) ) == 0 )
+        {
+            theH = new TH1D(residuals.plaqID.c_str(),residuals.plaqID.c_str(),100,-10,10);
+            theH->GetXaxis()->SetTitle("X Residual (10um)");
+            theH->SetDirectory(0);
+            this->addItem(fullPaths[offset], theH);
+            plots.push_back(theH) ;
+        }
+        else
+        {
+            theH->Fill(residuals.resX) ;
+        }
+
+        ss_.str(""); ss_ << fullPaths[1+offset]  << "/" << residuals.plaqID;
+        if ( (theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str()) ) == 0 )
+        {
+            theH = new TH1D(residuals.plaqID.c_str(),residuals.plaqID.c_str(),100,-10,10);
+            theH->GetXaxis()->SetTitle("Y Residual (10um)");
+            theH->SetDirectory(0);
+            this->addItem(fullPaths[1+offset], theH);
+            plots.push_back(theH) ;
+        }
+        else
+        {
+            theH->Fill(residuals.resY) ;
+        }
+
+        ss_.str(""); ss_ << fullPaths[2+offset]  << "/" << residuals.plaqID;
+        if ( (theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str()) ) == 0 )
+        {
+            theH = new TH1D(residuals.plaqID.c_str(),residuals.plaqID.c_str(),100,-10,10);
+            theH->GetXaxis()->SetTitle("X Pull");
+            theH->SetDirectory(0);
+            this->addItem(fullPaths[2+offset], theH);
+            plots.push_back(theH) ;
+        }
+        else
+        {
+            theH->Fill(residuals.pullX) ;
+        }
+
+        ss_.str(""); ss_ << fullPaths[3+offset]  << "/" << residuals.plaqID;
+        if ( (theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str()) ) == 0 )
+        {
+            theH = new TH1D(residuals.plaqID.c_str(),residuals.plaqID.c_str(),100,-10,10);
+            theH->GetXaxis()->SetTitle("Y Pull");
+            theH->SetDirectory(0);
+            this->addItem(fullPaths[3+offset], theH);
+            plots.push_back(theH) ;
+        }
+        else
+        {
+            theH->Fill(residuals.pullY) ;
+        }
+
+        ss_.str(""); ss_ << fullPaths[4+offset]  << "/" << residuals.plaqID;
+        if ( (theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str()) ) == 0 )
+        {
+            theH = new TH1D(residuals.plaqID.c_str(),residuals.plaqID.c_str(),100,0,10);
+            theH->GetXaxis()->SetTitle("Chi2");
+            theH->SetDirectory(0);
+            this->addItem(fullPaths[4+offset], theH);
+//            plots.push_back(theH) ; // Do not store chi2 distributions (gaussian fit does not make sense)
+        }
+        else
+        {
+            theH->Fill(residuals.chi2) ;
+        }
+    }
+
+    for(vector<TH1D*>::iterator it  = plots.begin();
+                                it != plots.end()  ;
+                              ++it)
+    {
+        STDLINE((*it)->GetName(),ACWhite) ;
+        if( (*it)->GetMean() != 0)
+        {
+            (*it)->Fit("gaus") ;
+        }
+    }
+
+    return fullPaths ;
+}

@@ -123,7 +123,7 @@ void HNavigator::updateTree(QString currentFile)
 //===========================================================================
 void HNavigator::collectExistingWidgets(QWidget * parent)
 {
-    //  STDLINE("Collecting information about existing open widgets",ACYellow) ;
+    STDLINE("Collecting information about existing open widgets",ACYellow) ;
     if( ! parent )
     {
         STDLINE("No parent widget found (yet)",ACCyan) ;
@@ -164,9 +164,9 @@ void HNavigator::collectExistingWidgets(QWidget * parent)
     //  STDLINE("",ACWhite) ;
 
     this->fillWidget()     ; // Fill the combo-box with the list of open files
-    //  STDLINE("",ACWhite) ;
+    STDLINE("",ACWhite) ;
     this->fillWidgetTree() ; // Populate the tree widget with file structure content
-    //  STDLINE("",ACWhite) ;
+    STDLINE("",ACWhite) ;
 }
 
 //===========================================================================
@@ -582,4 +582,24 @@ void HNavigator::getPartitionsInfos(bool usePartitions, string theCurrentDUT, st
     theCurrentSector_ = theCurrentSector;
 
     //ss_.str(""); ss_<<"Use Partitions is: "<<usePartitions_<<" DUT is:  "<<theCurrentDUT_<<" Sector is: "<<theCurrentSector_<<endl; STDLINE(ss_.str(),ACCyan);
+}
+//===========================================================================
+double HNavigator::getLabelsSize(void)
+{
+    return ui->labelsSizeDS->value() ;
+}
+//===========================================================================
+double HNavigator::getLabelsOffset(void)
+{
+    return ui->labelsOffsetDS->value() ;
+}
+//===========================================================================
+bool HNavigator::removeNULLRMSPlots(void)
+{
+    return ui->removeNullMeanPlotsCB->isChecked() ;
+}
+//===========================================================================
+bool HNavigator::plotWithErrorBars(void)
+{
+    return ui->errorBarsCB->isChecked() ;
 }

@@ -475,6 +475,7 @@ void MainWindow::buildHNavigator()
 {
     if( !theHNavigator_)
     {
+        STDLINE("Build the navigator",ACCyan) ;
         theHNavigator_ = new HNavigator(this) ;
 
         theHNavigator_->getPartitionsInfos(usePartitions_  ,

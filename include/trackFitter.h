@@ -55,13 +55,26 @@ public:
     trackFitter(void)   ;
    ~trackFitter(void)  {this->clear();}
 
-   typedef ROOT::Math::SVector<double,4>                             SV4Def         ;
-   typedef std::pair< std::pair< SV4Def, Event::matrixDef >, double> aFittedTrackDef;
-   typedef std::pair<double, std::string>                            pairDef        ;
-   typedef std::vector<pairDef>::const_reverse_iterator              revIterDef     ;
-   typedef std::map<std::string, std::pair<double, double> >         resDef         ; 
-   typedef std::vector<resDef>                                       kalmanResidualsVectorDef;
-
+   struct residualsStruct
+   {
+     string plaqID    ;
+     int    trackN    ;
+     double resX      ; 
+     double resY      ; 
+     double pullX     ; 
+     double pullY     ;
+     double chi2      ; 
+     string direction ;
+   } ;
+   
+   typedef ROOT::Math::SVector<double,4>                     SV4Def                  ;
+   typedef std::pair<pair<SV4Def, Event::matrixDef>,double>  aFittedTrackDef         ;
+   typedef std::pair<double, std::string>                    pairDef                 ;
+   typedef std::vector<pairDef>::const_reverse_iterator      revIterDef              ;
+   typedef std::map<std::string, std::pair<double, double> > resDef                  ;
+   typedef std::vector<resDef>                               kalmanResidualsVectorDef;
+   typedef vector<residualsStruct>                           residualsVDef           ;
+    
    void                                   clear                           (void                                                            );
    void                                   clearSelectedDetectorsList      (void                                                            ){selectedDetectors_.clear()          ;}
    Event::fittedTracksDef                 fitTracks                       (const Event::trackCandidatesDef         & tracks               ,
@@ -88,49 +101,50 @@ public:
                                                                            Geometry                                * theGeometry           );
    void                                   execute                         (Event                                   * theEvent             , 
                                                                            Geometry                                * theGeometry           ); 
-   Event::fittedTracksDef               & getTracks                       (void                                                            ){return fittedTracks_                ;}
-   Event::fittedTracksCovarianceDef       getCovariance                   (void                                                            ){return covMat_                      ;}
-   Event::chi2VectorDef                   getChi2                         (void                                                            ){return chi2_                        ;}
+   Event::fittedTracksDef               & getTracks                       (void                                                            ){return fittedTracks_                 ;}
+   Event::fittedTracksCovarianceDef       getCovariance                   (void                                                            ){return covMat_                       ;}
+   Event::chi2VectorDef                   getChi2                         (void                                                            ){return chi2_                         ;}
    std::string                            getLabel                        (void                                                            );
-   std::string                            getName                         (void                                                            ){return "trackFitter"                ;}
+   std::string                            getName                         (void                                                            ){return "trackFitter"                 ;}
+   residualsVDef                        & getKalmanResidualsMap           (void                                                            ){return residualsV_                   ;}
+   void                                   includeResiduals                (bool                                      include               ){includeResiduals_ = include          ;}
+   void                                   setSelectedDetectorsList        (std::set<std::string>                     selectedDetectors     ){selectedDetectors_= selectedDetectors;}
+   void                                   setTracksFitted                 (bool                                      tracksFitted          ){tracksFitted_     = tracksFitted     ;}
+   bool                                   tracksFitted                    (void                                                            ){return tracksFitted_                 ;}
 
-
-   void                                   setSelectedDetectorsList        (std::set<std::string>                     selectedDetectors     ){selectedDetectors_=selectedDetectors;}
-   void                                   setTracksFitted                 (bool                                      tracksFitted          ){tracksFitted_ = tracksFitted        ;}
-   bool                                   tracksFitted                    (void                                                            ){return tracksFitted_                ;}
-
-   void                                   setFitMethodName                (std::string fitMethodName                                       ){fitMethodName_=fitMethodName        ;}
-   void                                   setNumberOfIterations           (int                                       iterations            ){nIterations_ = iterations           ;}
-   void                                   setKalmanPlaneInfo              (KalmanPlaneInfo                           kalmanInfo            ){theKalmanPlaneInfo_ = kalmanInfo    ;}
+   void                                   setFitMethodName                (std::string fitMethodName                                       ){fitMethodName_      = fitMethodName  ;}
+   void                                   setNumberOfIterations           (int                                       iterations            ){nIterations_        = iterations     ;}
+   void                                   setKalmanPlaneInfo              (KalmanPlaneInfo                           kalmanInfo            ){theKalmanPlaneInfo_ = kalmanInfo     ;}
    static ROOT::Math::SVector<double,4>   calculateParCorrections         (ROOT::Math::SVector<double,4>             pars                 ,
                                                                            Geometry                                * geo                  ,
                                                                            resDef                                    res                   );
 
 private:
 
-    void printMatrix(std::string sm, Event::matrixDef & matrix) ;
+    residualsStruct                  residuals_                  ;
+    residualsVDef                    residualsV_                 ;
+    
+    void printMatrix(std::string sm, Event::matrixDef & matrix)  ;
     void printMatrix(std::string sm, ROOT::Math::SMatrix<long double,4,4> & matrix) ;
 
-    Event::residualsMapDef           residualsMap_         ;
-    Event::residualsMapDef           pullMap_              ;
-    Event::fittedTracksDef           fittedTracks_         ;
-    Event::fittedTracksCovarianceDef covMat_               ;
-    Event::chi2VectorDef             chi2_                 ;
-    std::set<std::string>            selectedDetectors_    ;
-    bool                             excludedDetectorFound_;
-    bool                             tracksFitted_         ;
+    Event::residualsMapDef           residualsMap_               ;
+    Event::residualsMapDef           pullMap_                    ;
+    Event::fittedTracksDef           fittedTracks_               ;
+    Event::fittedTracksCovarianceDef covMat_                     ;
+    Event::chi2VectorDef             chi2_                       ;
+    std::set<std::string>            selectedDetectors_          ;
+    bool                             excludedDetectorFound_      ;
+    bool                             tracksFitted_               ;
     int count;
-    std::stringstream                ss_                   ;
+    std::stringstream                ss_                         ;
 
-    bool                             debug_                ;
-    Event::clustersMapDef            clusters_             ;
+    bool                             debug_                      ;
+    Event::clustersMapDef            clusters_                   ;
 
-    std::string                      fitMethodName_        ;
-    int                              nIterations_          ;
-    KalmanPlaneInfo                  theKalmanPlaneInfo_   ;
-    kalmanResidualsVectorDef         kalmanFittedTracksResiduals_;
-    kalmanResidualsVectorDef         kalmanFittedTracksPulls_    ;
-
+    std::string                      fitMethodName_              ;
+    int                              nIterations_                ;
+    KalmanPlaneInfo                  theKalmanPlaneInfo_         ;
+    bool                             includeResiduals_           ;
 };
 
 #endif // TRACKFITTER_H

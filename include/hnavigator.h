@@ -84,6 +84,10 @@ public:
                                                string         theCurrentSector) ;
     void           getGeometryFileName        (string         geometryFileName) {geometryFileName_= geometryFileName;}
     void           getInputFileName           (string         inputFileName   ) {inputFileName_   = inputFileName   ;}
+    double         getLabelsSize              (void                           ) ;
+    double         getLabelsOffset            (void                           ) ;
+    bool           removeNULLRMSPlots         (void                           ) ;
+    bool           plotWithErrorBars          (void                           ) ;
 
 private slots:
     void           on_unZoomPB_clicked        (void                           );

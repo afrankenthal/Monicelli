@@ -131,6 +131,7 @@ private:
     QIcon                                 TH2Icon_          ;
     QIcon                                 tTreeIcon_        ;
     dirPathDef                            dirPath_          ;
+    QSize                                 windowSize_       ;
 
     int                                   canvasPosX_       ;
     int                                   canvasPosY_       ;
