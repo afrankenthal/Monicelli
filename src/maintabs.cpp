@@ -913,7 +913,10 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
     std::string label= currentProcess->getLabel()    ;
 
     ss_.str("");
-    ss_ << currentProcess->getName()  << " process is ended with signal: " <<  success;
+    ss_ << "The "
+        << currentProcess->getName()
+        << " process has ended with signal: "
+        <<  success;
     STDLINE(ss_.str(), ACYellow);
 
     if(success)
@@ -932,11 +935,11 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
 
     if( currentProcess == theFileEater_ )
     {
-        STDLINE("","") ;
         if(theFileEater_->getOperation() == &fileEater::parse)
         {
             if(success)
             {
+                STDLINE("Parsing successfully ended",ACGreen) ;
                 ui->parseFilePB        -> setChecked(false)  ;
                 ui->showBeamSpotPB     -> setEnabled(true)   ;
                 ui->calibrationLoaderPB-> setEnabled(true)   ;
@@ -944,6 +947,7 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
             }
             else
             {
+                STDLINE("Parsing did NOT successfully end",ACRed) ;
                 ui->parseFilePB        -> setEnabled(true)   ;
                 ui->eatFilePB          -> setEnabled(true)   ;
                 ui->loadGeometryPB     -> setEnabled(true)   ;
@@ -952,23 +956,26 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
                 if( ui->loadGeometryPB->isChecked() ) ui->maxRawEventsSB-> setEnabled(true) ;
             }
 
-            ui->beamSpotCB       -> setEnabled(true)     ;
-            theFileEater_        -> closeFile()          ;
+            ui->beamSpotCB-> setEnabled(true)     ;
+            theFileEater_ -> closeFile()          ;
         }
         if(theFileEater_->getOperation() == &fileEater::fullReconstruction)
         {
+            STDSNAP("Full reconstruction ended: ",ACWhite) ;
+            if(success) STDLINE("successfully"   ,ACGreen)
+            else        STDLINE("unsuccessfully" ,ACRed  ) ;
             this->on_reconstructEventsPB_clicked();
         }
 
         if(theFileEater_->getOperation() == &fileEater::updateEvents2)
         {
-            STDLINE("","") ;
+            STDLINE("Update events ended",ACGreen) ;
             fileEater::subProcessVDef currentSubProcess = theFileEater_->getCurrentSubProcess();
             for(unsigned int i=0; i<currentSubProcess.size(); i++)
             {
-                STDLINE("","") ;
                 if( currentSubProcess[i] == theClusterizer_ )
                 {
+                    STDLINE("The clusterize ended",ACGreen) ;
                     ui->clustersBuiltCB              ->setChecked(true) ;
                     ui->rawAlignmentClusterProfilesRB->setEnabled(true) ;
                     ui->findTracksGB                 ->setEnabled(true) ;
@@ -992,6 +999,7 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
                          theTrackFinder_->getOperation() == &trackFinder::findAndFitTracks)
                         //)
                     {
+                        STDLINE("Finding and fitting tracks ended",ACGreen) ;
                         ui->tracksFoundCB                    ->setChecked(true);
 
                         ui->slopeDisplayGB                   ->setEnabled(true);
@@ -1012,11 +1020,14 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
                         ui->dutAlignmentDUTHitsFinderGB      ->setEnabled(true);
                         ui->dutAlignmentTracksSelectionGB    ->setEnabled(true);
                         redoChi2_ = true;
+                        ss_.str(""); ss_ << theTrackFinder_->getNumberOfTracks() ;
+                        ui->candidateTracksFoundLE->setText(QString(ss_.str().c_str())) ;
                     }
                 }
 
                 if( currentSubProcess[i] == theTrackFitter_ )
                 {
+                    STDLINE("Track fitting ended",ACGreen) ;
                     if(theTrackFitter_->getOperation() == &trackFitter::makeFittedTracksResiduals)
                     {
                         ui->onlyDetectorsToBeAlignedCB ->setChecked(false);
@@ -1727,7 +1738,7 @@ void mainTabs::on_showAdcDistributionsPB_clicked()
 //===========================================================================
 void mainTabs::on_showBeamProfilesPB_clicked()
 {
-    this->launchThread3(theHManager_, this, &mainTabs::showBeamProfiles);
+    this->launchThread3(theHManager_,this,&mainTabs::showBeamProfiles);
 }
 //===========================================================================
 void mainTabs::showBeamProfiles()
@@ -2225,20 +2236,22 @@ void mainTabs::findAndFitTrack(std::string findMethod, std::string fitMethod)
                                               trackPoints                               ,
                                               maxPlanePoints                            );
 
-    theTrackFinder_->setTrackingOperationParameters(findMethod,fitMethod,ui->includeDUTfindCB->isChecked());
+    theTrackFinder_->setTrackingOperationParameters(findMethod,
+                                                    fitMethod ,
+                                                    ui->includeDUTfindCB->isChecked());
     theFileEater_  ->setOperation(&fileEater::updateEvents2,theTrackFinder_);
     theTrackFinder_->setOperation(&trackFinder::findAndFitTracks);
     STDLINE("Launching theFileEater_...",ACPurple) ;
     this->launchThread2(theFileEater_);
+//    this->launchThread3(theFileEater_,this,&mainTabs::updateGUI);
 }
 
 //=============================================================================
 void mainTabs::launchThread2(process * theProcess)
 {
-    process * activeProcess = NULL ;
-    activeProcess = theThreader_->getCurrentProcess();
     if(theThreader_->isRunning())
     {
+        process * activeProcess = theThreader_->getCurrentProcess();
         ss_.str("");
         ss_ << "WARNING: action temporarily disabled, "
             << activeProcess->getLabel()
@@ -2253,19 +2266,25 @@ void mainTabs::launchThread2(process * theProcess)
     ui->parseProgressBar->setMaximum(theProcess->getMaxIterations());
 
     theThreader_->setProcess(theProcess);
-    //theThreader_->runTheMethod(theProcess,&process::execute());
-    theBenchmark_     = new TBenchmark() ;
+    theBenchmark_     = new TBenchmark();
     theThreadProcess_ = theProcess->getLabel() ;
     theBenchmark_->Start(theThreadProcess_.c_str());
-    theThreader_->start();
+    theThreader_ ->start();
 
     ss_.str("");
-    ss_ << theProcess->getLabel() << "...";
+    ss_ << theProcess->getLabel() << " process is running...";
     ui->parsingActivityLB->setText(QString::fromStdString(ss_.str()));
     STDLINE(ss_.str(),ACGreen);
 
     timer2_->start(50) ;
 }
+//=============================================================================
+void mainTabs::updateGUI(void)
+{
+    Event::fittedTracksDef tracks = theTrackFitter_->getTracks();
+    STDLINE(tracks.size(),ACCyan) ;
+}
+
 //=============================================================================
 template<class Class> void mainTabs::launchThread3(process * theProcess, Class * object, void (Class::*fn)())
 {
@@ -2273,7 +2292,9 @@ template<class Class> void mainTabs::launchThread3(process * theProcess, Class *
     {
         process * activeProcess = theThreader_->getCurrentProcess();
         ss_.str("");
-        ss_ << "WARNING: action disabled, " << activeProcess->getLabel() << " is running";
+        ss_ << "WARNING: action temporarily disabled, "
+            << activeProcess->getLabel()
+            << " is running";
         STDLINE(ss_.str(),ACRed);
         return ;
     }
@@ -2283,11 +2304,11 @@ template<class Class> void mainTabs::launchThread3(process * theProcess, Class *
     ui->parseProgressBar->reset();
     ui->parseProgressBar->setMaximum(theProcess->getMaxIterations());
 
-    theThreader_->setProcess(theProcess  );
-    theBenchmark_     = new TBenchmark() ;
+    theThreader_->setProcess(theProcess);
+    theBenchmark_     = new TBenchmark();
     theThreadProcess_ = theProcess->getLabel() ;
-    theBenchmark_->Start(theThreadProcess_.c_str());
-    theThreader_->setFuture(QtConcurrent::run(object,fn));
+    theBenchmark_->Start    (theThreadProcess_.c_str()   );
+    theThreader_ ->setFuture(QtConcurrent::run(object,fn));
 
     ss_.str("");
     ss_ << theProcess->getLabel() << " process is running...";

@@ -140,7 +140,7 @@ private:
                                               std::string            fitMethod      );
     void           findTrack                 (std::string            searchMethod   );
     void           fitTrack                  (std::string            fitMethod      );
-
+    void           updateGUI                 (void                                  );
 
     std::string getPlaneID (int station, int plaquette);
 

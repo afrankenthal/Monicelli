@@ -594,7 +594,7 @@ p, li { white-space: pre-wrap; }
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>5</number>
+      <number>6</number>
      </property>
      <widget class="QWidget" name="rawDataProcessingTabPage">
       <attribute name="title">
@@ -4097,7 +4097,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>250</x>
-          <y>86</y>
+          <y>78</y>
           <width>101</width>
           <height>18</height>
          </rect>
@@ -4215,7 +4215,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>250</x>
-          <y>104</y>
+          <y>96</y>
           <width>101</width>
           <height>18</height>
          </rect>
@@ -4237,7 +4237,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>250</x>
-          <y>66</y>
+          <y>58</y>
           <width>113</width>
           <height>21</height>
          </rect>
@@ -4270,9 +4270,9 @@ p, li { white-space: pre-wrap; }
        <widget class="QLineEdit" name="candidateTracksFoundLE">
         <property name="geometry">
          <rect>
-          <x>120</x>
+          <x>148</x>
           <y>115</y>
-          <width>111</width>
+          <width>83</width>
           <height>20</height>
          </rect>
         </property>
@@ -4282,7 +4282,7 @@ p, li { white-space: pre-wrap; }
          <rect>
           <x>8</x>
           <y>116</y>
-          <width>111</width>
+          <width>131</width>
           <height>20</height>
          </rect>
         </property>
@@ -4293,14 +4293,14 @@ p, li { white-space: pre-wrap; }
          </font>
         </property>
         <property name="text">
-         <string>Candidate tracks</string>
+         <string>Candidate tracks found</string>
         </property>
        </widget>
        <widget class="QCheckBox" name="trackFinderPlanePointsCB">
         <property name="geometry">
          <rect>
           <x>250</x>
-          <y>120</y>
+          <y>116</y>
           <width>126</width>
           <height>18</height>
          </rect>
@@ -4997,7 +4997,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>250</x>
-          <y>48</y>
+          <y>40</y>
           <width>119</width>
           <height>21</height>
          </rect>
@@ -6666,7 +6666,7 @@ p, li { white-space: pre-wrap; }
         </rect>
        </property>
        <property name="currentIndex">
-        <number>5</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="residualsSynopticPage">
         <attribute name="title">

@@ -66,9 +66,8 @@ template<class Class> void threader::runTheMethod(Class * object, void (Class::*
 //==================================================================
 bool threader::isRunning(void )
 {
-  if(QThread::isRunning() || future_.isRunning())
-    return true ;
-  else   return false;
+  if(QThread::isRunning() || future_.isRunning()) return true ;
+  else                                            return false;
 }
 //==================================================================
 void threader::terminate(void)

@@ -9,7 +9,10 @@
 
 using namespace std ;
 
-class maintabs ;
+namespace Ui
+{
+  class maintabs ;
+}
 
 class settingsManager
 {

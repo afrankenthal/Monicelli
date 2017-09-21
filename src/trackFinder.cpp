@@ -621,9 +621,9 @@ void trackFinder::fitKalmanTrackCandidates(Event* theEvent, Geometry* theGeometr
             (*track)  = aKalmanFittedTrack.first.first ;
             (*cov)    = aKalmanFittedTrack.first.second;
             (*itChi2) = aKalmanFittedTrack.second      ;
+            numberOfTracks_++ ;
         }
     }
-
 }
 
 //============================================================================
@@ -1051,17 +1051,17 @@ void trackFinder::findAndFitTracks(Event* theEvent, Geometry* theGeometry )
         STDLINE("ERROR: Unrecognized search method "+ findMethod_,ACRed);
         return;
     }
-    if(fitMethod_ == "Simple")
+    if(     fitMethod_ == "Simple")
     {
         if(findDUT_) fitAllSimple            (theEvent, theGeometry);
         else         fitSimpleTrackCandidates(theEvent, theGeometry);
     }
-    else if (fitMethod_ == "Kalman")
+    else if(fitMethod_ == "Kalman")
     {
         if(findDUT_) fitAllKalman            (theEvent, theGeometry);
         else         fitKalmanTrackCandidates(theEvent, theGeometry);
     }
-    else if(fitMethod_ != "")
+    else if(fitMethod_ != ""      )
     {
         STDLINE("ERROR: Unrecognized fit method "+ fitMethod_,ACRed);
         return;

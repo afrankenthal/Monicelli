@@ -33,7 +33,8 @@
 
 #include <QtWidgets/QDialog>
 
-namespace Ui {
+namespace Ui
+{
     class xmlCreationDialog;
 }
 
