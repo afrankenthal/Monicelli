@@ -83,6 +83,7 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
     stringVDef             clearPulls	    	        (void                                                    );
     stringVDef             clearResiduals	            (void                                                    );
     stringVDef             clearScatterResidual	        (void                                                    );
+    stringVDef             clearKalmanResiduals         (void                                                    );
 
     stringVDef             eventsCycle                  (void                                                    );
 

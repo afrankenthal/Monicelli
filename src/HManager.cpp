@@ -2377,10 +2377,6 @@ HManager::stringVDef HManager::makeKalmanResidualPlots(trackFitter::residualsVDe
     trackFitter::residualsStruct residuals ;
 
     TH1D * theH ;
-    vector<TH1D*> plots ;
-
-    ss_.str(""); ss_ << "Data size: " << theResiduals.size();
-    STDLINE(ss_.str(),ACGreen) ;
 
     for(trackFitter::residualsVDef::iterator it  = theResiduals.begin();
                                              it != theResiduals.end()  ;
@@ -2403,11 +2399,10 @@ HManager::stringVDef HManager::makeKalmanResidualPlots(trackFitter::residualsVDe
         ss_.str(""); ss_ << fullPaths[offset]  << "/" << residuals.plaqID;
         if ( (theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str()) ) == 0 )
         {
-            theH = new TH1D(residuals.plaqID.c_str(),residuals.plaqID.c_str(),100,-10,10);
+            theH = new TH1D(residuals.plaqID.c_str(),residuals.plaqID.c_str(),200,-10,10);
             theH->GetXaxis()->SetTitle("X Residual (10um)");
             theH->SetDirectory(0);
             this->addItem(fullPaths[offset], theH);
-            plots.push_back(theH) ;
         }
         else
         {
@@ -2417,11 +2412,10 @@ HManager::stringVDef HManager::makeKalmanResidualPlots(trackFitter::residualsVDe
         ss_.str(""); ss_ << fullPaths[1+offset]  << "/" << residuals.plaqID;
         if ( (theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str()) ) == 0 )
         {
-            theH = new TH1D(residuals.plaqID.c_str(),residuals.plaqID.c_str(),100,-10,10);
+            theH = new TH1D(residuals.plaqID.c_str(),residuals.plaqID.c_str(),200,-10,10);
             theH->GetXaxis()->SetTitle("Y Residual (10um)");
             theH->SetDirectory(0);
             this->addItem(fullPaths[1+offset], theH);
-            plots.push_back(theH) ;
         }
         else
         {
@@ -2431,11 +2425,10 @@ HManager::stringVDef HManager::makeKalmanResidualPlots(trackFitter::residualsVDe
         ss_.str(""); ss_ << fullPaths[2+offset]  << "/" << residuals.plaqID;
         if ( (theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str()) ) == 0 )
         {
-            theH = new TH1D(residuals.plaqID.c_str(),residuals.plaqID.c_str(),100,-10,10);
+            theH = new TH1D(residuals.plaqID.c_str(),residuals.plaqID.c_str(),500,-10,10);
             theH->GetXaxis()->SetTitle("X Pull");
             theH->SetDirectory(0);
             this->addItem(fullPaths[2+offset], theH);
-            plots.push_back(theH) ;
         }
         else
         {
@@ -2445,11 +2438,10 @@ HManager::stringVDef HManager::makeKalmanResidualPlots(trackFitter::residualsVDe
         ss_.str(""); ss_ << fullPaths[3+offset]  << "/" << residuals.plaqID;
         if ( (theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str()) ) == 0 )
         {
-            theH = new TH1D(residuals.plaqID.c_str(),residuals.plaqID.c_str(),100,-10,10);
+            theH = new TH1D(residuals.plaqID.c_str(),residuals.plaqID.c_str(),500,-10,10);
             theH->GetXaxis()->SetTitle("Y Pull");
             theH->SetDirectory(0);
             this->addItem(fullPaths[3+offset], theH);
-            plots.push_back(theH) ;
         }
         else
         {
@@ -2459,11 +2451,10 @@ HManager::stringVDef HManager::makeKalmanResidualPlots(trackFitter::residualsVDe
         ss_.str(""); ss_ << fullPaths[4+offset]  << "/" << residuals.plaqID;
         if ( (theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str()) ) == 0 )
         {
-            theH = new TH1D(residuals.plaqID.c_str(),residuals.plaqID.c_str(),100,0,10);
+            theH = new TH1D(residuals.plaqID.c_str(),residuals.plaqID.c_str(),200,0,10);
             theH->GetXaxis()->SetTitle("Chi2");
             theH->SetDirectory(0);
             this->addItem(fullPaths[4+offset], theH);
-//            plots.push_back(theH) ; // Do not store chi2 distributions (gaussian fit does not make sense)
         }
         else
         {
@@ -2471,16 +2462,45 @@ HManager::stringVDef HManager::makeKalmanResidualPlots(trackFitter::residualsVDe
         }
     }
 
-    for(vector<TH1D*>::iterator it  = plots.begin();
-                                it != plots.end()  ;
-                              ++it)
+    for(Geometry::iterator git=theGeometry_->begin(); git!=theGeometry_->end(); git++)
     {
-        STDLINE((*it)->GetName(),ACWhite) ;
-        if( (*it)->GetMean() != 0)
+        for(unsigned int i = 0; i<fullPaths.size();i++)
         {
-            (*it)->Fit("gaus") ;
+            theH = (TH1D*)this->getHistogram(fullPaths[i],(*git).first);
+            if(( theH->GetMean() != 0) && (fullPaths[i].find("Chi2") == string::npos ))
+            {
+                theH->Fit("gaus") ;
+            }
         }
     }
 
     return fullPaths ;
+}
+//============================================================================
+HManager::stringVDef  HManager::clearKalmanResiduals ()
+{
+    static HManager::stringVDef fullPaths;
+    fullPaths.push_back(std::string(KALMAN_FILTER_RES_X  ));
+    fullPaths.push_back(std::string(KALMAN_FILTER_RES_Y  ));
+    fullPaths.push_back(std::string(KALMAN_FILTER_PULLS_X));
+    fullPaths.push_back(std::string(KALMAN_FILTER_PULLS_Y));
+    fullPaths.push_back(std::string(KALMAN_FILTER_CHI2   ));
+    fullPaths.push_back(std::string(KALMAN_SMOOTH_RES_X  ));
+    fullPaths.push_back(std::string(KALMAN_SMOOTH_RES_Y  ));
+    fullPaths.push_back(std::string(KALMAN_SMOOTH_PULLS_X));
+    fullPaths.push_back(std::string(KALMAN_SMOOTH_PULLS_Y));
+    fullPaths.push_back(std::string(KALMAN_SMOOTH_CHI2   ));
+
+    TH1 *histo = NULL;
+    theGeometry_ = theFileEater_->getGeometry();
+    for(Geometry::iterator git=theGeometry_->begin(); git!=theGeometry_->end(); git++)
+    {
+        for(unsigned int i = 0; i<fullPaths.size();i++)
+        {
+            histo = (TH1*)this->getHistogram(fullPaths[i],(*git).first);
+            histo->Reset("M");
+        }
+    }
+
+    return fullPaths;
 }

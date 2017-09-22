@@ -2387,8 +2387,8 @@ void mainTabs::on_parseFilePB_clicked()
 //==============================================================================
 void mainTabs::on_plotKalmanResidualsPB_clicked()
 {
+    theHManager_->clearKalmanResiduals();
     theHManager_->makeKalmanResidualPlots(theTrackFitter_->getKalmanResidualsMap()) ;
-//    theHManager_->fitKalmanResidualPlots (theTrackFitter_->getKalmanResidualsMap()) ;
 }
 
 //=========================================================================
@@ -3073,7 +3073,10 @@ void mainTabs::on_trackFindAndFitAlignmentPB_clicked()
     if (fitMethod == "Simple")
         theTrackFitter_->setNumberOfIterations(ui->trackFitterIterationsSB->value());
     else
+    {
+        theTrackFitter_->clearKalmanResiduals();
         theTrackFitter_->setNumberOfIterations(0);
+    }
 
     theTrackFitter_->setFitMethodName(fitMethod);
 
@@ -3094,6 +3097,7 @@ void mainTabs::on_trackFindAndFitPB_clicked()
     {
         theTrackFitter_->setNumberOfIterations(0);
         theTrackFitter_->includeResiduals(ui->includeResidualsCB->isChecked());
+        theTrackFitter_->clearKalmanResiduals();
     }
     findAndFitTrack(findMethod, fitMethod);
 }

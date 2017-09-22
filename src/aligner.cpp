@@ -421,9 +421,13 @@ bool aligner::align(void)
 
                     if (alignmentFitMethod_=="Kalman")
                     {
-                        //Change data types to be used by Kalman fit
-                        TVectorT<double> trackPars(4);
-                        TMatrixTSym<double> estCov(4);
+                        //Use existing trackPars and covMat
+                        TVectorT   <double> trackPars(4);
+                        TMatrixTSym<double> estCov   (4);
+
+                        Event::vectorDef    trackTmp ;
+                        Event::matrixDef    covTmp   ;
+
                         for ( int i=0; i<4; i++ )
                         {
                             trackPars[i] = fitpar[i];
@@ -432,168 +436,101 @@ bool aligner::align(void)
                         {
                             for ( int j=0; j<4; j++ )
                             {
-                                estCov[i][j] = AtVAInv[i][j] * 10000; // Same value as in KalmanFitSingleTrack
+                                estCov[i][j] = AtVAInv[i][j] * 10000; // Dario e Luigi: moltiplicare per un fattore 10^4 (minimo)
                             }
                         }
 
-                        std::map<std::string, TVectorT<double> >    trackParsMap;
+                        //Use maps to store estCov and trackPars for each plane to use them in the smoothing step
+
+                        std::map<std::string, TVectorT   <double> > trackParsMap;
                         std::map<std::string, TMatrixTSym<double> > CkMap;
                         std::map<std::string, TMatrixTSym<double> > Ckk_1Map;
-                        TMatrixT<double> b(4,4);
-                        TMatrixT<double> bt(4,4);
+                        std::map<std::string, TMatrixTSym<double> > Ckk_1Org;
+                        TMatrixT<double> A   (4,4);
+                        TMatrixT<double> At  (4,4);
                         TMatrixT<double> temp(4,4);
 
                         for (unsigned int plane = 0; plane < theKalmanPlaneInfo_.getKalmanFilterOrder().size(); plane++)
                         {
                             std::string plaqID = theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).second;
 
-                            TVectorT<double> k(4);
-                            TMatrixTSym<double> a(4);
-                            TVectorT<double> h            = theKalmanPlaneInfo_.getH(plaqID) ;
-                            TMatrixTSym<double> trackCov  = theKalmanPlaneInfo_.getTrackCov(plaqID);
-                            double offset                 = theKalmanPlaneInfo_.getOffset(plaqID);
+                            trackParsMap[plaqID].ResizeTo(4  );
+                            CkMap       [plaqID].ResizeTo(4,4);
+                            Ckk_1Map    [plaqID].ResizeTo(4,4);
+                            Ckk_1Org    [plaqID].ResizeTo(4,4);
+                    //        ss_.str("") ; ss_ << "Detector: " << plane << " plaqID: " << plaqID << " Z: " << theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).first << endl ;
 
-                            if ( theGeometry->getDetector(plaqID)->isStrip() ) //strip data
+                            TVectorT   <double> k (4);
+                            TMatrixTSym<double> B (4);
+
+                            TVectorT   <double> h        = theKalmanPlaneInfo_.getH       (plaqID);
+                            TMatrixTSym<double> trackCov = theKalmanPlaneInfo_.getTrackCov(plaqID);
+                            double offset                = theKalmanPlaneInfo_.getOffset  (plaqID);
+
+                            if ( theGeometry->getDetector(plaqID)->isStrip()) //Apply kalman filter to strip planes only
                             {
+                    //            ss_.str(""); ss_ << "FILTERING - Detector: "<<plaqID<<" zPosition: "<<theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).first;
+
                                 if(xmeasNoRot[j].find(plaqID) != xmeasNoRot[j].end())
                                 {
                                     for ( int i=0; i<4; i++ )
                                     {
                                         for ( int j=0; j<4; j++ )
                                         {
-                                            a[i][j] = h[i]*h[j];
+                                            B[i][j] = h[i]*h[j];
                                         }
                                     }
 
                                     //Residual of prediction
                                     double dist    = xmeasNoRot[j][plaqID];//distance of the hit from origin of the sensor
                                     double distErr = sigxNoRot[j][plaqID];
-                                    double res = dist - trackPars*h - offset;
-
-                    //                std::cout<<__PRETTY_FUNCTION__<<" trackPars: "<<trackPars[0]<<" "<<trackPars[1]<<" "<<trackPars[2]<<" "<<trackPars[3]
-                    //                                              <<" h: "        <<h[0]<<" "<<h[1]<<" "<<h[2]<< " "<<h[3]
-                    //                                              <<" offset: "   <<offset<<std::endl;
+                                    double res     = dist - trackPars*h - offset;
 
                                     //Calculate gain matrix
-                                    double r = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
-                                    k = (1/r)*(estCov*h);
-                                    estCov -= (1/r)*a.Similarity(estCov);// (1/rrr)*c*a*c^t
-                                    CkMap[plaqID].ResizeTo(4,4);
-                                    CkMap[plaqID] = estCov;
-                                    trackPars += res*k;
+                                    double r       = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
+                                    k              = (1/r)*(estCov*h);
+                                    estCov        -= (1/r)*B.Similarity(estCov);// (1/r)*c*a*c^t
+                                    CkMap[plaqID]  = estCov;
+                                    trackPars     += res*k;
                                 }
+                                trackParsMap[plaqID] = trackPars;
+                            }
+                            else
+                            {
+                                CkMap       [plaqID] = estCov;
+                                trackParsMap[plaqID] = trackPars;
+                            }
 
-                                if(plane != (theKalmanPlaneInfo_.getKalmanFilterOrder().size()-1))
+                            if(plane != (theKalmanPlaneInfo_.getKalmanFilterOrder().size()-1)) //MCS correction must be applied to every plane but the last one
+                            {
+                                for ( int i=0; i<4; i++ )
                                 {
-                                    for ( int i=0; i<4; i++ )
+                                    for ( int j=0; j<4; j++ )
                                     {
-                                        for ( int j=0; j<4; j++ )
-                                        {
-                                            estCov[i][j] += trackCov[i][j];
-                                        }
+                                        estCov[i][j] += trackCov[i][j];
                                     }
                                 }
-
-                                trackParsMap[plaqID].ResizeTo(4);
-                                trackParsMap[plaqID] = trackPars;
-                                Ckk_1Map[plaqID].ResizeTo(4,4);
-                                Ckk_1Map[plaqID] = estCov;
-
                             }
+
+                            Ckk_1Map[plaqID] = estCov;
                         }
 
+                        // For histogramming purposes below is missing the last plane downstream: add it (to do)
 
                         // Smoothing planes
-                        for (std::vector<std::pair<double, std::string> >::const_reverse_iterator rit = theKalmanPlaneInfo_.getKalmanFilterOrder().crbegin()+1;
-                                                                                                  rit!= theKalmanPlaneInfo_.getKalmanFilterOrder().crend();
-                                                                                                ++rit)
+                        for (std::vector<std::pair<double, std::string>>::const_reverse_iterator rit = theKalmanPlaneInfo_.getKalmanFilterOrder().crbegin()+1;
+                                                                                                 rit!= theKalmanPlaneInfo_.getKalmanFilterOrder().crend();
+                                                                                               ++rit)
                         {
-                    //            std::cout<<__LINE__<<" PREVIOUS COV MATRIX "<<std::endl;
-                    //            estCov.Print();
+                                std::string plaqID = (*rit).second ;
 
-                    //            std::cout<<__LINE__<<" Ck Matrix "<<std::endl;
-                    //            CkMap[(*rit).second].Print();
+                                Ckk_1Org[plaqID] = Ckk_1Map[plaqID] ;
+                                Ckk_1Map[plaqID].Invert();
+                                A = CkMap[plaqID]*Ckk_1Map[plaqID];
+                                At.Transpose(A);
 
-                                if(xmeasNoRot[j].find((*rit).second) == xmeasNoRot[j].end())continue;
-
-                    //            std::cout<<__LINE__<<"Ckk_1 Matrix"<<std::endl;
-                    //            Ckk_1Map[(*rit).second].Print();
-                    //            std::cout<<__LINE__<<"Ckk_1 Inverted Matrix"<<std::endl;
-                    //            Ckk_1Map[(*rit).second].Invert().Print();
-
-                                Ckk_1Map[(*rit).second].Invert();
-
-                        //        for ( int i=0; i<4; i++ )
-                        //        {
-                        //            for ( int j=0; j<4; j++ )
-                        //            {
-                        //                b[i][j] = (CkMap[(*rit).second]*Ckk_1Map[(*rit).second])[i][j] ;
-                        //            }
-                        //        }
-
-                                b = CkMap[(*rit).second]*Ckk_1Map[(*rit).second];
-                                bt.Transpose(b);
-
-                    //            std::cout<<__LINE__<<"Ckk_1 Matrix After Product"<<std::endl;
-                    //            Ckk_1Map[(*rit).second].Print();
-
-                    //            std::cout<<__LINE__<<" Ak MATRIX"<<std::endl;
-                    //            b.Print();
-
-                    //            for ( int i=0; i<4; i++ )
-                    //            {
-                    //                for ( int j=0; j<4; j++ )
-                    //                {
-                    //                    bt[i][j] = b[j][i];
-                    //                }
-                    //            }
-
-                    //            std::cout<<__LINE__<<" Ak T MATRIX"<<std::endl;
-                    //            bt.Print();
-
-                    //            std::cout<<__LINE__<<"Ckk_1 Re-Inverted Matrix"<<std::endl;
-                    //            Ckk_1Map[(*rit).second].Invert().Print();
-                                Ckk_1Map[(*rit).second].Invert();
-
-                    //            for ( int i=0; i<4; i++ )
-                    //            {
-                    //                for ( int j=0; j<4; j++ )
-                    //                {
-                    //                    trackPars[i] = trackParsMap[(*rit).second][i] + b[i][j]*(trackPars[j]-trackParsMap[(*rit).second][j]);
-                    //                }
-                    //            }
-
-
-                                  trackPars = trackParsMap[(*rit).second] + b*(trackPars-trackParsMap[(*rit).second]);
-
-                    //            std::cout<<__LINE__<<"New Track Pars"<<std::endl;
-                    //            trackPars.Print();
-
-                    //            for(int i = 0; i < 4; ++i)
-                    //                    for(int j = 0; j < 4; ++j)
-                    //                        for(int k = 0; k < 4; ++k)
-                    //                        {
-                    //                            temp[i][j] += b[i][k] * (estCov[k][j] - Ckk_1Map[(*rit).second][k][j]) ;
-                    //                        }
-
-                    //            for(int i = 0; i < 4; ++i)
-                    //                    for(int j = 0; j < 4; ++j)
-                    //                        for(int k = 0; k < 4; ++k)
-                    //                        {
-                    //                            temp1[i][j] += temp[i][k] * bt[k][j] ;
-                    //                        }
-
-
-                    //            for ( int i=0; i<4; i++ )
-                    //            {
-                    //                for ( int j=0; j<4; j++ )
-                    //                {
-                    //                    //estCov[i][j] += (b*(estCov-Ckk_1Map[(*rit).second])*bt)[i][j];
-                    //                    estCov[i][j] = CkMap[(*rit).second][i][j] + temp1[i][j];
-                    //                }
-                    //            }
-
-                                temp = CkMap[(*rit).second] + b*(estCov-Ckk_1Map[(*rit).second])*bt;
+                                trackPars = trackParsMap[plaqID] + A*(trackPars - trackParsMap[plaqID]);
+                                temp      = CkMap       [plaqID] + A*(estCov    -     Ckk_1Org[plaqID])*At;
 
                                 for ( int i=0; i<4; i++ )
                                 {
@@ -603,145 +540,25 @@ bool aligner::align(void)
                                     }
                                 }
 
-                    //            std::cout<<__LINE__<<"New Cov Mat"<<std::endl;
-                    //            estCov.Print();
-
-                    //            if((*rit).second == (*(theKalmanPlaneInfo_.getKalmanFilterOrder().crend()-1)).second)
-                    //            {
-                    //                TMatrixTSym<double> trackCov  = theKalmanPlaneInfo_.getTrackCov((*rit).second);
-
-                    //                for ( int i=0; i<4; i++ )
-                    //                {
-                    //                    for ( int j=0; j<4; j++ )
-                    //                    {
-                    //                        estCov[i][j] += trackCov[i][j];
-                    //                    }
-                    //                }
-
-                    //            }
+                                if( theGeometry->getDetector(plaqID)->isDUT() )
+                                {
+                                    for ( int i=0; i<4; i++ )
+                                    {
+                                        trackTmp[i] = trackPars[i] ;
+                                        for ( int j=0; j<4; j++ )
+                                        {
+                                            covTmp[i][j] = estCov[i][j];
+                                        }
+                                    }
+                                }
                         }
 
-//                        for (unsigned int plane = 0; plane < theKalmanPlaneInfo_.getKalmanFilterOrder().size(); plane++)
-//                        {
-//                            std::string plaqID = theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).second;
-
-//                            //Define variables
-//                            TVectorT<double> k(4);
-//                            TVectorT<double> kx(4);
-//                            TVectorT<double> ky(4);
-//                            TMatrixTSym<double> a(4);
-//                            TMatrixTSym<double> ax(4);
-//                            TMatrixTSym<double> ay(4);
-
-//                            TVectorT<double> h            = theKalmanPlaneInfo_.getH(plaqID) ;
-//                            TVectorT<double> hx           = theKalmanPlaneInfo_.getHx(plaqID);
-//                            TVectorT<double> hy           = theKalmanPlaneInfo_.getHy(plaqID);
-//                            TMatrixTSym<double> trackCov  = theKalmanPlaneInfo_.getTrackCov(plaqID);
-//                            TMatrixTSym<double> trackCovx = theKalmanPlaneInfo_.getTrackCovx(plaqID);
-//                            TMatrixTSym<double> trackCovy = theKalmanPlaneInfo_.getTrackCovy(plaqID);
-//                            double offset                 = theKalmanPlaneInfo_.getOffset(plaqID);
-//                            double offsetx                = theKalmanPlaneInfo_.getOffsetx(plaqID);
-//                            double offsety                = theKalmanPlaneInfo_.getOffsety(plaqID);
-
-//                            //"Compute"
-//                            if ( theGeometry->getDetector(plaqID)->isStrip() ) //strip data
-//                            {
-//                                for ( int i=0; i<4; i++ )
-//                                {
-//                                    for ( int j=0; j<4; j++ )
-//                                    {
-//                                        a[i][j] = h[i]*h[j];
-//                                    }
-//                                }
-
-//                                if(xmeasNoRot[j].find(plaqID)!=xmeasNoRot[j].end())
-//                                {
-
-//                                    //Residual of prediction
-//                                    double dist = xmeasNoRot[j][plaqID];
-//                                    double distErr = sigxNoRot[j][plaqID];
-//                                    double res = dist - trackPars*h - offset;
-
-//                                    //Calculate gain matrix
-//                                    double r = estCov.Similarity(h) + distErr*distErr;// h*c*h^t + sigma^2
-//                                    k = (1/r)*(estCov*h);
-//                                    estCov -= (1/r)*a.Similarity(estCov);// (1/rrr)*c*a*c^t
-//                                    trackPars += res*k;
-//                                }
-
-//                                if((plane%2 != 0)||(plane>(2*std::min(theKalmanPlaneInfo_.getKalmanFilterOrderUpstream().size(),theKalmanPlaneInfo_.getKalmanFilterOrderDownstream().size()) -1 ))) //dzuolo
-//                                {
-//                                    //STDLINE(plaqID,ACRed);
-//                                    for ( int i=0; i<4; i++ )
-//                                    {
-//                                        for ( int j=0; j<4; j++ )
-//                                        {
-//                                            estCov[i][j] += trackCov[i][j];
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                            else //not strip data (pixels)
-//                            {
-//                                for ( int i=0; i<4; i++ )
-//                                {
-//                                    for ( int j=0; j<4; j++ )
-//                                    {
-//                                        ax[i][j] = hx[i]*hx[j];
-//                                    }
-//                                }
-//                                for ( int i=0; i<4; i++ )
-//                                {
-//                                    for ( int j=0; j<4; j++ )
-//                                    {
-//                                        ay[i][j] = hy[i]*hy[j];
-//                                    }
-//                                }
-
-//                                if((xmeasNoRot[j].find(plaqID)!=(xmeasNoRot[j].end())) && (ymeasNoRot[j].find(plaqID)!=(ymeasNoRot[j].end())))
-//                                {
-//                                    double& x    = xmeasNoRot[j][plaqID];
-//                                    double& xErr = sigxNoRot[j][plaqID];
-//                                    double  resx = x - trackPars*hx - offsetx;
-
-
-//                                    double rx = estCov.Similarity(hx) + xErr*xErr;
-//                                    kx = (1/rx)*(estCov*hx);
-
-//                                    double& y    = ymeasNoRot[j][plaqID];
-//                                    double& yErr = sigyNoRot[j][plaqID];
-//                                    double  resy = y - trackPars*hy - offsety;
-
-
-//                                    double ry = estCov.Similarity(hy) + yErr*yErr;
-//                                    ky = (1/ry)*(estCov*hy);
-
-//                                    estCov    -= ((1/ry)*ay.Similarity(estCov) +(1/rx)*ax.Similarity(estCov)) ;
-//                                    trackPars += (resx*kx + resy*ky);
-
-//                                }
-
-//                                if((plane%2 != 0)||(plane>(2*std::min(theKalmanPlaneInfo_.getKalmanFilterOrderUpstream().size(),theKalmanPlaneInfo_.getKalmanFilterOrderDownstream().size())))) //dzuolo
-//                                {
-//                                    //STDLINE(plaqID,ACRed);
-
-//                                    for ( int i=0; i<4; i++ )
-//                                    {
-//                                        for ( int j=0; j<4; j++ )
-//                                        {
-//                                            estCov[i][j] += (trackCovx[i][j] +trackCovy[i][j]);
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-                        //Switch trackPars back to our array type
                         for ( int i=0; i<4; i++ )
                         {
-                            fitpar[i] = trackPars[i];
+                            fitpar[i] = trackTmp[i];
                             for ( int j=0; j<4; j++ )
                             {
-                                AtVAInv[i][j] = estCov[i][j];
+                                AtVAInv[i][j] = covTmp[i][j];
                             }
                         }
                     }

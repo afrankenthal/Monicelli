@@ -77,6 +77,7 @@ public:
     
    void                                   clear                           (void                                                            );
    void                                   clearSelectedDetectorsList      (void                                                            ){selectedDetectors_.clear()          ;}
+   void                                   clearKalmanResiduals            (void                                                            ){residualsV_.clear()                 ;}
    Event::fittedTracksDef                 fitTracks                       (const Event::trackCandidatesDef         & tracks               ,
                                                                            Geometry                                * theGeometry          ,
                                                                            std::string                               excludedDetector = "" );
