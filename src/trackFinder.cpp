@@ -621,7 +621,7 @@ void trackFinder::fitKalmanTrackCandidates(Event* theEvent, Geometry* theGeometr
             (*track)  = aKalmanFittedTrack.first.first ;
             (*cov)    = aKalmanFittedTrack.first.second;
             (*itChi2) = aKalmanFittedTrack.second      ;
-            numberOfTracks_++ ;
+            numberOfKTracks_++ ;
         }
     }
 }
@@ -932,9 +932,13 @@ void trackFinder::cleanUpTracks(std::vector<Event::alignedHitsCandidateMapDef> &
             covMat         .erase(covMat         .begin()+pos);
             chi2           .erase(chi2           .begin()+pos);
             pos--;
+            numberOfSTracks_-- ;
+        }
+        else
+        {
+            numberOfSTracks_++ ;
         }
     }
-    //cout << "Final Size:   " << alignedHitsCandidates.size() << " Copy Size: " << alignedHitsCandidatesCopy.size() << endl;
 }
 
 //============================================================================
@@ -1010,9 +1014,11 @@ void trackFinder::execute(Event * theEvent, Geometry * theGeometry)
 //================================================================================
 void trackFinder::setTrackingOperationParameters (std::string findMethod, std::string fitMethod, bool findDUT)
 {
-    findMethod_   = findMethod;
-    fitMethod_    = fitMethod;
-    findDUT_      = findDUT;
+    findMethod_      = findMethod;
+    fitMethod_       = fitMethod ;
+    findDUT_         = findDUT   ;
+    numberOfSTracks_ = 0         ;
+    numberOfKTracks_ = 0         ;
 }
 
 //========================================================================================
@@ -1028,7 +1034,13 @@ void trackFinder::setTrackSearchParameters (double  xTol, double yTol, double ch
 //========================================================================================
 std::string  trackFinder::getLabel (void )
 {
-    return "Reconstructing tracks"      ;
+    string msg ;
+    msg = string("Reconstructing ") +
+          fitMethod_                +
+          string(" tracks (")       +
+          findMethod_               +
+          string(")")               ;
+    return msg ;
 }
 
 //========================================================================================
@@ -1066,7 +1078,6 @@ void trackFinder::findAndFitTracks(Event* theEvent, Geometry* theGeometry )
         STDLINE("ERROR: Unrecognized fit method "+ fitMethod_,ACRed);
         return;
     }
-
 }
 
 /*//========================================================================================

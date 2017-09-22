@@ -43,7 +43,7 @@
 
 #define ZOOMFACTOR  2
 
-//===========================================================================
+//=========================================================================
 mainTabs::mainTabs(MainWindow * mainWindow) :
     QWidget(mainWindow),
     ui(new Ui::mainTabs)
@@ -358,30 +358,7 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
     ui->partitionsLB      ->setPixmap(QPixmap::fromImage(partitionsImage)) ;
 }
 
-//===========================================================================
-void mainTabs::initializeSingletons()
-{
-    if( !theThreader_         ) theThreader_          = new threader         (                                  );
-    if( !theAligner_          ) theAligner_           = new aligner          (theFileEater_,
-                                                                              theHManager_                      );
-    if( !theFitter_           ) theFitter_            = new fitter           (                                  );
-    if( !theCalibrationLoader_) theCalibrationLoader_ = new calibrationLoader(theFileEater_,
-                                                                              theHManager_ ,
-                                                                              theFitter_   ,
-                                                                              theFileEater_->getGeometryLoader(),
-                                                                              ui->parseProgressBar              );
-//  if( !theParser_           ) theParser_            = new parser           (theFileEater_                     );
-    if( !theClusterizer_      ) theClusterizer_       = new clusterizer      (                                  );
-    if( !theTrackFitter_      ) theTrackFitter_       = new trackFitter      (                                  );
-    if( !theTrackFinder_      ) theTrackFinder_       = new trackFinder      (theTrackFitter_                   );
-
-
-    // Start timer to periodically update the main widget
-    //if( !timer_ ) timer_  = new QTimer(this) ;
-    if( !timer2_) timer2_ = new QTimer(this) ;
-}
-
-//===========================================================================
+//=========================================================================
 mainTabs::~mainTabs()
 {
     STDLINE("Destructor in action: ui",ACWhite) ;
@@ -398,7 +375,85 @@ mainTabs::~mainTabs()
     STDLINE("Destruction done",ACWhite) ;
 }
 
-//===========================================================================
+//===========================================================================
+void mainTabs::advanceProgressBar2()
+{
+    ui->parseProgressBar->setValue(theThreader_->getCurrentIteration());
+
+    //    bool                           success = false;
+    //    if(theThreader_->isFinished()) success = true;
+
+    if( !theThreader_->isRunning())
+    {
+        STDLINE("All events have been processed",ACPurple) ;
+        timer2_->stop();
+        if( !theBenchmark_ )
+        {
+            STDLINE("=============== No Benchmark was setup =================",ACWhite) ;
+        }
+        else
+        {
+            stringstream zz ;
+            zz.str("") ; zz << ACYellow << ACBold
+                              << "=============== "
+                              << ACPlain
+                              << ACCyan   << ACBold << ACReverse
+                              << "Benchmark"
+                              << ACPlain
+                              << ACYellow << ACBold
+                              << "=============== "  ;
+            STDLINE(zz.str(),ACWhite) ;
+            cout << endl ;
+            theBenchmark_->Stop(theThreadProcess_.c_str());
+            Float_t realTime = 0 ;
+            Float_t CPUTime  = 0 ;
+            theBenchmark_->Summary(realTime, CPUTime);
+            cout << endl ;
+            ss_.str("") ;
+            ss_.setf(std::ios_base::left,std::ios_base::adjustfield) ;
+            ss_ << "Process: "
+                << setw(50)
+                << theThreadProcess_
+                << " | Elapsed time: "
+                << setw(10)
+                << setprecision(4)
+                << realTime
+                << " | CPU time: "
+                << setw(10)
+                << setprecision(4)
+                << CPUTime ;
+            STDLINE(ss_.str(),ACYellow) ;
+            ss_ << "\n";
+            ui->benchmarksTE->insertPlainText(ss_.str().c_str()) ;
+            STDLINE(zz.str(),ACWhite) ;
+        }
+        delete theBenchmark_ ;
+        theBenchmark_ = NULL ;
+        ui->parseProgressBar->setValue(ui->parseProgressBar->maximum()) ;
+        //this->endProcessSettings(theThreader_->getCurrentProcess(),success);
+    }
+}
+
+//=========================================================================
+void mainTabs::buildClusterPlots()
+{
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    theHManager_->setSubProcessFunction(&HManager::makeClusterPlots2);
+    HManager::stringVDef histoType = theHManager_->eventsCycle();
+    emit mainTabs::processFinished(&mainTabs::buildClusterPlots_end,histoType);
+}
+
+//=========================================================================
+void mainTabs::buildClusterPlots_end(HManager::stringVDef histoType)
+{
+    this->drawAll(beamSpotProjXCanvas_,histoType[1]);
+    this->drawAll(beamSpotProjYCanvas_,histoType[2]);
+    this->drawAll(beamSpot2DCanvas_,   histoType[3]);
+    this->drawAll(clustersCanvas_,     histoType[0]);
+}
+
+//=========================================================================
 void mainTabs::collectExistingWidgets(MainWindow * mainWindow)
 {
     mainWindow_       = mainWindow ;
@@ -409,230 +464,22 @@ void mainTabs::collectExistingWidgets(MainWindow * mainWindow)
 //  theTrackFitter_   = theFileEater_->getTrackFitter()  ;
 //  theClusterizer_   = theFileEater_->getClusterizer()  ;
 }
-//===========================================================================
-void mainTabs::on_eatRootFilePB_clicked()
+
+//=================================================================================================
+void mainTabs::copyGeoFileTo(QString fileName)
 {
-    this->signalNewAction("Load ROOT file") ;
-
-    QString localPath = this->getEnvPath("MonicelliOutputDir") ;
-    QString fileName = QFileDialog::getOpenFileName(this,"Event root tree files",localPath,"Root Tree Files(*.root)");
-    if (fileName.isEmpty())  return ;
-
-    ui->loadedRootFileLE->setToolTip(fileName) ;
-
-    this->openRootFile(fileName);
-    ui->loadedGeometryLE ->setText("No geometry xml file selected") ;
-    ui->loadedFileLE     ->setText("No file selected") ;
-}
-//=============================================================================
-void mainTabs::openRootFile(QString fileName)
-{
-    for(std::map<std::string,GeometryParameters*>::iterator it =geometryParameters_.begin(); 
-                                                            it!=geometryParameters_.end(); 
-                                                            it++)
+    if(ui->geometryGeoGeometryFileLE->text().lastIndexOf("/") == -1 )
     {
-        ui->geometryDisplayTable->removeRow(0);
-        delete it->second;
+        QMessageBox::information(this, tr("Monicelli"), tr("There is no geo file selected."));
+        return;
     }
-    geometryParameters_.clear();
-
-    theHManager_->setRunSubDir( theFileEater_->openFile(fileName.toStdString()) );
-    theGeometry_ = theFileEater_->getGeometry();
-    theGeometry_->orderPlanes();
-    theGeometry_->calculatePlaneMCS();
-    theTrackFitter_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
-    theAligner_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
-    showGeometry();
-
-    ui->loadedRootFileLE         ->setText(fileName);
-    ui->geoFileLE                ->setText(fileName.replace(".root",".geo")) ;
-    ui->geometryGeoGeometryFileLE->setText(fileName.replace(".root",".geo")) ;
-    ui->geometryLoadedGeoFileLE  ->setText("No file loaded") ;
-    ui->xmlGeometryLE            ->setText(QString(theGeometry_->getGeometryFileName().c_str())) ;
-
-    ui->showBeamProfilesPB->setText("Beam Profiles") ;
-
-    //to be disabled for a new root file
-    //Calibrations tab
-    ui->calibrationsCalibrationControlsGB  ->setEnabled(false) ;
-//    ui->calibrationsHistogramControlsGB    ->setEnabled(false) ;
-    //Clusters tab
-    ui->findAndSolveClustersPB             ->setEnabled(false) ;
-    //Raw Alignment tab
-    ui->showBeamProfilesPB                 ->setEnabled(false) ;
-    ui->rawAlignmentClusterProfilesRB      ->setEnabled(false) ;
-    ui->rawAlignmentFitAllCB               ->setEnabled(false) ;
-    ui->rawAlignmentFitAllCB               ->setChecked(true ) ;
-    ui->rawAlignmentFitComparePB           ->setEnabled(false) ;
-    ui->rawAlignmentPixelProfilesRB        ->setEnabled(false) ;
-    ui->rawAlignmentTabPagePlaqSelectCB    ->setEnabled(false) ;
-    //Track Finder tab
-    ui->findTracksGB                       ->setEnabled(false) ;
-    ui->slopeDisplayGB                     ->setEnabled(false) ;
-    ui->trackFitEstimatorsGB               ->setEnabled(false) ;
-    // Residuals tab
-    ui->residualsGB                        ->setEnabled(false) ;
-    ui->residualPlotsGB                    ->setEnabled(false) ;
-    //Fine Alignment tab
-    ui->fineAlignmentTrackFinderGB         ->setEnabled(false) ;
-    ui->fineAlignmentAlignmentControlsGB   ->setEnabled(false) ;
-    ui->fineAlignmentCutsGB                ->setEnabled(false) ;
-    ui->fineAlignmentGeometryGB            ->setEnabled(false) ;
-    ui->fineAlignmentGlobalFixGB           ->setEnabled(false) ;
-    ui->detectorsTableView                 ->setEnabled(false) ;
-
-    //DUT Alignment tab
-    ui->dutAlignmentDUTHitsFinderGB        ->setEnabled(false) ;
-    ui->dutAlignmentTracksSelectionGB      ->setEnabled(false) ;
-//  ui->dutAlignmentDutSelectCB            ->setEnabled(false) ;
-
-//  ui->saveCalibToROOTPB                  ->setEnabled(false) ;
-//  ui->detectorsToBeAlignedLW             ->setEnabled(false) ;
-//  ui->eventDisplayDUTListW               ->setEnabled(false) ;
-//  ui->eventDisplayDUTprojectionPB        ->setEnabled(false) ;
-//  ui->eventDisplayShowBeamSpotsPB        ->setEnabled(false) ;
-//  ui->eventDisplayTabPagePlaqSelectCB    ->setEnabled(false) ;
-//  ui->eventSelectedSpinBox               ->setEnabled(false) ;
-//  ui->loadCalibrationsTabPagePlaqSelectCB->setEnabled(false) ;
-//  ui->selectRawEventsRB                  ->setEnabled(false) ;
-//  ui->showAllPlaqPB                      ->setEnabled(false) ;
-//  ui->showHitsFreqPB                     ->setEnabled(false) ;
-//  ui->trackFitterExcludedDetectorsListW  ->setEnabled(false) ;
-//  ui->trackFitterFitPB                   ->setEnabled(false) ;
-//  ui->residualsTabPagePlaqSelectCB       ->setEnabled(false) ;
-//  ui->trackFitterWriteAlignmentPB        ->setEnabled(false) ;
-//  ui->writeAlignmentPB                   ->setEnabled(false) ;
-
-    if( theFileEater_->isRootTreeFile() )
-    {
-        EventHeader* theHeader = 0;
-        //Calibrations tab
-        ui->calibrationsCalibrationControlsGB->setEnabled(true) ;
-        ui->calibrationsHistogramControlsGB  ->setEnabled(true) ;
-        //Clusters tab
-        ui->findAndSolveClustersPB           ->setEnabled(true) ;
-        //Raw Alignment tab
-        ui->showBeamProfilesPB               ->setEnabled(true) ;
-        ui->rawAlignmentPixelProfilesRB      ->setEnabled(true) ;
-
-        if( (theHeader = theFileEater_->getHeader()) != 0)
-        {
-            ui->calLoadedCB                        ->setChecked(theGeometry_->calibrationDone());
-            ui->clustersBuiltCB                    ->setChecked(theHeader->clustersDone()      );
-            ui->tracksFoundCB                      ->setChecked(theHeader->tracksFound()       );
-
-            ui->saveCalibToROOTPB                  ->setEnabled(theGeometry_->calibrationDone());
-            ui->buildPlotsPB                       ->setEnabled(theHeader->clustersDone()      );
-            ui->showAdcDistributionsPB             ->setEnabled(theHeader->clustersDone()      );
-
-            //Raw Alignment tab
-            ui->rawAlignmentClusterProfilesRB      ->setEnabled(theHeader->clustersDone()      );
-            //Track Finder tab
-            ui->findTracksGB                       ->setEnabled(theHeader->clustersDone()      );
-            ui->fineAlignmentTrackFinderGB         ->setEnabled(theHeader->tracksFound()       );
-            ui->slopeDisplayGB                     ->setEnabled(theHeader->tracksFound()       );
-            ui->trackFitEstimatorsGB               ->setEnabled(theHeader->tracksFound()       );
-            //Residuals tab
-            ui->residualsGB                        ->setEnabled(theHeader->tracksFound()       );
-            ui->residualPlotsGB                    ->setEnabled(theHeader->tracksFound()       );
-            //Fine Alignment tab
-            ui->fineAlignmentAlignmentControlsGB   ->setEnabled(theHeader->tracksFound()       );
-            ui->fineAlignmentCutsGB                ->setEnabled(theHeader->tracksFound()       );
-            ui->fineAlignmentMinPointsSelectionCB  ->setEnabled(theHeader->tracksFound()       );
-            ui->fineAlignmentMinPointsSelectionSB  ->setEnabled(theHeader->tracksFound()       );
-            ui->fineAlignmentGeometryGB            ->setEnabled(theHeader->tracksFound()       );
-            ui->fineAlignmentGlobalFixGB           ->setEnabled(theHeader->tracksFound()       );
-            ui->detectorsTableView                 ->setEnabled(theHeader->tracksFound()       );
-            //DUT Alignment tab
-            ui->dutAlignmentDUTHitsFinderGB        ->setEnabled(theHeader->tracksFound()       );
-            ui->dutAlignmentTracksSelectionGB      ->setEnabled(theHeader->tracksFound()       );
-        }
-
-        //to be enabled if the file is a valid root Tree
-//      ui->detectorsToBeAlignedLW             ->setEnabled(true) ;
-//      ui->eventDisplayDUTListW               ->setEnabled(true) ;
-//      ui->eventDisplayDUTprojectionPB        ->setEnabled(true) ;
-//      ui->eventDisplayShowBeamSpotsPB        ->setEnabled(true) ;
-//      ui->eventSelectedSpinBox               ->setEnabled(true) ;
-
-//      ui->loadCalibrationsTabPagePlaqSelectCB->setEnabled(true) ;
-//      ui->selectRawEventsRB                  ->setEnabled(true) ;
-//      ui->showAllPlaqPB                      ->setEnabled(true) ;
-//      ui->showHitsFreqPB                     ->setEnabled(true) ;
-
-        //fill combo boxes with detectors from geometry
-        ui->detectorsTableView                 ->clearTable() ;
-        ui->detectorsToBeAlignedLW             ->clear();
-        ui->dutAlignmentDutSelectCB            ->clear();
-        ui->eventDisplayDUTListW               ->clear();
-        ui->eventDisplayTabPagePlaqSelectCB    ->clear();
-        ui->loadCalibrationsTabPagePlaqSelectCB->clear();
-        ui->rawAlignmentTabPagePlaqSelectCB    ->clear();
-        ui->trackFitterExcludedDetectorsListW  ->clear();
-        ui->residualsTabPagePlaqSelectCB       ->clear();//needs to be always after ui->detectorsToBeAlignedLW
-
-        for(Geometry::iterator it =theGeometry_->begin(); 
-                               it!=theGeometry_->end(); 
-                               it++)
-        {
-            ui->eventDisplayTabPagePlaqSelectCB    ->addItem(QString::fromStdString( it->first ) );
-            ui->loadCalibrationsTabPagePlaqSelectCB->addItem(QString::fromStdString( it->first ) );
-            ui->rawAlignmentTabPagePlaqSelectCB    ->addItem(QString::fromStdString( it->first ) );
-            ui->trackFitterExcludedDetectorsListW  ->addItem(QString::fromStdString( it->first ) );
-            ui->detectorsToBeAlignedLW             ->addItem(QString::fromStdString( it->first ) );
-            ui->residualsTabPagePlaqSelectCB       ->addItem(QString::fromStdString( it->first ) );//needs to be always after ui->detectorsToBeAlignedLW
-            if( (*it).second->isDUT() )
-            {
-                ui->eventDisplayDUTListW           ->addItem(QString::fromStdString( it->first ) );
-                ui->dutAlignmentDutSelectCB        ->addItem(QString::fromStdString( it->first ) );
-            }
-            else
-            {
-                ui->detectorsTableView             ->addDetector(it->first, it->second->getZPosition());
-            }
-        }
-        // Post the table
-        ui->detectorsTableView->post();
-        ui->fixAllZCB->setChecked(true);
-        //fixStrips(1);
-
-        // set geometry dependent widgets
-        ui->residualsMinPointsSB->setMaximum( theGeometry_->getDetectorsNumber() );
-        ui->residualsMinPointsSB->setValue  ( theGeometry_->getDetectorsNumber() );
-
-        // activate combo box and show events
-        //ui->eventDisplayTabPagePlaqSelectCB->setEnabled(true                                                  );
-        //this->on_eventDisplayTabPagePlaqSelectCB_currentIndexChanged(QString::fromStdString(plaqSelected_));
-        ss_.str("");
-        ss_ << theFileEater_->getEventsNumber();
-        ui->totalEventsLE ->setText(QString::fromStdString(ss_.str()));
-        ui->eventsInTreeLE->setText(QString::fromStdString(ss_.str()));
-        ui->eventSelectedSpinBox->setMaximum(theFileEater_->getEventsNumber());
-        //ss_ << " events on file: " ; STDLINE(ss_.str(),ACPurple) ;
-    }
-
-    if( !theHNavigator_ )
-    {
-        STDLINE("No navigator pointer available: requesting it to mainWinow",ACRed) ;
-        theHNavigator_ = mainWindow_->getHNavigator() ;
-    }
-
-    if( theHNavigator_ ) theHNavigator_->addNewFile(fileName) ; // Inform the hNavigator about this new file
-
-}
-//=================================================================
-void mainTabs::getNxNy(int divider, int &nx, int &ny)
-{
-    double intPart, fracPart;
-    fracPart = modf( sqrt(divider), &intPart );
-    if ( fracPart > 0 && fracPart < 0.5 ) fracPart = 1;
-    else if ( fracPart > 0.5 )            fracPart = 2;
-    fracPart = fracPart + intPart;
-    nx = (int)intPart;
-    ny = (int)fracPart;
+    STDLINE(fileName.toStdString(),ACRed);
+    QString cmd = "cp " + ui->geometryGeoGeometryFileLE->text() + " " + fileName;
+    system(cmd.toStdString().c_str() ) ;
+    STDLINE(cmd.toStdString(),ACCyan)  ;
 }
 
-//===========================================================================
+//=========================================================================
 void mainTabs::drawAll(QRootCanvas * where,               // ToROOT6
                        std::string   what,
                        std::string   detector,
@@ -695,144 +542,7 @@ void mainTabs::drawAll(QRootCanvas * where,               // ToROOT6
 
 }
 
-//===========================================================================
-void mainTabs::setLogAxis(QRootCanvas * where, std::string axis) // ToROOT6
-{
-    if (axis == "xaxis")
-    {
-        if ( where->GetCanvas()->GetSelectedPad()->GetLogx() )
-             where->GetCanvas()->GetSelectedPad()->SetLogx(0);
-        else
-             where->GetCanvas()->GetSelectedPad()->SetLogx(1);
-    }
-    if (axis == "yaxis")
-    {
-        if ( where->GetCanvas()->GetSelectedPad()->GetLogy() )
-             where->GetCanvas()->GetSelectedPad()->SetLogy(0);
-        else
-             where->GetCanvas()->GetSelectedPad()->SetLogy(1);
-    }
-    if (axis == "zaxis")
-    {
-        if ( where->GetCanvas()->GetSelectedPad()->GetLogz() )
-             where->GetCanvas()->GetSelectedPad()->SetLogz(0);
-        else
-             where->GetCanvas()->GetSelectedPad()->SetLogz(1);
-    }
-}
-//=========================================================================
-void mainTabs::selectedCanvasObjectManager(TObject *,unsigned int,TCanvas *)
-{
-    /* // ToROOT6
-    TQtWidget *tipped = (TQtWidget *)sender();
-    ss_.str("");
-    ss_ << obj->ClassName();
-    std::string className = ss_.str();
-    ss_.str("");
-    ss_ << obj->GetName();
-    std::string objName = ss_.str();
-    const char* objInfo = obj->GetObjectInfo(tipped->GetEventX(),tipped->GetEventY());
-
-    int binx=0,biny=0,binc=0;
-    ss_.str("");
-    ss_ << "\\(x=(\\d+)"            //[1]  x integer part
-        << "\\.?(\\d+)"          //[2]  x decimal part
-        << ",\\s+y=(\\d+)?"       //[3]  y integer part
-        << "\\.?(\\d+)?"         //[4]  y decimal part
-        << ",\\s+binx=(\\d+)"    //[5]  binx
-        << ",\\s+biny=(\\d+)"    //[6]  biny
-        << ",\\s+bin\\w=(\\d+).+"; //[7]  binc
-
-    boost::cmatch what;
-    static const boost::regex info(ss_.str().c_str(), boost::regex::perl);
-    if( boost::regex_match(objInfo, what, info, boost::match_extra) )
-    {
-        binx = Utils::toInt(what[5]);
-        biny = Utils::toInt(what[6]);
-        binc = Utils::toInt(what[7]);
-    }
-
-    TAxis *axis = NULL ;
-    if ( className == "TAxis" ) axis = (TAxis*)obj;
-    TH2I  *th2i;
-    if ( className == "TH2I"  ) th2i = (TH2I *)obj;
-
-    std::stringstream tipText;
-    tipText << "You have "   ;
-
-
-    if (event == kButton1Down)
-    {
-        tipText << "LEFT CLICKED";
-    }
-    if (event == kButton1Double)
-    {
-        tipText << "DOUBLE LEFT CLICKED";
-        if ( tipped == ui->eventDisplayLeftCanvas )
-        {
-            if ( className == "TAxis" ) this->setLogAxis(tipped, objName);//set log axis on double click
-        }
-    }
-    if (event == kButton2Down)
-    {
-        tipText << "WHEEL CLICKED";
-        if ( className == "TAxis" ) { axis->UnZoom(); }
-        if ( className == "TH2I"  )
-        {
-//          STDLINE("TH2I",ACRed) ;
-//          ss_.str("");
-//          double leftB,rightB;
-//          if( (binx-th2i->GetXaxis()->GetFirst()) < (th2i->GetXaxis()->GetLast()-binx) )
-//          {
-//            leftB  = th2i->GetXaxis()->GetFirst() + 1.*( binx - th2i->GetXaxis()->GetFirst() ) / ZOOMFACTOR;
-//            rightB = th2i->GetXaxis()->GetLast()  - 2.*( th2i->GetXaxis()->GetLast() - binx  ) / leftB     ;
-//          }
-//          else
-//          {
-//            rightB  = th2i->GetXaxis()->GetLast()  - 1.*( th2i->GetXaxis()->GetLast() -binx   ) / ZOOMFACTOR;
-//            leftB   = th2i->GetXaxis()->GetFirst() + 2.*( binx - th2i->GetXaxis()->GetFirst()  ) / rightB    ;
-//          }
-//          ss_<< th2i->GetXaxis()->GetLast();
-//          STDLINE(ss_.str(),ACRed) ;
-//          th2i->GetXaxis()->SetRange((int)leftB,100);
-//          ss_<< th2i->GetXaxis()->GetLast();
-//          STDLINE(ss_.str(),ACGreen) ;
-//          th2i->GetXaxis()->SetRange((int)leftB,20);
-
-//          double downB,upB;
-//          ss_.str("");
-//          if( (biny-th2i->GetYaxis()->GetFirst()) < (th2i->GetYaxis()->GetLast()-biny ) )
-//          {
-//            downB  = th2i->GetYaxis()->GetFirst() + 1.*( biny - th2i->GetYaxis()->GetFirst() ) / ZOOMFACTOR;
-//            upB = th2i->GetYaxis()->GetLast()  - 2.*( th2i->GetYaxis()->GetLast()-biny  ) / downB     ;
-//          }
-//          else
-//          {
-//            upB  = th2i->GetYaxis()->GetLast()  - 1.*( th2i->GetYaxis()->GetLast()-biny   ) / ZOOMFACTOR;
-//            downB   = th2i->GetYaxis()->GetFirst() + 2.*( biny - th2i->GetYaxis()->GetFirst()  ) / upB    ;
-//          }
-//          th2i->GetYaxis()->SetRange((int)downB,(int)upB);
-//          ss_ << downB << " = " << upB;
-//          STDLINE(ss_.str(),ACGreen) ;
-        }
-    }
-
-    //    tipText << " the object <" << obj->GetName() << "> of class " << obj->ClassName()
-    //            << " : " << obj->GetObjectInfo(tipped->GetEventX(),tipped->GetEventY()) << "\n"
-    //            << "This object belongs to " <<  tipped->objectName().toStdString();
-    //    STDLINE(tipText.str(),ACCyan) ;
-*/ // ToROOT6
-}
-
-//=========================================================================
-//*** EXPERT   MODE   TAB ****************************************************************************************
-//---------------------------RAW DATA PROCESSING TAB------------------------------------------
-//===========================================================================
-void mainTabs::on_eatFilePB_clicked()
-{
-    this->eatFile(true) ;
-}
-//===========================================================================
+//=========================================================================
 void mainTabs::eatFile(bool fromGUI)
 {
     this->signalNewAction("Load file") ;
@@ -877,37 +587,21 @@ void mainTabs::eatFile(bool fromGUI)
 
 }
 
-//===========================================================================
-void mainTabs::on_showBeamSpotPB_clicked()
+//=========================================================================
+void mainTabs::enableLimitZ(int state)
 {
-    gStyle->SetOptStat(0) ;
-    gStyle->SetOptFit (0) ;
-
-    this->signalNewAction("Show beam spot") ;
-
-    theFileEater_->populate();
-    int pad = 1 ;
-    //std::map<std::string,TH2I*> vetH = theFileEater_->getHistograms() ;
-    vetH_.clear();
-    vetH_ = theFileEater_->getHistograms() ;
-
-    for(std::map<std::string,TH2I*>::iterator hIt=vetH_.begin(); hIt!=vetH_.end(); ++hIt)
+    ss_.str("") ; ss_ << "State " << state ; STDLINE(ss_.str(),ACPurple) ;
+    if( state == Qt::Checked )
     {
-        mainTabsExpertCanvas_->GetCanvas()->cd(pad++)    ;
-        if( ui->limitZCB->isChecked())
-        {
-            hIt->second->SetMaximum(ui->limitZSB->value()) ;
-        }
-        hIt->second->Draw("COLZ")  ;
+        ui->limitZSB->setEnabled(true) ;
     }
-
-    mainTabsExpertCanvas_->GetCanvas()->Modified() ;
-    mainTabsExpertCanvas_->GetCanvas()->Update()   ;
-    mainTabsExpertCanvas_->GetCanvas()->cd(0)        ;
-
+    else
+    {
+        ui->limitZSB->setEnabled(false) ;
+    }
 }
 
-//=============================================================================
+//===========================================================================
 void mainTabs::endProcessSettings(process * currentProcess, bool success)
 {
     std::string label= currentProcess->getLabel()    ;
@@ -1020,8 +714,10 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
                         ui->dutAlignmentDUTHitsFinderGB      ->setEnabled(true);
                         ui->dutAlignmentTracksSelectionGB    ->setEnabled(true);
                         redoChi2_ = true;
-                        ss_.str(""); ss_ << theTrackFinder_->getNumberOfTracks() ;
-                        ui->candidateTracksFoundLE->setText(QString(ss_.str().c_str())) ;
+                        ss_.str(""); ss_ << theTrackFinder_->getNumberOfSTracks() ;
+                        ui->candidateSTracksFoundLE->setText(QString(ss_.str().c_str())) ;
+                        ss_.str(""); ss_ << theTrackFinder_->getNumberOfKTracks() ;
+                        ui->candidateKTracksFoundLE->setText(QString(ss_.str().c_str())) ;
                     }
                 }
 
@@ -1268,196 +964,233 @@ void mainTabs::endProcessSettings(process * currentProcess, bool success)
         }
     }
 }
-//=============================================================================
+
+//===========================================================================
 void mainTabs::endThreadSettings(threadEnd_Function function, HManager::stringVDef histoType)
 {
     STDLINE("Closing thread...",ACYellow);
     (this->*function)(histoType);
     STDLINE("Thread closed!"   ,ACGreen );
 }
-//=============================================================================
-void mainTabs::advanceProgressBar2()
+
+//===========================================================================
+void mainTabs::findAndFitTrack(std::string findMethod, std::string fitMethod)
 {
-    ui->parseProgressBar->setValue(theThreader_->getCurrentIteration());
-
-    //    bool                           success = false;
-    //    if(theThreader_->isFinished()) success = true;
-
-    if( !theThreader_->isRunning())
+    if(fitMethod == "")//it is just a search
     {
-        STDLINE("All events have been processed",ACPurple) ;
-        timer2_->stop();
-        if( !theBenchmark_ )
-        {
-            STDLINE("=============== No Benchmark was setup =================",ACWhite) ;
-        }
-        else
-        {
-            stringstream zz ;
-            zz.str("") ; zz << ACYellow << ACBold
-                              << "=============== "
-                              << ACPlain
-                              << ACCyan   << ACBold << ACReverse
-                              << "Benchmark"
-                              << ACPlain
-                              << ACYellow << ACBold
-                              << "=============== "  ;
-            STDLINE(zz.str(),ACWhite) ;
-            cout << endl ;
-            theBenchmark_->Stop(theThreadProcess_.c_str());
-            Float_t realTime = 0 ;
-            Float_t CPUTime  = 0 ;
-            theBenchmark_->Summary(realTime, CPUTime);
-            cout << endl ;
-            ss_.str("") ; ss_ << "Process: " << theThreadProcess_ << "\t\t\tElapsed time: " << realTime << "\tCPU time: " << CPUTime << "\n";
-            ui->benchmarksTE->insertPlainText(ss_.str().c_str()) ;
-            STDLINE(zz.str(),ACWhite) ;
-        }
-        delete theBenchmark_ ;
-        theBenchmark_ = NULL ;
-        ui->parseProgressBar->setValue(ui->parseProgressBar->maximum()) ;
-        //this->endProcessSettings(theThreader_->getCurrentProcess(),success);
+        ss_.str(""); ss_ << "Track finding procedure started"; STDLINE(ss_.str(),ACPurple) ;
+        ui->parsingActivityLB->setText(tr("Finding tracks...")) ;
     }
-}
-//=============================================================================
-void mainTabs::on_abortActionPB_clicked()
-{
-    STDLINE("Sent ABORT signal (timer stopped as well)",ACRed) ;
-
-    ui->abortActionPB ->setEnabled(false);
-    ui->eatFilePB     ->setEnabled(true );
-    ui->loadGeometryPB->setEnabled(true );
-
-    QPalette palette;
-    QBrush   redBrush(QColor(255, 0, 0, 255));
-    redBrush.setStyle(Qt::SolidPattern);
-    palette.setBrush(QPalette::Active,   QPalette::WindowText, redBrush);
-    ui->parsingActivityLB->setPalette(palette                   );
-    ui->parsingActivityLB->setText   ("WARNING: action aborted!");
-
-    theThreader_->terminate();
-    timer2_->stop();
-}
-
-//=============================================================================
-void mainTabs::on_parseFilePB_clicked()
-{
-    this->eatFile(false) ;
-
-    theFileEater_ ->setInputFileName   (ui->loadedFileLE    ->text().toStdString());
-    mainWindow_   ->getGeometryFileName(ui->loadedGeometryLE->text().toStdString());
-    mainWindow_   ->getInputFileName   (ui->loadedFileLE    ->text().toStdString());
-    theHNavigator_->getGeometryFileName(ui->loadedGeometryLE->text().toStdString());
-    theHNavigator_->getInputFileName   (ui->loadedFileLE    ->text().toStdString());
-
-    if (ui->maxRawEventsCB->isChecked())
-        theFileEater_->setEventsLimit( ui->maxRawEventsSB->value() );
+    else if(findMethod == "")//it is just a fit
+    {
+        ss_.str(""); ss_ << "Track fitting procedure started"; STDLINE(ss_.str(),ACPurple) ;
+        ui->parsingActivityLB->setText(tr("Fitting tracks...")) ;
+    }
     else
-        theFileEater_->setEventsLimit( -1 );
+    {
+        ss_.str(""); ss_ << "Track finding and fitting procedure started"; STDLINE(ss_.str(),ACPurple) ;
+        ui->parsingActivityLB->setText(tr("Finding and fitting tracks...")) ;
+    }
 
-    theFileEater_->setOperation(&fileEater::parse);
+    double chi2Cut = -1 ;
+    if( ui->trackFinderChi2cutCB    ->isChecked() ) chi2Cut        = ui->trackFinderChi2cutSB->value() ;
+
+    double trackPoints = -1;
+    if( ui->trackFinderTrackPointsCB->isChecked() ) trackPoints    = ui->trackFinderTrackPointsSB->value();
+
+    double maxPlanePoints = -1;
+    if( ui->trackFinderPlanePointsCB->isChecked() ) maxPlanePoints = ui->trackFinderPlanePointsSB->value();
+
+    ui->candidateSTracksFoundLE->setText(QString(""));
+    ui->candidateKTracksFoundLE->setText(QString(""));
+
+    /*
+    theFileEater_->setTolerances(ui->xRoadToleranceSB->value()*(1e-4)*CONVF,
+                                 ui->yRoadToleranceSB->value()*(1e-4)*CONVF,
+                                 trackPoints                               ,
+                                 chi2Cut                                   ,
+                                 ui->includeDUTfindCB->isChecked()          );
+*/
+    theTrackFinder_->setTrackSearchParameters(ui->xRoadToleranceSB->value()*(1e-4)*CONVF,
+                                              ui->yRoadToleranceSB->value()*(1e-4)*CONVF,
+                                              chi2Cut                                   ,
+                                              trackPoints                               ,
+                                              maxPlanePoints                            );
+
+    theTrackFinder_->setTrackingOperationParameters(findMethod,
+                                                    fitMethod ,
+                                                    ui->includeDUTfindCB->isChecked());
+    theFileEater_  ->setOperation(&fileEater::updateEvents2,theTrackFinder_);
+    theTrackFinder_->setOperation(&trackFinder::findAndFitTracks);
+    STDLINE("Launching theFileEater_...",ACPurple) ;
     this->launchThread2(theFileEater_);
+//    this->launchThread3(theFileEater_,this,&mainTabs::updateGUI);
 }
 
-//=============================================================================
-void mainTabs::swapParseButtonText(bool parsing)
+//=========================================================================
+void mainTabs::findValuesChanged(int newValue)
 {
-    if( parsing )
+    if( ui->findEventsMinHitsToSearchSB->value() > ui->findEventsMaxHitsToSearchSB->value() )
     {
-        ui->parseFilePB       ->setEnabled(false) ;
-        ui->abortActionPB     ->setEnabled(true ) ;
-        ui->eatFilePB         ->setEnabled(false) ;
-        ui->loadGeometryPB    ->setEnabled(false) ;
-        ui->writeASCIICB      ->setEnabled(false) ;
-        ui->browseOutputFilePB->setEnabled(false) ;
-        ui->outputFileLE      ->setEnabled(false) ;
-        ui->showBeamSpotPB    ->setEnabled(false) ;
-        ui->maxRawEventsCB    ->setEnabled(false) ;
-        ui->maxRawEventsSB    ->setEnabled(false) ;
+        ui->findEventsMaxHitsToSearchSB->setValue(  newValue  );
+        ui->findEventsMinHitsToSearchSB->setValue(  newValue  );
     }
-    else
-    {
-        ui->parseFilePB       ->setEnabled(true ) ;
-        ui->abortActionPB     ->setEnabled(false) ;
-        ui->eatFilePB         ->setEnabled(true );
-        ui->loadGeometryPB    ->setEnabled(true );
-        ui->maxRawEventsCB    ->setEnabled(true );
-        ui->maxRawEventsSB    ->setEnabled(true );
+}
 
-        if(ui->loadedFileLE->text().endsWith(".dat"))
+//=================================================================================================
+void mainTabs::fixStrips(int state)
+{
+    for(int row = 0; row<=ui->detectorsTableView->rowCount()-1; row++)
+    {
+        std::string plaqID = ui->detectorsTableView->indexAt(QPoint(0,row * ui->detectorsTableView->rowHeight(row))).data().toString().toUtf8().constData();
+        //std::cout << __PRETTY_FUNCTION__ << plaqID << std::endl;
+        Detector * theDetector = theGeometry_->getDetector(plaqID);
+        //std::cout << __PRETTY_FUNCTION__ << theDetector << std::endl;
+        //std::cout << __PRETTY_FUNCTION__ << theDetector->isStrip() << std::endl;
+        //std::cout << __PRETTY_FUNCTION__ << "Never here!" << std::endl;
+        if(theDetector->isStrip())
         {
-            ui->writeASCIICB        ->setEnabled(true ) ;
-            if(ui->writeASCIICB     ->isChecked (     ))
-            {
-                ui->browseOutputFilePB->setEnabled(true ) ;
-                ui->outputFileLE      ->setEnabled(true ) ;
-            }
+            if (theGeometry_->getDetectorModule(plaqID)%2 == 0) ui->detectorsTableView->fixXStrip(state, row);
+            else ui->detectorsTableView->fixYStrip(state, row);
         }
     }
 }
 
-//=============================================================================
-void mainTabs::on_writeASCIICB_toggled(bool checked)
+//=========================================================================
+QString mainTabs::getEnvPath(QString environmentName)
 {
-    theFileEater_->setWriteOutASCII(checked);
-    if(checked)
+    QString localPath = getenv(environmentName.toStdString().c_str());
+
+    if(localPath.isEmpty())
     {
-        ui->browseOutputFilePB->setEnabled(true ) ;
-        ui->outputFileLE      ->setEnabled(true ) ;
+        localPath = path_ ;
+        ss_.str("") ;
+        ss_ << ACRed << ACBold
+            << "WARNING: "
+            << ACPlain
+            << "environment variable "
+            << environmentName.toStdString()
+            << " is undefined. Assuming "
+            << localPath.toStdString()
+            << " as its value." ;
+        STDLINE(ss_.str(),ACYellow) ;
     }
-    else
+    if(localPath[localPath.size()-1] != '/')
+        localPath += '/';
+
+    return localPath ;
+}
+
+//===============================================================
+void mainTabs::getNxNy(int divider, int &nx, int &ny)
+{
+    double intPart, fracPart;
+    fracPart = modf( sqrt(divider), &intPart );
+    if ( fracPart > 0 && fracPart < 0.5 ) fracPart = 1;
+    else if ( fracPart > 0.5 )            fracPart = 2;
+    fracPart = fracPart + intPart;
+    nx = (int)intPart;
+    ny = (int)fracPart;
+}
+
+//=================================================================================================
+std::string mainTabs::getPlaneID (int station, int plaquette)
+{
+    std::stringstream ss;
+    ss << "Station: " << station << " - Plaq: " << plaquette;
+    return ss.str();
+}
+
+//=========================================================================
+void mainTabs::initializeSingletons()
+{
+    if( !theThreader_         ) theThreader_          = new threader         (                                  );
+    if( !theAligner_          ) theAligner_           = new aligner          (theFileEater_,
+                                                                              theHManager_                      );
+    if( !theFitter_           ) theFitter_            = new fitter           (                                  );
+    if( !theCalibrationLoader_) theCalibrationLoader_ = new calibrationLoader(theFileEater_,
+                                                                              theHManager_ ,
+                                                                              theFitter_   ,
+                                                                              theFileEater_->getGeometryLoader(),
+                                                                              ui->parseProgressBar              );
+//  if( !theParser_           ) theParser_            = new parser           (theFileEater_                     );
+    if( !theClusterizer_      ) theClusterizer_       = new clusterizer      (                                  );
+    if( !theTrackFitter_      ) theTrackFitter_       = new trackFitter      (                                  );
+    if( !theTrackFinder_      ) theTrackFinder_       = new trackFinder      (theTrackFitter_                   );
+
+
+    // Start timer to periodically update the main widget
+    //if( !timer_ ) timer_  = new QTimer(this) ;
+    if( !timer2_) timer2_ = new QTimer(this) ;
+}
+
+//===========================================================================
+void mainTabs::launchThread2(process * theProcess)
+{
+    if(theThreader_->isRunning())
     {
-        ui->browseOutputFilePB->setEnabled(false ) ;
-        ui->outputFileLE      ->setEnabled(false ) ;
+        process * activeProcess = theThreader_->getCurrentProcess();
+        ss_.str("");
+        ss_ << "WARNING: action temporarily disabled, "
+            << activeProcess->getLabel()
+            << " is running";
+        STDLINE(ss_.str(),ACRed);
+        return ;
     }
+
+    ui->abortActionPB->setEnabled(true) ;
+
+    ui->parseProgressBar->reset();
+    ui->parseProgressBar->setMaximum(theProcess->getMaxIterations());
+
+    theThreader_->setProcess(theProcess);
+    theBenchmark_     = new TBenchmark();
+    theThreadProcess_ = theProcess->getLabel() ;
+    theBenchmark_->Start(theThreadProcess_.c_str());
+    theThreader_ ->start();
+
+    ss_.str("");
+    ss_ << theProcess->getLabel() << " process is running...";
+    ui->parsingActivityLB->setText(QString::fromStdString(ss_.str()));
+    STDLINE(ss_.str(),ACGreen);
+
+    timer2_->start(50) ;
 }
 
-//=============================================================================
-void mainTabs::on_outputFileLE_textChanged(QString outputPath)
+//===========================================================================
+template<class Class> void mainTabs::launchThread3(process * theProcess, Class * object, void (Class::*fn)())
 {
-    theFileEater_->setOutputFileName(outputPath.toStdString());
-}
-
-//=============================================================================
-void mainTabs::on_browseOutputFilePB_clicked()
-{
-    QString outputFileName = QFileDialog::getSaveFileName(this,"Output ASCII file",path_,"Txt Files(*.txt);;All Files(*.*)");
-    if (outputFileName.isEmpty())  return ;
-    ui->outputFileLE->setText(outputFileName);
-}
-
-//=====================================================================================
-bool mainTabs::on_loadGeometryPB_clicked()
-{
-    return this->loadGeometryInterface(true) ;
-}
-
-//=====================================================================================
-bool mainTabs::loadGeometryInterface(bool fromGUI)
-{
-    if(loadGeometry(fromGUI))
+    if(theThreader_->isRunning())
     {
-        //Calibrations tab
-        ui->calibrationsCalibrationControlsGB->setEnabled(true) ;
-        ui->calibrationsHistogramControlsGB  ->setEnabled(true) ;
-        return true ;
+        process * activeProcess = theThreader_->getCurrentProcess();
+        ss_.str("");
+        ss_ << "WARNING: action temporarily disabled, "
+            << activeProcess->getLabel()
+            << " is running";
+        STDLINE(ss_.str(),ACRed);
+        return ;
     }
-    return false ;
+
+    ui->abortActionPB->setEnabled(true) ;
+
+    ui->parseProgressBar->reset();
+    ui->parseProgressBar->setMaximum(theProcess->getMaxIterations());
+
+    theThreader_->setProcess(theProcess);
+    theBenchmark_     = new TBenchmark();
+    theThreadProcess_ = theProcess->getLabel() ;
+    theBenchmark_->Start    (theThreadProcess_.c_str()   );
+    theThreader_ ->setFuture(QtConcurrent::run(object,fn));
+
+    ss_.str("");
+    ss_ << theProcess->getLabel() << " process is running...";
+    ui->parsingActivityLB->setText(QString::fromStdString(ss_.str()));
+    STDLINE(ss_.str(),ACGreen);
+
+    timer2_->start(50) ;
 }
 
-//=====================================================================================
-bool mainTabs::on_loadXMLGeometryPB_clicked()
-{
-    return loadGeometry(true,"xml") ;
-}
-
-//=====================================================================================
-bool mainTabs::on_loadGeoGeometryPB_clicked()
-{
-    return loadGeometry(true,"geo") ;
-}
-
-//=====================================================================================
+//===================================================================================
 bool mainTabs::loadGeometry(bool fromGUI, QString type)
 {
     QString fileType = "xml Files(*.xml);;geo Files(*.geo)";
@@ -1607,10 +1340,297 @@ bool mainTabs::loadGeometry(bool fromGUI, QString type)
     return true ;
 }
 
-//=====================================================================================
-//---------------------------CALIBRATION LOADER TAB------------------------------------------
-//===========================================================================
-//=====================================================================================
+//===================================================================================
+bool mainTabs::loadGeometryInterface(bool fromGUI)
+{
+    if(loadGeometry(fromGUI))
+    {
+        //Calibrations tab
+        ui->calibrationsCalibrationControlsGB->setEnabled(true) ;
+        ui->calibrationsHistogramControlsGB  ->setEnabled(true) ;
+        return true ;
+    }
+    return false ;
+}
+
+//===========================================================================
+void mainTabs::on_abortActionPB_clicked()
+{
+    STDLINE("Sent ABORT signal (timer stopped as well)",ACRed) ;
+
+    ui->abortActionPB ->setEnabled(false);
+    ui->eatFilePB     ->setEnabled(true );
+    ui->loadGeometryPB->setEnabled(true );
+
+    QPalette palette;
+    QBrush   redBrush(QColor(255, 0, 0, 255));
+    redBrush.setStyle(Qt::SolidPattern);
+    palette.setBrush(QPalette::Active,   QPalette::WindowText, redBrush);
+    ui->parsingActivityLB->setPalette(palette                   );
+    ui->parsingActivityLB->setText   ("WARNING: action aborted!");
+
+    theThreader_->terminate();
+    timer2_->stop();
+}
+
+//=========================================================================
+void mainTabs::on_alignDutCB_clicked(bool checked)
+{
+    ui->trackFitterSoloDetectorAlignmentCB->setChecked(false);
+
+    for(int det=0; det < ui->detectorsToBeAlignedLW->count(); det++)
+    {
+        if ( theGeometry_->getDetector(ui->detectorsToBeAlignedLW->item(det)->text().toStdString())->isDUT() )
+        {
+            if (checked) ui->detectorsToBeAlignedLW->item(det)->setSelected(false);
+            else         ui->detectorsToBeAlignedLW->item(det)->setSelected(true );
+        }
+        else
+        {
+            if (checked)
+            {
+                ui->detectorsToBeAlignedLW->item(det)->setSelected(true );
+                ui->detectorsToBeAlignedLW->item(det)->setHidden  (true );
+            }
+            else
+            {
+                ui->detectorsToBeAlignedLW->item(det)->setSelected(false);
+                ui->detectorsToBeAlignedLW->item(det)->setHidden  (false);
+            }
+        }
+    }
+}
+
+//===========================================================================
+void mainTabs::on_applySlopeLimitsPB_clicked()
+{
+    this->on_showSlopeDistributions_clicked();
+}
+
+//==========================================================================
+void mainTabs::on_applyZrotationsPB_clicked()
+{
+    if(!theGeometry_) return;
+
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    TF1 *fitFunc;
+    TH1 *histo;
+
+    for (Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it)
+    {
+        if( ui->detectorsToBeAlignedLW->findItems(QString::fromStdString((*it).first),0)[0]->isSelected() ) continue;
+
+        double zRotation=0,yRotation=0,xRotation=0;
+
+        //xProfile
+        if ( ui->xResidualZRotationRB->isChecked() )
+        {
+            histo = (TH1*)theHManager_->getHistogram(X_RES_Y_POS_MEAN, (*it).first );
+            if ( histo->FindObject("linearFitFunc") )
+            {
+                fitFunc   = (TF1*)histo->FindObject("linearFitFunc");
+                zRotation = atan( fitFunc->GetParameter(0) );
+            }
+
+            zRotation = zRotation*180./TMath::Pi();
+        }
+        else if ( ui->yResidualZRotationRB->isChecked() )
+        {
+            //y Profile
+            histo = (TH1*)theHManager_->getHistogram(Y_RES_X_POS_MEAN , (*it).first );
+            if ( histo->FindObject("linearFitFunc") )
+            {
+                fitFunc   = (TF1*)histo->FindObject("linearFitFunc");
+                zRotation = atan( fitFunc->GetParameter(0) );
+            }
+
+            zRotation = -zRotation*180./TMath::Pi();
+        }
+
+        if ( ui->xResidualYRotationRB->isChecked() )
+        {
+            histo = (TH1*)theHManager_->getHistogram(X_RES_X_POS_MEAN, (*it).first );
+            if ( histo->FindObject("linearFitFunc") )
+            {
+                fitFunc   = (TF1*)histo->FindObject("linearFitFunc");
+                yRotation = atan( fitFunc->GetParameter(0) );
+            }
+
+            yRotation = yRotation*180./TMath::Pi();
+        }
+
+        if ( ui->yResidualXRotationRB->isChecked() )
+        {
+            histo = (TH1*)theHManager_->getHistogram(Y_RES_Y_POS_MEAN, (*it).first );
+            if ( histo->FindObject("linearFitFunc") )
+            {
+                fitFunc   = (TF1*)histo->FindObject("linearFitFunc");
+                xRotation = atan( fitFunc->GetParameter(0) );
+            }
+
+            xRotation = xRotation*180./TMath::Pi();
+        }
+
+        //update values
+        ss_.str("");
+        ss_ << "Detector: "       << (*it).first ;
+        ss_ << "\t zRotation "    << theGeometry_->getDetector( (*it).first )->getZRotationCorrection()
+            << " zRotationCorrection: "  << zRotation ;
+        STDLINE(ss_.str(),ACRed);
+        ss_.str("");
+        ss_ << "Detector: "       << (*it).first ;
+        ss_ << "\t yRotation "    << theGeometry_->getDetector( (*it).first )->getYRotationCorrection()
+            << " yRotationCorrection: "  << yRotation ;
+        STDLINE(ss_.str(),ACRed);
+        ss_.str("");
+        ss_ << "Detector: "       << (*it).first ;
+        ss_ << "\t xRotation "    << theGeometry_->getDetector( (*it).first )->getXRotationCorrection()
+            << " xRotationCorrection: "  << xRotation ;
+        STDLINE(ss_.str(),ACRed);
+
+        theGeometry_->getDetector( (*it).first )->setZRotationCorrection(theGeometry_->getDetector( (*it).first )->getZRotationCorrection()+zRotation);
+        theGeometry_->getDetector( (*it).first )->setYRotationCorrection(theGeometry_->getDetector( (*it).first )->getYRotationCorrection()+yRotation);
+        theGeometry_->getDetector( (*it).first )->setXRotationCorrection(theGeometry_->getDetector( (*it).first )->getXRotationCorrection()+xRotation);
+        if(ui->resetZRotationsCB->isChecked())
+        {
+            theGeometry_->getDetector( (*it).first )->setXRotationCorrection(0);
+            theGeometry_->getDetector( (*it).first )->setYRotationCorrection(0);
+            theGeometry_->getDetector( (*it).first )->setZRotationCorrection(0);
+        }
+    }
+    theFileEater_->updateGeometry("geometry");
+}
+
+//===========================================================================
+void mainTabs::on_browseOutputFilePB_clicked()
+{
+    QString outputFileName = QFileDialog::getSaveFileName(this,"Output ASCII file",path_,"Txt Files(*.txt);;All Files(*.*)");
+    if (outputFileName.isEmpty())  return ;
+    ui->outputFileLE->setText(outputFileName);
+}
+
+//=========================================================================
+void mainTabs::on_buildPlotsPB_clicked()
+{
+    this->launchThread3(theHManager_,this,&mainTabs::buildClusterPlots);
+}
+
+//==============================================================================
+void mainTabs::on_cal1Chi2PB_clicked()
+{
+    gStyle->SetOptStat(0);
+    gStyle->SetOptFit (0);
+
+    TH1I* histo = theCalibrationLoader_->get1DChi2(ui->loadCalibrationsTabPagePlaqSelectCB->currentText().toStdString(),
+                                                   ui->calibrationROCSB->value()) ;
+    loadCalibrationMainCanvas_->GetCanvas()->Clear();
+    loadCalibrationMainCanvas_->GetCanvas()->Divide(1,1,0.01,0.01) ;
+    loadCalibrationMainCanvas_->GetCanvas()->cd(1);
+    loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(true);
+    loadCalibrationMainCanvas_->GetCanvas()->Modified();
+    loadCalibrationMainCanvas_->GetCanvas()->Update();
+    if( histo == NULL)
+    {
+        QMessageBox::information(this, tr("WARNING"), tr("Plot not found"));
+        return ;
+    }
+    histo->Draw();
+
+    loadCalibrationMainCanvas_->GetCanvas()->Modified();
+    loadCalibrationMainCanvas_->GetCanvas()->Update();
+}
+
+//==============================================================================
+void mainTabs::on_cal1DChi2AllPB_clicked()
+{
+    gStyle->SetOptStat(0);
+    gStyle->SetOptFit (0);
+
+    vector<TH1I*> histos = theCalibrationLoader_->getAll1DChi2() ;
+    loadCalibrationMainCanvas_->GetCanvas()->Clear();
+    loadCalibrationMainCanvas_->GetCanvas()->cd();
+    loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(true);
+    loadCalibrationMainCanvas_->GetCanvas()->Divide(8,8,0,0) ;
+
+    for(unsigned int i=0; i<histos.size(); i++)
+    {
+        if( histos[i] != NULL)
+        {
+            loadCalibrationMainCanvas_->GetCanvas()->cd(i+1) ;
+            histos[i]->Draw();
+        }
+    }
+
+    loadCalibrationMainCanvas_->GetCanvas()->Modified();
+    loadCalibrationMainCanvas_->GetCanvas()->Update();
+}
+
+//==============================================================================
+void mainTabs::on_cal2Chi2PB_clicked()
+{
+    gStyle->SetOptStat(0  );
+    gStyle->SetOptFit (0  );
+    gStyle->SetPalette(1,0);
+
+    TH2F* histo = theCalibrationLoader_->get2DChi2(ui->loadCalibrationsTabPagePlaqSelectCB->currentText().toStdString(),
+                                                   ui->calibrationROCSB->value()) ;
+    loadCalibrationMainCanvas_->GetCanvas()->Clear();
+    loadCalibrationMainCanvas_->GetCanvas()->Divide(1,1,0.01,0.01) ;
+    loadCalibrationMainCanvas_->GetCanvas()->cd(1);
+    loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(false);
+    loadCalibrationMainCanvas_->GetCanvas()->Modified();
+    loadCalibrationMainCanvas_->GetCanvas()->Update();
+    if( histo == NULL)
+    {
+        QMessageBox::information(this, tr("WARNING"), tr("Plot not found"));
+        return ;
+    }
+
+    this->optimizePlot((TH2*)histo) ;
+
+    histo->Draw("COLZ");
+
+    loadCalibrationMainCanvas_->GetCanvas()->Modified();
+    loadCalibrationMainCanvas_->GetCanvas()->Update();
+}
+//==============================================================================
+void mainTabs::on_cal2DChi2AllPB_clicked()
+{
+    gStyle->SetOptStat(0);
+    gStyle->SetOptFit (0);
+    gStyle->SetPalette(1,0);
+
+    vector<TH2F*> histos = theCalibrationLoader_->getAll2DChi2() ;
+    loadCalibrationMainCanvas_->GetCanvas()->Clear();
+    loadCalibrationMainCanvas_->GetCanvas()->cd();
+    loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(false);
+    loadCalibrationMainCanvas_->GetCanvas()->Divide(8,8,0,0) ;
+    ui->parseProgressBar->reset();
+    ui->parseProgressBar->setMaximum(histos.size()-1);
+    ui->parseProgressBar->setValue(ui->parseProgressBar->maximum()) ;
+
+    for(unsigned int i=0; i<histos.size(); i++)
+    {
+        if( histos[i] != NULL)
+        {
+            QApplication::processEvents(QEventLoop::AllEvents);
+            this->optimizePlot((TH2*)histos[i]) ;
+            loadCalibrationMainCanvas_->GetCanvas()->cd(i+1) ;
+            histos[i]->Draw("COLZ");
+            ui->parseProgressBar->setValue(i) ;
+            QApplication::processEvents(QEventLoop::AllEvents);
+            loadCalibrationMainCanvas_->GetCanvas()->Modified();
+            loadCalibrationMainCanvas_->GetCanvas()->Update();
+        }
+        else
+        {
+            STDLINE("NULL",ACRed) ;
+        }
+    }
+}
+
+//=========================================================================
 void mainTabs::on_calibrationLoaderPB_clicked()
 {
     //    QString localPath = "./calibrations/" ;
@@ -1627,69 +1647,279 @@ void mainTabs::on_calibrationLoaderPB_clicked()
     STDLINE("a",ACWhite) ;
 }
 
-//===========================================================================
-void mainTabs::on_showPixelCalibrationPB_clicked()
+//=================================================================================================
+bool mainTabs::on_changeXmlGeometryPB_clicked()
 {
-    gStyle->SetOptStat(1111) ;
-    gStyle->SetOptFit(111111);
-
-    loadCalibrationMainCanvas_->GetCanvas()->Clear();
-    loadCalibrationMainCanvas_->GetCanvas()->Divide(1,1,0.01,0.01) ;
-    loadCalibrationMainCanvas_->GetCanvas()->cd(1);
-    loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(true);
-    TH1* histo = theCalibrationLoader_->getHistogram(ui->loadCalibrationsTabPagePlaqSelectCB->currentText().toStdString(),
-                                                     ui->calibrationROCSB->value(),
-                                                     ui->calibrationRowSB->value(),
-                                                     ui->calibrationColSB->value());
-    double emin = 1E10 ;
-    double emax =    0 ;
-    for(int bin=1; bin<=histo->GetNbinsX(); bin++)
+    QString localPath = this->getEnvPath("Monicelli_XML_Dir") ;
+    QString fileName = QFileDialog::getOpenFileName(this,"testBeamGeometry files",localPath,"xml Files(*.xml)");
+    if (fileName.isEmpty())
     {
-        double b = histo->GetBinContent(bin) ;
-        if( b > 0 && b <  emin ) {emin = b ;}
-        if( b > 0 && b >= emax ) {emax = b ;}
+        //ui->loadedGeometryLE->setText("No geometry xml file selected");
+        //ui->xmlGeometryLE->setText("No geometry xml file selected");
+        return false  ;
     }
-    if( ui->optimizeVScaleCB->isChecked())
+    ui->xmlGeometryLE->setText(fileName);
+    theFileEater_->getGeometry()->setGeometryFileName(fileName.toStdString());
+    theFileEater_->updateGeometry("geometry");
+    theGeometry_ = theFileEater_->getGeometry();
+
+    return true;
+}
+
+//==============================================================================
+void mainTabs::on_clearBulkFilesPB_clicked()
+{
+    ui->selectedFilesLW->clear() ;
+    ui->geometryLE->clear() ;
+}
+
+//=================================================================================================
+void mainTabs::on_copyGeoGeometryPB_clicked()
+{
+    if(ui->geometryGeoGeometryFileLE->text().lastIndexOf("/") == -1 )
     {
-        histo->GetYaxis()->SetRangeUser(emin-emin/20., emax+emax/20.) ;
+        QMessageBox::information(this, tr("Monicelli"), tr("There is no geo file selected."));
+        return;
+    }
+    QString localPath = this->getEnvPath("Monicelli_XML_Dir");
+    QString fileName = ui->geometryGeoGeometryFileLE->text();
+    fileName.remove(0,fileName.lastIndexOf("/")+1);
+    fileName = localPath + fileName;
+    this->copyGeoFileTo(fileName);
+}
+
+//=================================================================================================
+void mainTabs::on_copyToGeoGeometryPB_clicked()
+{
+    QString localPath = this->getEnvPath("Monicelli_XML_Dir") ;
+    QString fileName = QFileDialog::getSaveFileName(this,"testBeamGeometry files",localPath,"geo Files(*.geo)");
+    if (!fileName.isEmpty())
+    {
+        this->copyGeoFileTo(fileName);
+    }
+
+}
+
+//=========================================================================
+void mainTabs::on_detectorsToBeAlignedLW_itemClicked(QListWidgetItem* item)
+{
+    ui->trackFitterSoloDetectorAlignmentCB->setChecked(false);
+
+    if( QString::fromStdString(plaqSelected_) ==  item->text() )
+    {
+        if ( ui->trackFitterExcludeDetectorCB->isChecked() ) ui->trackFitterExcludeDetectorCB->setChecked(false);
+        else                                                 ui->trackFitterExcludeDetectorCB->setChecked(true );
+    }
+}
+
+//==========================================================================================
+void mainTabs::on_dutAlignmentDutSelectCB_currentIndexChanged(const QString detector)
+{
+    unsigned int fixParMap = theAligner_->getFixParMap( detector.toStdString() );
+
+    //ss_.str("");
+    //ss_ << detector.toStdString() << " code: " << fixParMap;
+    //STDLINE(ss_.str(), ACPurple);
+
+    if( fixParMap >= 100000 ) {ui->dutFineAlignmentZFixCB    ->setChecked(true ); fixParMap-= 100000;}
+    else                       ui->dutFineAlignmentZFixCB    ->setChecked(false);
+    if( fixParMap >=  10000 ) {ui->dutFineAlignmentYFixCB    ->setChecked(true ); fixParMap-=  10000;}
+    else                       ui->dutFineAlignmentYFixCB    ->setChecked(false);
+    if( fixParMap >=   1000 ) {ui->dutFineAlignmentXFixCB    ->setChecked(true ); fixParMap-=   1000;}
+    else                       ui->dutFineAlignmentXFixCB    ->setChecked(false);
+    if( fixParMap >=    100 ) {ui->dutFineAlignmentGammaFixCB->setChecked(true ); fixParMap-=    100;}
+    else                       ui->dutFineAlignmentGammaFixCB->setChecked(false);
+    if( fixParMap >=     10 ) {ui->dutFineAlignmentBetaFixCB ->setChecked(true ); fixParMap-=     10;}
+    else                       ui->dutFineAlignmentBetaFixCB->setChecked(false);
+    if( fixParMap ==      1 ) {ui->dutFineAlignmentAlphaFixCB->setChecked(true );}
+    else                       ui->dutFineAlignmentAlphaFixCB->setChecked(false);
+}
+
+//======================================================================================
+void mainTabs::on_dutAlignmentPB_clicked()
+{
+    if(!theGeometry_) return;
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    double       chi2cut            = -1;
+    int          clusterSel         = -1;
+    unsigned int minPoints          = -1;
+    int          maxTracks          = -1;
+    int          nEvents            = -1;
+    if( ui->dutAlignmentChi2SelectionCB       ->isChecked() ) chi2cut            = ui->dutAlignmentChi2SelectionSB       ->value();
+    if( ui->dutAlignmentClusterSizeSelectionCB->isChecked() ) clusterSel         = ui->dutAlignmentClusterSizeSelectionSB->value();
+    if( ui->dutAlignmentMinPointsSelectionCB  ->isChecked() ) minPoints          = ui->dutAlignmentMinPointsSelectionSB  ->value();
+    if( ui->dutAlignmentMaxTrackPerEventCB    ->isChecked() ) maxTracks          = ui->dutAlignmentMaxTrackPerEventSB    ->value();
+    if( ui->dutAlignmentLimitCB               ->isChecked() ) nEvents            = ui->dutAlignmentLimitSB               ->value();
+
+    theAligner_->setAlignmentPreferences(ui->dutMaxTrialsSB->value()                             ,
+                                         minPoints                                               ,
+                                         theTrackFitter_                                         ,
+                                         chi2cut                                                 ,
+                                         clusterSel                                              ,
+                                         minPoints                                               ,
+                                         maxTracks                                               ,
+                                         ui->dutNoDiagonalClustersCB->isChecked()                ,
+                                         ui->dutAlignmentDutSelectCB->currentText().toStdString(),
+                                         nEvents);
+
+    theAligner_->setOperation(&aligner::alignDUT);
+    this->launchThread2(theAligner_);
+}
+
+//============================================================================
+void mainTabs::on_dutWriteFineAlignmentPB_clicked()
+{
+    if(!theGeometry_) return;
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    aligner::alignmentResultsDef alignmentResults = theAligner_->getAlignmentResults();
+    std::string dut = ui->dutAlignmentDutSelectCB->currentText().toStdString();
+
+    Detector * theDetector = theGeometry_->getDetector( dut ) ;
+    double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResults[dut].deltaTx;
+    double yPositionCorrection = theDetector->getYPositionCorrection() + alignmentResults[dut].deltaTy;
+    double zPositionCorrection = theDetector->getZPositionCorrection() + alignmentResults[dut].deltaTz;
+    double xRotationCorrection = theDetector->getXRotationCorrection() + alignmentResults[dut].alpha  ;
+    double yRotationCorrection = theDetector->getYRotationCorrection() + alignmentResults[dut].beta   ;
+    double zRotationCorrection = theDetector->getZRotationCorrection() + alignmentResults[dut].gamma  ;
+
+    theDetector->setXPositionCorrection(xPositionCorrection) ;
+    theDetector->setYPositionCorrection(yPositionCorrection) ;
+    theDetector->setZPositionCorrection(zPositionCorrection) ;
+    theDetector->setXRotationCorrection(xRotationCorrection) ;
+    theDetector->setYRotationCorrection(yRotationCorrection) ;
+    theDetector->setZRotationCorrection(zRotationCorrection) ;
+
+    theFileEater_->updateGeometry("geometry");
+    theGeometry_ = theFileEater_->getGeometry();
+    showGeometry();
+    theGeometry_->dump();
+}
+
+//=========================================================================
+void mainTabs::on_eatFilePB_clicked()
+{
+    this->eatFile(true) ;
+}
+
+//=========================================================================
+void mainTabs::on_eatRootFilePB_clicked()
+{
+    this->signalNewAction("Load ROOT file") ;
+
+    QString localPath = this->getEnvPath("MonicelliOutputDir") ;
+    QString fileName = QFileDialog::getOpenFileName(this,"Event root tree files",localPath,"Root Tree Files(*.root)");
+    if (fileName.isEmpty())  return ;
+
+    ui->loadedRootFileLE->setToolTip(fileName) ;
+
+    this->openRootFile(fileName);
+    ui->loadedGeometryLE ->setText("No geometry xml file selected") ;
+    ui->loadedFileLE     ->setText("No file selected") ;
+}
+
+//=========================================================================
+void mainTabs::on_eventDisplayDUTprojectionPB_clicked()
+{
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    std::vector<std::string> selectedDUTs;
+    for(int dut=0; dut < ui->eventDisplayDUTListW->selectedItems().size(); dut++)
+    {
+        selectedDUTs.push_back( ui->eventDisplayDUTListW->selectedItems()[dut]->text().toStdString() );
+        //       ss_.str("");
+        //       ss_ << "selected DUT: " << ui->eventDisplayDUTListW->selectedItems()[dut]->text().toStdString();
+        //       STDLINE(ss_.str(),ACGreen);
+    }
+    //std::string histoType;
+    //histoType = theHManager_->makeDUTprojections(selectedDUTs)[0];
+    STDLINE("WARNING: Work in progress, function disabled!",ACRed);
+
+    //this->drawAll(ui->eventDisplayLeftCanvas, histoType, "COLZ");
+}
+
+//=========================================================================
+void mainTabs::on_eventDisplayShowBeamSpotsPB_clicked()
+{
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    theHManager_->setSubProcessFunction(&HManager::makeBeamSpots2);
+    std::string histoType = theHManager_->eventsCycle()[0];
+
+    this->drawAll(eventDisplayLeftCanvas_, histoType, "", "COLZ");
+}
+
+//===============================================================
+void mainTabs::on_eventDisplayTabPagePlaqSelectCB_currentIndexChanged(QString plaqSelected)
+{
+    if ( ui->eventDisplayTabPagePlaqSelectCB->isEnabled() )
+    {
+        plaqSelected_= plaqSelected.toStdString();
+        this->on_eventSelectedSpinBox_valueChanged(ui->eventSelectedSpinBox->value());
+    }
+}
+
+//===========================================================================
+void mainTabs::on_eventSelectedSpinBox_valueChanged(int eventSelected)
+{
+    //theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+    if( theFileEater_ == NULL ) return ;
+
+    Event* event = theFileEater_->getEvent(eventSelected);
+    if( event == NULL ) return ;
+    ss_.str("") ; ss_ << "New event number selected: " << event ;
+    STDLINE(ss_.str(),ACCyan);
+
+    std::string histoType;
+    if( ui->selectClusterRB->isChecked() && !event->getClusters().empty())
+    {
+        histoType = theHManager_->makeClusterEvent(event)[0];
     }
     else
     {
-        histo->GetYaxis()->SetRangeUser(0, emax+emax/20.) ;
+        histoType = theHManager_->makeRawEvent(event);
+    }
+    //check clustersHits in the tree
+    if ( event->getClustersHits().empty() )
+    {
+        STDLINE("No clusters in this event",ACCyan) ;
+        //        ui->solveClustersPB->setEnabled(false);
+        ui->selectClusterRB->setEnabled(false);
+    }
+    //    else
+    //    {
+    //        theHManager_->markClustersHits(event);
+    //        ui->solveClustersPB->setEnabled(true);
+    //ui->selectClusterRB->setEnabled(true);
+    //    }
+
+    //check clusters in the tree
+    if ( !event->getClusters().empty() )
+    {
+        //STDLINE("-------------------------------------------------------------------------",ACYellow) ;
+        //theHManager_->markClusters(event);
+        ui->selectClusterRB              ->setEnabled(true);
+        ui->rawAlignmentClusterProfilesRB->setEnabled(true);
     }
 
-    histo->Draw();
 
-    if(histo->GetFunction(theFitter_->getCalibrationFitFunctionName()) == 0)
-        return;
-    histo->GetFunction(theFitter_->getCalibrationFitFunctionName())->Draw("same");
+    eventDisplayRightCanvas_->GetCanvas()->cd();
+    theHManager_->getHistogram(histoType, plaqSelected_)->Draw("COLZ")    ;
 
-    loadCalibrationMainCanvas_->GetCanvas()->Modified();
-    loadCalibrationMainCanvas_->GetCanvas()->Update();
+    if(ui->showAllPlaqPB->isChecked()) this->showAllPlaq();
 
-    //    theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString());
-
-    //    //check
-    //    theGeometry_ = theFileEater_->getGeometry();
-    //    for (Geometry::iterator det=theGeometry_->begin(); det!=theGeometry_->end(); ++det)
-    //    {
-    //        for(Detector::iterator roc=(*det).second->begin(); roc!=(*det).second->end(); roc++ )
-    //        {
-    //            ss_.str("") ;
-    //            ss_ << "Detector: " << (*det).first << " rocID: " << (*roc).second->getID() << " roc position " << (*roc).first;
-
-    //            if((*roc).second->getCalibrationFunction(ui->calibrationRowSB->value(),ui->calibrationColSB->value())!=NULL)
-    //                    ss_ << " par0: " << (*roc).second->getCalibrationFunction(ui->calibrationRowSB->value(),ui->calibrationColSB->value())[0];
-    //            else    ss_ << " is empty";
-
-    //            STDLINE(ss_.str(),ACCyan);
-    //        }
-    //    }
+    eventDisplayRightCanvas_->GetCanvas()->Modified() ;
+    eventDisplayRightCanvas_->GetCanvas()->Update()   ;
 }
 
-//===========================================================================
-//---------------------------BUILD CLUSTERS TAB------------------------------
-//===========================================================================
+//=========================================================================
+void mainTabs::on_fileEaterVerbosityCB_activated(int verbosity)
+{
+    theFileEater_->setVerbosity(verbosity);
+}
+
+//=========================================================================
 void mainTabs::on_findAndSolveClustersPB_clicked()
 {
 
@@ -1723,103 +1953,445 @@ void mainTabs::on_findAndSolveClustersPB_clicked()
     theFileEater_->setOperation(&fileEater::updateEvents2,theClusterizer_);
     this->launchThread2(theFileEater_);
 }
-//===========================================================================
-void mainTabs::on_showAdcDistributionsPB_clicked()
+
+//=============================================================================
+void mainTabs::on_findDUThitsPB_clicked()
 {
-    this->signalNewAction("Building cluster charge distribution plots");
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-    theHManager_->setOperation(&HManager::eventsCycle, &HManager::makeAdcDistributions2);
-    this->launchThread2(theHManager_);
+    ui->abortActionPB               ->setEnabled(true) ;
+    ui->tracksFoundCB               ->setChecked(true) ;
+
+    double tolX = ui->DUTxRoadToleranceSB->value();
+    double tolY = ui->DUTyRoadToleranceSB->value();
+
+    double chi2Cut        = -1;
+    double trackPoints    = -1;
+    double maxPlanePoints = -1;
+
+    theTrackFinder_->setTrackSearchParameters(tolX*(1e-4)*CONVF,
+                                              tolY*(1e-4)*CONVF,
+                                              chi2Cut          ,
+                                              trackPoints      ,
+                                              maxPlanePoints   );
+
+    theTrackFinder_->setOperation(&trackFinder::findDUTCandidates);
+    theFileEater_->setOperation(&fileEater::updateEvents2,theTrackFinder_);
+    this->launchThread2(theFileEater_);
 }
 
-
-//===========================================================================
-//-----------------------------------------RAW ALIGNMENT-----------------------------------------
-//===========================================================================
-void mainTabs::on_showBeamProfilesPB_clicked()
+//=========================================================================
+void mainTabs::on_findEventsPB_clicked()
 {
-    this->launchThread3(theHManager_,this,&mainTabs::showBeamProfiles);
-}
-//===========================================================================
-void mainTabs::showBeamProfiles()
-{
-    theHManager_->restrictSearch(ui->restrictSearchCB->isChecked());
 
-    bool redo = (ui->showBeamProfilesPB->text() == "Fit")? false:true;
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+    int ev=ui->eventSelectedSpinBox->value()+1;
+    int size=0;
+    int startValue = ui->eventSelectedSpinBox->value()      ;
+    int loop = ui->eventDisplayTabPagePlaqSelectCB->count() ;
 
-    HManager::stringVDef histoType; // (X[1],Y[2])
-    if(ui->rawAlignmentClusterProfilesRB->isChecked())
+    while( ( size > ui->findEventsMaxHitsToSearchSB->value() || size < ui->findEventsMinHitsToSearchSB->value() ) && loop >= 0)
     {
-        theHManager_->setSubProcessFunction(&HManager::makeClusterPlots2,redo);
-        histoType = theHManager_->eventsCycle();
+        if( startValue == ev++ )
+        {
+            STDLINE("No event found in plaquette: " + plaqSelected_,ACYellow);
+            if( ui->findEventsWhereComboBox->currentText() == "selected" ) break;
+
+            ui->eventDisplayTabPagePlaqSelectCB->setCurrentIndex( ui->eventDisplayTabPagePlaqSelectCB->currentIndex()+1 );
+            loop--;
+        }
+
+        if( ev > theFileEater_->getEventsNumber() )
+        {
+            ev=0;
+            if( ui->findEventsWhereComboBox->currentText() == "all" )
+                ui->eventDisplayTabPagePlaqSelectCB->setCurrentIndex( ui->eventDisplayTabPagePlaqSelectCB->currentIndex()+1 );
+        }
+
+        size = theFileEater_->getEvent(ev)->getRawData().find(plaqSelected_)->second.size();
+    }
+
+    ui->eventSelectedSpinBox->setValue(ev);
+}
+
+//=================================================================================
+void mainTabs::on_fineAlignmentPB_clicked()
+{
+    if(!theGeometry_) return;
+
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    std::string alignmentFitMethod = ui->alignmentTypeCB ->currentText().toStdString();
+    theAligner_->setAlignmentFitMethodName(alignmentFitMethod);
+    if (alignmentFitMethod == "Simple")
+        theAligner_->setNumberOfIterations(ui->fineTrackFitterIterationsSB->value());
+    else
+        theAligner_->setNumberOfIterations(0);
+
+    //theAligner_->clearFixParMap();
+    for(Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it)
+    {
+        if( !(*it).second->isDUT() )
+        {
+            unsigned int val = 0;
+            if( ui->detectorsTableView->isFixed( (*it).first, "Alfa"  ) ) val += 1;
+            if( ui->detectorsTableView->isFixed( (*it).first, "Beta"  ) ) val += 10;
+            if( ui->detectorsTableView->isFixed( (*it).first, "Gamma" ) ) val += 100;
+            if( ui->detectorsTableView->isFixed( (*it).first, "X"     ) ) val += 1000;
+            if( ui->detectorsTableView->isFixed( (*it).first, "Y"     ) ) val += 10000;
+            if( ui->detectorsTableView->isFixed( (*it).first, "Z"     ) ) val += 100000;
+            theAligner_->setFixParMap((*it).first, val);
+        }
+    }
+
+    double       chi2cut    = -1;
+    int          clusterSel = -1;
+    unsigned int minPoints  = -1;
+    int          maxTracks  = -1;
+    int          nEvents    = -1;
+    if( ui->fineAlignmentChi2SelectionCB       ->isChecked() ) chi2cut    = ui->fineAlignmentChi2SelectionSB       ->value();
+    if( ui->fineAlignmentClusterSizeSelectionCB->isChecked() ) clusterSel = ui->fineAlignmentClusterSizeSelectionSB->value();
+    if( ui->fineAlignmentMinPointsSelectionCB  ->isChecked() ) minPoints  = ui->fineAlignmentMinPointsSelectionSB  ->value();
+    if( ui->fineAlignmentMaxTrackPerEventCB    ->isChecked() ) maxTracks  = ui->fineAlignmentMaxTrackPerEventSB    ->value();
+    if( ui->fineAlignmentLimitCB               ->isChecked() ) nEvents    = ui->fineAlignmentLimitSB               ->value();
+
+    theAligner_->setAlignmentPreferences(ui->maxTrialSB->value()                           ,
+                                         ui->fineAlignmentStrategySB->value()              ,
+                                         theTrackFitter_                                   ,
+                                         chi2cut                                           ,
+                                         clusterSel                                        ,
+                                         minPoints                                         ,
+                                         maxTracks                                         ,
+                                         ui->fineAlignmentNoDiagonalClustersCB->isChecked(),
+                                         ""                                                ,
+                                         nEvents);
+    theAligner_->setOperation(&aligner::align);
+    this->launchThread2(theAligner_);
+}
+
+//============================================================================
+void mainTabs::on_FitScatterResidualsPB_clicked()
+{
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    double tolerance = ui->linFitSigmasLE->text().toDouble() ;
+
+    ss_.str("") ; ss_ << "Tolerance is now " << tolerance; STDLINE(ss_.str(),ACWhite) ;
+
+    for( Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it )
+    {
+        double slope = 0, q = 0;
+        STDLINE("Working on block X_RES_Y_POS_MEAN",ACWhite) ;
+        theFitter_->linearFit((TH1*) theHManager_->getHistogram(X_RES_Y_POS_MEAN, (*it).first ),&slope,&q, tolerance);
+        STDLINE("Working on block Y_RES_X_POS_MEAN",ACWhite) ;
+        theFitter_->linearFit((TH1*) theHManager_->getHistogram(Y_RES_X_POS_MEAN, (*it).first ),&slope,&q, tolerance);
+        STDLINE("Working on block X_RES_X_POS_MEAN",ACWhite) ;
+        theFitter_->linearFit((TH1*) theHManager_->getHistogram(X_RES_X_POS_MEAN, (*it).first ),&slope,&q, tolerance);
+        STDLINE("Working on block Y_RES_Y_POS_MEAN",ACWhite) ;
+        theFitter_->linearFit((TH1*) theHManager_->getHistogram(Y_RES_Y_POS_MEAN, (*it).first ),&slope,&q, tolerance);
+    }
+
+    //gStyle->SetOptFit (1111);
+    //gStyle->SetOptStat(1111);
+    this->drawAll(residualsResidualsVsCoordinateLeftCanvas_ , X_RES_Y_POS_MEAN);
+    this->drawAll(residualsResidualsVsCoordinateRightCanvas_, Y_RES_X_POS_MEAN);
+}
+
+//=================================================================================================
+void mainTabs::on_geometryClearAllCorrectionsPB_clicked()
+{
+    if(theGeometry_ == NULL) return;
+    Detector* detector;
+    for(std::map<std::string,GeometryParameters*>::iterator it=geometryParameters_.begin(); it!=geometryParameters_.end(); it++ )
+    {
+        if(!it->second->isEnabled()) continue;
+        detector   = theGeometry_->getDetector(it->first);
+        detector->setXRotationCorrection(0);
+        detector->setYRotationCorrection(0);
+        detector->setZRotationCorrection(0);
+        detector->setXPositionCorrection(0);
+        detector->setYPositionCorrection(0);
+        detector->setZPositionCorrection(0);
+
+        it->second->showDetectorPars(detector);
+    }
+    theFileEater_->updateGeometry("geometry");
+}
+
+//=================================================================================================
+void mainTabs::on_geometryDisableEnableAllPB_clicked()
+{
+    if(theGeometry_ == NULL) return;
+    bool enable = false;
+    if(ui->geometryDisableEnableAllPB->text() == "Disable All")
+    {
+        enable = false;
+        ui->geometryDisableEnableAllPB->setText("Enable All");
+        ui->geometryDisableEnableAllPB->setStyleSheet("* { background-color: rgb(0,170,0) }");
     }
     else
     {
-        theHManager_->setSubProcessFunction(&HManager::makeBeamSpots2,redo);
-        histoType = theHManager_->eventsCycle();
+        enable = true;
+        ui->geometryDisableEnableAllPB->setText("Disable All");
+        ui->geometryDisableEnableAllPB->setStyleSheet("* { background-color: red }");
     }
-    emit mainTabs::processFinished(&mainTabs::showBeamProfiles_end, histoType);
-}
-//============================================================================
-void mainTabs::showBeamProfiles_end(HManager::stringVDef histoType)
-{
-    gStyle->SetOptStat(1111);
 
-    if ( ui->rawAlignmentTabPagePlaqSelectCB->isEnabled() )
+    for(std::map<std::string,GeometryParameters*>::iterator it=geometryParameters_.begin(); it!=geometryParameters_.end(); it++ )
     {
-        if( ui->rawAlignmentFitAllCB->isChecked() )
-        {
-            int  pad   = 1;
-            TH1* histo = 0;
-            for( Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it, pad++ )
-            {
-                histo = (TH1*) theHManager_->getHistogram(histoType[1], (*it).first );
-                theFitter_->gaussFit( histo );
-                rawAlignmentSynpoticLeftCanvas_->GetCanvas()->cd(pad)->Modified() ;
-                rawAlignmentSynpoticLeftCanvas_->GetCanvas()->cd(pad)->Update() ;
-
-                histo = (TH1*) theHManager_->getHistogram(histoType[2], (*it).first );
-                theFitter_->gaussFit( histo );
-                rawAlignmentSynpoticRightCanvas_->GetCanvas()->cd(pad)->Modified();
-                rawAlignmentSynpoticRightCanvas_->GetCanvas()->cd(pad)->Update();
-            }
-        }
-        else
-        {
-            if( !ui->rawAlignmentMyFitParXCB->isChecked() )
-                theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[1], plaqSelected_ )  );
-            else
-                theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[1], plaqSelected_ ),
-                                             Utils::toDouble( ui->xProfileMeanLE ->text().toStdString()),
-                                             Utils::toDouble( ui->xProfileSigmaLE->text().toStdString()),
-                                             ui->xProfileNsigmaSB->value()                             );
-
-            if( !ui->rawAlignmentMyFitParYCB->isChecked() )
-                theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[2], plaqSelected_ )  );
-            else
-                theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[2], plaqSelected_ ),
-                                             Utils::toDouble( ui->yProfileMeanLE ->text().toStdString()),
-                                             Utils::toDouble( ui->yProfileSigmaLE->text().toStdString()),
-                                             ui->xProfileNsigmaSB->value()                             );
-        }
-        ui->writeAlignmentPB        ->setEnabled(true);
-        ui->rawAlignmentFitComparePB->setEnabled(true);
+        it->second->enable(enable);
     }
 
-    //Draw histograms
-    gStyle->SetOptFit(0);
-    this->drawAll(rawAlignmentSynpoticLeftCanvas_ , histoType[1]);
-    this->drawAll(rawAlignmentSynpoticRightCanvas_, histoType[2]);
-
-    ui->showBeamProfilesPB->setText("Fit")               ;
-    ui->showBeamProfilesPB->update()                     ;
-    ui->rawAlignmentTabPagePlaqSelectCB->setEnabled(true);
-    ui->rawAlignmentFitAllCB->setEnabled(true)           ;
-    emit mainTabs::on_rawAlignmentTabPagePlaqSelectCB_currentIndexChanged(ui->rawAlignmentTabPagePlaqSelectCB->currentText());
-    STDLINE("Profiles fits done",ACPurple) ;
 }
-//===========================================================================
+
+//=================================================================================================
+void mainTabs::on_geometrySetPB_clicked()
+{
+    STDLINE("They never call me!",ACWhite);
+    if(theGeometry_ == NULL) return;
+
+    for(std::map<std::string,GeometryParameters*>::iterator it=geometryParameters_.begin(); it!=geometryParameters_.end(); it++ )
+    {
+        if(!it->second->isEnabled()) continue;
+        Detector* det = theGeometry_->getDetector( it->first );
+        //        det->dump();
+        //       if(double(det->getXRotation()-it->second->getDetectorParBase(0)) != 0)std::cout << __PRETTY_FUNCTION__ << "X: " << det->getXRotation() << "=" << it->second->getDetectorParBase(0) << " delta=" << double(det->getXRotation()-it->second->getDetectorParBase(0)) << std::endl;
+        det->setXRotation          (it->second->getDetectorParBase      (0));
+        det->setXRotationCorrection(it->second->getDetectorParCorrection(0));
+        //        if(double(det->getYRotation()-it->second->getDetectorParBase(1)) != 0)std::cout << __PRETTY_FUNCTION__ << "Y: " << det->getYRotation() << "=" << it->second->getDetectorParBase(1) << " delta=" << double(det->getYRotation()-it->second->getDetectorParBase(1)) << std::endl;
+        det->setYRotation          (it->second->getDetectorParBase      (1));
+        det->setYRotationCorrection(it->second->getDetectorParCorrection(1));
+        //        if(double(det->getZRotation()-it->second->getDetectorParBase(2)) != 0)std::cout << __PRETTY_FUNCTION__ << "Z: " << det->getZRotation() << "=" << it->second->getDetectorParBase(2) << " delta=" << double(det->getZRotation()-it->second->getDetectorParBase(2)) << std::endl;
+        det->setZRotation          (it->second->getDetectorParBase      (2));
+        det->setZRotationCorrection(it->second->getDetectorParCorrection(2));
+        //        if(double(det->getXPosition()-it->second->getDetectorParBase(3)) != 0)std::cout << __PRETTY_FUNCTION__ << "X: " << det->getXPosition() << "=" << it->second->getDetectorParBase(3) << " delta=" << double(det->getXPosition()-it->second->getDetectorParBase(3)) << std::endl;
+        det->setXPosition          (it->second->getDetectorParBase      (3));
+        det->setXPositionCorrection(it->second->getDetectorParCorrection(3));
+        //        if(double(det->getYPosition()-it->second->getDetectorParBase(4)) != 0)std::cout << __PRETTY_FUNCTION__ << "Y: " << det->getYPosition() << "=" << it->second->getDetectorParBase(4) << " delta=" << double(det->getYPosition()-it->second->getDetectorParBase(4)) << std::endl;
+        det->setYPosition          (it->second->getDetectorParBase      (4));
+        det->setYPositionCorrection(it->second->getDetectorParCorrection(4));
+        //        if(double(det->getZPosition()-it->second->getDetectorParBase(5)) != 0)std::cout << __PRETTY_FUNCTION__ << "Z: " << det->getZPosition() << "=" << it->second->getDetectorParBase(5) << " delta=" << double(det->getZPosition()-it->second->getDetectorParBase(5)) << std::endl;
+        det->setZPosition          (it->second->getDetectorParBase      (5));
+        det->setZPositionCorrection(it->second->getDetectorParCorrection(5));
+
+
+        //        std::cout << __PRETTY_FUNCTION__ << "AFTER THE CORRECTIONS!" << std::endl;
+        det->dump();
+    }
+
+    theFileEater_->updateGeometry("geometry");
+    //    theGeometry_->orderPlanes();
+    //    theGeometry_->calculatePlaneMCS();
+    //    theTrackFitter_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
+    //    theAligner_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
+
+}
+
+//=================================================================================================
+void mainTabs::on_geometrySumAllCorrToBasePB_clicked()
+{
+    on_geometrySumAngleCorrToBasePB_clicked();
+    on_geometrySumTransCorrToBasePB_clicked();
+}
+
+//=================================================================================================
+void mainTabs::on_geometrySumAngleCorrToBasePB_clicked()
+{
+    if(theGeometry_ == NULL) return;
+    double base;
+    double correction;
+    Detector* detector;
+    for(std::map<std::string,GeometryParameters*>::iterator it=geometryParameters_.begin(); it!=geometryParameters_.end(); it++ )
+    {
+        if(!it->second->isEnabled()) continue;
+        detector   = theGeometry_->getDetector(it->first);
+        base       = detector->getXRotation();
+        correction = detector->getXRotationCorrection();
+        base += correction;
+        detector->setXRotation(base);
+        detector->setXRotationCorrection(0);
+
+        base       = detector->getYRotation();
+        correction = detector->getYRotationCorrection();
+        base += correction;
+        detector->setYRotation(base);
+        detector->setYRotationCorrection(0);
+
+        base       = detector->getZRotation();
+        correction = detector->getZRotationCorrection();
+        base += correction;
+        detector->setZRotation(base);
+        detector->setZRotationCorrection(0);
+
+        it->second->showDetectorPars(detector);
+    }
+    theFileEater_->updateGeometry("geometry");
+}
+
+//=================================================================================================
+void mainTabs::on_geometrySumTransCorrToBasePB_clicked()
+{
+    if(theGeometry_ == NULL) return;
+    double base;
+    double correction;
+    Detector* detector;
+    for(std::map<std::string,GeometryParameters*>::iterator it=geometryParameters_.begin(); it!=geometryParameters_.end(); it++ )
+    {
+        if(!it->second->isEnabled()) continue;
+        detector   = theGeometry_->getDetector(it->first);
+        base       = detector->getXPosition();
+        correction = detector->getXPositionCorrection();
+        base += correction;
+        detector->setXPosition(base);
+        detector->setXPositionCorrection(0);
+
+        base       = detector->getYPosition();
+        correction = detector->getYPositionCorrection();
+        base += correction;
+        detector->setYPosition(base);
+        detector->setYPositionCorrection(0);
+
+        base       = detector->getZPosition();
+        correction = detector->getZPositionCorrection();
+        base += correction;
+        detector->setZPosition(base);
+        detector->setZPositionCorrection(0);
+
+        it->second->showDetectorPars(detector);
+    }
+    theFileEater_->updateGeometry("geometry");
+}
+
+//==============================================================================
+void mainTabs::on_GeometryTabW_currentChanged(int tabNumber)
+{
+    if( !theGeometry_ )
+    {
+        STDLINE("No geometry has been loaded so far",ACRed) ;
+        return ;
+    }
+
+    STDLINE(tabNumber,ACCyan) ;
+
+    if( tabNumber == 2)
+    {
+        for(Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); it++)
+        {
+            string currentDetector = it->first;
+            if((theGeometry_->getDetector(currentDetector)->isDUT())&&(ui->listOfDUTsCB->findText(currentDetector.c_str())==-1))
+                ui->listOfDUTsCB->addItem(currentDetector.c_str());
+        }
+
+    }
+}
+
+//=========================================================================
+void mainTabs::on_loadFakeBeam_clicked()
+{
+    theBeamSimulator_->setErrors(ui->simulationXerrorSB->value(),ui->simulationYerrorSB->value());
+
+    QString localPath = "../BeamEmulator/" ;
+    QString fileName = QFileDialog::getOpenFileName(this,"Beam simulation files",localPath,"Binary Files(*.nhd)");
+    if (fileName.isEmpty())  return ;
+
+    this->on_loadGeometryPB_clicked();
+
+    std::string outputFile = theFileEater_->openFile(fileName.toStdString());
+
+    ss_.str("");
+    ss_ << path_.toStdString() << "/" << outputFile;
+
+    this->openRootFile(QString::fromStdString(ss_.str()).replace(".nhd",".root"));
+}
+
+//===================================================================================
+bool mainTabs::on_loadGeoGeometryPB_clicked()
+{
+    return loadGeometry(true,"geo") ;
+}
+
+//===================================================================================
+bool mainTabs::on_loadGeometryPB_clicked()
+{
+    return this->loadGeometryInterface(true) ;
+}
+
+//===================================================================================
+bool mainTabs::on_loadXMLGeometryPB_clicked()
+{
+    return loadGeometry(true,"xml") ;
+}
+
+//===========================================================================
+void mainTabs::on_makeFittedTracksDeviationsPB_clicked()
+{
+    theFileEater_->setOperation(&fileEater::updateEvents2,theTrackFitter_);
+    theTrackFitter_->setOperation(&trackFitter::makeFittedTrackDeviations);
+    this->launchThread2(theFileEater_);
+}
+
+//============================================================================
+void mainTabs::on_manualRotationsPB_clicked()
+{
+    if(!theGeometry_) return;
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    for (Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it)
+    {
+        if( ui->detectorsToBeAlignedLW->findItems(QString::fromStdString((*it).first),0)[0]->isSelected() ) continue;
+
+        theGeometry_->getDetector( (*it).first )->setXRotationCorrection(theGeometry_->getDetector( (*it).first )->getXRotationCorrection()+
+                                                                         ui->xManualRotationSB->value()                                      );
+        theGeometry_->getDetector( (*it).first )->setYRotationCorrection(theGeometry_->getDetector( (*it).first )->getYRotationCorrection()+
+                                                                         ui->yManualRotationSB->value()                                      );
+        theGeometry_->getDetector( (*it).first )->setZRotationCorrection(theGeometry_->getDetector( (*it).first )->getZRotationCorrection()+
+                                                                         ui->zManualRotationSB->value()                                      );
+
+        STDLINE((*it).first,ACYellow) ;
+        ss_.str("");
+        ss_ << "XRotationCorrection " << theGeometry_->getDetector((*it).first)->getXRotationCorrection();
+        STDLINE(ss_.str(),ACRed);
+        ss_.str("");
+        ss_ << "YRotationCorrection " << theGeometry_->getDetector((*it).first)->getYRotationCorrection();
+        STDLINE(ss_.str(),ACRed);
+        ss_.str("");
+        ss_ << "ZRotationCorrection " << theGeometry_->getDetector((*it).first)->getZRotationCorrection();
+        STDLINE(ss_.str(),ACRed);
+
+    }
+    theFileEater_->updateGeometry("geometry");
+}
+
+//===========================================================================
+void mainTabs::on_outputFileLE_textChanged(QString outputPath)
+{
+    theFileEater_->setOutputFileName(outputPath.toStdString());
+}
+
+//===========================================================================
+void mainTabs::on_parseFilePB_clicked()
+{
+    this->eatFile(false) ;
+
+    theFileEater_ ->setInputFileName   (ui->loadedFileLE    ->text().toStdString());
+    mainWindow_   ->getGeometryFileName(ui->loadedGeometryLE->text().toStdString());
+    mainWindow_   ->getInputFileName   (ui->loadedFileLE    ->text().toStdString());
+    theHNavigator_->getGeometryFileName(ui->loadedGeometryLE->text().toStdString());
+    theHNavigator_->getInputFileName   (ui->loadedFileLE    ->text().toStdString());
+
+    if (ui->maxRawEventsCB->isChecked())
+        theFileEater_->setEventsLimit( ui->maxRawEventsSB->value() );
+    else
+        theFileEater_->setEventsLimit( -1 );
+
+    theFileEater_->setOperation(&fileEater::parse);
+    this->launchThread2(theFileEater_);
+}
+
+//==============================================================================
+void mainTabs::on_plotKalmanResidualsPB_clicked()
+{
+    theHManager_->makeKalmanResidualPlots(theTrackFitter_->getKalmanResidualsMap()) ;
+//    theHManager_->fitKalmanResidualPlots (theTrackFitter_->getKalmanResidualsMap()) ;
+}
+
+//=========================================================================
 void mainTabs::on_rawAlignmentTabPagePlaqSelectCB_currentIndexChanged(QString plaqSelected)
 {
     if( ui->rawAlignmentTabPagePlaqSelectCB->isEnabled() )
@@ -1880,43 +2452,1341 @@ void mainTabs::on_rawAlignmentTabPagePlaqSelectCB_currentIndexChanged(QString pl
         rawAlignmentRightCanvas_->GetCanvas()->Update()  ;
     }
 }
-//===========================================================================
-void mainTabs::swapRawAlignmentFitCBs(bool checked)
+
+//=========================================================================
+void mainTabs::on_reconstructEventsPB_clicked()
 {
-    if (checked)
+    STDLINE("",ACWhite) ;
+    STDLINE("================ Batch processing for the track reconstruction of the following files ===================", ACYellow) ;
+
+    //inputFiles_.clear();
+
+    std::string inputFile = "";
+
+    for(int i=0; i<ui->selectedFilesLW->count(); ++i)
     {
-        if ( sender() == (QObject*)ui->rawAlignmentFitAllCB )
-        {
-            ui->rawAlignmentMyFitParXCB->setChecked(false);
-            ui->rawAlignmentMyFitParYCB->setChecked(false);
-        }
-        else ui->rawAlignmentFitAllCB->setChecked(false);
+        std::string fileName = ui->selectedFilesLW->item(i)->text().toStdString() ;
+        inputFiles_.push_back(fileName) ;
+        ss_.str("");
+        ss_ << i << "]\t" << fileName ;
+        STDLINE(ss_.str(),ACGreen) ;
+    }
+
+    for(int i=0; i<ui->selectedFilesLW->count(); ++i)
+    {
+        if(ui->selectedFilesLW->item(i)->isSelected()) continue;
+        inputFile = ui->selectedFilesLW->item(i)->text().toStdString();
+        ui->selectedFilesLW->item(i)->setSelected(true);
+        break;
+    }
+
+    if(inputFile.empty())
+    {
+        STDLINE("ALL files have been processed",ACGreen);
+        return;
+    }
+    //if(inputFiles_.empty()) return;
+    STDLINE("",ACWhite) ;
+
+    theFileEater_->openFile( ui->geometryLE->text().toStdString() );
+    //theFileEater_->setInputFileNames( inputFiles_ );
+
+    double chi2Cut        = -1 ;
+    double trackPoints    = -1 ;
+    double maxPlanePoints = -1 ;
+    if( ui->trackFinderChi2cutCB->isChecked()     ) chi2Cut        = ui->trackFinderChi2cutSB->value() ;
+    if( ui->trackFinderTrackPointsCB->isChecked() ) trackPoints    = ui->trackFinderTrackPointsSB->value();
+    if( ui->trackFinderPlanePointsCB->isChecked() ) maxPlanePoints = ui->trackFinderPlanePointsSB->value();
+
+    theTrackFinder_->setTrackSearchParameters(ui->xRoadToleranceSB->value()*(1e-4)*CONVF,
+                                              ui->yRoadToleranceSB->value()*(1e-4)*CONVF,
+                                              chi2Cut                                   ,
+                                              trackPoints                               ,
+                                              maxPlanePoints                            );
+    STDLINE("",ACWhite) ;
+
+    if (ui->maxRawEventsAllCB->isChecked())
+        theFileEater_->setEventsLimit( ui->maxRawEventsAllSB->value() );
+    else   theFileEater_->setEventsLimit( -1                             );
+
+    theFileEater_  ->setOperation(&fileEater::fullReconstruction,theClusterizer_);
+    theTrackFinder_->setOperation(&trackFinder::findAndFitTracks);//Might not work, used to be road search, but road search no longer fits
+    theFileEater_  ->addSubProcess(theTrackFinder_);
+    theTrackFitter_->setOperation(&trackFitter::makeFittedTracksResiduals);
+    theFileEater_  ->addSubProcess(theTrackFitter_);
+
+    theFileEater_->setInputFileName(inputFile);
+    this->launchThread2(theFileEater_);
+}
+
+//==============================================================================
+void mainTabs::on_removeCalibFilesPB_clicked()
+{
+    QString calibOutputDirectory = getEnvPath("Monicelli_CalSample_Dir");
+    // Pass command to output to text file to calibrationLoader_
+    theCalibrationLoader_->removeCalibrationFiles(calibOutputDirectory.toStdString());
+}
+
+//=========================================================================
+void mainTabs::on_residualRangeHigCB_activated(QString )
+{
+    if( ui->residuaLockRangeCB->isChecked() )
+    {
+        ui->residualRangeLowCB->setCurrentIndex(ui->residualRangeHigCB->currentIndex()) ;
     }
 }
-//===========================================================================
-void mainTabs::on_rawAlignmentFitComparePB_clicked()
+
+//=========================================================================
+void mainTabs::on_residualRangeLowCB_activated(QString )
 {
-    this->launchThread3(theHManager_,this,&mainTabs::rawAlignmentFitCompare);
+    if( ui->residuaLockRangeCB->isChecked() )
+    {
+        ui->residualRangeHigCB->setCurrentIndex(ui->residualRangeLowCB->currentIndex()) ;
+    }
 }
-//===========================================================================
-void mainTabs::rawAlignmentFitCompare()
+
+//==============================================================================
+void mainTabs::on_residualsMonitorTW_currentChanged(int tabNumber)
 {
-    //bool redo = (ui->showBeamProfilesPB->text() == "Fit")? false:true;
+    if( !theGeometry_ )
+    {
+        STDLINE("No geometry has been loaded so far",ACRed) ;
+        return ;
+    }
+
+    if( tabNumber == 6)
+    {
+
+        map<int, string> orientation;
+        map<int, string> rowColOrien;
+
+        orientation[0] = "y";
+        orientation[3] = "y";
+        orientation[1] = "x";
+        orientation[2] = "x";
+
+        QString s ;
+        for(unsigned int index=0; index<tableMap_.size(); index++)
+        {
+            QTableWidget * w = tableMap_[index];
+            w->setSelectionMode(QAbstractItemView::SingleSelection);
+            w->setColumnCount(4);
+            w->setRowCount(theGeometry_->getDetectorsNumber());
+            w->setHorizontalHeaderItem(0,new QTableWidgetItem(QString::fromStdString("Detector")));
+            w->setHorizontalHeaderItem(1,new QTableWidgetItem(QString::fromStdString("Type"    )));
+            //w->setHorizontalHeaderItem(4,new QTableWidgetItem(QString::fromStdString("Min"     )));
+            //w->setHorizontalHeaderItem(5,new QTableWidgetItem(QString::fromStdString("Max"     )));
+
+            int currentRow = 0 ;
+
+            for(Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); it++)
+            {
+                string   currentDetector = it->first;
+                Double_t coordMin,coordMax;
+                QString  coordMinString,coordMaxString;
+                //QString  minString,maxString;
+
+                TH1D * h = (TH1D*)theHManager_->getHistogram(folderMap_[index],currentDetector);
+                if( !h )
+                {
+                    STDLINE("No correlation histograms have been produced so far",ACRed) ;
+                    w->clear();
+                    w->setColumnCount(0);
+                    w->setRowCount(0);
+                    return ;
+                }
+                TF1  * f = (TF1*)h->GetListOfFunctions()->FindObject("linearFitFunc");
+                if( !f )
+                {
+                    STDLINE("Correlation histograms have not been fit yet",ACRed) ;
+                    w->clear();
+                    w->setColumnCount(0);
+                    w->setRowCount(0);
+                    return ;
+                }
+                coordMin = f->GetXmin();
+                coordMax = f->GetXmax();
+                coordMinString.setNum(coordMin);
+                coordMaxString.setNum(coordMax);
+                QTableWidgetItem * coordMinItem = new QTableWidgetItem(QString(coordMinString));
+                coordMinItem->setTextAlignment(Qt::AlignRight);
+                QTableWidgetItem * coordMaxItem = new QTableWidgetItem(QString(coordMaxString));
+                coordMaxItem->setTextAlignment(Qt::AlignRight);
+                w->setItem(currentRow,2,coordMinItem);
+                w->setItem(currentRow,3,coordMaxItem);
+
+                if(     theGeometry_->getDetector(currentDetector)->getZRotation() == 0)
+                {
+                    rowColOrien[0] = "ROW" ;
+                    rowColOrien[3] = "ROW" ;
+                    rowColOrien[1] = "COL" ;
+                    rowColOrien[2] = "COL" ;
+                }
+                else if(theGeometry_->getDetector(currentDetector)->getZRotation() == 90)
+                {
+                    rowColOrien[0] = "COL" ;
+                    rowColOrien[3] = "COL" ;
+                    rowColOrien[1] = "ROW" ;
+                    rowColOrien[2] = "ROW" ;
+                }
+
+                //             QTableWidgetItem * minItem = new QTableWidgetItem(QString(minString));
+                //             coordMinItem->setTextAlignment(Qt::AlignRight);
+                //             QTableWidgetItem * maxItem = new QTableWidgetItem(QString(maxString));
+                //             coordMaxItem->setTextAlignment(Qt::AlignRight);
+                //             w->setItem(currentRow,4,minItem);
+                //             w->setItem(currentRow,5,maxItem);
+
+
+                QTableWidgetItem * detectorItem = new QTableWidgetItem(QString(it->first.c_str()));
+                detectorItem->setFlags(detectorItem->flags() ^ Qt::ItemIsEditable);
+
+                QTableWidgetItem * typeItem = new QTableWidgetItem(QString(rowColOrien[index].c_str()));
+                typeItem->setFlags(typeItem->flags() ^ Qt::ItemIsEditable);
+                typeItem->setTextAlignment(Qt::AlignCenter);
+
+                w->setItem(currentRow,  1,typeItem) ;
+                w->setItem(currentRow++,0,detectorItem);
+            }
+
+            s = QString(orientation[index].c_str()) + QString("Min") ;
+            w->setHorizontalHeaderItem(2,new QTableWidgetItem(s)) ;
+            s = QString(orientation[index].c_str()) + QString("Max") ;
+            w->setHorizontalHeaderItem(3,new QTableWidgetItem(s)) ;
+
+            w->resizeColumnsToContents();
+            w->resizeRowsToContents();
+        }
+    }
+}
+
+//===========================================================================
+void mainTabs::on_residualsTabPagePlaqSelectCB_currentIndexChanged(const QString& plaqSelected)
+{
+    plaqSelected_= plaqSelected.toStdString();
+    if( !ui->residualsTabPagePlaqSelectCB->isEnabled() || residualsType_.size() < 2) return;
     theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-    HManager::stringVDef histoType; //(X[1],Y[2])
-    if(ui->rawAlignmentClusterProfilesRB->isChecked())
+
+    if( ui->detectorsToBeAlignedLW->findItems(plaqSelected,0).first()->isSelected() )
+        ui->trackFitterExcludeDetectorCB->setChecked(true );
+    else
+        ui->trackFitterExcludeDetectorCB->setChecked(false);
+
+    //xProfile
+    TH1* histo  ;
+    TF1* fitFunc;
+    histo = (TH1*)theHManager_->getHistogram(residualsType_[0], plaqSelected_);
+    if ( histo->FindObject("gausFitFunc") )
+    {
+        fitFunc = (TF1*)histo->FindObject("gausFitFunc");
+        ss_.str("");
+        ss_ << fitFunc->GetParameter(0);
+        ui->xResidualMeanLE->setText(QString::fromStdString(ss_.str()));
+        ss_.str("");
+        ss_ << fitFunc->GetParameter(1);
+        ui->xResidualSigmaLE->setText(QString::fromStdString(ss_.str()));
+    }
+    else
+    {
+        ss_.str("");
+        ss_ << histo->GetMean();
+        ui->xResidualMeanLE->setText(QString::fromStdString(ss_.str()));
+        ss_.str("");
+        ss_ << histo->GetRMS();
+        ui->xResidualSigmaLE->setText(QString::fromStdString(ss_.str()));
+    }
+
+    //y Profile
+    histo = (TH1*)theHManager_->getHistogram(residualsType_[1], plaqSelected_);
+    if ( histo->FindObject("gausFitFunc") )
+    {
+        fitFunc = (TF1*)histo->FindObject("gausFitFunc");
+        ss_.str("");
+        ss_ << fitFunc->GetParameter(0);
+        ui->yResidualMeanLE->setText(QString::fromStdString(ss_.str()));
+        ss_.str("");
+        ss_ << fitFunc->GetParameter(1);
+        ui->yResidualSigmaLE->setText(QString::fromStdString(ss_.str()));
+    }
+    else
+    {
+        ss_.str("");
+        ss_ << histo->GetMean();
+        ui->yResidualMeanLE->setText(QString::fromStdString(ss_.str()));
+        ss_.str("");
+        ss_ << histo->GetRMS();
+        ui->yResidualSigmaLE->setText(QString::fromStdString(ss_.str()));
+    }
+
+    residualsManualFitLeftCanvas_->GetCanvas()->cd() ;
+    gStyle->SetOptFit(11);
+    theHManager_->getHistogram(residualsType_[0], plaqSelected_)->Draw() ;
+    residualsManualFitRightCanvas_->GetCanvas()->cd();
+    gStyle->SetOptFit(11);
+    theHManager_->getHistogram(residualsType_[1], plaqSelected_)->Draw();
+
+    residualsManualFitLeftCanvas_ ->GetCanvas()->Modified();
+    residualsManualFitLeftCanvas_ ->GetCanvas()->Update()  ;
+    residualsManualFitRightCanvas_->GetCanvas()->Modified();
+    residualsManualFitRightCanvas_->GetCanvas()->Update()  ;
+}
+
+//==============================================================================
+void mainTabs::on_restoreCalibFilesPB_clicked()
+{
+    QString calibOutputDirectory = getEnvPath("Monicelli_CalSample_Dir");
+    // Pass command to output to text file to calibrationLoader_
+    theCalibrationLoader_->restoreCalibrationFiles(calibOutputDirectory.toStdString());
+}
+
+//=================================================================================================
+void mainTabs::on_saveCalibToROOTPB_clicked()
+{
+    QString calibOutputDirectory = getEnvPath("Monicelli_CalSample_Dir");
+    // Pass command to output to text file to calibrationLoader_
+    theCalibrationLoader_->saveROOTcalibrationFiles(calibOutputDirectory.toStdString());
+}
+
+//==============================================================================
+void mainTabs::on_saveSettingsPB_clicked()
+{
+    string  HOME      = getenv("HOME") ;
+    QString path      = QString(HOME.c_str())+QString("/.config/CMS/") ;
+    QString fileName  = QFileDialog::getSaveFileName(this,"Save settings",path,"Settings files(*.conf)");
+    if (fileName.isEmpty())  return ;
+    STDLINE(fileName.toStdString(),ACWhite) ;
+    QStringList parts = fileName.split(QString("/")) ;
+    fileName          = parts[parts.size()-1] ;
+    fileName          = fileName.replace(QRegularExpression("\\.conf$"),QString("")) ;
+    theSettingsManager_->save(fileName);
+}
+
+//=========================================================================
+void mainTabs::on_saveXMLResultsPB_clicked()
+{
+    QFile xmlFile(ui->xmlGeometryLE->text());
+    if(!xmlFile.exists())
+    {
+        QString msg = "File " + ui->xmlGeometryLE->text() + " doesn't exist. Go in the Geometry tab and click Change to change the xml file with an existing one!";
+        QMessageBox::information(this, tr("Monicelli"), tr(msg.toStdString().c_str()));
+        return;
+    }
+    mainWindow_->editXMLPanel(ui->xmlGeometryLE->text()) ;
+    XMLEditor * theXMLEditor = mainWindow_->getXMLEditor() ;
+
+    for (Geometry::iterator geo=theGeometry_->begin(); geo!=theGeometry_->end(); ++geo)
+    {
+
+        Detector * theDetector = theGeometry_->getDetector( geo->first ) ;
+        double xPosition           = theDetector->getXPosition()           ;
+        double yPosition           = theDetector->getYPosition()           ;
+        double zPosition           = theDetector->getZPosition()           ;
+        double xPositionCorrection = theDetector->getXPositionCorrection() ;
+        double yPositionCorrection = theDetector->getYPositionCorrection() ;
+        double zPositionCorrection = theDetector->getZPositionCorrection() ;
+        double xRotation           = theDetector->getXRotation()           ;
+        double yRotation           = theDetector->getYRotation()           ;
+        double zRotation           = theDetector->getZRotation()           ;
+        double xRotationCorrection = theDetector->getXRotationCorrection() ;
+        double yRotationCorrection = theDetector->getYRotationCorrection() ;
+        double zRotationCorrection = theDetector->getZRotationCorrection() ;
+
+        boost::cmatch what;
+        static const boost::regex exp("Station: (\\d+) - Plaq: (\\d+)", boost::regex::perl);
+
+        int stationId  = -1 ;
+        int detectorId = -1 ;
+
+        if( boost::regex_match(geo->first.c_str(), what, exp, boost::match_extra) )
+        {
+            stationId  = Utils::toInt(what[1]);
+            detectorId = Utils::toInt(what[2]);
+        }
+        else
+        {
+            STDLINE(std::string("Invalid address: ")+geo->first,ACRed) ;
+            assert(0) ;
+        }
+
+        theXMLEditor->setXPosition(stationId,detectorId,xPosition / CONVF) ;
+        theXMLEditor->setYPosition(stationId,detectorId,yPosition / CONVF) ;
+        theXMLEditor->setZPosition(stationId,detectorId,zPosition / CONVF) ;
+        theXMLEditor->setXPositionCorrection(stationId,detectorId,xPositionCorrection     / CONVF) ;
+        theXMLEditor->setYPositionCorrection(stationId,detectorId,yPositionCorrection     / CONVF) ;
+        theXMLEditor->setZPositionCorrection(stationId,detectorId,zPositionCorrection     / CONVF) ;
+        theXMLEditor->setXRotation          (stationId,detectorId,xRotation                 ) ;
+        theXMLEditor->setYRotation          (stationId,detectorId,yRotation                 ) ;
+        theXMLEditor->setZRotation          (stationId,detectorId,zRotation                 ) ;
+        theXMLEditor->setXRotationCorrection(stationId,detectorId,xRotationCorrection       ) ;
+        theXMLEditor->setYRotationCorrection(stationId,detectorId,yRotationCorrection       ) ;
+        theXMLEditor->setZRotationCorrection(stationId,detectorId,zRotationCorrection       ) ;
+    }
+}
+
+//=========================================================================
+void mainTabs::on_selectFilesPB_clicked()
+{
+    QString localPath = this->getEnvPath("Monicelli_RawData_Dir") ;
+    QStringList fileNames = QFileDialog::getOpenFileNames(this,"Merged files",localPath,"Dat Files(*.dat);;Text files (*.txt)");
+    if (fileNames.size() == 0) return  ;
+
+    for(int i=0; i<fileNames.size(); ++i )
+    {
+        ui->selectedFilesLW->insertItem(i,fileNames.at(i)) ;
+    }
+
+    if( ui->geometryLE->text() != QString("") ) ui->reconstructEventsPB->setEnabled(true) ;
+    //  this->ui->maxRawEventsAllCB->setEnabled(true);
+}
+
+//=========================================================================
+void mainTabs::on_selectGeometryPB_clicked()
+{
+    QString localPath = this->getEnvPath("Monicelli_XML_Dir") ;
+    QString fileName = QFileDialog::getOpenFileName(this,"testBeamGeometry files",localPath,"xml Files(*.xml);;geo Files(*.geo)");
+    if (fileName.isEmpty()) return ;
+
+    ui->geometryLE->setText(fileName) ;
+
+    if( ui->selectedFilesLW->count() > 0) ui->reconstructEventsPB->setEnabled(true) ;
+}
+
+//==============================================================================
+void mainTabs::on_selectSettingsPB_clicked()
+{
+    string  HOME      = getenv("HOME") ;
+    QString path      = QString(HOME.c_str())+QString("/.config/CMS/") ;
+    QString fileName  = QFileDialog::getOpenFileName(this,"Saved settings",path,"Settings files(*.conf)");
+    if (fileName.isEmpty())  return ;
+    STDLINE(fileName.toStdString(),ACWhite) ;
+    QStringList parts = fileName.split(QString("/")) ;
+    fileName          = parts[parts.size()-1] ;
+    fileName          = fileName.replace(QRegularExpression("\\.conf$"),QString("")) ;
+    theSettingsManager_->read(fileName);
+}
+
+//===========================================================================
+void mainTabs::on_show3dFittedTracksBeamPB_clicked()
+{
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    std::string histoType = theHManager_->makeFittedTracksBeam(selectedEvents_)[0];
+
+    this->drawAll(eventDisplayLeftCanvas_, histoType, "", "COLZ");
+}
+
+//=========================================================================
+void mainTabs::on_showAdcDistributionsPB_clicked()
+{
+    this->signalNewAction("Building cluster charge distribution plots");
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+    theHManager_->setOperation(&HManager::eventsCycle, &HManager::makeAdcDistributions2);
+    this->launchThread2(theHManager_);
+}
+
+//===============================================================
+void mainTabs::on_showAllPlaqPB_clicked()
+{
+    if(ui->showAllPlaqPB->isChecked())
+    {
+        this->showAllPlaq();
+    }
+}
+
+//=========================================================================
+void mainTabs::on_showBeamSpotPB_clicked()
+{
+    gStyle->SetOptStat(0) ;
+    gStyle->SetOptFit (0) ;
+
+    this->signalNewAction("Show beam spot") ;
+
+    theFileEater_->populate();
+    int pad = 1 ;
+    //std::map<std::string,TH2I*> vetH = theFileEater_->getHistograms() ;
+    vetH_.clear();
+    vetH_ = theFileEater_->getHistograms() ;
+
+    for(std::map<std::string,TH2I*>::iterator hIt=vetH_.begin(); hIt!=vetH_.end(); ++hIt)
+    {
+        mainTabsExpertCanvas_->GetCanvas()->cd(pad++)    ;
+        if( ui->limitZCB->isChecked())
+        {
+            hIt->second->SetMaximum(ui->limitZSB->value()) ;
+        }
+        hIt->second->Draw("COLZ")  ;
+    }
+
+    mainTabsExpertCanvas_->GetCanvas()->Modified() ;
+    mainTabsExpertCanvas_->GetCanvas()->Update()   ;
+    mainTabsExpertCanvas_->GetCanvas()->cd(0)        ;
+
+}
+
+//===========================================================================
+void mainTabs::on_showChi2Distributions_clicked()
+{
+    gStyle->SetOptStat(1111) ;
+    this->launchThread3(theHManager_,this,&mainTabs::showChi2Distributions);
+}
+
+//===========================================================================
+void mainTabs::on_showHitsFreqPB_clicked()
+{
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    HManager::stringVDef histoType;
+    if ( ui->selectClusterRB->isChecked() )
     {
         theHManager_->setSubProcessFunction(&HManager::makeClusterPlots2);
         histoType = theHManager_->eventsCycle();
     }
     else
     {
-        theHManager_->setSubProcessFunction(&HManager::makeBeamSpots2);
+        theHManager_->setSubProcessFunction(&HManager::makeHitsFreq2);
         histoType = theHManager_->eventsCycle();
     }
-    emit mainTabs::processFinished(&mainTabs::rawAlignmentFitCompare_end,histoType);
+
+    this->drawAll(eventDisplayLeftCanvas_, histoType[0]);
 }
-//===========================================================================
+
+//=========================================================================
+void mainTabs::on_showPixelCalibrationPB_clicked()
+{
+    gStyle->SetOptStat(1111) ;
+    gStyle->SetOptFit(111111);
+
+    loadCalibrationMainCanvas_->GetCanvas()->Clear();
+    loadCalibrationMainCanvas_->GetCanvas()->Divide(1,1,0.01,0.01) ;
+    loadCalibrationMainCanvas_->GetCanvas()->cd(1);
+    loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(true);
+    TH1* histo = theCalibrationLoader_->getHistogram(ui->loadCalibrationsTabPagePlaqSelectCB->currentText().toStdString(),
+                                                     ui->calibrationROCSB->value(),
+                                                     ui->calibrationRowSB->value(),
+                                                     ui->calibrationColSB->value());
+    double emin = 1E10 ;
+    double emax =    0 ;
+    for(int bin=1; bin<=histo->GetNbinsX(); bin++)
+    {
+        double b = histo->GetBinContent(bin) ;
+        if( b > 0 && b <  emin ) {emin = b ;}
+        if( b > 0 && b >= emax ) {emax = b ;}
+    }
+    if( ui->optimizeVScaleCB->isChecked())
+    {
+        histo->GetYaxis()->SetRangeUser(emin-emin/20., emax+emax/20.) ;
+    }
+    else
+    {
+        histo->GetYaxis()->SetRangeUser(0, emax+emax/20.) ;
+    }
+
+    histo->Draw();
+
+    if(histo->GetFunction(theFitter_->getCalibrationFitFunctionName()) == 0)
+        return;
+    histo->GetFunction(theFitter_->getCalibrationFitFunctionName())->Draw("same");
+
+    loadCalibrationMainCanvas_->GetCanvas()->Modified();
+    loadCalibrationMainCanvas_->GetCanvas()->Update();
+
+    //    theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString());
+
+    //    //check
+    //    theGeometry_ = theFileEater_->getGeometry();
+    //    for (Geometry::iterator det=theGeometry_->begin(); det!=theGeometry_->end(); ++det)
+    //    {
+    //        for(Detector::iterator roc=(*det).second->begin(); roc!=(*det).second->end(); roc++ )
+    //        {
+    //            ss_.str("") ;
+    //            ss_ << "Detector: " << (*det).first << " rocID: " << (*roc).second->getID() << " roc position " << (*roc).first;
+
+    //            if((*roc).second->getCalibrationFunction(ui->calibrationRowSB->value(),ui->calibrationColSB->value())!=NULL)
+    //                    ss_ << " par0: " << (*roc).second->getCalibrationFunction(ui->calibrationRowSB->value(),ui->calibrationColSB->value())[0];
+    //            else    ss_ << " is empty";
+
+    //            STDLINE(ss_.str(),ACCyan);
+    //        }
+    //    }
+}
+
+//============================================================================
+void mainTabs::on_showSelectedEventsElectronDistribuitionPB_clicked()
+{
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    std::string histoType;
+
+    if( selectedEvents_.empty() )
+    {
+        theHManager_->setOperation(&HManager::eventsCycle,&HManager::makeAdcDistributions2);
+        //histoType = theHManager_->eventsCycle()[1]                ;
+        this->launchThread2(theHManager_);
+    }
+    else
+    {
+        ss_.str("");
+        ss_ << "Electron distributions for " << selectedEvents_.size() << " selected events";
+        STDLINE(ss_.str(), ACGreen);
+        int cSize = -1;
+        if(ui->residualsOnlyClusterSizeCB->isChecked())
+            cSize = ui->residualsOnlyClusterSizeSB->value();
+        histoType = theHManager_->makeElectronDistribution(selectedEvents_, cSize)[0];
+    }
+}
+
+//===========================================================================
+void mainTabs::on_showSlopeDistributions_clicked()
+{
+    this->launchThread3(theHManager_,this,&mainTabs::showSlopeDistributions);
+}
+
+//===========================================================================
+void mainTabs::on_showTrackErrorsOnDut_clicked()
+{
+    this->launchThread3(theHManager_,this,&mainTabs::showTrackErrorsOnDut);
+}
+
+//=========================================================================
+void mainTabs::on_TEMPSHOWTRACKSPB_clicked()
+{
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    Event *theEvent = theFileEater_->getEvent(ui->eventSelectedSpinBox->value());
+
+    HManager::stringVDef xyVec = theHManager_->makeTrackEvent( theEvent );
+
+    //       ui->eventDisplayLeftCanvas->GetCanvas()->Clear();
+    //       ui->eventDisplayLeftCanvas->GetCanvas()->cd();
+    //       theHManager_->getHistogram(xyPair.first)->Draw();
+
+    //       ui->eventDisplayLeftCanvas->GetCanvas()->Clear();
+    //       ui->eventDisplayLeftCanvas->GetCanvas()->cd();
+    //       theHManager_->getHistogram(xyPair.second)->Draw();
+}
+
+//============================================================================
+void mainTabs::on_trackFindAndFitAlignmentPB_clicked()
+{
+    std::string fitMethod  = ui->trackFitAlignmentNameCB ->currentText().toStdString();
+    std::string findMethod = ui->trackFindAlignmentNameCB->currentText().toStdString();
+    if (fitMethod == "Simple")
+        theTrackFitter_->setNumberOfIterations(ui->trackFitterIterationsSB->value());
+    else
+        theTrackFitter_->setNumberOfIterations(0);
+
+    theTrackFitter_->setFitMethodName(fitMethod);
+
+    findAndFitTrack(findMethod, fitMethod);
+}
+
+//===========================================================================
+void mainTabs::on_trackFindAndFitPB_clicked()
+{
+    std::string fitMethod  = ui->trackFitNameCB ->currentText().toStdString();
+    std::string findMethod = ui->trackFindNameCB->currentText().toStdString();
+    theTrackFitter_->setFitMethodName(fitMethod);
+    if (fitMethod == "Simple")
+    {
+        theTrackFitter_->setNumberOfIterations(ui->trackFitterIterationsSB->value());
+    }
+    else
+    {
+        theTrackFitter_->setNumberOfIterations(0);
+        theTrackFitter_->includeResiduals(ui->includeResidualsCB->isChecked());
+    }
+    findAndFitTrack(findMethod, fitMethod);
+}
+
+//============================================================================
+void mainTabs::on_trackFinderFitChi2PB_clicked()
+{
+        STDLINE("Not yet implemented",ACWhite) ;
+}
+
+//============================================================================
+void mainTabs::on_trackFinderFitSlopePB_clicked()
+{
+    this->launchThread3(theHManager_,this,&mainTabs::trackFinderFitSlope);
+}
+
+//===========================================================================
+void mainTabs::on_trackFinderSlopeAlignPB_clicked()
+{
+    if(!theGeometry_) return;
+    ui->trackFinderSlopeAlignPB->setEnabled(false);
+
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    for (Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it)
+    {
+        double xPosition=0, yPosition=0;
+        //xProfile
+        xPosition    = sin( atan( ui->trackFinderXslopeSB->value() ) )*theGeometry_->getDetector( it->first )->getZPositionTotal();
+        //y Profile
+        yPosition    = sin( atan( ui->trackFinderYslopeSB->value() ) )*theGeometry_->getDetector( it->first )->getZPositionTotal();
+
+        if( ui->alignSlopeXCB->isChecked() )
+            theGeometry_->getDetector( it->first )->setXPositionCorrection( theGeometry_->getDetector( it->first )->getXPositionCorrection()+xPosition );
+        if( ui->alignSlopeYCB->isChecked() )
+            theGeometry_->getDetector( it->first )->setYPositionCorrection( theGeometry_->getDetector( it->first )->getYPositionCorrection()+yPosition );
+    }
+    theFileEater_->updateGeometry("geometry");
+    theGeometry_ = theFileEater_->getGeometry();
+    showGeometry();
+    theGeometry_->dump();
+}
+
+//=================================================================================================
+void mainTabs::on_trackFindPB_clicked()
+{
+    std::string findMethod = ui->trackFindNameCB->currentText().toStdString();
+
+    //cout << __PRETTY_FUNCTION__ << "Search Method begin: " << searchMethod << endl;
+
+    findAndFitTrack(findMethod,"");
+}
+
+//===========================================================================
+void mainTabs::on_trackFitNameCB_currentIndexChanged(const QString &arg1)
+{
+    if (arg1 == "Simple")
+    {
+        ui->trackFitterIterationsSB->setEnabled(true );
+        ui->includeResidualsCB     ->setEnabled(false);
+    }
+    else
+    {
+        ui->trackFitterIterationsSB->setEnabled(false);
+        ui->includeResidualsCB     ->setEnabled(true );
+    }
+
+}
+
+//=================================================================================================
+void mainTabs::on_trackFitPB_clicked()
+{
+    std::string fitMethod = ui->trackFitNameCB->currentText().toStdString();
+
+    theTrackFitter_->setFitMethodName(fitMethod);
+    if (fitMethod == "Simple")
+        theTrackFitter_->setNumberOfIterations(ui->trackFitterIterationsSB->value());
+    else
+        theTrackFitter_->setNumberOfIterations(0);
+
+    //cout << __PRETTY_FUNCTION__ << "Fit Method begin:    " << fitMethod << endl;
+    findAndFitTrack("", fitMethod);
+}
+
+//============================================================================
+void mainTabs::on_trackFitterExcludedDetectorsListW_itemSelectionChanged()
+{
+    if ( ui->trackFitterExcludedDetectorsListW->count() - ui->trackFitterExcludedDetectorsListW->selectedItems().count() < 4 && ui->residualsMinPointsCB->isChecked() )
+        ui->trackFitterExcludedDetectorsListW->setSelectionMode(QAbstractItemView::SingleSelection );
+    else
+        ui->trackFitterExcludedDetectorsListW->setSelectionMode(QAbstractItemView::MultiSelection  );
+
+    if ( ui->residualsMinPointsCB->isChecked() )
+        ui->residualsMinPointsSB->setMaximum( ui->trackFitterExcludedDetectorsListW->count() -
+                                              ui->trackFitterExcludedDetectorsListW->selectedItems().count() );
+}
+
+//=========================================================================
+void mainTabs::on_trackFitterExcludeDetectorCB_clicked(bool checked)
+{
+    if(plaqSelected_ == "") return;
+    if(checked)
+    {
+        ui->detectorsToBeAlignedLW->findItems(QString::fromStdString(plaqSelected_),0).first()->setSelected(true );
+        ui->trackFitterSoloDetectorAlignmentCB->setChecked(false                                                 );
+    }
+    else
+        ui->detectorsToBeAlignedLW->findItems(QString::fromStdString(plaqSelected_),0).first()->setSelected(false);
+}
+
+//===========================================================================
+void mainTabs::on_trackFitterFitPB_clicked()
+{
+    gStyle->SetOptFit (1111);
+    gStyle->SetOptStat(11);
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    double lowRange = 0 ;
+    double higRange = 0 ;
+
+    if( !ui->residualFullRangeCB->isChecked() )
+    {
+        lowRange = ui->residualRangeLowCB->currentText().toDouble() ;
+        higRange = ui->residualRangeHigCB->currentText().toDouble() ;
+    }
+
+    if( ui->residualsFitAllCB->isChecked() )
+    {
+        for( Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it )
+        {
+            if( ui->detectorsToBeAlignedLW->findItems(QString::fromStdString((*it).first),0)[0]->isSelected() ) continue;
+            theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(residualsType_[0] , (*it).first ) );
+            theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(residualsType_[1] , (*it).first ) );
+            //            this->drawAll(ui->residualsSynopticViewLeftCanvas , residualsType_.first, "", lowRange, higRange);
+            //            this->drawAll(ui->residualsSynopticViewRightCanvas, residualsType_.second, "", lowRange, higRange);
+        }
+    }
+    else
+    {
+        if( ui->trackFitterMyFitParXCB->isChecked() )
+            theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(residualsType_[0], plaqSelected_),
+                    Utils::toDouble( ui->xResidualMeanLE ->text().toStdString() ) ,
+                    Utils::toDouble( ui->xResidualSigmaLE->text().toStdString() ) ,
+                    ui->xResidualNsigmaSB->value()                                  );
+        //        this->drawAll(ui->residualsSynopticViewLeftCanvas , residualsType_.first, "", lowRange, higRange);
+
+        if( ui->trackFitterMyFitParYCB->isChecked() )
+            theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(residualsType_[1], plaqSelected_),
+                    Utils::toDouble( ui->yResidualMeanLE ->text().toStdString() ) ,
+                    Utils::toDouble( ui->yResidualSigmaLE->text().toStdString() ) ,
+                    ui->yResidualNsigmaSB->value()                                  );
+        //        this->drawAll(ui->residualsSynopticViewRightCanvas, residualsType_.second, "", lowRange, higRange);
+    }
+
+    this->drawAll(residualsSynopticViewLeftCanvas_ , residualsType_[0], "", "", lowRange, higRange);
+    this->drawAll(residualsSynopticViewRightCanvas_, residualsType_[1], "", "", lowRange, higRange);
+
+    //    this->drawAll(ui->residualsSynopticViewLeftCanvas , "Xresiduals", "", "", lowRange, higRange);
+    //    this->drawAll(ui->residualsSynopticViewRightCanvas, "Yresiduals", "", "", lowRange, higRange);
+
+    this->on_residualsTabPagePlaqSelectCB_currentIndexChanged(QString::fromStdString(plaqSelected_));
+}
+
+//=========================================================================
+void mainTabs::on_trackFitterSoloDetectorAlignmentCB_toggled(bool checked)
+{
+    if(plaqSelected_ == "") return;
+
+    if(checked)
+    {
+        ui->detectorsToBeAlignedLW->selectAll();
+        ui->detectorsToBeAlignedLW->findItems(QString::fromStdString(plaqSelected_),0).first()->setSelected(false);
+        ui->trackFitterExcludeDetectorCB->setChecked(false  );
+        ui->residualsTabPagePlaqSelectCB->setEnabled(false);
+    }
+    else
+    {
+        ui->residualsTabPagePlaqSelectCB->setEnabled(true);
+    }
+}
+
+//===========================================================================
+void mainTabs::on_trackFitterWriteAlignmentPB_clicked()
+{
+    if(!theGeometry_) return;
+    ui->trackFitterWriteAlignmentPB->setEnabled(false);
+
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    TF1 *fitFunc;
+    TH1 *histo;
+
+    for (Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it)
+    {
+        if( ui->detectorsToBeAlignedLW->findItems(QString::fromStdString((*it).first),0)[0]->isSelected() ) continue;
+
+        double xPosition=0, xPositionErr=0, yPosition=0, yPositionErr=0;
+
+        //xProfile
+        histo = (TH1*)theHManager_->getHistogram(residualsType_[0] , (*it).first );
+        if ( ui->alignMethodsCB->currentIndex() == 0 )
+        {
+            if ( histo->FindObject("gausFitFunc") )
+            {
+                fitFunc = (TF1*)histo->FindObject("gausFitFunc");
+                xPosition    = fitFunc->GetParameter(0)    ;
+                xPositionErr = fitFunc->GetParameter(1)    ;
+            }
+        }
+        else if ( ui->alignMethodsCB->currentIndex() == 1 )
+        {
+            xPosition    = histo->GetMean()  ;
+            xPositionErr = histo->GetRMS()/2.;
+        }
+
+
+        //y Profile
+        histo = (TH1*)theHManager_->getHistogram(residualsType_[1] , (*it).first );
+        if ( ui->alignMethodsCB->currentIndex() == 0 )
+        {
+            if ( histo->FindObject("gausFitFunc") )
+            {
+                fitFunc = (TF1*)histo->FindObject("gausFitFunc");
+                yPosition    = fitFunc->GetParameter(0)    ;
+                yPositionErr = fitFunc->GetParameter(1)    ;
+            }
+        }
+        else if ( ui->alignMethodsCB->currentIndex() == 1 )
+        {
+            yPosition    = histo->GetMean()  ;
+            yPositionErr = histo->GetRMS()/2.;
+        }
+
+        Detector* det = theGeometry_->getDetector( it->first );
+
+        ss_.str("") ; ss_ << setw(18) << setprecision(14)
+                          <<"Initial parameters for detector: "
+                          << det->getID()
+                          << " xPos = "
+                          << det->getXPositionTotal()
+                          << " +/- "
+                          << det->getXPositionError()
+                          << " yPos = "
+                          << det->getYPositionTotal()
+                          <<" +/- "
+                          << det->getYPositionError();
+        STDLINE(ss_.str(),ACCyan) ;
+
+        det->setXPositionCorrection( det->getXPositionCorrection()+xPosition );
+        det->setXPositionError     ( xPositionErr );
+        det->setYPositionCorrection( det->getYPositionCorrection()+yPosition );
+        det->setYPositionError     ( yPositionErr );
+
+        ss_.str("") ; ss_ << setw(18) << setprecision(14)
+                          <<"Final parameters for detector:   "
+                          << det->getID()
+                          << " xPos = "
+                          << det->getXPositionTotal()
+                          << " +/- "
+                          << det->getXPositionError()
+                          << " yPos = "
+                          << det->getYPositionTotal()
+                          <<" +/- "
+                          << det->getYPositionError();
+        STDLINE(ss_.str(),ACCyan) ;
+    }
+    theFileEater_->updateGeometry("geometry");
+    theGeometry_ = theFileEater_->getGeometry();
+    showGeometry();
+    theGeometry_->dump();
+
+}
+
+//===========================================================================
+void mainTabs::on_unconstrainedResidualsPB_clicked()
+{
+    //cout << __PRETTY_FUNCTION__ << "Button Clicked" << endl;
+
+    this->ui->residualsMonitorTW->setCurrentIndex(0) ;
+
+    if(ui->onlyDetectorsToBeAlignedCB->isChecked())
+    {
+        std::set<std::string> selectedDetectorsList;
+        for(Geometry::iterator git=theGeometry_->begin(); git!=theGeometry_->end(); git++)
+        {
+            if( !ui->detectorsToBeAlignedLW->findItems(QString::fromStdString((*git).first),0)[0]->isSelected() )
+            {
+                selectedDetectorsList.insert( (*git).first );
+            }
+        }
+        theTrackFitter_->setSelectedDetectorsList(selectedDetectorsList);
+    }
+    else theTrackFitter_->clearSelectedDetectorsList();
+
+    theTrackFitter_->setOperation (&trackFitter::makeFittedTracksResiduals                );
+    theFileEater_  ->setOperation (&fileEater::updateEvents2              ,theTrackFitter_);
+    this           ->launchThread2(theFileEater_                                          );
+}
+
+//=========================================================================
+void mainTabs::on_userModeAlignPB_clicked()
+{
+    //    //find tracks with 8 points
+    //    ui->trackFinderTrackPointsCB->setChecked(true);
+    //    ui->trackFinderTrackPointsSB->setValue(8)     ;
+    //    ui->findTrackFirstAndLastPB->click();
+    //    ui->findTrackRoadSearchPB->click();
+    //    //make costrained residuals
+    //    ui->makeFittedTracksDeviationsPB->click();
+    //    //align with histogram mean
+    //    ui->alignMethodsCB->setCurrentIndex(2);
+    //    ui->trackFitterFitPB->click();
+    //    ui->trackFitterWriteAlignmentPB->click();
+    //    //find tracks with 8 points
+    //    ui->trackFinderTrackPointsCB->setChecked(true);
+    //    ui->trackFinderTrackPointsSB->setValue(8)     ;
+    //    //go for the fine alignment
+    //    ui->maxTrialSB->setValue(10);
+    //    //find first and last detector in space
+    //    std::string firstDet = theGeometry_->begin()->first;
+    //    std::string lastDet  = theGeometry_->begin()->first;
+    //    for ( Geometry::iterator det=theGeometry_->begin(); det!=theGeometry_->end(); det++ )
+    //    {
+    //        if ( det->second->isDUT() ) continue;
+    //        if ( det->second->getZPosition() <
+    //             theGeometry->getDetector(firstDet)->getZPosition() )
+    //        {
+    //            firstDet = (*det).first;
+    //            theAligner_->setFixParMap(firstDet , 111111);
+    //        }
+    //        else if ( det->second->getZPosition() >
+    //                  theGeometry->getDetector(lastDet)->getZPosition()  )
+    //        {
+    //            lastDet  = (*det).first;
+    //            theAligner_->setFixParMap(lastDet, 111111);
+    //        }
+    //        else
+    //        {
+    //            theAligner_->setFixParMap(lastDet, 000001);
+    //        }
+    //    }
+
+}
+
+//============================================================================
+void mainTabs::on_writeAlignmentPB_clicked()
+{
+    this->launchThread3(theHManager_,this,&mainTabs::writeAlignment);
+}
+
+//===========================================================================
+void mainTabs::on_writeASCIICB_toggled(bool checked)
+{
+    theFileEater_->setWriteOutASCII(checked);
+    if(checked)
+    {
+        ui->browseOutputFilePB->setEnabled(true ) ;
+        ui->outputFileLE      ->setEnabled(true ) ;
+    }
+    else
+    {
+        ui->browseOutputFilePB->setEnabled(false ) ;
+        ui->outputFileLE      ->setEnabled(false ) ;
+    }
+}
+
+//============================================================================
+void mainTabs::on_writeFineAlignmentResultsPB_clicked()
+{
+    if(!theGeometry_) return;
+
+    ui->writeFineAlignmentResultsPB->setEnabled(false);
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    aligner::alignmentResultsDef alignmentResults = theAligner_->getAlignmentResults();
+
+    for (Geometry::iterator geo=theGeometry_->begin(); geo!=theGeometry_->end(); ++geo)
+    {
+        if( !ui->detectorsTableView->isFixed( geo->first, "Update"  ) ) continue;
+
+        Detector * theDetector = theGeometry_->getDetector( geo->first ) ;
+        double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResults[geo->first].deltaTx;
+        double yPositionCorrection = theDetector->getYPositionCorrection() + alignmentResults[geo->first].deltaTy;
+        double zPositionCorrection = theDetector->getZPositionCorrection() + alignmentResults[geo->first].deltaTz;
+        double xRotationCorrection = theDetector->getXRotationCorrection() + alignmentResults[geo->first].alpha  ;
+        double yRotationCorrection = theDetector->getYRotationCorrection() + alignmentResults[geo->first].beta   ;
+        double zRotationCorrection = theDetector->getZRotationCorrection() + alignmentResults[geo->first].gamma  ;
+
+        theDetector->setXPositionCorrection(xPositionCorrection) ;
+        theDetector->setYPositionCorrection(yPositionCorrection) ;
+        theDetector->setZPositionCorrection(zPositionCorrection) ;
+        theDetector->setXRotationCorrection(xRotationCorrection) ;
+        theDetector->setYRotationCorrection(yRotationCorrection) ;
+        theDetector->setZRotationCorrection(zRotationCorrection) ;
+    }
+
+    theFileEater_->updateGeometry("geometry");
+    theGeometry_ = theFileEater_->getGeometry();
+    showGeometry();
+    theGeometry_->dump();
+}
+
+//===========================================================================
+void mainTabs::openRootFile(QString fileName)
+{
+    for(std::map<std::string,GeometryParameters*>::iterator it =geometryParameters_.begin(); 
+                                                            it!=geometryParameters_.end(); 
+                                                            it++)
+    {
+        ui->geometryDisplayTable->removeRow(0);
+        delete it->second;
+    }
+    geometryParameters_.clear();
+
+    theHManager_->setRunSubDir( theFileEater_->openFile(fileName.toStdString()) );
+    theGeometry_ = theFileEater_->getGeometry();
+    theGeometry_->orderPlanes();
+    theGeometry_->calculatePlaneMCS();
+    theTrackFitter_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
+    theAligner_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
+    showGeometry();
+
+    ui->loadedRootFileLE         ->setText(fileName);
+    ui->geoFileLE                ->setText(fileName.replace(".root",".geo")) ;
+    ui->geometryGeoGeometryFileLE->setText(fileName.replace(".root",".geo")) ;
+    ui->geometryLoadedGeoFileLE  ->setText("No file loaded") ;
+    ui->xmlGeometryLE            ->setText(QString(theGeometry_->getGeometryFileName().c_str())) ;
+
+    ui->showBeamProfilesPB->setText("Beam Profiles") ;
+
+    //to be disabled for a new root file
+    //Calibrations tab
+    ui->calibrationsCalibrationControlsGB  ->setEnabled(false) ;
+//    ui->calibrationsHistogramControlsGB    ->setEnabled(false) ;
+    //Clusters tab
+    ui->findAndSolveClustersPB             ->setEnabled(false) ;
+    //Raw Alignment tab
+    ui->showBeamProfilesPB                 ->setEnabled(false) ;
+    ui->rawAlignmentClusterProfilesRB      ->setEnabled(false) ;
+    ui->rawAlignmentFitAllCB               ->setEnabled(false) ;
+    ui->rawAlignmentFitAllCB               ->setChecked(true ) ;
+    ui->rawAlignmentFitComparePB           ->setEnabled(false) ;
+    ui->rawAlignmentPixelProfilesRB        ->setEnabled(false) ;
+    ui->rawAlignmentTabPagePlaqSelectCB    ->setEnabled(false) ;
+    //Track Finder tab
+    ui->findTracksGB                       ->setEnabled(false) ;
+    ui->slopeDisplayGB                     ->setEnabled(false) ;
+    ui->trackFitEstimatorsGB               ->setEnabled(false) ;
+    // Residuals tab
+    ui->residualsGB                        ->setEnabled(false) ;
+    ui->residualPlotsGB                    ->setEnabled(false) ;
+    //Fine Alignment tab
+    ui->fineAlignmentTrackFinderGB         ->setEnabled(false) ;
+    ui->fineAlignmentAlignmentControlsGB   ->setEnabled(false) ;
+    ui->fineAlignmentCutsGB                ->setEnabled(false) ;
+    ui->fineAlignmentGeometryGB            ->setEnabled(false) ;
+    ui->fineAlignmentGlobalFixGB           ->setEnabled(false) ;
+    ui->detectorsTableView                 ->setEnabled(false) ;
+
+    //DUT Alignment tab
+    ui->dutAlignmentDUTHitsFinderGB        ->setEnabled(false) ;
+    ui->dutAlignmentTracksSelectionGB      ->setEnabled(false) ;
+//  ui->dutAlignmentDutSelectCB            ->setEnabled(false) ;
+
+//  ui->saveCalibToROOTPB                  ->setEnabled(false) ;
+//  ui->detectorsToBeAlignedLW             ->setEnabled(false) ;
+//  ui->eventDisplayDUTListW               ->setEnabled(false) ;
+//  ui->eventDisplayDUTprojectionPB        ->setEnabled(false) ;
+//  ui->eventDisplayShowBeamSpotsPB        ->setEnabled(false) ;
+//  ui->eventDisplayTabPagePlaqSelectCB    ->setEnabled(false) ;
+//  ui->eventSelectedSpinBox               ->setEnabled(false) ;
+//  ui->loadCalibrationsTabPagePlaqSelectCB->setEnabled(false) ;
+//  ui->selectRawEventsRB                  ->setEnabled(false) ;
+//  ui->showAllPlaqPB                      ->setEnabled(false) ;
+//  ui->showHitsFreqPB                     ->setEnabled(false) ;
+//  ui->trackFitterExcludedDetectorsListW  ->setEnabled(false) ;
+//  ui->trackFitterFitPB                   ->setEnabled(false) ;
+//  ui->residualsTabPagePlaqSelectCB       ->setEnabled(false) ;
+//  ui->trackFitterWriteAlignmentPB        ->setEnabled(false) ;
+//  ui->writeAlignmentPB                   ->setEnabled(false) ;
+
+    if( theFileEater_->isRootTreeFile() )
+    {
+        EventHeader* theHeader = 0;
+        //Calibrations tab
+        ui->calibrationsCalibrationControlsGB->setEnabled(true) ;
+        ui->calibrationsHistogramControlsGB  ->setEnabled(true) ;
+        //Clusters tab
+        ui->findAndSolveClustersPB           ->setEnabled(true) ;
+        //Raw Alignment tab
+        ui->showBeamProfilesPB               ->setEnabled(true) ;
+        ui->rawAlignmentPixelProfilesRB      ->setEnabled(true) ;
+
+        if( (theHeader = theFileEater_->getHeader()) != 0)
+        {
+            ui->calLoadedCB                        ->setChecked(theGeometry_->calibrationDone());
+            ui->clustersBuiltCB                    ->setChecked(theHeader->clustersDone()      );
+            ui->tracksFoundCB                      ->setChecked(theHeader->tracksFound()       );
+
+            ui->saveCalibToROOTPB                  ->setEnabled(theGeometry_->calibrationDone());
+            ui->buildPlotsPB                       ->setEnabled(theHeader->clustersDone()      );
+            ui->showAdcDistributionsPB             ->setEnabled(theHeader->clustersDone()      );
+
+            //Raw Alignment tab
+            ui->rawAlignmentClusterProfilesRB      ->setEnabled(theHeader->clustersDone()      );
+            //Track Finder tab
+            ui->findTracksGB                       ->setEnabled(theHeader->clustersDone()      );
+            ui->fineAlignmentTrackFinderGB         ->setEnabled(theHeader->tracksFound()       );
+            ui->slopeDisplayGB                     ->setEnabled(theHeader->tracksFound()       );
+            ui->trackFitEstimatorsGB               ->setEnabled(theHeader->tracksFound()       );
+            //Residuals tab
+            ui->residualsGB                        ->setEnabled(theHeader->tracksFound()       );
+            ui->residualPlotsGB                    ->setEnabled(theHeader->tracksFound()       );
+            //Fine Alignment tab
+            ui->fineAlignmentAlignmentControlsGB   ->setEnabled(theHeader->tracksFound()       );
+            ui->fineAlignmentCutsGB                ->setEnabled(theHeader->tracksFound()       );
+            ui->fineAlignmentMinPointsSelectionCB  ->setEnabled(theHeader->tracksFound()       );
+            ui->fineAlignmentMinPointsSelectionSB  ->setEnabled(theHeader->tracksFound()       );
+            ui->fineAlignmentGeometryGB            ->setEnabled(theHeader->tracksFound()       );
+            ui->fineAlignmentGlobalFixGB           ->setEnabled(theHeader->tracksFound()       );
+            ui->detectorsTableView                 ->setEnabled(theHeader->tracksFound()       );
+            //DUT Alignment tab
+            ui->dutAlignmentDUTHitsFinderGB        ->setEnabled(theHeader->tracksFound()       );
+            ui->dutAlignmentTracksSelectionGB      ->setEnabled(theHeader->tracksFound()       );
+        }
+
+        //to be enabled if the file is a valid root Tree
+//      ui->detectorsToBeAlignedLW             ->setEnabled(true) ;
+//      ui->eventDisplayDUTListW               ->setEnabled(true) ;
+//      ui->eventDisplayDUTprojectionPB        ->setEnabled(true) ;
+//      ui->eventDisplayShowBeamSpotsPB        ->setEnabled(true) ;
+//      ui->eventSelectedSpinBox               ->setEnabled(true) ;
+
+//      ui->loadCalibrationsTabPagePlaqSelectCB->setEnabled(true) ;
+//      ui->selectRawEventsRB                  ->setEnabled(true) ;
+//      ui->showAllPlaqPB                      ->setEnabled(true) ;
+//      ui->showHitsFreqPB                     ->setEnabled(true) ;
+
+        //fill combo boxes with detectors from geometry
+        ui->detectorsTableView                 ->clearTable() ;
+        ui->detectorsToBeAlignedLW             ->clear();
+        ui->dutAlignmentDutSelectCB            ->clear();
+        ui->eventDisplayDUTListW               ->clear();
+        ui->eventDisplayTabPagePlaqSelectCB    ->clear();
+        ui->loadCalibrationsTabPagePlaqSelectCB->clear();
+        ui->rawAlignmentTabPagePlaqSelectCB    ->clear();
+        ui->trackFitterExcludedDetectorsListW  ->clear();
+        ui->residualsTabPagePlaqSelectCB       ->clear();//needs to be always after ui->detectorsToBeAlignedLW
+
+        for(Geometry::iterator it =theGeometry_->begin(); 
+                               it!=theGeometry_->end(); 
+                               it++)
+        {
+            ui->eventDisplayTabPagePlaqSelectCB    ->addItem(QString::fromStdString( it->first ) );
+            ui->loadCalibrationsTabPagePlaqSelectCB->addItem(QString::fromStdString( it->first ) );
+            ui->rawAlignmentTabPagePlaqSelectCB    ->addItem(QString::fromStdString( it->first ) );
+            ui->trackFitterExcludedDetectorsListW  ->addItem(QString::fromStdString( it->first ) );
+            ui->detectorsToBeAlignedLW             ->addItem(QString::fromStdString( it->first ) );
+            ui->residualsTabPagePlaqSelectCB       ->addItem(QString::fromStdString( it->first ) );//needs to be always after ui->detectorsToBeAlignedLW
+            if( (*it).second->isDUT() )
+            {
+                ui->eventDisplayDUTListW           ->addItem(QString::fromStdString( it->first ) );
+                ui->dutAlignmentDutSelectCB        ->addItem(QString::fromStdString( it->first ) );
+            }
+            else
+            {
+                ui->detectorsTableView             ->addDetector(it->first, it->second->getZPosition());
+            }
+        }
+        // Post the table
+        ui->detectorsTableView->post();
+        ui->fixAllZCB->setChecked(true);
+        //fixStrips(1);
+
+        // set geometry dependent widgets
+        ui->residualsMinPointsSB->setMaximum( theGeometry_->getDetectorsNumber() );
+        ui->residualsMinPointsSB->setValue  ( theGeometry_->getDetectorsNumber() );
+
+        // activate combo box and show events
+        //ui->eventDisplayTabPagePlaqSelectCB->setEnabled(true                                                  );
+        //this->on_eventDisplayTabPagePlaqSelectCB_currentIndexChanged(QString::fromStdString(plaqSelected_));
+        ss_.str("");
+        ss_ << theFileEater_->getEventsNumber();
+        ui->totalEventsLE ->setText(QString::fromStdString(ss_.str()));
+        ui->eventsInTreeLE->setText(QString::fromStdString(ss_.str()));
+        ui->eventSelectedSpinBox->setMaximum(theFileEater_->getEventsNumber());
+        //ss_ << " events on file: " ; STDLINE(ss_.str(),ACPurple) ;
+    }
+
+    if( !theHNavigator_ )
+    {
+        STDLINE("No navigator pointer available: requesting it to mainWinow",ACRed) ;
+        theHNavigator_ = mainWindow_->getHNavigator() ;
+    }
+
+    if( theHNavigator_ ) theHNavigator_->addNewFile(fileName) ; // Inform the hNavigator about this new file
+
+}
+
+//==============================================================================
+void mainTabs::optimizePlot(TH2 * histo)
+{
+    double emin = 1E10 ;
+    double emax =    0 ;
+    double mean =    0 ;
+    double Mean =    0 ;
+    double rms  =   20 ;
+    int    n    =    0 ;
+    double z    =    0 ;
+    for(int i=0; i<2; ++i)
+    {
+     n    =    0 ;
+     z    =    0 ;
+     mean =    0 ;
+     emin = 1E10 ;
+     emax =    0 ;
+     for(int binX=1; binX<=histo->GetNbinsX(); binX++)
+     {
+      for(int binY=1; binY<=histo->GetNbinsY(); binY++)
+      {
+       double b = histo->GetBinContent(binX,binY) ;
+       if( b > 0 && b <  emin )  {emin  = b ;}
+       if( b > 0 && b >= emax )  {emax  = b ;}
+       if( i == 0 )
+       {
+        mean += b;
+       }
+       else
+       {
+        if( fabs(Mean - b) < 3*rms ){mean += b ;}
+        else
+        {
+         ss_.str(""); ss_ << "Excluding ["
+                          << binX
+                          << ","
+                          << binY
+                          << "] = "
+                          << b
+                          << " mean: "
+                          << mean
+                          << " Mean: "
+                          << Mean ;
+//         STDLINE(ss_.str(),ACWhite) ;
+        }
+       }
+       n++ ;
+      }
+     }
+     mean /= float(n) ;
+     Mean  = mean ;
+     for(int binX=1; binX<=histo->GetNbinsX(); binX++)
+     {
+       for(int binY=1; binY<=histo->GetNbinsY(); binY++)
+       {
+         double b = histo->GetBinContent(binX,binY) ;
+         if( fabs(Mean - b) < 3*rms ){z += (b-mean)*(b-mean) ;}
+       }
+     }
+     rms = sqrt(z/float(n)) ;
+     ss_.str(""); ss_ << "mean: "
+                      << mean
+                      << " (Mean: "
+                      << Mean
+                      << ") and RMS: "
+                      << rms
+                      << " (emin: "
+                      << emin
+                      << ")" ;
+//     STDLINE(ss_.str(),ACWhite) ;
+     ss_.str(""); ss_ << "From "
+                      << emin
+                      << " to "
+                      << mean + rms ;
+//     STDLINE(ss_.str(),ACWhite) ;
+    }
+
+    if( ui->optimizeVScaleCB->isChecked())
+    {
+        histo->GetZaxis()->SetRangeUser(emin, mean + 5*rms) ;
+    }
+    else
+    {
+        histo->GetZaxis()->SetRangeUser(0, emax+emax/20.) ;
+    }
+}
+
+//=========================================================================
+void mainTabs::on_rawAlignmentFitComparePB_clicked()
+{
+    this->launchThread3(theHManager_,this,&mainTabs::rawAlignmentFitCompare);
+}
+
+//=========================================================================
 void mainTabs::rawAlignmentFitCompare_end(HManager::stringVDef histoType)
 {
     TF1   *fitFunc ;
@@ -2025,12 +3895,372 @@ void mainTabs::rawAlignmentFitCompare_end(HManager::stringVDef histoType)
     rawAlignmentRightCanvas_->GetCanvas()->Modified() ;
     rawAlignmentRightCanvas_->GetCanvas()->Update()   ;
 }
-//==============================================================================
-void mainTabs::on_writeAlignmentPB_clicked()
+
+//=======================================================================
+void mainTabs::selectedCanvasObjectManager(TObject *,unsigned int,TCanvas *)
 {
-    this->launchThread3(theHManager_,this,&mainTabs::writeAlignment);
+    /* // ToROOT6
+    TQtWidget *tipped = (TQtWidget *)sender();
+    ss_.str("");
+    ss_ << obj->ClassName();
+    std::string className = ss_.str();
+    ss_.str("");
+    ss_ << obj->GetName();
+    std::string objName = ss_.str();
+    const char* objInfo = obj->GetObjectInfo(tipped->GetEventX(),tipped->GetEventY());
+
+    int binx=0,biny=0,binc=0;
+    ss_.str("");
+    ss_ << "\\(x=(\\d+)"            //[1]  x integer part
+        << "\\.?(\\d+)"          //[2]  x decimal part
+        << ",\\s+y=(\\d+)?"       //[3]  y integer part
+        << "\\.?(\\d+)?"         //[4]  y decimal part
+        << ",\\s+binx=(\\d+)"    //[5]  binx
+        << ",\\s+biny=(\\d+)"    //[6]  biny
+        << ",\\s+bin\\w=(\\d+).+"; //[7]  binc
+
+    boost::cmatch what;
+    static const boost::regex info(ss_.str().c_str(), boost::regex::perl);
+    if( boost::regex_match(objInfo, what, info, boost::match_extra) )
+    {
+        binx = Utils::toInt(what[5]);
+        biny = Utils::toInt(what[6]);
+        binc = Utils::toInt(what[7]);
+    }
+
+    TAxis *axis = NULL ;
+    if ( className == "TAxis" ) axis = (TAxis*)obj;
+    TH2I  *th2i;
+    if ( className == "TH2I"  ) th2i = (TH2I *)obj;
+
+    std::stringstream tipText;
+    tipText << "You have "   ;
+
+
+    if (event == kButton1Down)
+    {
+        tipText << "LEFT CLICKED";
+    }
+    if (event == kButton1Double)
+    {
+        tipText << "DOUBLE LEFT CLICKED";
+        if ( tipped == ui->eventDisplayLeftCanvas )
+        {
+            if ( className == "TAxis" ) this->setLogAxis(tipped, objName);//set log axis on double click
+        }
+    }
+    if (event == kButton2Down)
+    {
+        tipText << "WHEEL CLICKED";
+        if ( className == "TAxis" ) { axis->UnZoom(); }
+        if ( className == "TH2I"  )
+        {
+//          STDLINE("TH2I",ACRed) ;
+//          ss_.str("");
+//          double leftB,rightB;
+//          if( (binx-th2i->GetXaxis()->GetFirst()) < (th2i->GetXaxis()->GetLast()-binx) )
+//          {
+//            leftB  = th2i->GetXaxis()->GetFirst() + 1.*( binx - th2i->GetXaxis()->GetFirst() ) / ZOOMFACTOR;
+//            rightB = th2i->GetXaxis()->GetLast()  - 2.*( th2i->GetXaxis()->GetLast() - binx  ) / leftB     ;
+//          }
+//          else
+//          {
+//            rightB  = th2i->GetXaxis()->GetLast()  - 1.*( th2i->GetXaxis()->GetLast() -binx   ) / ZOOMFACTOR;
+//            leftB   = th2i->GetXaxis()->GetFirst() + 2.*( binx - th2i->GetXaxis()->GetFirst()  ) / rightB    ;
+//          }
+//          ss_<< th2i->GetXaxis()->GetLast();
+//          STDLINE(ss_.str(),ACRed) ;
+//          th2i->GetXaxis()->SetRange((int)leftB,100);
+//          ss_<< th2i->GetXaxis()->GetLast();
+//          STDLINE(ss_.str(),ACGreen) ;
+//          th2i->GetXaxis()->SetRange((int)leftB,20);
+
+//          double downB,upB;
+//          ss_.str("");
+//          if( (biny-th2i->GetYaxis()->GetFirst()) < (th2i->GetYaxis()->GetLast()-biny ) )
+//          {
+//            downB  = th2i->GetYaxis()->GetFirst() + 1.*( biny - th2i->GetYaxis()->GetFirst() ) / ZOOMFACTOR;
+//            upB = th2i->GetYaxis()->GetLast()  - 2.*( th2i->GetYaxis()->GetLast()-biny  ) / downB     ;
+//          }
+//          else
+//          {
+//            upB  = th2i->GetYaxis()->GetLast()  - 1.*( th2i->GetYaxis()->GetLast()-biny   ) / ZOOMFACTOR;
+//            downB   = th2i->GetYaxis()->GetFirst() + 2.*( biny - th2i->GetYaxis()->GetFirst()  ) / upB    ;
+//          }
+//          th2i->GetYaxis()->SetRange((int)downB,(int)upB);
+//          ss_ << downB << " = " << upB;
+//          STDLINE(ss_.str(),ACGreen) ;
+        }
+    }
+
+    //    tipText << " the object <" << obj->GetName() << "> of class " << obj->ClassName()
+    //            << " : " << obj->GetObjectInfo(tipped->GetEventX(),tipped->GetEventY()) << "\n"
+    //            << "This object belongs to " <<  tipped->objectName().toStdString();
+    //    STDLINE(tipText.str(),ACCyan) ;
+*/ // ToROOT6
 }
-//==============================================================================
+
+//==============================================================================
+void mainTabs::setAlignmentBoxes(const QString alignmentMethod)
+{
+    std::string alignmentMethodString = alignmentMethod.toUtf8().constData();
+    if (alignmentMethodString == "Kalman")
+    {
+        ui->fineTrackFitterIterationsSB->setEnabled(false);
+        fixStrips(1);
+    }
+    else if (alignmentMethodString == "Simple")
+    {
+        ui->fineTrackFitterIterationsSB->setEnabled(true);
+        //ui->detectorsTableView->enableAll(1);
+        fixStrips(0);
+    }
+
+}
+
+//===========================================================================
+void mainTabs::setCBslopeLimits(TObject *obj,unsigned int event,TCanvas *)
+{
+    QWidget *tipped = (QWidget *)sender();
+    ss_.str("");
+    ss_ << obj->ClassName();
+    std::string className = ss_.str();
+    ss_.str("");
+    ss_ << obj->GetName();
+    std::string objName = ss_.str();
+
+    std::stringstream tipText;
+    tipText << "You have "   ;
+
+    if (event == kButton1Up)
+    {
+        tipText << "MouseRelease";
+        if ( className == "TAxis" && objName == "xaxis")
+        {
+            TAxis *axis = (TAxis*)obj;
+
+            if ( tipped == ui->trackFinderLeftCanvas )
+            {
+                ui->xLowerSlopeLimitSB ->setValue( axis->GetBinLowEdge( axis->GetFirst() ) );
+                ui->xHigherSlopeLimitSB->setValue( axis->GetBinUpEdge ( axis->GetLast()  ) );
+            }
+            if ( tipped == ui->trackFinderRightCanvas )
+            {
+                ui->yLowerSlopeLimitSB ->setValue( axis->GetBinLowEdge( axis->GetFirst() ) );
+                ui->yHigherSlopeLimitSB->setValue( axis->GetBinUpEdge ( axis->GetLast()  ) );
+            }
+        }
+    }
+}
+
+//=========================================================================
+void mainTabs::setLogAxis(QRootCanvas * where, std::string axis) // ToROOT6
+{
+    if (axis == "xaxis")
+    {
+        if ( where->GetCanvas()->GetSelectedPad()->GetLogx() )
+             where->GetCanvas()->GetSelectedPad()->SetLogx(0);
+        else
+             where->GetCanvas()->GetSelectedPad()->SetLogx(1);
+    }
+    if (axis == "yaxis")
+    {
+        if ( where->GetCanvas()->GetSelectedPad()->GetLogy() )
+             where->GetCanvas()->GetSelectedPad()->SetLogy(0);
+        else
+             where->GetCanvas()->GetSelectedPad()->SetLogy(1);
+    }
+    if (axis == "zaxis")
+    {
+        if ( where->GetCanvas()->GetSelectedPad()->GetLogz() )
+             where->GetCanvas()->GetSelectedPad()->SetLogz(0);
+        else
+             where->GetCanvas()->GetSelectedPad()->SetLogz(1);
+    }
+}
+
+//=========================================================================
+void mainTabs::showAllPlaq()
+{
+    if(ui->selectRawEventsRB->isChecked())
+    {
+        this->drawAll(eventDisplayLeftCanvas_, "rawEvent", "", "COLZ");
+    }
+    if(ui->selectClusterRB->isChecked())
+    {
+        this->drawAll(eventDisplayLeftCanvas_, "clusterEvent", "", "COLZ");
+    }
+}
+
+//==============================================================================
+void mainTabs::on_setLimitsMakePlotPB_clicked()
+{
+    int                currentIndex    = ui->plotTabW->currentIndex();
+    string             currentFolder   = folderMap_[currentIndex];
+    QTableWidget     * currentTable    = tableMap_[currentIndex];
+    string             currentDetector = currentTable->item(currentTable->currentRow(),0)->text().toStdString();
+
+    TH1D * h = (TH1D*)theHManager_->getHistogram(currentFolder,currentDetector);
+    setLimitsOnResidualsvsCoordinateCanvas_->GetCanvas()->cd();
+    h->Draw();
+    setLimitsOnResidualsvsCoordinateCanvas_->GetCanvas()->Update();
+
+}
+
+//===========================================================================
+void mainTabs::on_showBeamProfilesPB_clicked()
+{
+    this->launchThread3(theHManager_, this, &mainTabs::showBeamProfiles);
+}
+
+//===========================================================================
+void mainTabs::swapParseButtonText(bool parsing)
+{
+    if( parsing )
+    {
+        ui->parseFilePB       ->setEnabled(false) ;
+        ui->abortActionPB     ->setEnabled(true ) ;
+        ui->eatFilePB         ->setEnabled(false) ;
+        ui->loadGeometryPB    ->setEnabled(false) ;
+        ui->writeASCIICB      ->setEnabled(false) ;
+        ui->browseOutputFilePB->setEnabled(false) ;
+        ui->outputFileLE      ->setEnabled(false) ;
+        ui->showBeamSpotPB    ->setEnabled(false) ;
+        ui->maxRawEventsCB    ->setEnabled(false) ;
+        ui->maxRawEventsSB    ->setEnabled(false) ;
+    }
+    else
+    {
+        ui->parseFilePB       ->setEnabled(true ) ;
+        ui->abortActionPB     ->setEnabled(false) ;
+        ui->eatFilePB         ->setEnabled(true );
+        ui->loadGeometryPB    ->setEnabled(true );
+        ui->maxRawEventsCB    ->setEnabled(true );
+        ui->maxRawEventsSB    ->setEnabled(true );
+
+        if(ui->loadedFileLE->text().endsWith(".dat"))
+        {
+            ui->writeASCIICB        ->setEnabled(true ) ;
+            if(ui->writeASCIICB     ->isChecked (     ))
+            {
+                ui->browseOutputFilePB->setEnabled(true ) ;
+                ui->outputFileLE      ->setEnabled(true ) ;
+            }
+        }
+    }
+}
+
+//=========================================================================
+void mainTabs::showBeamProfiles()
+{
+    theHManager_->restrictSearch(ui->restrictSearchCB->isChecked());
+
+    bool redo = (ui->showBeamProfilesPB->text() == "Fit")? false:true;
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+
+    HManager::stringVDef histoType; // (X[1],Y[2])
+    if(ui->rawAlignmentClusterProfilesRB->isChecked())
+    {
+        theHManager_->setSubProcessFunction(&HManager::makeClusterPlots2,redo);
+        histoType = theHManager_->eventsCycle();
+    }
+    else
+    {
+        theHManager_->setSubProcessFunction(&HManager::makeBeamSpots2,redo);
+        histoType = theHManager_->eventsCycle();
+    }
+    emit mainTabs::processFinished(&mainTabs::showBeamProfiles_end, histoType);
+}
+//==========================================================================
+void mainTabs::showBeamProfiles_end(HManager::stringVDef histoType)
+{
+    gStyle->SetOptStat(1111);
+
+    if ( ui->rawAlignmentTabPagePlaqSelectCB->isEnabled() )
+    {
+        if( ui->rawAlignmentFitAllCB->isChecked() )
+        {
+            int  pad   = 1;
+            TH1* histo = 0;
+            for( Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it, pad++ )
+            {
+                histo = (TH1*) theHManager_->getHistogram(histoType[1], (*it).first );
+                theFitter_->gaussFit( histo );
+                rawAlignmentSynpoticLeftCanvas_->GetCanvas()->cd(pad)->Modified() ;
+                rawAlignmentSynpoticLeftCanvas_->GetCanvas()->cd(pad)->Update() ;
+
+                histo = (TH1*) theHManager_->getHistogram(histoType[2], (*it).first );
+                theFitter_->gaussFit( histo );
+                rawAlignmentSynpoticRightCanvas_->GetCanvas()->cd(pad)->Modified();
+                rawAlignmentSynpoticRightCanvas_->GetCanvas()->cd(pad)->Update();
+            }
+        }
+        else
+        {
+            if( !ui->rawAlignmentMyFitParXCB->isChecked() )
+                theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[1], plaqSelected_ )  );
+            else
+                theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[1], plaqSelected_ ),
+                                             Utils::toDouble( ui->xProfileMeanLE ->text().toStdString()),
+                                             Utils::toDouble( ui->xProfileSigmaLE->text().toStdString()),
+                                             ui->xProfileNsigmaSB->value()                             );
+
+            if( !ui->rawAlignmentMyFitParYCB->isChecked() )
+                theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[2], plaqSelected_ )  );
+            else
+                theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(histoType[2], plaqSelected_ ),
+                                             Utils::toDouble( ui->yProfileMeanLE ->text().toStdString()),
+                                             Utils::toDouble( ui->yProfileSigmaLE->text().toStdString()),
+                                             ui->xProfileNsigmaSB->value()                             );
+        }
+        ui->writeAlignmentPB        ->setEnabled(true);
+        ui->rawAlignmentFitComparePB->setEnabled(true);
+    }
+
+    //Draw histograms
+    gStyle->SetOptFit(0);
+    this->drawAll(rawAlignmentSynpoticLeftCanvas_ , histoType[1]);
+    this->drawAll(rawAlignmentSynpoticRightCanvas_, histoType[2]);
+
+    ui->showBeamProfilesPB->setText("Fit")               ;
+    ui->showBeamProfilesPB->update()                     ;
+    ui->rawAlignmentTabPagePlaqSelectCB->setEnabled(true);
+    ui->rawAlignmentFitAllCB->setEnabled(true)           ;
+    emit mainTabs::on_rawAlignmentTabPagePlaqSelectCB_currentIndexChanged(ui->rawAlignmentTabPagePlaqSelectCB->currentText());
+    STDLINE("Profiles fits done",ACPurple) ;
+}
+//=========================================================================
+void mainTabs::swapRawAlignmentFitCBs(bool checked)
+{
+    if (checked)
+    {
+        if ( sender() == (QObject*)ui->rawAlignmentFitAllCB )
+        {
+            ui->rawAlignmentMyFitParXCB->setChecked(false);
+            ui->rawAlignmentMyFitParYCB->setChecked(false);
+        }
+        else ui->rawAlignmentFitAllCB->setChecked(false);
+    }
+}
+//=========================================================================
+void mainTabs::rawAlignmentFitCompare()
+{
+    //bool redo = (ui->showBeamProfilesPB->text() == "Fit")? false:true;
+    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
+    HManager::stringVDef histoType; //(X[1],Y[2])
+    if(ui->rawAlignmentClusterProfilesRB->isChecked())
+    {
+        theHManager_->setSubProcessFunction(&HManager::makeClusterPlots2);
+        histoType = theHManager_->eventsCycle();
+    }
+    else
+    {
+        theHManager_->setSubProcessFunction(&HManager::makeBeamSpots2);
+        histoType = theHManager_->eventsCycle();
+    }
+    emit mainTabs::processFinished(&mainTabs::rawAlignmentFitCompare_end,histoType);
+}
+//============================================================================
 void mainTabs::writeAlignment()
 {
     //bool redo = (ui->showBeamProfilesPB->text() == "Fit")? false:true;
@@ -2048,7 +4278,7 @@ void mainTabs::writeAlignment()
         }
     emit mainTabs::processFinished(&mainTabs::writeAlignment_end,histoType);
 }
-//==============================================================================
+//============================================================================
 void mainTabs::writeAlignment_end(HManager::stringVDef histoType)
 {
     if(!theGeometry_) return;
@@ -2121,7 +4351,7 @@ void mainTabs::writeAlignment_end(HManager::stringVDef histoType)
     showGeometry();
     theGeometry_->dump();
 }
-//==============================================================================
+//============================================================================
 void mainTabs::swapBeamProfilesHistograms(bool toggled)
 {
     if(toggled)
@@ -2134,196 +4364,16 @@ void mainTabs::swapBeamProfilesHistograms(bool toggled)
     }
 }
 
-//=============================================================================
+//===========================================================================
 //------------------------------------------TRACK FINDER TAB-------------------
-//=============================================================================
-void mainTabs::on_trackFitNameCB_currentIndexChanged(const QString &arg1)
-{
-    if (arg1 == "Simple")
-    {
-        ui->trackFitterIterationsSB->setEnabled(true );
-        ui->includeResidualsCB     ->setEnabled(false);
-    }
-    else
-    {
-        ui->trackFitterIterationsSB->setEnabled(false);
-        ui->includeResidualsCB     ->setEnabled(true );
-    }
-
-}
-
-//=============================================================================
-void mainTabs::on_trackFindAndFitPB_clicked()
-{
-    std::string fitMethod  = ui->trackFitNameCB ->currentText().toStdString();
-    std::string findMethod = ui->trackFindNameCB->currentText().toStdString();
-    theTrackFitter_->setFitMethodName(fitMethod);
-    if (fitMethod == "Simple")
-    {
-        theTrackFitter_->setNumberOfIterations(ui->trackFitterIterationsSB->value());
-    }
-    else
-    {
-        theTrackFitter_->setNumberOfIterations(0);
-        theTrackFitter_->includeResiduals(ui->includeResidualsCB->isChecked());
-    }
-    findAndFitTrack(findMethod, fitMethod);
-}
-
-//===================================================================================================
-void mainTabs::on_trackFitPB_clicked()
-{
-    std::string fitMethod = ui->trackFitNameCB->currentText().toStdString();
-
-    theTrackFitter_->setFitMethodName(fitMethod);
-    if (fitMethod == "Simple")
-        theTrackFitter_->setNumberOfIterations(ui->trackFitterIterationsSB->value());
-    else
-        theTrackFitter_->setNumberOfIterations(0);
-
-    //cout << __PRETTY_FUNCTION__ << "Fit Method begin:    " << fitMethod << endl;
-    findAndFitTrack("", fitMethod);
-}
-
-//===================================================================================================
-void mainTabs::on_trackFindPB_clicked()
-{
-    std::string findMethod = ui->trackFindNameCB->currentText().toStdString();
-
-    //cout << __PRETTY_FUNCTION__ << "Search Method begin: " << searchMethod << endl;
-
-    findAndFitTrack(findMethod,"");
-}
-
-//=============================================================================
-void mainTabs::findAndFitTrack(std::string findMethod, std::string fitMethod)
-{
-    if(fitMethod == "")//it is just a search
-    {
-        ss_.str(""); ss_ << "Track finding procedure started"; STDLINE(ss_.str(),ACPurple) ;
-        ui->parsingActivityLB->setText(tr("Finding tracks...")) ;
-    }
-    else if(findMethod == "")//it is just a fit
-    {
-        ss_.str(""); ss_ << "Track fitting procedure started"; STDLINE(ss_.str(),ACPurple) ;
-        ui->parsingActivityLB->setText(tr("Fitting tracks...")) ;
-    }
-    else
-    {
-        ss_.str(""); ss_ << "Track finding and fitting procedure started"; STDLINE(ss_.str(),ACPurple) ;
-        ui->parsingActivityLB->setText(tr("Finding and fitting tracks...")) ;
-    }
-
-    double chi2Cut = -1 ;
-    if( ui->trackFinderChi2cutCB    ->isChecked() ) chi2Cut        = ui->trackFinderChi2cutSB->value() ;
-
-    double trackPoints = -1;
-    if( ui->trackFinderTrackPointsCB->isChecked() ) trackPoints    = ui->trackFinderTrackPointsSB->value();
-
-    double maxPlanePoints = -1;
-    if( ui->trackFinderPlanePointsCB->isChecked() ) maxPlanePoints = ui->trackFinderPlanePointsSB->value();
-
-    /*
-    theFileEater_->setTolerances(ui->xRoadToleranceSB->value()*(1e-4)*CONVF,
-                                 ui->yRoadToleranceSB->value()*(1e-4)*CONVF,
-                                 trackPoints                               ,
-                                 chi2Cut                                   ,
-                                 ui->includeDUTfindCB->isChecked()          );
-*/
-    theTrackFinder_->setTrackSearchParameters(ui->xRoadToleranceSB->value()*(1e-4)*CONVF,
-                                              ui->yRoadToleranceSB->value()*(1e-4)*CONVF,
-                                              chi2Cut                                   ,
-                                              trackPoints                               ,
-                                              maxPlanePoints                            );
-
-    theTrackFinder_->setTrackingOperationParameters(findMethod,
-                                                    fitMethod ,
-                                                    ui->includeDUTfindCB->isChecked());
-    theFileEater_  ->setOperation(&fileEater::updateEvents2,theTrackFinder_);
-    theTrackFinder_->setOperation(&trackFinder::findAndFitTracks);
-    STDLINE("Launching theFileEater_...",ACPurple) ;
-    this->launchThread2(theFileEater_);
-//    this->launchThread3(theFileEater_,this,&mainTabs::updateGUI);
-}
-
-//=============================================================================
-void mainTabs::launchThread2(process * theProcess)
-{
-    if(theThreader_->isRunning())
-    {
-        process * activeProcess = theThreader_->getCurrentProcess();
-        ss_.str("");
-        ss_ << "WARNING: action temporarily disabled, "
-            << activeProcess->getLabel()
-            << " is running";
-        STDLINE(ss_.str(),ACRed);
-        return ;
-    }
-
-    ui->abortActionPB->setEnabled(true) ;
-
-    ui->parseProgressBar->reset();
-    ui->parseProgressBar->setMaximum(theProcess->getMaxIterations());
-
-    theThreader_->setProcess(theProcess);
-    theBenchmark_     = new TBenchmark();
-    theThreadProcess_ = theProcess->getLabel() ;
-    theBenchmark_->Start(theThreadProcess_.c_str());
-    theThreader_ ->start();
-
-    ss_.str("");
-    ss_ << theProcess->getLabel() << " process is running...";
-    ui->parsingActivityLB->setText(QString::fromStdString(ss_.str()));
-    STDLINE(ss_.str(),ACGreen);
-
-    timer2_->start(50) ;
-}
-//=============================================================================
+//===========================================================================
 void mainTabs::updateGUI(void)
 {
     Event::fittedTracksDef tracks = theTrackFitter_->getTracks();
     STDLINE(tracks.size(),ACCyan) ;
 }
 
-//=============================================================================
-template<class Class> void mainTabs::launchThread3(process * theProcess, Class * object, void (Class::*fn)())
-{
-    if(theThreader_->isRunning())
-    {
-        process * activeProcess = theThreader_->getCurrentProcess();
-        ss_.str("");
-        ss_ << "WARNING: action temporarily disabled, "
-            << activeProcess->getLabel()
-            << " is running";
-        STDLINE(ss_.str(),ACRed);
-        return ;
-    }
-
-    ui->abortActionPB->setEnabled(true) ;
-
-    ui->parseProgressBar->reset();
-    ui->parseProgressBar->setMaximum(theProcess->getMaxIterations());
-
-    theThreader_->setProcess(theProcess);
-    theBenchmark_     = new TBenchmark();
-    theThreadProcess_ = theProcess->getLabel() ;
-    theBenchmark_->Start    (theThreadProcess_.c_str()   );
-    theThreader_ ->setFuture(QtConcurrent::run(object,fn));
-
-    ss_.str("");
-    ss_ << theProcess->getLabel() << " process is running...";
-    ui->parsingActivityLB->setText(QString::fromStdString(ss_.str()));
-    STDLINE(ss_.str(),ACGreen);
-
-    timer2_->start(50) ;
-}
-//=============================================================================
-void mainTabs::on_showChi2Distributions_clicked()
-{
-    gStyle->SetOptStat(1111) ;
-    this->launchThread3(theHManager_,this,&mainTabs::showChi2Distributions);
-}
-//=============================================================================
+//===========================================================================
 void mainTabs::showChi2Distributions()
 {
     theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
@@ -2332,7 +4382,7 @@ void mainTabs::showChi2Distributions()
     HManager::stringVDef histoPaths = theHManager_->eventsCycle();
     emit mainTabs::processFinished(&mainTabs::showChi2Distributions_end, histoPaths);
 }
-//=============================================================================
+//===========================================================================
 void mainTabs::showChi2Distributions_end(HManager::stringVDef histoPaths)
 {
     redoChi2_ = false;
@@ -2341,12 +4391,7 @@ void mainTabs::showChi2Distributions_end(HManager::stringVDef histoPaths)
     trackFinderLeftCanvas_->GetCanvas()->Modified();
     trackFinderLeftCanvas_->GetCanvas()->Update();
 }
-//=============================================================================
-void mainTabs::on_showTrackErrorsOnDut_clicked()
-{
-    this->launchThread3(theHManager_,this,&mainTabs::showTrackErrorsOnDut);
-}
-//=============================================================================
+//===========================================================================
 void mainTabs::showTrackErrorsOnDut()
 {
     STDLINE("Computing predicted error distibution on DUT(s)",ACCyan);
@@ -2357,7 +4402,7 @@ void mainTabs::showTrackErrorsOnDut()
     HManager::stringVDef histoPaths = theHManager_->eventsCycle();
     emit mainTabs::processFinished(&mainTabs::showTrackErrorsOnDut_end, histoPaths);
 }
-//=============================================================================
+//===========================================================================
 void mainTabs::showTrackErrorsOnDut_end(HManager::stringVDef xyHList)
 {
     std::vector<Detector*> DUTs = theGeometry_->getDUTs();
@@ -2383,12 +4428,7 @@ void mainTabs::showTrackErrorsOnDut_end(HManager::stringVDef xyHList)
     trackFinderRightCanvas_->GetCanvas()->Modified();
     trackFinderRightCanvas_->GetCanvas()->Update();
 }
-//=============================================================================
-void mainTabs::on_showSlopeDistributions_clicked()
-{
-    this->launchThread3(theHManager_,this,&mainTabs::showSlopeDistributions);
-}
-//=============================================================================
+//===========================================================================
 void mainTabs::showSlopeDistributions()
 {
     theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
@@ -2397,7 +4437,7 @@ void mainTabs::showSlopeDistributions()
     HManager::stringVDef xyStringVec = theHManager_->eventsCycle();
     emit mainTabs::processFinished(&mainTabs::showSlopeDistributions_end, xyStringVec);
 }
-//=============================================================================
+//===========================================================================
 void mainTabs::showSlopeDistributions_end(HManager::stringVDef xyStringVec)
 {
     gStyle->SetOptStat(1111);
@@ -2444,83 +4484,7 @@ void mainTabs::showSlopeDistributions_end(HManager::stringVDef xyStringVec)
     ui->trackFinderFitSlopePB->setEnabled(true);
     ui->applySlopeLimitsPB->setEnabled(true)   ;
 }
-//=============================================================================
-void mainTabs::on_applySlopeLimitsPB_clicked()
-{
-    this->on_showSlopeDistributions_clicked();
-}
-//=============================================================================
-void mainTabs::setCBslopeLimits(TObject *obj,unsigned int event,TCanvas *)
-{
-    QWidget *tipped = (QWidget *)sender();
-    ss_.str("");
-    ss_ << obj->ClassName();
-    std::string className = ss_.str();
-    ss_.str("");
-    ss_ << obj->GetName();
-    std::string objName = ss_.str();
-
-    std::stringstream tipText;
-    tipText << "You have "   ;
-
-    if (event == kButton1Up)
-    {
-        tipText << "MouseRelease";
-        if ( className == "TAxis" && objName == "xaxis")
-        {
-            TAxis *axis = (TAxis*)obj;
-
-            if ( tipped == ui->trackFinderLeftCanvas )
-            {
-                ui->xLowerSlopeLimitSB ->setValue( axis->GetBinLowEdge( axis->GetFirst() ) );
-                ui->xHigherSlopeLimitSB->setValue( axis->GetBinUpEdge ( axis->GetLast()  ) );
-            }
-            if ( tipped == ui->trackFinderRightCanvas )
-            {
-                ui->yLowerSlopeLimitSB ->setValue( axis->GetBinLowEdge( axis->GetFirst() ) );
-                ui->yHigherSlopeLimitSB->setValue( axis->GetBinUpEdge ( axis->GetLast()  ) );
-            }
-        }
-    }
-}
-//=============================================================================
-void mainTabs::on_trackFinderSlopeAlignPB_clicked()
-{
-    if(!theGeometry_) return;
-    ui->trackFinderSlopeAlignPB->setEnabled(false);
-
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    for (Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it)
-    {
-        double xPosition=0, yPosition=0;
-        //xProfile
-        xPosition    = sin( atan( ui->trackFinderXslopeSB->value() ) )*theGeometry_->getDetector( it->first )->getZPositionTotal();
-        //y Profile
-        yPosition    = sin( atan( ui->trackFinderYslopeSB->value() ) )*theGeometry_->getDetector( it->first )->getZPositionTotal();
-
-        if( ui->alignSlopeXCB->isChecked() )
-            theGeometry_->getDetector( it->first )->setXPositionCorrection( theGeometry_->getDetector( it->first )->getXPositionCorrection()+xPosition );
-        if( ui->alignSlopeYCB->isChecked() )
-            theGeometry_->getDetector( it->first )->setYPositionCorrection( theGeometry_->getDetector( it->first )->getYPositionCorrection()+yPosition );
-    }
-    theFileEater_->updateGeometry("geometry");
-    theGeometry_ = theFileEater_->getGeometry();
-    showGeometry();
-    theGeometry_->dump();
-}
-//==============================================================================
-void mainTabs::on_trackFinderFitSlopePB_clicked()
-{
-    this->launchThread3(theHManager_,this,&mainTabs::trackFinderFitSlope);
-}
-
-//==============================================================================
-void mainTabs::on_trackFinderFitChi2PB_clicked()
-{
-
-}
-//==============================================================================
+//============================================================================
 void mainTabs::trackFinderFitSlope()
 {
     theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
@@ -2528,7 +4492,7 @@ void mainTabs::trackFinderFitSlope()
     HManager::stringVDef xyStringVec = theHManager_->eventsCycle();
     emit mainTabs::processFinished(&mainTabs::trackFinderFitSlope_end, xyStringVec);
 }
-//==============================================================================
+//============================================================================
 void mainTabs::trackFinderFitSlope_end(HManager::stringVDef xyStringVec)
 {
     redoChi2_ =  false;
@@ -2600,7 +4564,7 @@ void mainTabs::trackFinderFitSlope_end(HManager::stringVDef xyStringVec)
 
     ui->trackFinderSlopeAlignPB->setEnabled(true);
 }
-//==============================================================================
+//============================================================================
 void mainTabs::swapSlopeFitCBs (bool checked )
 {
     if (checked)
@@ -2614,9 +4578,9 @@ void mainTabs::swapSlopeFitCBs (bool checked )
     }
 }
 
-//==============================================================================
+//============================================================================
 //------------------------------------------RESIDUALS TAB---------------------------------------------
-//==============================================================================
+//============================================================================
 void mainTabs::showResiduals()
 {
     std::string type;
@@ -2668,7 +4632,7 @@ void mainTabs::showResiduals()
     this->launchThread2                (theHManager_);
 }
 
-//==============================================================================
+//============================================================================
 void mainTabs::showResiduals2()
 {
     theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
@@ -2855,7 +4819,7 @@ void mainTabs::showResiduals2()
         this->on_residualsTabPagePlaqSelectCB_currentIndexChanged(ui->residualsTabPagePlaqSelectCB->currentText());
     }
 }
-//=============================================================================
+//===========================================================================
 /*
 void mainTabs::showResiduals2()
 {
@@ -2906,7 +4870,7 @@ void mainTabs::showResiduals2()
     emit mainTabs::processFinished(&mainTabs::showResiduals2_end,residualsType_);
 }
 */
-//=======================================================================================================================
+//=====================================================================================================================
 /*
 void mainTabs::showResiduals2_end(HManager::stringVDef histoType)
 {
@@ -2943,163 +4907,7 @@ void mainTabs::showResiduals2_end(HManager::stringVDef histoType)
 }
 */
 
-//=============================================================================
-void mainTabs::on_trackFitterFitPB_clicked()
-{
-    gStyle->SetOptFit (1111);
-    gStyle->SetOptStat(11);
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    double lowRange = 0 ;
-    double higRange = 0 ;
-
-    if( !ui->residualFullRangeCB->isChecked() )
-    {
-        lowRange = ui->residualRangeLowCB->currentText().toDouble() ;
-        higRange = ui->residualRangeHigCB->currentText().toDouble() ;
-    }
-
-    if( ui->residualsFitAllCB->isChecked() )
-    {
-        for( Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it )
-        {
-            if( ui->detectorsToBeAlignedLW->findItems(QString::fromStdString((*it).first),0)[0]->isSelected() ) continue;
-            theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(residualsType_[0] , (*it).first ) );
-            theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(residualsType_[1] , (*it).first ) );
-            //            this->drawAll(ui->residualsSynopticViewLeftCanvas , residualsType_.first, "", lowRange, higRange);
-            //            this->drawAll(ui->residualsSynopticViewRightCanvas, residualsType_.second, "", lowRange, higRange);
-        }
-    }
-    else
-    {
-        if( ui->trackFitterMyFitParXCB->isChecked() )
-            theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(residualsType_[0], plaqSelected_),
-                    Utils::toDouble( ui->xResidualMeanLE ->text().toStdString() ) ,
-                    Utils::toDouble( ui->xResidualSigmaLE->text().toStdString() ) ,
-                    ui->xResidualNsigmaSB->value()                                  );
-        //        this->drawAll(ui->residualsSynopticViewLeftCanvas , residualsType_.first, "", lowRange, higRange);
-
-        if( ui->trackFitterMyFitParYCB->isChecked() )
-            theFitter_->gaussFit( (TH1*) theHManager_->getHistogram(residualsType_[1], plaqSelected_),
-                    Utils::toDouble( ui->yResidualMeanLE ->text().toStdString() ) ,
-                    Utils::toDouble( ui->yResidualSigmaLE->text().toStdString() ) ,
-                    ui->yResidualNsigmaSB->value()                                  );
-        //        this->drawAll(ui->residualsSynopticViewRightCanvas, residualsType_.second, "", lowRange, higRange);
-    }
-
-    this->drawAll(residualsSynopticViewLeftCanvas_ , residualsType_[0], "", "", lowRange, higRange);
-    this->drawAll(residualsSynopticViewRightCanvas_, residualsType_[1], "", "", lowRange, higRange);
-
-    //    this->drawAll(ui->residualsSynopticViewLeftCanvas , "Xresiduals", "", "", lowRange, higRange);
-    //    this->drawAll(ui->residualsSynopticViewRightCanvas, "Yresiduals", "", "", lowRange, higRange);
-
-    this->on_residualsTabPagePlaqSelectCB_currentIndexChanged(QString::fromStdString(plaqSelected_));
-}
-//=============================================================================
-void mainTabs::on_trackFitterWriteAlignmentPB_clicked()
-{
-    if(!theGeometry_) return;
-    ui->trackFitterWriteAlignmentPB->setEnabled(false);
-
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    TF1 *fitFunc;
-    TH1 *histo;
-
-    for (Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it)
-    {
-        if( ui->detectorsToBeAlignedLW->findItems(QString::fromStdString((*it).first),0)[0]->isSelected() ) continue;
-
-        double xPosition=0, xPositionErr=0, yPosition=0, yPositionErr=0;
-
-        //xProfile
-        histo = (TH1*)theHManager_->getHistogram(residualsType_[0] , (*it).first );
-        if ( ui->alignMethodsCB->currentIndex() == 0 )
-        {
-            if ( histo->FindObject("gausFitFunc") )
-            {
-                fitFunc = (TF1*)histo->FindObject("gausFitFunc");
-                xPosition    = fitFunc->GetParameter(0)    ;
-                xPositionErr = fitFunc->GetParameter(1)    ;
-            }
-        }
-        else if ( ui->alignMethodsCB->currentIndex() == 1 )
-        {
-            xPosition    = histo->GetMean()  ;
-            xPositionErr = histo->GetRMS()/2.;
-        }
-
-
-        //y Profile
-        histo = (TH1*)theHManager_->getHistogram(residualsType_[1] , (*it).first );
-        if ( ui->alignMethodsCB->currentIndex() == 0 )
-        {
-            if ( histo->FindObject("gausFitFunc") )
-            {
-                fitFunc = (TF1*)histo->FindObject("gausFitFunc");
-                yPosition    = fitFunc->GetParameter(0)    ;
-                yPositionErr = fitFunc->GetParameter(1)    ;
-            }
-        }
-        else if ( ui->alignMethodsCB->currentIndex() == 1 )
-        {
-            yPosition    = histo->GetMean()  ;
-            yPositionErr = histo->GetRMS()/2.;
-        }
-
-        Detector* det = theGeometry_->getDetector( it->first );
-
-        ss_.str("") ; ss_ << setw(18) << setprecision(14)
-                          <<"Initial parameters for detector: "
-                          << det->getID()
-                          << " xPos = "
-                          << det->getXPositionTotal()
-                          << " +/- "
-                          << det->getXPositionError()
-                          << " yPos = "
-                          << det->getYPositionTotal()
-                          <<" +/- "
-                          << det->getYPositionError();
-        STDLINE(ss_.str(),ACCyan) ;
-
-        det->setXPositionCorrection( det->getXPositionCorrection()+xPosition );
-        det->setXPositionError     ( xPositionErr );
-        det->setYPositionCorrection( det->getYPositionCorrection()+yPosition );
-        det->setYPositionError     ( yPositionErr );
-
-        ss_.str("") ; ss_ << setw(18) << setprecision(14)
-                          <<"Final parameters for detector:   "
-                          << det->getID()
-                          << " xPos = "
-                          << det->getXPositionTotal()
-                          << " +/- "
-                          << det->getXPositionError()
-                          << " yPos = "
-                          << det->getYPositionTotal()
-                          <<" +/- "
-                          << det->getYPositionError();
-        STDLINE(ss_.str(),ACCyan) ;
-    }
-    theFileEater_->updateGeometry("geometry");
-    theGeometry_ = theFileEater_->getGeometry();
-    showGeometry();
-    theGeometry_->dump();
-
-}
-//==============================================================================
-void mainTabs::on_trackFitterExcludedDetectorsListW_itemSelectionChanged()
-{
-    if ( ui->trackFitterExcludedDetectorsListW->count() - ui->trackFitterExcludedDetectorsListW->selectedItems().count() < 4 && ui->residualsMinPointsCB->isChecked() )
-        ui->trackFitterExcludedDetectorsListW->setSelectionMode(QAbstractItemView::SingleSelection );
-    else
-        ui->trackFitterExcludedDetectorsListW->setSelectionMode(QAbstractItemView::MultiSelection  );
-
-    if ( ui->residualsMinPointsCB->isChecked() )
-        ui->residualsMinPointsSB->setMaximum( ui->trackFitterExcludedDetectorsListW->count() -
-                                              ui->trackFitterExcludedDetectorsListW->selectedItems().count() );
-}
-
-//=============================================================================
+//===========================================================================
 void mainTabs::signalNewAction(std::string newAction)
 {
     STDLINE("",ACWhite) ;
@@ -3115,109 +4923,7 @@ void mainTabs::signalNewAction(std::string newAction)
     STDLINE(ss_.str(),ACWhite) ;
 }
 
-//=============================================================================
-void mainTabs::on_unconstrainedResidualsPB_clicked()
-{
-    //cout << __PRETTY_FUNCTION__ << "Button Clicked" << endl;
-
-    this->ui->residualsMonitorTW->setCurrentIndex(0) ;
-
-    if(ui->onlyDetectorsToBeAlignedCB->isChecked())
-    {
-        std::set<std::string> selectedDetectorsList;
-        for(Geometry::iterator git=theGeometry_->begin(); git!=theGeometry_->end(); git++)
-        {
-            if( !ui->detectorsToBeAlignedLW->findItems(QString::fromStdString((*git).first),0)[0]->isSelected() )
-            {
-                selectedDetectorsList.insert( (*git).first );
-            }
-        }
-        theTrackFitter_->setSelectedDetectorsList(selectedDetectorsList);
-    }
-    else theTrackFitter_->clearSelectedDetectorsList();
-
-    theTrackFitter_->setOperation (&trackFitter::makeFittedTracksResiduals                );
-    theFileEater_  ->setOperation (&fileEater::updateEvents2              ,theTrackFitter_);
-    this           ->launchThread2(theFileEater_                                          );
-}
-//=============================================================================
-void mainTabs::on_makeFittedTracksDeviationsPB_clicked()
-{
-    theFileEater_->setOperation(&fileEater::updateEvents2,theTrackFitter_);
-    theTrackFitter_->setOperation(&trackFitter::makeFittedTrackDeviations);
-    this->launchThread2(theFileEater_);
-}
-//=============================================================================
-void mainTabs::on_residualsTabPagePlaqSelectCB_currentIndexChanged(const QString& plaqSelected)
-{
-    plaqSelected_= plaqSelected.toStdString();
-    if( !ui->residualsTabPagePlaqSelectCB->isEnabled() || residualsType_.size() < 2) return;
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    if( ui->detectorsToBeAlignedLW->findItems(plaqSelected,0).first()->isSelected() )
-        ui->trackFitterExcludeDetectorCB->setChecked(true );
-    else
-        ui->trackFitterExcludeDetectorCB->setChecked(false);
-
-    //xProfile
-    TH1* histo  ;
-    TF1* fitFunc;
-    histo = (TH1*)theHManager_->getHistogram(residualsType_[0], plaqSelected_);
-    if ( histo->FindObject("gausFitFunc") )
-    {
-        fitFunc = (TF1*)histo->FindObject("gausFitFunc");
-        ss_.str("");
-        ss_ << fitFunc->GetParameter(0);
-        ui->xResidualMeanLE->setText(QString::fromStdString(ss_.str()));
-        ss_.str("");
-        ss_ << fitFunc->GetParameter(1);
-        ui->xResidualSigmaLE->setText(QString::fromStdString(ss_.str()));
-    }
-    else
-    {
-        ss_.str("");
-        ss_ << histo->GetMean();
-        ui->xResidualMeanLE->setText(QString::fromStdString(ss_.str()));
-        ss_.str("");
-        ss_ << histo->GetRMS();
-        ui->xResidualSigmaLE->setText(QString::fromStdString(ss_.str()));
-    }
-
-    //y Profile
-    histo = (TH1*)theHManager_->getHistogram(residualsType_[1], plaqSelected_);
-    if ( histo->FindObject("gausFitFunc") )
-    {
-        fitFunc = (TF1*)histo->FindObject("gausFitFunc");
-        ss_.str("");
-        ss_ << fitFunc->GetParameter(0);
-        ui->yResidualMeanLE->setText(QString::fromStdString(ss_.str()));
-        ss_.str("");
-        ss_ << fitFunc->GetParameter(1);
-        ui->yResidualSigmaLE->setText(QString::fromStdString(ss_.str()));
-    }
-    else
-    {
-        ss_.str("");
-        ss_ << histo->GetMean();
-        ui->yResidualMeanLE->setText(QString::fromStdString(ss_.str()));
-        ss_.str("");
-        ss_ << histo->GetRMS();
-        ui->yResidualSigmaLE->setText(QString::fromStdString(ss_.str()));
-    }
-
-    residualsManualFitLeftCanvas_->GetCanvas()->cd() ;
-    gStyle->SetOptFit(11);
-    theHManager_->getHistogram(residualsType_[0], plaqSelected_)->Draw() ;
-    residualsManualFitRightCanvas_->GetCanvas()->cd();
-    gStyle->SetOptFit(11);
-    theHManager_->getHistogram(residualsType_[1], plaqSelected_)->Draw();
-
-    residualsManualFitLeftCanvas_ ->GetCanvas()->Modified();
-    residualsManualFitLeftCanvas_ ->GetCanvas()->Update()  ;
-    residualsManualFitRightCanvas_->GetCanvas()->Modified();
-    residualsManualFitRightCanvas_->GetCanvas()->Update()  ;
-}
-//===========================================================================
+//=========================================================================
 void mainTabs::swapResidualsFitCBs (bool checked )
 {
     if (checked)
@@ -3230,507 +4936,14 @@ void mainTabs::swapResidualsFitCBs (bool checked )
         else ui->residualsFitAllCB->setChecked(false);
     }
 }
-//===========================================================================
-void mainTabs::on_trackFitterExcludeDetectorCB_clicked(bool checked)
-{
-    if(plaqSelected_ == "") return;
-    if(checked)
-    {
-        ui->detectorsToBeAlignedLW->findItems(QString::fromStdString(plaqSelected_),0).first()->setSelected(true );
-        ui->trackFitterSoloDetectorAlignmentCB->setChecked(false                                                 );
-    }
-    else
-        ui->detectorsToBeAlignedLW->findItems(QString::fromStdString(plaqSelected_),0).first()->setSelected(false);
-}
-//===========================================================================
-void mainTabs::on_trackFitterSoloDetectorAlignmentCB_toggled(bool checked)
-{
-    if(plaqSelected_ == "") return;
-
-    if(checked)
-    {
-        ui->detectorsToBeAlignedLW->selectAll();
-        ui->detectorsToBeAlignedLW->findItems(QString::fromStdString(plaqSelected_),0).first()->setSelected(false);
-        ui->trackFitterExcludeDetectorCB->setChecked(false  );
-        ui->residualsTabPagePlaqSelectCB->setEnabled(false);
-    }
-    else
-    {
-        ui->residualsTabPagePlaqSelectCB->setEnabled(true);
-    }
-}
-//===========================================================================
-void mainTabs::on_detectorsToBeAlignedLW_itemClicked(QListWidgetItem* item)
-{
-    ui->trackFitterSoloDetectorAlignmentCB->setChecked(false);
-
-    if( QString::fromStdString(plaqSelected_) ==  item->text() )
-    {
-        if ( ui->trackFitterExcludeDetectorCB->isChecked() ) ui->trackFitterExcludeDetectorCB->setChecked(false);
-        else                                                 ui->trackFitterExcludeDetectorCB->setChecked(true );
-    }
-}
-//===========================================================================
-void mainTabs::on_alignDutCB_clicked(bool checked)
-{
-    ui->trackFitterSoloDetectorAlignmentCB->setChecked(false);
-
-    for(int det=0; det < ui->detectorsToBeAlignedLW->count(); det++)
-    {
-        if ( theGeometry_->getDetector(ui->detectorsToBeAlignedLW->item(det)->text().toStdString())->isDUT() )
-        {
-            if (checked) ui->detectorsToBeAlignedLW->item(det)->setSelected(false);
-            else         ui->detectorsToBeAlignedLW->item(det)->setSelected(true );
-        }
-        else
-        {
-            if (checked)
-            {
-                ui->detectorsToBeAlignedLW->item(det)->setSelected(true );
-                ui->detectorsToBeAlignedLW->item(det)->setHidden  (true );
-            }
-            else
-            {
-                ui->detectorsToBeAlignedLW->item(det)->setSelected(false);
-                ui->detectorsToBeAlignedLW->item(det)->setHidden  (false);
-            }
-        }
-    }
-}
-//==============================================================================
-void mainTabs::on_FitScatterResidualsPB_clicked()
-{
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    double tolerance = ui->linFitSigmasLE->text().toDouble() ;
-
-    ss_.str("") ; ss_ << "Tolerance is now " << tolerance; STDLINE(ss_.str(),ACWhite) ;
-
-    for( Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it )
-    {
-        double slope = 0, q = 0;
-        STDLINE("Working on block X_RES_Y_POS_MEAN",ACWhite) ;
-        theFitter_->linearFit((TH1*) theHManager_->getHistogram(X_RES_Y_POS_MEAN, (*it).first ),&slope,&q, tolerance);
-        STDLINE("Working on block Y_RES_X_POS_MEAN",ACWhite) ;
-        theFitter_->linearFit((TH1*) theHManager_->getHistogram(Y_RES_X_POS_MEAN, (*it).first ),&slope,&q, tolerance);
-        STDLINE("Working on block X_RES_X_POS_MEAN",ACWhite) ;
-        theFitter_->linearFit((TH1*) theHManager_->getHistogram(X_RES_X_POS_MEAN, (*it).first ),&slope,&q, tolerance);
-        STDLINE("Working on block Y_RES_Y_POS_MEAN",ACWhite) ;
-        theFitter_->linearFit((TH1*) theHManager_->getHistogram(Y_RES_Y_POS_MEAN, (*it).first ),&slope,&q, tolerance);
-    }
-
-    //gStyle->SetOptFit (1111);
-    //gStyle->SetOptStat(1111);
-    this->drawAll(residualsResidualsVsCoordinateLeftCanvas_ , X_RES_Y_POS_MEAN);
-    this->drawAll(residualsResidualsVsCoordinateRightCanvas_, Y_RES_X_POS_MEAN);
-}
-//============================================================================
-void mainTabs::on_applyZrotationsPB_clicked()
-{
-    if(!theGeometry_) return;
-
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    TF1 *fitFunc;
-    TH1 *histo;
-
-    for (Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it)
-    {
-        if( ui->detectorsToBeAlignedLW->findItems(QString::fromStdString((*it).first),0)[0]->isSelected() ) continue;
-
-        double zRotation=0,yRotation=0,xRotation=0;
-
-        //xProfile
-        if ( ui->xResidualZRotationRB->isChecked() )
-        {
-            histo = (TH1*)theHManager_->getHistogram(X_RES_Y_POS_MEAN, (*it).first );
-            if ( histo->FindObject("linearFitFunc") )
-            {
-                fitFunc   = (TF1*)histo->FindObject("linearFitFunc");
-                zRotation = atan( fitFunc->GetParameter(0) );
-            }
-
-            zRotation = zRotation*180./TMath::Pi();
-        }
-        else if ( ui->yResidualZRotationRB->isChecked() )
-        {
-            //y Profile
-            histo = (TH1*)theHManager_->getHistogram(Y_RES_X_POS_MEAN , (*it).first );
-            if ( histo->FindObject("linearFitFunc") )
-            {
-                fitFunc   = (TF1*)histo->FindObject("linearFitFunc");
-                zRotation = atan( fitFunc->GetParameter(0) );
-            }
-
-            zRotation = -zRotation*180./TMath::Pi();
-        }
-
-        if ( ui->xResidualYRotationRB->isChecked() )
-        {
-            histo = (TH1*)theHManager_->getHistogram(X_RES_X_POS_MEAN, (*it).first );
-            if ( histo->FindObject("linearFitFunc") )
-            {
-                fitFunc   = (TF1*)histo->FindObject("linearFitFunc");
-                yRotation = atan( fitFunc->GetParameter(0) );
-            }
-
-            yRotation = yRotation*180./TMath::Pi();
-        }
-
-        if ( ui->yResidualXRotationRB->isChecked() )
-        {
-            histo = (TH1*)theHManager_->getHistogram(Y_RES_Y_POS_MEAN, (*it).first );
-            if ( histo->FindObject("linearFitFunc") )
-            {
-                fitFunc   = (TF1*)histo->FindObject("linearFitFunc");
-                xRotation = atan( fitFunc->GetParameter(0) );
-            }
-
-            xRotation = xRotation*180./TMath::Pi();
-        }
-
-        //update values
-        ss_.str("");
-        ss_ << "Detector: "       << (*it).first ;
-        ss_ << "\t zRotation "    << theGeometry_->getDetector( (*it).first )->getZRotationCorrection()
-            << " zRotationCorrection: "  << zRotation ;
-        STDLINE(ss_.str(),ACRed);
-        ss_.str("");
-        ss_ << "Detector: "       << (*it).first ;
-        ss_ << "\t yRotation "    << theGeometry_->getDetector( (*it).first )->getYRotationCorrection()
-            << " yRotationCorrection: "  << yRotation ;
-        STDLINE(ss_.str(),ACRed);
-        ss_.str("");
-        ss_ << "Detector: "       << (*it).first ;
-        ss_ << "\t xRotation "    << theGeometry_->getDetector( (*it).first )->getXRotationCorrection()
-            << " xRotationCorrection: "  << xRotation ;
-        STDLINE(ss_.str(),ACRed);
-
-        theGeometry_->getDetector( (*it).first )->setZRotationCorrection(theGeometry_->getDetector( (*it).first )->getZRotationCorrection()+zRotation);
-        theGeometry_->getDetector( (*it).first )->setYRotationCorrection(theGeometry_->getDetector( (*it).first )->getYRotationCorrection()+yRotation);
-        theGeometry_->getDetector( (*it).first )->setXRotationCorrection(theGeometry_->getDetector( (*it).first )->getXRotationCorrection()+xRotation);
-        if(ui->resetZRotationsCB->isChecked())
-        {
-            theGeometry_->getDetector( (*it).first )->setXRotationCorrection(0);
-            theGeometry_->getDetector( (*it).first )->setYRotationCorrection(0);
-            theGeometry_->getDetector( (*it).first )->setZRotationCorrection(0);
-        }
-    }
-    theFileEater_->updateGeometry("geometry");
-}
-//==============================================================================
-void mainTabs::on_manualRotationsPB_clicked()
-{
-    if(!theGeometry_) return;
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    for (Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it)
-    {
-        if( ui->detectorsToBeAlignedLW->findItems(QString::fromStdString((*it).first),0)[0]->isSelected() ) continue;
-
-        theGeometry_->getDetector( (*it).first )->setXRotationCorrection(theGeometry_->getDetector( (*it).first )->getXRotationCorrection()+
-                                                                         ui->xManualRotationSB->value()                                      );
-        theGeometry_->getDetector( (*it).first )->setYRotationCorrection(theGeometry_->getDetector( (*it).first )->getYRotationCorrection()+
-                                                                         ui->yManualRotationSB->value()                                      );
-        theGeometry_->getDetector( (*it).first )->setZRotationCorrection(theGeometry_->getDetector( (*it).first )->getZRotationCorrection()+
-                                                                         ui->zManualRotationSB->value()                                      );
-
-        STDLINE((*it).first,ACYellow) ;
-        ss_.str("");
-        ss_ << "XRotationCorrection " << theGeometry_->getDetector((*it).first)->getXRotationCorrection();
-        STDLINE(ss_.str(),ACRed);
-        ss_.str("");
-        ss_ << "YRotationCorrection " << theGeometry_->getDetector((*it).first)->getYRotationCorrection();
-        STDLINE(ss_.str(),ACRed);
-        ss_.str("");
-        ss_ << "ZRotationCorrection " << theGeometry_->getDetector((*it).first)->getZRotationCorrection();
-        STDLINE(ss_.str(),ACRed);
-
-    }
-    theFileEater_->updateGeometry("geometry");
-}
-//==============================================================================
-void mainTabs::on_showSelectedEventsElectronDistribuitionPB_clicked()
-{
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    std::string histoType;
-
-    if( selectedEvents_.empty() )
-    {
-        theHManager_->setOperation(&HManager::eventsCycle,&HManager::makeAdcDistributions2);
-        //histoType = theHManager_->eventsCycle()[1]                ;
-        this->launchThread2(theHManager_);
-    }
-    else
-    {
-        ss_.str("");
-        ss_ << "Electron distributions for " << selectedEvents_.size() << " selected events";
-        STDLINE(ss_.str(), ACGreen);
-        int cSize = -1;
-        if(ui->residualsOnlyClusterSizeCB->isChecked())
-            cSize = ui->residualsOnlyClusterSizeSB->value();
-        histoType = theHManager_->makeElectronDistribution(selectedEvents_, cSize)[0];
-    }
-}
-//==============================================================================
+//============================================================================
 //------------------------------------------FINE ALIGNMENT TAB---------------------------------------------
-//=============================================================================
-//===================================================================================================
-void mainTabs::on_geometrySetPB_clicked()
-{
-    STDLINE("They never call me!",ACWhite);
-    if(theGeometry_ == NULL) return;
-
-    for(std::map<std::string,GeometryParameters*>::iterator it=geometryParameters_.begin(); it!=geometryParameters_.end(); it++ )
-    {
-        if(!it->second->isEnabled()) continue;
-        Detector* det = theGeometry_->getDetector( it->first );
-        //        det->dump();
-        //       if(double(det->getXRotation()-it->second->getDetectorParBase(0)) != 0)std::cout << __PRETTY_FUNCTION__ << "X: " << det->getXRotation() << "=" << it->second->getDetectorParBase(0) << " delta=" << double(det->getXRotation()-it->second->getDetectorParBase(0)) << std::endl;
-        det->setXRotation          (it->second->getDetectorParBase      (0));
-        det->setXRotationCorrection(it->second->getDetectorParCorrection(0));
-        //        if(double(det->getYRotation()-it->second->getDetectorParBase(1)) != 0)std::cout << __PRETTY_FUNCTION__ << "Y: " << det->getYRotation() << "=" << it->second->getDetectorParBase(1) << " delta=" << double(det->getYRotation()-it->second->getDetectorParBase(1)) << std::endl;
-        det->setYRotation          (it->second->getDetectorParBase      (1));
-        det->setYRotationCorrection(it->second->getDetectorParCorrection(1));
-        //        if(double(det->getZRotation()-it->second->getDetectorParBase(2)) != 0)std::cout << __PRETTY_FUNCTION__ << "Z: " << det->getZRotation() << "=" << it->second->getDetectorParBase(2) << " delta=" << double(det->getZRotation()-it->second->getDetectorParBase(2)) << std::endl;
-        det->setZRotation          (it->second->getDetectorParBase      (2));
-        det->setZRotationCorrection(it->second->getDetectorParCorrection(2));
-        //        if(double(det->getXPosition()-it->second->getDetectorParBase(3)) != 0)std::cout << __PRETTY_FUNCTION__ << "X: " << det->getXPosition() << "=" << it->second->getDetectorParBase(3) << " delta=" << double(det->getXPosition()-it->second->getDetectorParBase(3)) << std::endl;
-        det->setXPosition          (it->second->getDetectorParBase      (3));
-        det->setXPositionCorrection(it->second->getDetectorParCorrection(3));
-        //        if(double(det->getYPosition()-it->second->getDetectorParBase(4)) != 0)std::cout << __PRETTY_FUNCTION__ << "Y: " << det->getYPosition() << "=" << it->second->getDetectorParBase(4) << " delta=" << double(det->getYPosition()-it->second->getDetectorParBase(4)) << std::endl;
-        det->setYPosition          (it->second->getDetectorParBase      (4));
-        det->setYPositionCorrection(it->second->getDetectorParCorrection(4));
-        //        if(double(det->getZPosition()-it->second->getDetectorParBase(5)) != 0)std::cout << __PRETTY_FUNCTION__ << "Z: " << det->getZPosition() << "=" << it->second->getDetectorParBase(5) << " delta=" << double(det->getZPosition()-it->second->getDetectorParBase(5)) << std::endl;
-        det->setZPosition          (it->second->getDetectorParBase      (5));
-        det->setZPositionCorrection(it->second->getDetectorParCorrection(5));
-
-
-        //        std::cout << __PRETTY_FUNCTION__ << "AFTER THE CORRECTIONS!" << std::endl;
-        det->dump();
-    }
-
-    theFileEater_->updateGeometry("geometry");
-    //    theGeometry_->orderPlanes();
-    //    theGeometry_->calculatePlaneMCS();
-    //    theTrackFitter_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
-    //    theAligner_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
-
-}
-//===================================================================================
-void mainTabs::on_fineAlignmentPB_clicked()
-{
-    if(!theGeometry_) return;
-
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    std::string alignmentFitMethod = ui->alignmentTypeCB ->currentText().toStdString();
-    theAligner_->setAlignmentFitMethodName(alignmentFitMethod);
-    if (alignmentFitMethod == "Simple")
-        theAligner_->setNumberOfIterations(ui->fineTrackFitterIterationsSB->value());
-    else
-        theAligner_->setNumberOfIterations(0);
-
-    //theAligner_->clearFixParMap();
-    for(Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it)
-    {
-        if( !(*it).second->isDUT() )
-        {
-            unsigned int val = 0;
-            if( ui->detectorsTableView->isFixed( (*it).first, "Alfa"  ) ) val += 1;
-            if( ui->detectorsTableView->isFixed( (*it).first, "Beta"  ) ) val += 10;
-            if( ui->detectorsTableView->isFixed( (*it).first, "Gamma" ) ) val += 100;
-            if( ui->detectorsTableView->isFixed( (*it).first, "X"     ) ) val += 1000;
-            if( ui->detectorsTableView->isFixed( (*it).first, "Y"     ) ) val += 10000;
-            if( ui->detectorsTableView->isFixed( (*it).first, "Z"     ) ) val += 100000;
-            theAligner_->setFixParMap((*it).first, val);
-        }
-    }
-
-    double       chi2cut    = -1;
-    int          clusterSel = -1;
-    unsigned int minPoints  = -1;
-    int          maxTracks  = -1;
-    int          nEvents    = -1;
-    if( ui->fineAlignmentChi2SelectionCB       ->isChecked() ) chi2cut    = ui->fineAlignmentChi2SelectionSB       ->value();
-    if( ui->fineAlignmentClusterSizeSelectionCB->isChecked() ) clusterSel = ui->fineAlignmentClusterSizeSelectionSB->value();
-    if( ui->fineAlignmentMinPointsSelectionCB  ->isChecked() ) minPoints  = ui->fineAlignmentMinPointsSelectionSB  ->value();
-    if( ui->fineAlignmentMaxTrackPerEventCB    ->isChecked() ) maxTracks  = ui->fineAlignmentMaxTrackPerEventSB    ->value();
-    if( ui->fineAlignmentLimitCB               ->isChecked() ) nEvents    = ui->fineAlignmentLimitSB               ->value();
-
-    theAligner_->setAlignmentPreferences(ui->maxTrialSB->value()                           ,
-                                         ui->fineAlignmentStrategySB->value()              ,
-                                         theTrackFitter_                                   ,
-                                         chi2cut                                           ,
-                                         clusterSel                                        ,
-                                         minPoints                                         ,
-                                         maxTracks                                         ,
-                                         ui->fineAlignmentNoDiagonalClustersCB->isChecked(),
-                                         ""                                                ,
-                                         nEvents);
-    theAligner_->setOperation(&aligner::align);
-    this->launchThread2(theAligner_);
-}
-//==============================================================================
-void mainTabs::on_writeFineAlignmentResultsPB_clicked()
-{
-    if(!theGeometry_) return;
-
-    ui->writeFineAlignmentResultsPB->setEnabled(false);
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    aligner::alignmentResultsDef alignmentResults = theAligner_->getAlignmentResults();
-
-    for (Geometry::iterator geo=theGeometry_->begin(); geo!=theGeometry_->end(); ++geo)
-    {
-        if( !ui->detectorsTableView->isFixed( geo->first, "Update"  ) ) continue;
-
-        Detector * theDetector = theGeometry_->getDetector( geo->first ) ;
-        double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResults[geo->first].deltaTx;
-        double yPositionCorrection = theDetector->getYPositionCorrection() + alignmentResults[geo->first].deltaTy;
-        double zPositionCorrection = theDetector->getZPositionCorrection() + alignmentResults[geo->first].deltaTz;
-        double xRotationCorrection = theDetector->getXRotationCorrection() + alignmentResults[geo->first].alpha  ;
-        double yRotationCorrection = theDetector->getYRotationCorrection() + alignmentResults[geo->first].beta   ;
-        double zRotationCorrection = theDetector->getZRotationCorrection() + alignmentResults[geo->first].gamma  ;
-
-        theDetector->setXPositionCorrection(xPositionCorrection) ;
-        theDetector->setYPositionCorrection(yPositionCorrection) ;
-        theDetector->setZPositionCorrection(zPositionCorrection) ;
-        theDetector->setXRotationCorrection(xRotationCorrection) ;
-        theDetector->setYRotationCorrection(yRotationCorrection) ;
-        theDetector->setZRotationCorrection(zRotationCorrection) ;
-    }
-
-    theFileEater_->updateGeometry("geometry");
-    theGeometry_ = theFileEater_->getGeometry();
-    showGeometry();
-    theGeometry_->dump();
-}
-
-//==============================================================================
-void mainTabs::on_trackFindAndFitAlignmentPB_clicked()
-{
-    std::string fitMethod  = ui->trackFitAlignmentNameCB ->currentText().toStdString();
-    std::string findMethod = ui->trackFindAlignmentNameCB->currentText().toStdString();
-    if (fitMethod == "Simple")
-        theTrackFitter_->setNumberOfIterations(ui->trackFitterIterationsSB->value());
-    else
-        theTrackFitter_->setNumberOfIterations(0);
-
-    theTrackFitter_->setFitMethodName(fitMethod);
-
-    findAndFitTrack(findMethod, fitMethod);
-}
-
-//==============================================================================
+//===========================================================================
+//============================================================================
 //------------------------------------------DUT ALIGNMENT TAB---------------------------------------------
-//=============================================================================
-void mainTabs::on_dutAlignmentPB_clicked()
-{
-    if(!theGeometry_) return;
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    double       chi2cut            = -1;
-    int          clusterSel         = -1;
-    unsigned int minPoints          = -1;
-    int          maxTracks          = -1;
-    int          nEvents            = -1;
-    if( ui->dutAlignmentChi2SelectionCB       ->isChecked() ) chi2cut            = ui->dutAlignmentChi2SelectionSB       ->value();
-    if( ui->dutAlignmentClusterSizeSelectionCB->isChecked() ) clusterSel         = ui->dutAlignmentClusterSizeSelectionSB->value();
-    if( ui->dutAlignmentMinPointsSelectionCB  ->isChecked() ) minPoints          = ui->dutAlignmentMinPointsSelectionSB  ->value();
-    if( ui->dutAlignmentMaxTrackPerEventCB    ->isChecked() ) maxTracks          = ui->dutAlignmentMaxTrackPerEventSB    ->value();
-    if( ui->dutAlignmentLimitCB               ->isChecked() ) nEvents            = ui->dutAlignmentLimitSB               ->value();
-
-    theAligner_->setAlignmentPreferences(ui->dutMaxTrialsSB->value()                             ,
-                                         minPoints                                               ,
-                                         theTrackFitter_                                         ,
-                                         chi2cut                                                 ,
-                                         clusterSel                                              ,
-                                         minPoints                                               ,
-                                         maxTracks                                               ,
-                                         ui->dutNoDiagonalClustersCB->isChecked()                ,
-                                         ui->dutAlignmentDutSelectCB->currentText().toStdString(),
-                                         nEvents);
-
-    theAligner_->setOperation(&aligner::alignDUT);
-    this->launchThread2(theAligner_);
-}
-//========================================================================================
-void mainTabs::on_findDUThitsPB_clicked()
-{
-    ui->abortActionPB               ->setEnabled(true) ;
-    ui->tracksFoundCB               ->setChecked(true) ;
-
-    double tolX = ui->DUTxRoadToleranceSB->value();
-    double tolY = ui->DUTyRoadToleranceSB->value();
-
-    double chi2Cut        = -1;
-    double trackPoints    = -1;
-    double maxPlanePoints = -1;
-
-    theTrackFinder_->setTrackSearchParameters(tolX*(1e-4)*CONVF,
-                                              tolY*(1e-4)*CONVF,
-                                              chi2Cut          ,
-                                              trackPoints      ,
-                                              maxPlanePoints   );
-
-    theTrackFinder_->setOperation(&trackFinder::findDUTCandidates);
-    theFileEater_->setOperation(&fileEater::updateEvents2,theTrackFinder_);
-    this->launchThread2(theFileEater_);
-}
-//==============================================================================
-void mainTabs::on_dutWriteFineAlignmentPB_clicked()
-{
-    if(!theGeometry_) return;
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    aligner::alignmentResultsDef alignmentResults = theAligner_->getAlignmentResults();
-    std::string dut = ui->dutAlignmentDutSelectCB->currentText().toStdString();
-
-    Detector * theDetector = theGeometry_->getDetector( dut ) ;
-    double xPositionCorrection = theDetector->getXPositionCorrection() + alignmentResults[dut].deltaTx;
-    double yPositionCorrection = theDetector->getYPositionCorrection() + alignmentResults[dut].deltaTy;
-    double zPositionCorrection = theDetector->getZPositionCorrection() + alignmentResults[dut].deltaTz;
-    double xRotationCorrection = theDetector->getXRotationCorrection() + alignmentResults[dut].alpha  ;
-    double yRotationCorrection = theDetector->getYRotationCorrection() + alignmentResults[dut].beta   ;
-    double zRotationCorrection = theDetector->getZRotationCorrection() + alignmentResults[dut].gamma  ;
-
-    theDetector->setXPositionCorrection(xPositionCorrection) ;
-    theDetector->setYPositionCorrection(yPositionCorrection) ;
-    theDetector->setZPositionCorrection(zPositionCorrection) ;
-    theDetector->setXRotationCorrection(xRotationCorrection) ;
-    theDetector->setYRotationCorrection(yRotationCorrection) ;
-    theDetector->setZRotationCorrection(zRotationCorrection) ;
-
-    theFileEater_->updateGeometry("geometry");
-    theGeometry_ = theFileEater_->getGeometry();
-    showGeometry();
-    theGeometry_->dump();
-}
-//============================================================================================
-void mainTabs::on_dutAlignmentDutSelectCB_currentIndexChanged(const QString detector)
-{
-    unsigned int fixParMap = theAligner_->getFixParMap( detector.toStdString() );
-
-    //ss_.str("");
-    //ss_ << detector.toStdString() << " code: " << fixParMap;
-    //STDLINE(ss_.str(), ACPurple);
-
-    if( fixParMap >= 100000 ) {ui->dutFineAlignmentZFixCB    ->setChecked(true ); fixParMap-= 100000;}
-    else                       ui->dutFineAlignmentZFixCB    ->setChecked(false);
-    if( fixParMap >=  10000 ) {ui->dutFineAlignmentYFixCB    ->setChecked(true ); fixParMap-=  10000;}
-    else                       ui->dutFineAlignmentYFixCB    ->setChecked(false);
-    if( fixParMap >=   1000 ) {ui->dutFineAlignmentXFixCB    ->setChecked(true ); fixParMap-=   1000;}
-    else                       ui->dutFineAlignmentXFixCB    ->setChecked(false);
-    if( fixParMap >=    100 ) {ui->dutFineAlignmentGammaFixCB->setChecked(true ); fixParMap-=    100;}
-    else                       ui->dutFineAlignmentGammaFixCB->setChecked(false);
-    if( fixParMap >=     10 ) {ui->dutFineAlignmentBetaFixCB ->setChecked(true ); fixParMap-=     10;}
-    else                       ui->dutFineAlignmentBetaFixCB->setChecked(false);
-    if( fixParMap ==      1 ) {ui->dutFineAlignmentAlphaFixCB->setChecked(true );}
-    else                       ui->dutFineAlignmentAlphaFixCB->setChecked(false);
-}
-//===============================================================================
+//===========================================================================
+//======================================================================================
+//=============================================================================
 void mainTabs::updateFixParMap(bool)
 {
     std::string dut = ui->dutAlignmentDutSelectCB->currentText().toStdString();
@@ -3749,514 +4962,11 @@ void mainTabs::updateFixParMap(bool)
     STDLINE(ss_.str(), ACYellow);
 }
 
-//==============================================================================
+//============================================================================
 //------------------------------------------EVENT DISPLAY TAB---------------------------------------------
-//=============================================================================
-void mainTabs::on_showHitsFreqPB_clicked()
-{
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    HManager::stringVDef histoType;
-    if ( ui->selectClusterRB->isChecked() )
-    {
-        theHManager_->setSubProcessFunction(&HManager::makeClusterPlots2);
-        histoType = theHManager_->eventsCycle();
-    }
-    else
-    {
-        theHManager_->setSubProcessFunction(&HManager::makeHitsFreq2);
-        histoType = theHManager_->eventsCycle();
-    }
-
-    this->drawAll(eventDisplayLeftCanvas_, histoType[0]);
-}
-//=============================================================================
-void mainTabs::on_eventSelectedSpinBox_valueChanged(int eventSelected)
-{
-    //theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-    if( theFileEater_ == NULL ) return ;
-
-    Event* event = theFileEater_->getEvent(eventSelected);
-    if( event == NULL ) return ;
-    ss_.str("") ; ss_ << "New event number selected: " << event ;
-    STDLINE(ss_.str(),ACCyan);
-
-    std::string histoType;
-    if( ui->selectClusterRB->isChecked() && !event->getClusters().empty())
-    {
-        histoType = theHManager_->makeClusterEvent(event)[0];
-    }
-    else
-    {
-        histoType = theHManager_->makeRawEvent(event);
-    }
-    //check clustersHits in the tree
-    if ( event->getClustersHits().empty() )
-    {
-        STDLINE("No clusters in this event",ACCyan) ;
-        //        ui->solveClustersPB->setEnabled(false);
-        ui->selectClusterRB->setEnabled(false);
-    }
-    //    else
-    //    {
-    //        theHManager_->markClustersHits(event);
-    //        ui->solveClustersPB->setEnabled(true);
-    //ui->selectClusterRB->setEnabled(true);
-    //    }
-
-    //check clusters in the tree
-    if ( !event->getClusters().empty() )
-    {
-        //STDLINE("-------------------------------------------------------------------------",ACYellow) ;
-        //theHManager_->markClusters(event);
-        ui->selectClusterRB              ->setEnabled(true);
-        ui->rawAlignmentClusterProfilesRB->setEnabled(true);
-    }
-
-
-    eventDisplayRightCanvas_->GetCanvas()->cd();
-    theHManager_->getHistogram(histoType, plaqSelected_)->Draw("COLZ")    ;
-
-    if(ui->showAllPlaqPB->isChecked()) this->showAllPlaq();
-
-    eventDisplayRightCanvas_->GetCanvas()->Modified() ;
-    eventDisplayRightCanvas_->GetCanvas()->Update()   ;
-}
-//=================================================================
-void mainTabs::on_eventDisplayTabPagePlaqSelectCB_currentIndexChanged(QString plaqSelected)
-{
-    if ( ui->eventDisplayTabPagePlaqSelectCB->isEnabled() )
-    {
-        plaqSelected_= plaqSelected.toStdString();
-        this->on_eventSelectedSpinBox_valueChanged(ui->eventSelectedSpinBox->value());
-    }
-}
-//=================================================================
-void mainTabs::on_showAllPlaqPB_clicked()
-{
-    if(ui->showAllPlaqPB->isChecked())
-    {
-        this->showAllPlaq();
-    }
-}
-//===========================================================================
-void mainTabs::showAllPlaq()
-{
-    if(ui->selectRawEventsRB->isChecked())
-    {
-        this->drawAll(eventDisplayLeftCanvas_, "rawEvent", "", "COLZ");
-    }
-    if(ui->selectClusterRB->isChecked())
-    {
-        this->drawAll(eventDisplayLeftCanvas_, "clusterEvent", "", "COLZ");
-    }
-}
-//===========================================================================
-void mainTabs::on_findEventsPB_clicked()
-{
-
-    int ev=ui->eventSelectedSpinBox->value()+1;
-    int size=0;
-    int startValue = ui->eventSelectedSpinBox->value()      ;
-    int loop = ui->eventDisplayTabPagePlaqSelectCB->count() ;
-
-    while( ( size > ui->findEventsMaxHitsToSearchSB->value() || size < ui->findEventsMinHitsToSearchSB->value() ) && loop >= 0)
-    {
-        if( startValue == ev++ )
-        {
-            STDLINE("No event found in plaquette: " + plaqSelected_,ACYellow);
-            if( ui->findEventsWhereComboBox->currentText() == "selected" ) break;
-
-            ui->eventDisplayTabPagePlaqSelectCB->setCurrentIndex( ui->eventDisplayTabPagePlaqSelectCB->currentIndex()+1 );
-            loop--;
-        }
-
-        if( ev > theFileEater_->getEventsNumber() )
-        {
-            ev=0;
-            if( ui->findEventsWhereComboBox->currentText() == "all" )
-                ui->eventDisplayTabPagePlaqSelectCB->setCurrentIndex( ui->eventDisplayTabPagePlaqSelectCB->currentIndex()+1 );
-        }
-
-        size = theFileEater_->getEvent(ev)->getRawData().find(plaqSelected_)->second.size();
-    }
-
-    ui->eventSelectedSpinBox->setValue(ev);
-}
-//===========================================================================
-void mainTabs::findValuesChanged(int newValue)
-{
-    if( ui->findEventsMinHitsToSearchSB->value() > ui->findEventsMaxHitsToSearchSB->value() )
-    {
-        ui->findEventsMaxHitsToSearchSB->setValue(  newValue  );
-        ui->findEventsMinHitsToSearchSB->setValue(  newValue  );
-    }
-}
-
-//===========================================================================
-void mainTabs::on_eventDisplayShowBeamSpotsPB_clicked()
-{
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    theHManager_->setSubProcessFunction(&HManager::makeBeamSpots2);
-    std::string histoType = theHManager_->eventsCycle()[0];
-
-    this->drawAll(eventDisplayLeftCanvas_, histoType, "", "COLZ");
-}
-//===========================================================================
-void mainTabs::on_eventDisplayDUTprojectionPB_clicked()
-{
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    std::vector<std::string> selectedDUTs;
-    for(int dut=0; dut < ui->eventDisplayDUTListW->selectedItems().size(); dut++)
-    {
-        selectedDUTs.push_back( ui->eventDisplayDUTListW->selectedItems()[dut]->text().toStdString() );
-        //       ss_.str("");
-        //       ss_ << "selected DUT: " << ui->eventDisplayDUTListW->selectedItems()[dut]->text().toStdString();
-        //       STDLINE(ss_.str(),ACGreen);
-    }
-    //std::string histoType;
-    //histoType = theHManager_->makeDUTprojections(selectedDUTs)[0];
-    STDLINE("WARNING: Work in progress, function disabled!",ACRed);
-
-    //this->drawAll(ui->eventDisplayLeftCanvas, histoType, "COLZ");
-}
-//=============================================================================
-void mainTabs::on_show3dFittedTracksBeamPB_clicked()
-{
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    std::string histoType = theHManager_->makeFittedTracksBeam(selectedEvents_)[0];
-
-    this->drawAll(eventDisplayLeftCanvas_, histoType, "", "COLZ");
-}
-
-//===========================================================================
+//=========================================================================
 //**************************************** CONTROLS TAB **************************************************************
-//===========================================================================
-void mainTabs::on_fileEaterVerbosityCB_activated(int verbosity)
-{
-    theFileEater_->setVerbosity(verbosity);
-}
-//===========================================================================
-void mainTabs::on_buildPlotsPB_clicked()
-{
-    this->launchThread3(theHManager_,this,&mainTabs::buildClusterPlots);
-}
-//===========================================================================
-void mainTabs::buildClusterPlots()
-{
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    theHManager_->setSubProcessFunction(&HManager::makeClusterPlots2);
-    HManager::stringVDef histoType = theHManager_->eventsCycle();
-    emit mainTabs::processFinished(&mainTabs::buildClusterPlots_end,histoType);
-}
-//===========================================================================
-void mainTabs::buildClusterPlots_end(HManager::stringVDef histoType)
-{
-    this->drawAll(beamSpotProjXCanvas_,histoType[1]);
-    this->drawAll(beamSpotProjYCanvas_,histoType[2]);
-    this->drawAll(beamSpot2DCanvas_,   histoType[3]);
-    this->drawAll(clustersCanvas_,     histoType[0]);
-}
-
-//===========================================================================
-void mainTabs::on_TEMPSHOWTRACKSPB_clicked()
-{
-    theHManager_->setRunSubDir( theFileEater_->openFile(ui->loadedRootFileLE->text().toStdString()) );
-
-    Event *theEvent = theFileEater_->getEvent(ui->eventSelectedSpinBox->value());
-
-    HManager::stringVDef xyVec = theHManager_->makeTrackEvent( theEvent );
-
-    //       ui->eventDisplayLeftCanvas->GetCanvas()->Clear();
-    //       ui->eventDisplayLeftCanvas->GetCanvas()->cd();
-    //       theHManager_->getHistogram(xyPair.first)->Draw();
-
-    //       ui->eventDisplayLeftCanvas->GetCanvas()->Clear();
-    //       ui->eventDisplayLeftCanvas->GetCanvas()->cd();
-    //       theHManager_->getHistogram(xyPair.second)->Draw();
-}
-
-//===========================================================================
-void mainTabs::on_loadFakeBeam_clicked()
-{
-    theBeamSimulator_->setErrors(ui->simulationXerrorSB->value(),ui->simulationYerrorSB->value());
-
-    QString localPath = "../BeamEmulator/" ;
-    QString fileName = QFileDialog::getOpenFileName(this,"Beam simulation files",localPath,"Binary Files(*.nhd)");
-    if (fileName.isEmpty())  return ;
-
-    this->on_loadGeometryPB_clicked();
-
-    std::string outputFile = theFileEater_->openFile(fileName.toStdString());
-
-    ss_.str("");
-    ss_ << path_.toStdString() << "/" << outputFile;
-
-    this->openRootFile(QString::fromStdString(ss_.str()).replace(".nhd",".root"));
-}
-//===========================================================================
-void mainTabs::enableLimitZ(int state)
-{
-    ss_.str("") ; ss_ << "State " << state ; STDLINE(ss_.str(),ACPurple) ;
-    if( state == Qt::Checked )
-    {
-        ui->limitZSB->setEnabled(true) ;
-    }
-    else
-    {
-        ui->limitZSB->setEnabled(false) ;
-    }
-}
-
-//===========================================================================
-void mainTabs::on_residualRangeLowCB_activated(QString )
-{
-    if( ui->residuaLockRangeCB->isChecked() )
-    {
-        ui->residualRangeHigCB->setCurrentIndex(ui->residualRangeLowCB->currentIndex()) ;
-    }
-}
-
-//===========================================================================
-void mainTabs::on_residualRangeHigCB_activated(QString )
-{
-    if( ui->residuaLockRangeCB->isChecked() )
-    {
-        ui->residualRangeLowCB->setCurrentIndex(ui->residualRangeHigCB->currentIndex()) ;
-    }
-}
-
-//===========================================================================
-void mainTabs::on_saveXMLResultsPB_clicked()
-{
-    QFile xmlFile(ui->xmlGeometryLE->text());
-    if(!xmlFile.exists())
-    {
-        QString msg = "File " + ui->xmlGeometryLE->text() + " doesn't exist. Go in the Geometry tab and click Change to change the xml file with an existing one!";
-        QMessageBox::information(this, tr("Monicelli"), tr(msg.toStdString().c_str()));
-        return;
-    }
-    mainWindow_->editXMLPanel(ui->xmlGeometryLE->text()) ;
-    XMLEditor * theXMLEditor = mainWindow_->getXMLEditor() ;
-
-    for (Geometry::iterator geo=theGeometry_->begin(); geo!=theGeometry_->end(); ++geo)
-    {
-
-        Detector * theDetector = theGeometry_->getDetector( geo->first ) ;
-        double xPosition           = theDetector->getXPosition()           ;
-        double yPosition           = theDetector->getYPosition()           ;
-        double zPosition           = theDetector->getZPosition()           ;
-        double xPositionCorrection = theDetector->getXPositionCorrection() ;
-        double yPositionCorrection = theDetector->getYPositionCorrection() ;
-        double zPositionCorrection = theDetector->getZPositionCorrection() ;
-        double xRotation           = theDetector->getXRotation()           ;
-        double yRotation           = theDetector->getYRotation()           ;
-        double zRotation           = theDetector->getZRotation()           ;
-        double xRotationCorrection = theDetector->getXRotationCorrection() ;
-        double yRotationCorrection = theDetector->getYRotationCorrection() ;
-        double zRotationCorrection = theDetector->getZRotationCorrection() ;
-
-        boost::cmatch what;
-        static const boost::regex exp("Station: (\\d+) - Plaq: (\\d+)", boost::regex::perl);
-
-        int stationId  = -1 ;
-        int detectorId = -1 ;
-
-        if( boost::regex_match(geo->first.c_str(), what, exp, boost::match_extra) )
-        {
-            stationId  = Utils::toInt(what[1]);
-            detectorId = Utils::toInt(what[2]);
-        }
-        else
-        {
-            STDLINE(std::string("Invalid address: ")+geo->first,ACRed) ;
-            assert(0) ;
-        }
-
-        theXMLEditor->setXPosition(stationId,detectorId,xPosition / CONVF) ;
-        theXMLEditor->setYPosition(stationId,detectorId,yPosition / CONVF) ;
-        theXMLEditor->setZPosition(stationId,detectorId,zPosition / CONVF) ;
-        theXMLEditor->setXPositionCorrection(stationId,detectorId,xPositionCorrection     / CONVF) ;
-        theXMLEditor->setYPositionCorrection(stationId,detectorId,yPositionCorrection     / CONVF) ;
-        theXMLEditor->setZPositionCorrection(stationId,detectorId,zPositionCorrection     / CONVF) ;
-        theXMLEditor->setXRotation          (stationId,detectorId,xRotation                 ) ;
-        theXMLEditor->setYRotation          (stationId,detectorId,yRotation                 ) ;
-        theXMLEditor->setZRotation          (stationId,detectorId,zRotation                 ) ;
-        theXMLEditor->setXRotationCorrection(stationId,detectorId,xRotationCorrection       ) ;
-        theXMLEditor->setYRotationCorrection(stationId,detectorId,yRotationCorrection       ) ;
-        theXMLEditor->setZRotationCorrection(stationId,detectorId,zRotationCorrection       ) ;
-    }
-}
-
-//===========================================================================
-QString mainTabs::getEnvPath(QString environmentName)
-{
-    QString localPath = getenv(environmentName.toStdString().c_str());
-
-    if(localPath.isEmpty())
-    {
-        localPath = path_ ;
-        ss_.str("") ;
-        ss_ << ACRed << ACBold
-            << "WARNING: "
-            << ACPlain
-            << "environment variable "
-            << environmentName.toStdString()
-            << " is undefined. Assuming "
-            << localPath.toStdString()
-            << " as its value." ;
-        STDLINE(ss_.str(),ACYellow) ;
-    }
-    if(localPath[localPath.size()-1] != '/')
-        localPath += '/';
-
-    return localPath ;
-}
-
-//===========================================================================
-void mainTabs::on_selectFilesPB_clicked()
-{
-    QString localPath = this->getEnvPath("Monicelli_RawData_Dir") ;
-    QStringList fileNames = QFileDialog::getOpenFileNames(this,"Merged files",localPath,"Dat Files(*.dat);;Text files (*.txt)");
-    if (fileNames.size() == 0) return  ;
-
-    for(int i=0; i<fileNames.size(); ++i )
-    {
-        ui->selectedFilesLW->insertItem(i,fileNames.at(i)) ;
-    }
-
-    if( ui->geometryLE->text() != QString("") ) ui->reconstructEventsPB->setEnabled(true) ;
-    //  this->ui->maxRawEventsAllCB->setEnabled(true);
-}
-
-//===========================================================================
-void mainTabs::on_selectGeometryPB_clicked()
-{
-    QString localPath = this->getEnvPath("Monicelli_XML_Dir") ;
-    QString fileName = QFileDialog::getOpenFileName(this,"testBeamGeometry files",localPath,"xml Files(*.xml);;geo Files(*.geo)");
-    if (fileName.isEmpty()) return ;
-
-    ui->geometryLE->setText(fileName) ;
-
-    if( ui->selectedFilesLW->count() > 0) ui->reconstructEventsPB->setEnabled(true) ;
-}
-
-//===========================================================================
-void mainTabs::on_reconstructEventsPB_clicked()
-{
-    STDLINE("",ACWhite) ;
-    STDLINE("================ Batch processing for the track reconstruction of the following files ===================", ACYellow) ;
-
-    //inputFiles_.clear();
-
-    std::string inputFile = "";
-
-    for(int i=0; i<ui->selectedFilesLW->count(); ++i)
-    {
-        std::string fileName = ui->selectedFilesLW->item(i)->text().toStdString() ;
-        inputFiles_.push_back(fileName) ;
-        ss_.str("");
-        ss_ << i << "]\t" << fileName ;
-        STDLINE(ss_.str(),ACGreen) ;
-    }
-
-    for(int i=0; i<ui->selectedFilesLW->count(); ++i)
-    {
-        if(ui->selectedFilesLW->item(i)->isSelected()) continue;
-        inputFile = ui->selectedFilesLW->item(i)->text().toStdString();
-        ui->selectedFilesLW->item(i)->setSelected(true);
-        break;
-    }
-
-    if(inputFile.empty())
-    {
-        STDLINE("ALL files have been processed",ACGreen);
-        return;
-    }
-    //if(inputFiles_.empty()) return;
-    STDLINE("",ACWhite) ;
-
-    theFileEater_->openFile( ui->geometryLE->text().toStdString() );
-    //theFileEater_->setInputFileNames( inputFiles_ );
-
-    double chi2Cut        = -1 ;
-    double trackPoints    = -1 ;
-    double maxPlanePoints = -1 ;
-    if( ui->trackFinderChi2cutCB->isChecked()     ) chi2Cut        = ui->trackFinderChi2cutSB->value() ;
-    if( ui->trackFinderTrackPointsCB->isChecked() ) trackPoints    = ui->trackFinderTrackPointsSB->value();
-    if( ui->trackFinderPlanePointsCB->isChecked() ) maxPlanePoints = ui->trackFinderPlanePointsSB->value();
-
-    theTrackFinder_->setTrackSearchParameters(ui->xRoadToleranceSB->value()*(1e-4)*CONVF,
-                                              ui->yRoadToleranceSB->value()*(1e-4)*CONVF,
-                                              chi2Cut                                   ,
-                                              trackPoints                               ,
-                                              maxPlanePoints                            );
-    STDLINE("",ACWhite) ;
-
-    if (ui->maxRawEventsAllCB->isChecked())
-        theFileEater_->setEventsLimit( ui->maxRawEventsAllSB->value() );
-    else   theFileEater_->setEventsLimit( -1                             );
-
-    theFileEater_  ->setOperation(&fileEater::fullReconstruction,theClusterizer_);
-    theTrackFinder_->setOperation(&trackFinder::findAndFitTracks);//Might not work, used to be road search, but road search no longer fits
-    theFileEater_  ->addSubProcess(theTrackFinder_);
-    theTrackFitter_->setOperation(&trackFitter::makeFittedTracksResiduals);
-    theFileEater_  ->addSubProcess(theTrackFitter_);
-
-    theFileEater_->setInputFileName(inputFile);
-    this->launchThread2(theFileEater_);
-}
-
-//===========================================================================
-void mainTabs::on_userModeAlignPB_clicked()
-{
-    //    //find tracks with 8 points
-    //    ui->trackFinderTrackPointsCB->setChecked(true);
-    //    ui->trackFinderTrackPointsSB->setValue(8)     ;
-    //    ui->findTrackFirstAndLastPB->click();
-    //    ui->findTrackRoadSearchPB->click();
-    //    //make costrained residuals
-    //    ui->makeFittedTracksDeviationsPB->click();
-    //    //align with histogram mean
-    //    ui->alignMethodsCB->setCurrentIndex(2);
-    //    ui->trackFitterFitPB->click();
-    //    ui->trackFitterWriteAlignmentPB->click();
-    //    //find tracks with 8 points
-    //    ui->trackFinderTrackPointsCB->setChecked(true);
-    //    ui->trackFinderTrackPointsSB->setValue(8)     ;
-    //    //go for the fine alignment
-    //    ui->maxTrialSB->setValue(10);
-    //    //find first and last detector in space
-    //    std::string firstDet = theGeometry_->begin()->first;
-    //    std::string lastDet  = theGeometry_->begin()->first;
-    //    for ( Geometry::iterator det=theGeometry_->begin(); det!=theGeometry_->end(); det++ )
-    //    {
-    //        if ( det->second->isDUT() ) continue;
-    //        if ( det->second->getZPosition() <
-    //             theGeometry->getDetector(firstDet)->getZPosition() )
-    //        {
-    //            firstDet = (*det).first;
-    //            theAligner_->setFixParMap(firstDet , 111111);
-    //        }
-    //        else if ( det->second->getZPosition() >
-    //                  theGeometry->getDetector(lastDet)->getZPosition()  )
-    //        {
-    //            lastDet  = (*det).first;
-    //            theAligner_->setFixParMap(lastDet, 111111);
-    //        }
-    //        else
-    //        {
-    //            theAligner_->setFixParMap(lastDet, 000001);
-    //        }
-    //    }
-
-}
-
-//===================================================================================================
+//=================================================================================================
 //void mainTabs::on_testButtonPB_clicked()
 //{
 //    Detector *det = theGeometry_->getDetector(ui->eventDisplayTabPagePlaqSelectCB->currentText().toStdString());
@@ -4278,75 +4988,7 @@ void mainTabs::on_userModeAlignPB_clicked()
 //    }
 //}
 
-//===================================================================================================
-void mainTabs::on_saveCalibToROOTPB_clicked()
-{
-    QString calibOutputDirectory = getEnvPath("Monicelli_CalSample_Dir");
-    // Pass command to output to text file to calibrationLoader_
-    theCalibrationLoader_->saveROOTcalibrationFiles(calibOutputDirectory.toStdString());
-}
-
-//===================================================================================================
-bool mainTabs::on_changeXmlGeometryPB_clicked()
-{
-    QString localPath = this->getEnvPath("Monicelli_XML_Dir") ;
-    QString fileName = QFileDialog::getOpenFileName(this,"testBeamGeometry files",localPath,"xml Files(*.xml)");
-    if (fileName.isEmpty())
-    {
-        //ui->loadedGeometryLE->setText("No geometry xml file selected");
-        //ui->xmlGeometryLE->setText("No geometry xml file selected");
-        return false  ;
-    }
-    ui->xmlGeometryLE->setText(fileName);
-    theFileEater_->getGeometry()->setGeometryFileName(fileName.toStdString());
-    theFileEater_->updateGeometry("geometry");
-    theGeometry_ = theFileEater_->getGeometry();
-
-    return true;
-}
-
-//===================================================================================================
-void mainTabs::on_copyGeoGeometryPB_clicked()
-{
-    if(ui->geometryGeoGeometryFileLE->text().lastIndexOf("/") == -1 )
-    {
-        QMessageBox::information(this, tr("Monicelli"), tr("There is no geo file selected."));
-        return;
-    }
-    QString localPath = this->getEnvPath("Monicelli_XML_Dir");
-    QString fileName = ui->geometryGeoGeometryFileLE->text();
-    fileName.remove(0,fileName.lastIndexOf("/")+1);
-    fileName = localPath + fileName;
-    this->copyGeoFileTo(fileName);
-}
-
-//===================================================================================================
-void mainTabs::on_copyToGeoGeometryPB_clicked()
-{
-    QString localPath = this->getEnvPath("Monicelli_XML_Dir") ;
-    QString fileName = QFileDialog::getSaveFileName(this,"testBeamGeometry files",localPath,"geo Files(*.geo)");
-    if (!fileName.isEmpty())
-    {
-        this->copyGeoFileTo(fileName);
-    }
-
-}
-
-//===================================================================================================
-void mainTabs::copyGeoFileTo(QString fileName)
-{
-    if(ui->geometryGeoGeometryFileLE->text().lastIndexOf("/") == -1 )
-    {
-        QMessageBox::information(this, tr("Monicelli"), tr("There is no geo file selected."));
-        return;
-    }
-    STDLINE(fileName.toStdString(),ACRed);
-    QString cmd = "cp " + ui->geometryGeoGeometryFileLE->text() + " " + fileName;
-    system(cmd.toStdString().c_str() ) ;
-    STDLINE(cmd.toStdString(),ACCyan)  ;
-}
-
-//===================================================================================================
+//=================================================================================================
 void mainTabs::showGeometry()
 {
     //std::cout << __PRETTY_FUNCTION__ << std::endl;
@@ -4383,572 +5025,4 @@ void mainTabs::showGeometry()
     ui->geometryDisplayTable->show();
     geometryDisplayShrinkFix_++;
     //delete tmpGeoPars;
-}
-//===================================================================================================
-void mainTabs::on_geometryDisableEnableAllPB_clicked()
-{
-    if(theGeometry_ == NULL) return;
-    bool enable = false;
-    if(ui->geometryDisableEnableAllPB->text() == "Disable All")
-    {
-        enable = false;
-        ui->geometryDisableEnableAllPB->setText("Enable All");
-        ui->geometryDisableEnableAllPB->setStyleSheet("* { background-color: rgb(0,170,0) }");
-    }
-    else
-    {
-        enable = true;
-        ui->geometryDisableEnableAllPB->setText("Disable All");
-        ui->geometryDisableEnableAllPB->setStyleSheet("* { background-color: red }");
-    }
-
-    for(std::map<std::string,GeometryParameters*>::iterator it=geometryParameters_.begin(); it!=geometryParameters_.end(); it++ )
-    {
-        it->second->enable(enable);
-    }
-
-}
-
-//===================================================================================================
-void mainTabs::on_geometrySumAngleCorrToBasePB_clicked()
-{
-    if(theGeometry_ == NULL) return;
-    double base;
-    double correction;
-    Detector* detector;
-    for(std::map<std::string,GeometryParameters*>::iterator it=geometryParameters_.begin(); it!=geometryParameters_.end(); it++ )
-    {
-        if(!it->second->isEnabled()) continue;
-        detector   = theGeometry_->getDetector(it->first);
-        base       = detector->getXRotation();
-        correction = detector->getXRotationCorrection();
-        base += correction;
-        detector->setXRotation(base);
-        detector->setXRotationCorrection(0);
-
-        base       = detector->getYRotation();
-        correction = detector->getYRotationCorrection();
-        base += correction;
-        detector->setYRotation(base);
-        detector->setYRotationCorrection(0);
-
-        base       = detector->getZRotation();
-        correction = detector->getZRotationCorrection();
-        base += correction;
-        detector->setZRotation(base);
-        detector->setZRotationCorrection(0);
-
-        it->second->showDetectorPars(detector);
-    }
-    theFileEater_->updateGeometry("geometry");
-}
-
-//===================================================================================================
-void mainTabs::on_geometrySumTransCorrToBasePB_clicked()
-{
-    if(theGeometry_ == NULL) return;
-    double base;
-    double correction;
-    Detector* detector;
-    for(std::map<std::string,GeometryParameters*>::iterator it=geometryParameters_.begin(); it!=geometryParameters_.end(); it++ )
-    {
-        if(!it->second->isEnabled()) continue;
-        detector   = theGeometry_->getDetector(it->first);
-        base       = detector->getXPosition();
-        correction = detector->getXPositionCorrection();
-        base += correction;
-        detector->setXPosition(base);
-        detector->setXPositionCorrection(0);
-
-        base       = detector->getYPosition();
-        correction = detector->getYPositionCorrection();
-        base += correction;
-        detector->setYPosition(base);
-        detector->setYPositionCorrection(0);
-
-        base       = detector->getZPosition();
-        correction = detector->getZPositionCorrection();
-        base += correction;
-        detector->setZPosition(base);
-        detector->setZPositionCorrection(0);
-
-        it->second->showDetectorPars(detector);
-    }
-    theFileEater_->updateGeometry("geometry");
-}
-
-//===================================================================================================
-void mainTabs::on_geometrySumAllCorrToBasePB_clicked()
-{
-    on_geometrySumAngleCorrToBasePB_clicked();
-    on_geometrySumTransCorrToBasePB_clicked();
-}
-
-//===================================================================================================
-void mainTabs::on_geometryClearAllCorrectionsPB_clicked()
-{
-    if(theGeometry_ == NULL) return;
-    Detector* detector;
-    for(std::map<std::string,GeometryParameters*>::iterator it=geometryParameters_.begin(); it!=geometryParameters_.end(); it++ )
-    {
-        if(!it->second->isEnabled()) continue;
-        detector   = theGeometry_->getDetector(it->first);
-        detector->setXRotationCorrection(0);
-        detector->setYRotationCorrection(0);
-        detector->setZRotationCorrection(0);
-        detector->setXPositionCorrection(0);
-        detector->setYPositionCorrection(0);
-        detector->setZPositionCorrection(0);
-
-        it->second->showDetectorPars(detector);
-    }
-    theFileEater_->updateGeometry("geometry");
-}
-
-//===================================================================================================
-std::string mainTabs::getPlaneID (int station, int plaquette)
-{
-    std::stringstream ss;
-    ss << "Station: " << station << " - Plaq: " << plaquette;
-    return ss.str();
-}
-
-//===================================================================================================
-void mainTabs::fixStrips(int state)
-{
-    for(int row = 0; row<=ui->detectorsTableView->rowCount()-1; row++)
-    {
-        std::string plaqID = ui->detectorsTableView->indexAt(QPoint(0,row * ui->detectorsTableView->rowHeight(row))).data().toString().toUtf8().constData();
-        //std::cout << __PRETTY_FUNCTION__ << plaqID << std::endl;
-        Detector * theDetector = theGeometry_->getDetector(plaqID);
-        //std::cout << __PRETTY_FUNCTION__ << theDetector << std::endl;
-        //std::cout << __PRETTY_FUNCTION__ << theDetector->isStrip() << std::endl;
-        //std::cout << __PRETTY_FUNCTION__ << "Never here!" << std::endl;
-        if(theDetector->isStrip())
-        {
-            if (theGeometry_->getDetectorModule(plaqID)%2 == 0) ui->detectorsTableView->fixXStrip(state, row);
-            else ui->detectorsTableView->fixYStrip(state, row);
-        }
-    }
-}
-
-//================================================================================
-void mainTabs::setAlignmentBoxes(const QString alignmentMethod)
-{
-    std::string alignmentMethodString = alignmentMethod.toUtf8().constData();
-    if (alignmentMethodString == "Kalman")
-    {
-        ui->fineTrackFitterIterationsSB->setEnabled(false);
-        fixStrips(1);
-    }
-    else if (alignmentMethodString == "Simple")
-    {
-        ui->fineTrackFitterIterationsSB->setEnabled(true);
-        //ui->detectorsTableView->enableAll(1);
-        fixStrips(0);
-    }
-
-}
-
-//================================================================================
-void mainTabs::on_clearBulkFilesPB_clicked()
-{
-    ui->selectedFilesLW->clear() ;
-    ui->geometryLE->clear() ;
-}
-
-//================================================================================
-void mainTabs::on_residualsMonitorTW_currentChanged(int tabNumber)
-{
-    if( !theGeometry_ )
-    {
-        STDLINE("No geometry has been loaded so far",ACRed) ;
-        return ;
-    }
-
-    if( tabNumber == 6)
-    {
-
-        map<int, string> orientation;
-        map<int, string> rowColOrien;
-
-        orientation[0] = "y";
-        orientation[3] = "y";
-        orientation[1] = "x";
-        orientation[2] = "x";
-
-        QString s ;
-        for(unsigned int index=0; index<tableMap_.size(); index++)
-        {
-            QTableWidget * w = tableMap_[index];
-            w->setSelectionMode(QAbstractItemView::SingleSelection);
-            w->setColumnCount(4);
-            w->setRowCount(theGeometry_->getDetectorsNumber());
-            w->setHorizontalHeaderItem(0,new QTableWidgetItem(QString::fromStdString("Detector")));
-            w->setHorizontalHeaderItem(1,new QTableWidgetItem(QString::fromStdString("Type"    )));
-            //w->setHorizontalHeaderItem(4,new QTableWidgetItem(QString::fromStdString("Min"     )));
-            //w->setHorizontalHeaderItem(5,new QTableWidgetItem(QString::fromStdString("Max"     )));
-
-            int currentRow = 0 ;
-
-            for(Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); it++)
-            {
-                string   currentDetector = it->first;
-                Double_t coordMin,coordMax;
-                QString  coordMinString,coordMaxString;
-                //QString  minString,maxString;
-
-                TH1D * h = (TH1D*)theHManager_->getHistogram(folderMap_[index],currentDetector);
-                if( !h )
-                {
-                    STDLINE("No correlation histograms have been produced so far",ACRed) ;
-                    w->clear();
-                    w->setColumnCount(0);
-                    w->setRowCount(0);
-                    return ;
-                }
-                TF1  * f = (TF1*)h->GetListOfFunctions()->FindObject("linearFitFunc");
-                if( !f )
-                {
-                    STDLINE("Correlation histograms have not been fit yet",ACRed) ;
-                    w->clear();
-                    w->setColumnCount(0);
-                    w->setRowCount(0);
-                    return ;
-                }
-                coordMin = f->GetXmin();
-                coordMax = f->GetXmax();
-                coordMinString.setNum(coordMin);
-                coordMaxString.setNum(coordMax);
-                QTableWidgetItem * coordMinItem = new QTableWidgetItem(QString(coordMinString));
-                coordMinItem->setTextAlignment(Qt::AlignRight);
-                QTableWidgetItem * coordMaxItem = new QTableWidgetItem(QString(coordMaxString));
-                coordMaxItem->setTextAlignment(Qt::AlignRight);
-                w->setItem(currentRow,2,coordMinItem);
-                w->setItem(currentRow,3,coordMaxItem);
-
-                if(     theGeometry_->getDetector(currentDetector)->getZRotation() == 0)
-                {
-                    rowColOrien[0] = "ROW" ;
-                    rowColOrien[3] = "ROW" ;
-                    rowColOrien[1] = "COL" ;
-                    rowColOrien[2] = "COL" ;
-                }
-                else if(theGeometry_->getDetector(currentDetector)->getZRotation() == 90)
-                {
-                    rowColOrien[0] = "COL" ;
-                    rowColOrien[3] = "COL" ;
-                    rowColOrien[1] = "ROW" ;
-                    rowColOrien[2] = "ROW" ;
-                }
-
-                //             QTableWidgetItem * minItem = new QTableWidgetItem(QString(minString));
-                //             coordMinItem->setTextAlignment(Qt::AlignRight);
-                //             QTableWidgetItem * maxItem = new QTableWidgetItem(QString(maxString));
-                //             coordMaxItem->setTextAlignment(Qt::AlignRight);
-                //             w->setItem(currentRow,4,minItem);
-                //             w->setItem(currentRow,5,maxItem);
-
-
-                QTableWidgetItem * detectorItem = new QTableWidgetItem(QString(it->first.c_str()));
-                detectorItem->setFlags(detectorItem->flags() ^ Qt::ItemIsEditable);
-
-                QTableWidgetItem * typeItem = new QTableWidgetItem(QString(rowColOrien[index].c_str()));
-                typeItem->setFlags(typeItem->flags() ^ Qt::ItemIsEditable);
-                typeItem->setTextAlignment(Qt::AlignCenter);
-
-                w->setItem(currentRow,  1,typeItem) ;
-                w->setItem(currentRow++,0,detectorItem);
-            }
-
-            s = QString(orientation[index].c_str()) + QString("Min") ;
-            w->setHorizontalHeaderItem(2,new QTableWidgetItem(s)) ;
-            s = QString(orientation[index].c_str()) + QString("Max") ;
-            w->setHorizontalHeaderItem(3,new QTableWidgetItem(s)) ;
-
-            w->resizeColumnsToContents();
-            w->resizeRowsToContents();
-        }
-    }
-}
-
-//================================================================================
-void mainTabs::on_setLimitsMakePlotPB_clicked()
-{
-    int                currentIndex    = ui->plotTabW->currentIndex();
-    string             currentFolder   = folderMap_[currentIndex];
-    QTableWidget     * currentTable    = tableMap_[currentIndex];
-    string             currentDetector = currentTable->item(currentTable->currentRow(),0)->text().toStdString();
-
-    TH1D * h = (TH1D*)theHManager_->getHistogram(currentFolder,currentDetector);
-    setLimitsOnResidualsvsCoordinateCanvas_->GetCanvas()->cd();
-    h->Draw();
-    setLimitsOnResidualsvsCoordinateCanvas_->GetCanvas()->Update();
-
-}
-//================================================================================
-void mainTabs::on_GeometryTabW_currentChanged(int tabNumber)
-{
-    if( !theGeometry_ )
-    {
-        STDLINE("No geometry has been loaded so far",ACRed) ;
-        return ;
-    }
-
-    STDLINE(tabNumber,ACCyan) ;
-
-    if( tabNumber == 2)
-    {
-        for(Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); it++)
-        {
-            string currentDetector = it->first;
-            if((theGeometry_->getDetector(currentDetector)->isDUT())&&(ui->listOfDUTsCB->findText(currentDetector.c_str())==-1))
-                ui->listOfDUTsCB->addItem(currentDetector.c_str());
-        }
-
-    }
-}
-//================================================================================
-void mainTabs::on_cal1Chi2PB_clicked()
-{
-    gStyle->SetOptStat(0);
-    gStyle->SetOptFit (0);
-
-    TH1I* histo = theCalibrationLoader_->get1DChi2(ui->loadCalibrationsTabPagePlaqSelectCB->currentText().toStdString(),
-                                                   ui->calibrationROCSB->value()) ;
-    loadCalibrationMainCanvas_->GetCanvas()->Clear();
-    loadCalibrationMainCanvas_->GetCanvas()->Divide(1,1,0.01,0.01) ;
-    loadCalibrationMainCanvas_->GetCanvas()->cd(1);
-    loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(true);
-    loadCalibrationMainCanvas_->GetCanvas()->Modified();
-    loadCalibrationMainCanvas_->GetCanvas()->Update();
-    if( histo == NULL)
-    {
-        QMessageBox::information(this, tr("WARNING"), tr("Plot not found"));
-        return ;
-    }
-    histo->Draw();
-
-    loadCalibrationMainCanvas_->GetCanvas()->Modified();
-    loadCalibrationMainCanvas_->GetCanvas()->Update();
-}
-
-//================================================================================
-void mainTabs::optimizePlot(TH2 * histo)
-{
-    double emin = 1E10 ;
-    double emax =    0 ;
-    double mean =    0 ;
-    double Mean =    0 ;
-    double rms  =   20 ;
-    int    n    =    0 ;
-    double z    =    0 ;
-    for(int i=0; i<2; ++i)
-    {
-     n    =    0 ;
-     z    =    0 ;
-     mean =    0 ;
-     emin = 1E10 ;
-     emax =    0 ;
-     for(int binX=1; binX<=histo->GetNbinsX(); binX++)
-     {
-      for(int binY=1; binY<=histo->GetNbinsY(); binY++)
-      {
-       double b = histo->GetBinContent(binX,binY) ;
-       if( b > 0 && b <  emin )  {emin  = b ;}
-       if( b > 0 && b >= emax )  {emax  = b ;}
-       if( i == 0 )
-       {
-        mean += b;
-       }
-       else
-       {
-        if( fabs(Mean - b) < 3*rms ){mean += b ;}
-        else
-        {
-         ss_.str(""); ss_ << "Excluding ["
-                          << binX
-                          << ","
-                          << binY
-                          << "] = "
-                          << b
-                          << " mean: "
-                          << mean
-                          << " Mean: "
-                          << Mean ;
-//         STDLINE(ss_.str(),ACWhite) ;
-        }
-       }
-       n++ ;
-      }
-     }
-     mean /= float(n) ;
-     Mean  = mean ;
-     for(int binX=1; binX<=histo->GetNbinsX(); binX++)
-     {
-       for(int binY=1; binY<=histo->GetNbinsY(); binY++)
-       {
-         double b = histo->GetBinContent(binX,binY) ;
-         if( fabs(Mean - b) < 3*rms ){z += (b-mean)*(b-mean) ;}
-       }
-     }
-     rms = sqrt(z/float(n)) ;
-     ss_.str(""); ss_ << "mean: "
-                      << mean
-                      << " (Mean: "
-                      << Mean
-                      << ") and RMS: "
-                      << rms
-                      << " (emin: "
-                      << emin
-                      << ")" ;
-//     STDLINE(ss_.str(),ACWhite) ;
-     ss_.str(""); ss_ << "From "
-                      << emin
-                      << " to "
-                      << mean + rms ;
-//     STDLINE(ss_.str(),ACWhite) ;
-    }
-
-    if( ui->optimizeVScaleCB->isChecked())
-    {
-        histo->GetZaxis()->SetRangeUser(emin, mean + 5*rms) ;
-    }
-    else
-    {
-        histo->GetZaxis()->SetRangeUser(0, emax+emax/20.) ;
-    }
-}
-//================================================================================
-void mainTabs::on_cal2Chi2PB_clicked()
-{
-    gStyle->SetOptStat(0  );
-    gStyle->SetOptFit (0  );
-    gStyle->SetPalette(1,0);
-
-    TH2F* histo = theCalibrationLoader_->get2DChi2(ui->loadCalibrationsTabPagePlaqSelectCB->currentText().toStdString(),
-                                                   ui->calibrationROCSB->value()) ;
-    loadCalibrationMainCanvas_->GetCanvas()->Clear();
-    loadCalibrationMainCanvas_->GetCanvas()->Divide(1,1,0.01,0.01) ;
-    loadCalibrationMainCanvas_->GetCanvas()->cd(1);
-    loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(false);
-    loadCalibrationMainCanvas_->GetCanvas()->Modified();
-    loadCalibrationMainCanvas_->GetCanvas()->Update();
-    if( histo == NULL)
-    {
-        QMessageBox::information(this, tr("WARNING"), tr("Plot not found"));
-        return ;
-    }
-
-    this->optimizePlot((TH2*)histo) ;
-
-    histo->Draw("COLZ");
-
-    loadCalibrationMainCanvas_->GetCanvas()->Modified();
-    loadCalibrationMainCanvas_->GetCanvas()->Update();
-}
-//================================================================================
-void mainTabs::on_cal1DChi2AllPB_clicked()
-{
-    gStyle->SetOptStat(0);
-    gStyle->SetOptFit (0);
-
-    vector<TH1I*> histos = theCalibrationLoader_->getAll1DChi2() ;
-    loadCalibrationMainCanvas_->GetCanvas()->Clear();
-    loadCalibrationMainCanvas_->GetCanvas()->cd();
-    loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(true);
-    loadCalibrationMainCanvas_->GetCanvas()->Divide(8,8,0,0) ;
-
-    for(unsigned int i=0; i<histos.size(); i++)
-    {
-        if( histos[i] != NULL)
-        {
-            loadCalibrationMainCanvas_->GetCanvas()->cd(i+1) ;
-            histos[i]->Draw();
-        }
-    }
-
-    loadCalibrationMainCanvas_->GetCanvas()->Modified();
-    loadCalibrationMainCanvas_->GetCanvas()->Update();
-}
-//================================================================================
-void mainTabs::on_cal2DChi2AllPB_clicked()
-{
-    gStyle->SetOptStat(0);
-    gStyle->SetOptFit (0);
-    gStyle->SetPalette(1,0);
-
-    vector<TH2F*> histos = theCalibrationLoader_->getAll2DChi2() ;
-    loadCalibrationMainCanvas_->GetCanvas()->Clear();
-    loadCalibrationMainCanvas_->GetCanvas()->cd();
-    loadCalibrationMainCanvas_->GetCanvas()->Pad()->SetObjectStat(false);
-    loadCalibrationMainCanvas_->GetCanvas()->Divide(8,8,0,0) ;
-    ui->parseProgressBar->reset();
-    ui->parseProgressBar->setMaximum(histos.size()-1);
-    ui->parseProgressBar->setValue(ui->parseProgressBar->maximum()) ;
-
-    for(unsigned int i=0; i<histos.size(); i++)
-    {
-        if( histos[i] != NULL)
-        {
-            QApplication::processEvents(QEventLoop::AllEvents);
-            this->optimizePlot((TH2*)histos[i]) ;
-            loadCalibrationMainCanvas_->GetCanvas()->cd(i+1) ;
-            histos[i]->Draw("COLZ");
-            ui->parseProgressBar->setValue(i) ;
-            QApplication::processEvents(QEventLoop::AllEvents);
-            loadCalibrationMainCanvas_->GetCanvas()->Modified();
-            loadCalibrationMainCanvas_->GetCanvas()->Update();
-        }
-        else
-        {
-            STDLINE("NULL",ACRed) ;
-        }
-    }
-}
-//================================================================================
-void mainTabs::on_removeCalibFilesPB_clicked()
-{
-    QString calibOutputDirectory = getEnvPath("Monicelli_CalSample_Dir");
-    // Pass command to output to text file to calibrationLoader_
-    theCalibrationLoader_->removeCalibrationFiles(calibOutputDirectory.toStdString());
-}
-//================================================================================
-void mainTabs::on_restoreCalibFilesPB_clicked()
-{
-    QString calibOutputDirectory = getEnvPath("Monicelli_CalSample_Dir");
-    // Pass command to output to text file to calibrationLoader_
-    theCalibrationLoader_->restoreCalibrationFiles(calibOutputDirectory.toStdString());
-}
-//================================================================================
-void mainTabs::on_selectSettingsPB_clicked()
-{
-    string  HOME      = getenv("HOME") ;
-    QString path      = QString(HOME.c_str())+QString("/.config/CMS/") ;
-    QString fileName  = QFileDialog::getOpenFileName(this,"Saved settings",path,"Settings files(*.conf)");
-    if (fileName.isEmpty())  return ;
-    STDLINE(fileName.toStdString(),ACWhite) ;
-    QStringList parts = fileName.split(QString("/")) ;
-    fileName          = parts[parts.size()-1] ;
-    fileName          = fileName.replace(QRegularExpression("\\.conf$"),QString("")) ;
-    theSettingsManager_->read(fileName);
-}
-//================================================================================
-void mainTabs::on_saveSettingsPB_clicked()
-{
-    string  HOME      = getenv("HOME") ;
-    QString path      = QString(HOME.c_str())+QString("/.config/CMS/") ;
-    QString fileName  = QFileDialog::getSaveFileName(this,"Save settings",path,"Settings files(*.conf)");
-    if (fileName.isEmpty())  return ;
-    STDLINE(fileName.toStdString(),ACWhite) ;
-    QStringList parts = fileName.split(QString("/")) ;
-    fileName          = parts[parts.size()-1] ;
-    fileName          = fileName.replace(QRegularExpression("\\.conf$"),QString("")) ;
-    theSettingsManager_->save(fileName);
-}
-//================================================================================
-void mainTabs::on_plotKalmanResidualsPB_clicked()
-{
-    theHManager_->makeKalmanResidualPlots(theTrackFitter_->getKalmanResidualsMap()) ;
-//    theHManager_->fitKalmanResidualPlots (theTrackFitter_->getKalmanResidualsMap()) ;
 }

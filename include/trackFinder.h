@@ -91,7 +91,8 @@ public:
     std::string getLabel                       (void                             );
     std::string getName                        (void                             ){return "trackFinder"           ;}
     void        setHeader                      (EventHeader * theHeader          ){theHeader->setTracksFound(true);}
-    int         getNumberOfTracks              (void                             ){return numberOfTracks_         ;}
+    int         getNumberOfSTracks             (void                             ){return numberOfSTracks_        ;}
+    int         getNumberOfKTracks             (void                             ){return numberOfKTracks_        ;}
 
 private:
     typedef std::vector<Event::alignedHitsCandidateMapDef> vecAHCDef ;
@@ -126,7 +127,8 @@ private:
     std::string fitMethod_        ;
     bool        findDUT_          ;
     bool        clusterCorrected_ ;
-    int         numberOfTracks_   ;
+    int         numberOfSTracks_  ;
+    int         numberOfKTracks_  ;
 
     std::stringstream ss_;
 };
