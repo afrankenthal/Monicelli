@@ -87,6 +87,7 @@ public:
    aFittedTrackDef                        kalmanFitSingleTrack            (const Event::alignedHitsCandidateMapDef & trackCandidate       ,
                                                                            Event::vectorDef                        & track                ,
                                                                            Event::matrixDef                        & cov                  ,
+                                                                           Event::kalmanTracksDef                  & kalmanTracks         ,
                                                                            Event::clustersMapDef                   & clusters             ,
                                                                            Geometry                                * theGeometry           );
    void                                   makeDetectorTrackResiduals      (ROOT::Math::SVector<double,4>           & fittedTrack          ,

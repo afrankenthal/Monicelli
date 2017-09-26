@@ -180,6 +180,20 @@ class Event : public TObject
 public:
     typedef ROOT::Math::SMatrix<double                          , 4                   ,4 > matrixDef                              ;
     typedef ROOT::Math::SVector<double                          , 4                      > vectorDef                              ;
+
+    struct kalmanTracks
+    {
+        std::string plane_     ;
+        std::string direction_ ;
+        vectorDef   trackPars_ ;
+        matrixDef   covMat_    ;
+        double      chi2_      ;
+        double      resX_      ;
+        double      resY_      ;
+        double      pullX_     ;
+        double      pullY_     ;
+    } ;
+
     typedef std::map           <std::string                     , int                    > aHitDef                                ;
     typedef std::vector        <aHitDef                                                  > hitsDef                                ;
     typedef std::map           <std::string                     , hitsDef                > plaqMapDef                             ;
@@ -200,6 +214,7 @@ public:
     typedef std::vector        <std::map<std::string, vectorDef>                         > unconstrainedFittedTracksDef           ;
     typedef std::vector        <std::map<std::string, matrixDef>                         > unconstrainedFittedTracksCovarianceDef ;
     typedef std::vector        <std::map<std::string, double   >                         > unconstrainedChi2VectorDef             ;
+    typedef std::vector        <kalmanTracks                                             > kalmanTracksDef                        ;
 
                                             Event                                 (void                                     );
                                            ~Event                                 (void                                     );
@@ -220,6 +235,7 @@ public:
     residualsMapDef&                        getFittedTrackResiduals               (void                                     ){return fittedTrackResiduals_               ;}
     residualsMapDef&                        getFittedTrackPulls                   (void                                     ){return fittedTrackPulls_                   ;}
     fittedTracksDef&                        getFittedTracks                       (void                                     ){return fittedTracks_                       ;}
+    kalmanTracksDef&                        getKalmanTracks                       (void                                     ){return kalmanTracks_                       ;}
     fittedTracksCovarianceDef&              getFittedTracksCovariance             (void                                     ){return fittedTracksCovariance_             ;}
     chi2VectorDef&                          getFittedTracksChi2                   (void                                     ){return fittedTracksChi2_                   ;}
     int                                     getTrigger                            (void                                     ){return trig_                               ;}
@@ -276,6 +292,7 @@ private:
     unconstrainedFittedTracksDef           unconstrainedFittedTracks_          ;
     unconstrainedFittedTracksCovarianceDef unconstrainedFittedTracksCovariance_;
     unconstrainedChi2VectorDef             unconstrainedFittedTracksChi2_      ;
+    kalmanTracksDef                        kalmanTracks_                       ;
     long long                              utc_                                ;
     long long                              bco_                                ;
     unsigned int                           timestamp_                          ;

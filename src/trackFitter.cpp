@@ -310,14 +310,17 @@ trackFitter::aFittedTrackDef trackFitter::fitSingleTrack(const Event::alignedHit
 trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alignedHitsCandidateMapDef & trackCandidate,
                                                                      Event::vectorDef                  & track         ,
                                                                      Event::matrixDef                  & cov           ,
+                                                                     Event::kalmanTracksDef            & kalmanTracks  ,
                                                                      Event::clustersMapDef             & clusters      ,
                                                                      Geometry                          * theGeometry   )
 {
     double chi2 = 0;
 
     //Use existing trackPars and covMat
-    TVectorT   <double> trackPars(4);
-    TMatrixTSym<double> estCov   (4);
+    TVectorT   <double>    trackPars(4);
+    TMatrixTSym<double>    estCov   (4);
+
+    kalmanTracks.clear() ;
 
     Event::vectorDef    trackTmp ;
     Event::matrixDef    covTmp   ;
@@ -336,10 +339,11 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
 
     //Use maps to store estCov and trackPars for each plane to use them in the smoothing step
 
-    std::map<std::string, TVectorT   <double> > trackParsMap;
-    std::map<std::string, TMatrixTSym<double> > CkMap;
-    std::map<std::string, TMatrixTSym<double> > Ckk_1Map;
-    std::map<std::string, TMatrixTSym<double> > Ckk_1Org;
+    Event::kalmanTracks                         theKalmanTrack ;
+    std::map<std::string, TVectorT   <double> > trackParsMap   ;
+    std::map<std::string, TMatrixTSym<double> > CkMap          ;
+    std::map<std::string, TMatrixTSym<double> > Ckk_1Map       ;
+    std::map<std::string, TMatrixTSym<double> > Ckk_1Org       ;
     TMatrixT<double> A   (4,4);
     TMatrixT<double> At  (4,4);
     TMatrixT<double> temp(4,4);
@@ -407,22 +411,25 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                         predsigyy = filteredR;
                         pullY     = resY/sqrt(predsigyy);
                     }
-                    residuals_.plaqID    = plaqID      ;
-                    residuals_.trackN    = 0           ;
-                    residuals_.resX      = resX        ;
-                    residuals_.resY      = resY        ;
-                    residuals_.pullX     = pullX       ;
-                    residuals_.pullY     = pullY       ;
-                    residuals_.chi2      = chi2        ;
-                    residuals_.direction = "filtering" ;
-                    residualsV_.push_back(residuals_) ;
-//ss_.str(""); ss_ << plaqID << " -- filtering " ; STDLINE(ss_.str(),ACWhite) ;
-                    //                cout << __LINE__ << "] Residuals Plane: " << plaqID
-//                     << " resX: "  << resX
-//                     << " resY: "  << resY
-//                     << " pullX: " << pullX
-//                     << " pullY: " << pullY
-//                     << endl;
+                    theKalmanTrack.plane_     = plaqID     ;
+                    theKalmanTrack.direction_ = "filtering";
+                    theKalmanTrack.trackPars_ = trackTmp   ;
+                    theKalmanTrack.covMat_    = covTmp     ;
+                    theKalmanTrack.chi2_      = chi2       ;
+                    theKalmanTrack.resX_      = resX       ;
+                    theKalmanTrack.resY_      = resY       ;
+                    theKalmanTrack.pullX_     = pullX      ;
+                    theKalmanTrack.pullY_     = pullY      ;
+                    kalmanTracks.push_back(theKalmanTrack) ;
+//                    residuals_.plaqID    = plaqID      ;
+//                    residuals_.trackN    = 0           ;
+//                    residuals_.resX      = resX        ;
+//                    residuals_.resY      = resY        ;
+//                    residuals_.pullX     = pullX       ;
+//                    residuals_.pullY     = pullY       ;
+//                    residuals_.chi2      = chi2        ;
+//                    residuals_.direction = "filtering" ;
+//                    residualsV_.push_back(residuals_) ;
 
                 }
             }
@@ -499,47 +506,38 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
                     pullY       = resY/sqrt(predsigyy);
                 }
 
-                residuals_.plaqID    = plaqID      ;
-                residuals_.trackN    = 0           ;
-                residuals_.resX      = resX        ;
-                residuals_.resY      = resY        ;
-                residuals_.pullX     = pullX       ;
-                residuals_.pullY     = pullY       ;
-                residuals_.chi2      = chi2        ;
-                residuals_.direction = "smoothing" ;
-                residualsV_.push_back(residuals_) ;
-//                ss_.str(""); ss_ << plaqID << " -- smoothing " ; STDLINE(ss_.str(),ACWhite) ;
+//                residuals_.plaqID    = plaqID      ;
+//                residuals_.trackN    = 0           ;
+//                residuals_.resX      = resX        ;
+//                residuals_.resY      = resY        ;
+//                residuals_.pullX     = pullX       ;
+//                residuals_.pullY     = pullY       ;
+//                residuals_.chi2      = chi2        ;
+//                residuals_.direction = "smoothing" ;
+//                residualsV_.push_back(residuals_)  ;
 
-                //                cout << __LINE__ << "] Residuals Plane: " << plaqID
-                //                     << " resX: "  << resX
-                //                     << " resY: "  << resY
-                //                     << " pullX: " << pullX
-                //                     << " pullY: " << pullY
-                //                     << endl;
+
+                theKalmanTrack.chi2_  = chi2  ;
+                theKalmanTrack.resX_  = resX  ;
+                theKalmanTrack.resY_  = resY  ;
+                theKalmanTrack.pullX_ = pullX ;
+                theKalmanTrack.pullY_ = pullY ;
             }
 
-//            ROOT::Math::SVector<double, 4u> trackTemp ;
+            for ( int i=0; i<4; i++ )
+            {
+                trackTmp[i] = trackPars[i] ;
+                for ( int j=0; j<4; j++ )
+                {
+                    covTmp[i][j] = estCov[i][j];
+                }
+            }
 
-//            double simplePredX = 0, simplePredY = 0,kalmanPred;
-//            for ( int i=0; i<4; i++ )
-//            {
-//                trackTemp[i] = trackPars[i] ;
-//            }
-
-//            theGeometry->getDetector(plaqID)->getPredictedLocal(trackTemp,simplePredX,simplePredY);
-//            kalmanPred = trackPars*h + offset;
-//            ss_.str("");
-//            ss_<<"predicted-";
-//            if(theGeometry->getDetectorModule(plaqID)%2==0)
-//            {
-//                ss_ << " Detector: "<<plaqID<<" kalmanPred: "<<kalmanPred<<" SimplePred: "<<simplePredX;
-//            }
-//            else
-//            {
-//                ss_ << " Detector: "<<plaqID<<" kalmanPred: "<<kalmanPred<<" SimplePred: "<<simplePredY;
-//            }
-
-//            STDLINE(ss_.str(),ACWhite);
+            theKalmanTrack.direction_ = "smoothing" ;
+            theKalmanTrack.plane_     = plaqID      ;
+            theKalmanTrack.trackPars_ = trackTmp    ;
+            theKalmanTrack.covMat_    = covTmp      ;
+            kalmanTracks.push_back(theKalmanTrack)  ;
 
             if( theGeometry->getDetector(plaqID)->isDUT() )
             {
@@ -567,6 +565,8 @@ trackFitter::aFittedTrackDef trackFitter::kalmanFitSingleTrack(const Event::alig
     aKalmanFittedTrack.first.first  = trackTmp     ;
     aKalmanFittedTrack.first.second = covTmp       ;
     aKalmanFittedTrack.second       = chi2         ;
+
+
 
     return aKalmanFittedTrack; // Missing chi2 contribution on last plane (after smoothing)
 }
@@ -695,6 +695,7 @@ void trackFitter::makeFittedTracksResiduals(Event *theEvent, Geometry *theGeomet
     Event::clustersMapDef                  & clusters                 = theEvent->getClusters()              ;
     Event::trackCandidatesDef              & trackCandidates          = theEvent->getTrackCandidates()       ;
     Event::fittedTracksDef                 & tracksFitted             = theEvent->getFittedTracks()          ;
+    Event::kalmanTracksDef                 & kalmanTracks             = theEvent->getKalmanTracks()          ;
     Event::fittedTracksCovarianceDef       & covMat                   = theEvent->getFittedTracksCovariance();
 
     std::vector<Event::alignedHitsCandidateMapDef>        ::iterator track      = trackCandidates.begin();
@@ -726,10 +727,11 @@ void trackFitter::makeFittedTracksResiduals(Event *theEvent, Geometry *theGeomet
 
             trackFitter::aFittedTrackDef aFittedTrack;
 
-            if(      fitMethodName_=="Kalman") aFittedTrack = this->kalmanFitSingleTrack(*track      ,
-                                                                                         *trackFit   ,
-                                                                                         *cov        ,
-                                                                                          clusters   ,
+            if(      fitMethodName_=="Kalman") aFittedTrack = this->kalmanFitSingleTrack(*track       ,
+                                                                                         *trackFit    ,
+                                                                                         *cov         ,
+                                                                                          kalmanTracks,
+                                                                                          clusters    ,
                                                                                           theGeometry);
             else if (fitMethodName_=="Simple") aFittedTrack = this->fitSingleTrack(*track, theGeometry, det->first);
             else                               aFittedTrack = this->fitSingleTrack(*track, theGeometry, det->first);

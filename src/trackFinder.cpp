@@ -594,6 +594,7 @@ void trackFinder::fitKalmanTrackCandidates(Event* theEvent, Geometry* theGeometr
     //Outputs of Simple Fit to iterate over
     Event::trackCandidatesDef        &trackCandidates = theEvent->getTrackCandidates()            ;
     Event::fittedTracksDef           &tracksFitted    = theEvent->getFittedTracks()               ;
+    Event::kalmanTracksDef           &kalmanTracks    = theEvent->getKalmanTracks()               ;
     Event::fittedTracksCovarianceDef &covMat          = theEvent->getFittedTracksCovariance()     ;
     Event::chi2VectorDef             &chi2            = theEvent->getFittedTracksChi2()           ;
     Event::clustersMapDef            &clusters        = theEvent->getClusters()                   ;
@@ -613,6 +614,7 @@ void trackFinder::fitKalmanTrackCandidates(Event* theEvent, Geometry* theGeometr
         trackFitter::aFittedTrackDef aKalmanFittedTrack = theTrackFitter_->kalmanFitSingleTrack(*trackCandidate,
                                                                                                 *track         ,
                                                                                                 *cov           ,
+                                                                                                 kalmanTracks  ,
                                                                                                  clusters      ,
                                                                                                  theGeometry    );
 

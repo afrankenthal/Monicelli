@@ -713,20 +713,20 @@ bool aligner::alignDUT()
     double  deltaTz = 0;
     double  fTz     = dut->getZPositionTotal();
 
-    std::vector<double>  parametersCorrection(nAlignPars,0);//0=alpha, 1=beta, 2=gamma, 3=deltaTx, 4=deltaTy, 5=deltaTz
-
-    std::vector<double>              rxprime, ryprime   ;
-    std::vector<double>              sigx , sigy        ;
-    std::vector<unsigned int>        xClusterSize,yClusterSize;
-    unsigned int                     nPoints = 0        ;
-    Event::fittedTracksDef           fitpar             ;
-    Event::fittedTracksCovarianceDef covMat             ;
+    std::vector<double>              parametersCorrection(nAlignPars,0);//0=alpha, 1=beta, 2=gamma, 3=deltaTx, 4=deltaTy, 5=deltaTz
+    std::vector<double>              rxprime, ryprime                  ;
+    std::vector<double>              sigx , sigy                       ;
+    std::vector<unsigned int>        xClusterSize                      ;
+    std::vector<unsigned int>        yClusterSize                      ;
+    unsigned int                     nPoints = 0                       ;
+    Event::fittedTracksDef           fitpar                            ;
+    Event::fittedTracksCovarianceDef covMat                            ;
 
     //fake Inverse Rotation
     Detector::matrix33Def fRInv = dut->getRotationMatrix();
 
     //Resetting plots!
-    outputPlots_           = theHManager_->clearAlignmentResults(DUT_);
+    outputPlots_ = theHManager_->clearAlignmentResults(DUT_);
 
     ss_.str(""); ss_ << "Initial Geometry for detector Id " <<  DUT_ ; STDLINE(ss_.str(),ACWhite);
     dut->dump();

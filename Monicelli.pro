@@ -76,6 +76,7 @@ HEADERS              = include/aligner.h                         	      		   \
                        include/roctabwidget.h                    	      		   \
                        include/rocwidget.h                       	      		   \
                        include/serialIdDialog.h                  	      		   \
+                       include/settingsmanager.h                                           \
                        include/subProcess.h                      	      		   \
                        include/subMultiProcess.h                 	      		   \
                        include/stationgb.h                       	      		   \
@@ -91,8 +92,7 @@ HEADERS              = include/aligner.h                         	      		   \
                        plugins/customComboBox/customComboBox.h   	      		   \
                        plugins/customLineEdit/customLineEdit.h   	      		   \
                        plugins/customSpinBox/customSpinBox.h     	      		   \
-                       plugins/customTableView/customTableView.h \
-    include/settingsmanager.h
+                       plugins/customTableView/customTableView.h
 
 SOURCES              = main.cpp                                  	      		   \
                        src/aligner.cpp                           	      		   \
@@ -126,6 +126,7 @@ SOURCES              = main.cpp                                  	      		   \
                        src/roctabwidget.cpp                      	      		   \
                        src/rocwidget.cpp                         	      		   \
                        src/serialIdDialog.cpp                    	      		   \
+                       src/settingsmanager.cpp                                             \
                        src/stationgb.cpp                         	      		   \
                        src/stationtabwidget.cpp                  	      		   \
                        src/qrootcanvas.cpp                       	      		   \
@@ -141,8 +142,7 @@ SOURCES              = main.cpp                                  	      		   \
                        plugins/customComboBox/customComboBox.cpp                           \
                        plugins/customLineEdit/customLineEdit.cpp                           \
                        plugins/customSpinBox/customSpinBox.cpp                             \
-                       plugins/customTableView/customTableView.cpp \
-    src/settingsmanager.cpp
+                       plugins/customTableView/customTableView.cpp
 
 
 RESOURCES            = Monicelli.qrc
