@@ -105,6 +105,10 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
                                                          int                      trackNum    = -1              ,
                                                          int                      clusterSize = -1              ,
                                                          bool                     clear       = false            ) ;
+    stringVDef             fillKalmanResiduals          (Event                  * theEvent       ,
+                                                         int                      trackNum    = -1              ,
+                                                         int                      clusterSize = -1              ,
+                                                         bool                     clear       = false            ) ;
     stringVDef             fillResiduals	            (Event                  * theEvent       ,
                                                          int                      trackNum    = -1              ,
                                                          int                      clusterSize = -1              ,
@@ -113,7 +117,7 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
                                                          int                      trackNum    = -1              ,
                                                          int                      clusterSize = -1              ,
                                                          bool                     clear       = false            ) ;
-
+    void                   fitKalmanResiduals           (void                                                    ) ;
     TFile*                 getFileHandle	            (std::string              fullPath                       ) ;
     TObject*               getHistogram	    	        (std::string              histogramType                 ,
                                                          int                      station                       ,
@@ -132,7 +136,6 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
     std::string            makeRawEvent	    	        (Event                  * theEvent                       ) ;
     stringVDef             makeTrackEvent               (Event                  * theEvent                       ) ;
     std::string            makeClusterEvent    	        (Event                  * theEvent                       ) ;
-    stringVDef             makeKalmanResidualPlots      (trackFitter::residualsVDef & theResiduals               ) ;
 //    stringVDef             fitKalmanResidualPlots       (trackFitter::allKalmanResidualsDef & theResiduals       ) ;
     stringVDef             makeResidualDistributions    (Event                  * theEvent                      ,
                                                          bool                   & redo                           ) ;

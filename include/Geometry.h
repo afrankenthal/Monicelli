@@ -57,43 +57,44 @@ class Geometry : public TObject
   typedef std::map< int , int >                 dataTypeMapDef ;
   typedef detectorsMapDef::iterator             iterator       ;
 
-  const iterator              begin                 (                               ) {return detectorsMap_.begin()       ;}
-  const iterator              end                   (                               ) {return detectorsMap_.end()         ;}
+  const iterator              begin                   ( 			      ) {return detectorsMap_.begin()	    ;}
+  const iterator              end                     ( 			      ) {return detectorsMap_.end()	    ;}
 
-  Detector                  * addDetector           (std::string  plaqID,
-                                                     bool         isDUT   = false,
-                                                     bool         isStrip = false   );
+  Detector                  * addDetector             (std::string  plaqID,
+                                                       bool	    isDUT   = false,
+                                                       bool	    isStrip = false   );
 
-  void                        clear                 (void                           ) {detectorsMap_.clear()              ;}
-  bool                        empty                 (void                           ) {return detectorsMap_.empty()       ;}
+  void                        clear                   (void			      ) {detectorsMap_.clear()  	    ;}
+  bool                        empty                   (void			      ) {return detectorsMap_.empty()	    ;}
 
-  Detector                  * getDetector           (std::string  plaqID            );
-  Detector                  * getDetector           (int          station,
-                                                     int          plaq              );
-  int                         getDetectorStation    (std::string  plaqID            );
-  int                         getDetectorModule     (std::string  plaqID            );
-  int                         getSize               (void                           ) {return detectorsMap_.size()        ;}
-  const KalmanPlaneInfo &     getKalmanPlaneInfo    (void                           ) {return theKalmanPlaneInfo_         ;}
+  Detector                  * getDetector             (std::string  plaqID	      );
+  Detector                  * getDetector             (int	    station,
+                                                       int	    plaq	      );
+  int                         getDetectorStation      (std::string  plaqID	      );
+  int                         getDetectorModule       (std::string  plaqID	      );
+  int                         getSize                 (void			      ) {return detectorsMap_.size()	    ;}
+  const KalmanPlaneInfo &     getKalmanPlaneInfo      (void			      ) {return theKalmanPlaneInfo_	    ;}
 
-  std::vector<Detector*>      getDUTs               (void                           );
-  detectorsMapDef             getDetectors          (void                           ) {return detectorsMap_               ;}
-  std::string                 getDetectorID         (int          Station, 
-                                                     int          Plaq              );
-  unsigned int                getDetectorsNumber    (bool         excludeDUT = false);
-  std::string                 getGeometryFileName   (void                           ) {return geometryFileName_           ;}
-  double                      getMaxDetectorsLength (void                           );
-  unsigned int                getMaxRowsNum         (void                           );
-  unsigned int                getMaxColsNum         (void                           );
-  bool                        calibrationDone       (void                           ) {return calibrationDone_            ;}
+  std::vector<Detector*>      getDUTs                 (void			      );
+  detectorsMapDef             getDetectors            (void			      ) {return detectorsMap_		    ;}
+  std::string                 getDetectorID           (int	    Station, 
+                                                       int	    Plaq	      );
+  unsigned int                getDetectorsNumber      (bool	    excludeDUT = false);
+  unsigned int                getDetectorsNumberByType(std::string  detectorType      );
+  std::string                 getGeometryFileName     (void			      ) {return geometryFileName_	    ;}
+  double                      getMaxDetectorsLength   (void			      );
+  unsigned int                getMaxRowsNum           (void			      );
+  unsigned int                getMaxColsNum           (void			      );
+  bool                        calibrationDone         (void			      ) {return calibrationDone_	    ;}
 
-  void                        setDUTnumbers         (unsigned int dutNumbers        ) {dutNumbers_           = dutNumbers ;}
-  void                        setGeometryFileName   (std::string  fileName          );
-  void                        setCalibrationDone    (bool         done              ) {calibrationDone_      = done       ;}
-  void                        setDataType           (int          station,
-                                                     int          d                 ) {dataTypeMap_[station] = d          ;}
-  void                        dump                  (void                           );
-  void                        orderPlanes           (void                           );
-  void                        calculatePlaneMCS     (void                           );
+  void                        setDUTnumbers           (unsigned int dutNumbers        ) {dutNumbers_	       = dutNumbers ;}
+  void                        setGeometryFileName     (std::string  fileName	      );
+  void                        setCalibrationDone      (bool	    done	      ) {calibrationDone_      = done	    ;}
+  void                        setDataType             (int	    station,
+                                                       int	    d		      ) {dataTypeMap_[station] = d	    ;}
+  void                        dump                    (void			      );
+  void                        orderPlanes             (void			      );
+  void                        calculatePlaneMCS       (void			      );
 
  private:
 

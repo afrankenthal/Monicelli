@@ -171,6 +171,32 @@ unsigned int Geometry::getDetectorsNumber(bool excludeDUT)
 }
 
 //================================================================================
+unsigned int Geometry::getDetectorsNumberByType(std::string detectorType)
+{
+  unsigned int numDUTs	 = 0 ;
+  unsigned int numStrips = 0 ;
+  unsigned int numPixels = 0 ;
+  
+  for (detectorsMapDef::iterator it = detectorsMap_.begin(); 
+                                 it!= detectorsMap_.end(); 
+			       ++it)
+  {
+    
+    if(     (*it).second->isDUT  ()) numDUTs++   ;
+    else if((*it).second->isStrip()) numStrips++ ;
+    else                             numPixels++ ;
+  }
+  
+  if( detectorType == "DUTs"    	) return numDUTs    	        ;
+  if( detectorType == "Strips"  	) return numStrips  	        ;
+  if( detectorType == "Pixels"  	) return numPixels  	        ;
+  if( detectorType == "DUTs & Strips"   ) return numDUTs   + numStrips  ;
+  if( detectorType == "DUTs & Pixels"   ) return numDUTs   + numPixels  ;
+  if( detectorType == "Strips & Pixels" ) return numStrips + numPixels  ;
+  return numDUTs + numStrips + numPixels ;
+}
+
+//================================================================================
 std::vector<Detector*>   Geometry::getDUTs(void )
 {
     std::vector<Detector*> DUTs;

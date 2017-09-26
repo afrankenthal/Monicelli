@@ -87,6 +87,7 @@ class aligner : public multiProcess<aligner,bool>
 
     bool                 align                   (void                                                      );
     bool                 alignDUT                (void                                                      );
+    bool                 alignStrips             (void                                                      );
     bool                 calculateCorrections    (std::string                     detectorName             ,
                                                   std::vector<double>           & deltaPars                ,
                                                   sMatAlDef                     & aTvaall                  ,

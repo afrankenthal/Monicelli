@@ -162,6 +162,8 @@ mainTabs::mainTabs(MainWindow * mainWindow) :
             this                             ,SLOT  (showResiduals              (                                        )));
     connect(ui->showResidualsPB              ,SIGNAL(clicked                    (                                        )),
             this                             ,SLOT  (showResiduals              (                                        )));
+    connect(ui->plotKalmanResidualsPB        ,SIGNAL(clicked                    (                                        )),
+            this                             ,SLOT  (showResiduals              (                                        )));
     connect(ui->showDeviationsPB             ,SIGNAL(clicked                    (                                        )),
             this                             ,SLOT  (showResiduals              (                                        )));
     connect(ui->showPullsPB                  ,SIGNAL(clicked                    (                                        )),
@@ -2021,9 +2023,13 @@ void mainTabs::on_fineAlignmentPB_clicked()
     std::string alignmentFitMethod = ui->alignmentTypeCB ->currentText().toStdString();
     theAligner_->setAlignmentFitMethodName(alignmentFitMethod);
     if (alignmentFitMethod == "Simple")
+    {
         theAligner_->setNumberOfIterations(ui->fineTrackFitterIterationsSB->value());
+    }
     else
+    {
         theAligner_->setNumberOfIterations(0);
+    }
 
     //theAligner_->clearFixParMap();
     for(Geometry::iterator it=theGeometry_->begin(); it!=theGeometry_->end(); ++it)
@@ -2062,7 +2068,8 @@ void mainTabs::on_fineAlignmentPB_clicked()
                                          ui->fineAlignmentNoDiagonalClustersCB->isChecked(),
                                          ""                                                ,
                                          nEvents);
-    theAligner_->setOperation(&aligner::align);
+    if(     alignmentFitMethod == "Simple" ) theAligner_->setOperation(&aligner::align      );
+    else                                     theAligner_->setOperation(&aligner::alignStrips);
     this->launchThread2(theAligner_);
 }
 
@@ -2387,8 +2394,8 @@ void mainTabs::on_parseFilePB_clicked()
 //==============================================================================
 void mainTabs::on_plotKalmanResidualsPB_clicked()
 {
-    theHManager_->clearKalmanResiduals();
-    theHManager_->makeKalmanResidualPlots(theTrackFitter_->getKalmanResidualsMap()) ;
+//    theHManager_->clearKalmanResiduals();
+//    theHManager_->makeKalmanResidualPlots(theTrackFitter_->getKalmanResidualsMap()) ;
 }
 
 //=========================================================================
@@ -3074,7 +3081,6 @@ void mainTabs::on_trackFindAndFitAlignmentPB_clicked()
         theTrackFitter_->setNumberOfIterations(ui->trackFitterIterationsSB->value());
     else
     {
-        theTrackFitter_->clearKalmanResiduals();
         theTrackFitter_->setNumberOfIterations(0);
     }
 
@@ -3097,7 +3103,6 @@ void mainTabs::on_trackFindAndFitPB_clicked()
     {
         theTrackFitter_->setNumberOfIterations(0);
         theTrackFitter_->includeResiduals(ui->includeResidualsCB->isChecked());
-        theTrackFitter_->clearKalmanResiduals();
     }
     findAndFitTrack(findMethod, fitMethod);
 }
@@ -4589,9 +4594,10 @@ void mainTabs::showResiduals()
 {
     std::string type;
     if     ( sender() == ui->showScatterResidualsPB ){ type = "showScatterResiduals"; theHManager_->clearScatterResidual();}
-    else if( sender() == ui->showResidualsPB        ){ type = "showResiduals"       ; theHManager_->clearResiduals() ;}
-    else if( sender() == ui->showDeviationsPB       ){ type = "showDeviations"      ; theHManager_->clearDeviations();}
-    else if( sender() == ui->showPullsPB            ){ type = "showPulls"           ; theHManager_->clearPulls()     ;}
+    else if( sender() == ui->showResidualsPB        ){ type = "showResiduals"       ; theHManager_->clearResiduals()      ;}
+    else if( sender() == ui->showDeviationsPB       ){ type = "showDeviations"      ; theHManager_->clearDeviations()     ;}
+    else if( sender() == ui->showPullsPB            ){ type = "showPulls"           ; theHManager_->clearPulls()          ;}
+    else if( sender() == ui->plotKalmanResidualsPB  ){ type = "showKalmanResiduals" ; theHManager_->clearKalmanResiduals();}
     else return;
 
     ui->eventDisplayTrackFitterEventsSelected->clear();

@@ -55,29 +55,14 @@ public:
     trackFitter(void)   ;
    ~trackFitter(void)  {this->clear();}
 
-   struct residualsStruct
-   {
-     string plaqID    ;
-     int    trackN    ;
-     double resX      ; 
-     double resY      ; 
-     double pullX     ; 
-     double pullY     ;
-     double chi2      ; 
-     string direction ;
-   } ;
-   
    typedef ROOT::Math::SVector<double,4>                     SV4Def                  ;
    typedef std::pair<pair<SV4Def, Event::matrixDef>,double>  aFittedTrackDef         ;
    typedef std::pair<double, std::string>                    pairDef                 ;
    typedef std::vector<pairDef>::const_reverse_iterator      revIterDef              ;
    typedef std::map<std::string, std::pair<double, double> > resDef                  ;
-   typedef std::vector<resDef>                               kalmanResidualsVectorDef;
-   typedef vector<residualsStruct>                           residualsVDef           ;
-    
+
    void                                   clear                           (void                                                            );
    void                                   clearSelectedDetectorsList      (void                                                            ){selectedDetectors_.clear()          ;}
-   void                                   clearKalmanResiduals            (void                                                            ){residualsV_.clear()                 ;}
    Event::fittedTracksDef                 fitTracks                       (const Event::trackCandidatesDef         & tracks               ,
                                                                            Geometry                                * theGeometry          ,
                                                                            std::string                               excludedDetector = "" );
@@ -108,7 +93,6 @@ public:
    Event::chi2VectorDef                   getChi2                         (void                                                            ){return chi2_                         ;}
    std::string                            getLabel                        (void                                                            );
    std::string                            getName                         (void                                                            ){return "trackFitter"                 ;}
-   residualsVDef                        & getKalmanResidualsMap           (void                                                            ){return residualsV_                   ;}
    void                                   includeResiduals                (bool                                      include               ){includeResiduals_ = include          ;}
    void                                   setSelectedDetectorsList        (std::set<std::string>                     selectedDetectors     ){selectedDetectors_= selectedDetectors;}
    void                                   setTracksFitted                 (bool                                      tracksFitted          ){tracksFitted_     = tracksFitted     ;}
@@ -120,11 +104,8 @@ public:
    static ROOT::Math::SVector<double,4>   calculateParCorrections         (ROOT::Math::SVector<double,4>             pars                 ,
                                                                            Geometry                                * geo                  ,
                                                                            resDef                                    res                   );
-
+   void                                   resetNumberOfTracks             (void                                                            ){nTracks_            = 0              ;}
 private:
-
-    residualsStruct                  residuals_                  ;
-    residualsVDef                    residualsV_                 ;
     
     void printMatrix(std::string sm, Event::matrixDef & matrix)  ;
     void printMatrix(std::string sm, ROOT::Math::SMatrix<long double,4,4> & matrix) ;
@@ -145,6 +126,7 @@ private:
 
     std::string                      fitMethodName_              ;
     int                              nIterations_                ;
+    int                              nTracks_                    ;
     KalmanPlaneInfo                  theKalmanPlaneInfo_         ;
     bool                             includeResiduals_           ;
 };

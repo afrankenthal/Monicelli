@@ -599,6 +599,8 @@ void trackFinder::fitKalmanTrackCandidates(Event* theEvent, Geometry* theGeometr
     Event::chi2VectorDef             &chi2            = theEvent->getFittedTracksChi2()           ;
     Event::clustersMapDef            &clusters        = theEvent->getClusters()                   ;
 
+    kalmanTracks.clear();
+
     //Define iterators
     std::vector<Event::alignedHitsCandidateMapDef>::iterator trackCandidate = trackCandidates.begin();
     std::vector<Event::vectorDef>                 ::iterator track          = tracksFitted   .begin();
@@ -608,7 +610,7 @@ void trackFinder::fitKalmanTrackCandidates(Event* theEvent, Geometry* theGeometr
     //cout << __PRETTY_FUNCTION__ << "Kalman Track Fit All" << endl;
 
     //Iterate over candidate tracks, fitted tracks, and corresponding covarience matrices
-
+    theTrackFitter_->resetNumberOfTracks() ;
     for (; trackCandidate!=trackCandidates.end(); trackCandidate++, track++, cov++, itChi2++)
     {
         trackFitter::aFittedTrackDef aKalmanFittedTrack = theTrackFitter_->kalmanFitSingleTrack(*trackCandidate,

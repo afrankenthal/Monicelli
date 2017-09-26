@@ -187,6 +187,7 @@ public:
         std::string direction_ ;
         vectorDef   trackPars_ ;
         matrixDef   covMat_    ;
+        int         trackN_    ;
         double      chi2_      ;
         double      resX_      ;
         double      resY_      ;

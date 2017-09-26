@@ -30,15 +30,6 @@
  
 #include "aligner.h"
 
-struct sort_pred 
-{
-    bool operator()(const std::pair<double,std::string> &left, 
-                    const std::pair<double,std::string> &right) 
-    {
-        return fabs(left.first) < fabs(right.first);
-    }
-}sorter1_;
-
 //=============================================================
 aligner::aligner(fileEater * theFileEater, 
                  HManager  * theHManager ) :
@@ -112,8 +103,6 @@ bool aligner::align(void)
         Event::clustersHitsMapDef &clustersHits = theEvent->getClustersHits()    ;
         Event::trackCandidatesDef &tracks       = theEvent->getTrackCandidates() ;
         Event::chi2VectorDef      &tracksChi2   = theEvent->getFittedTracksChi2();
-
-        //std::cout << __PRETTY_FUNCTION__ << "C Size: " << clusters.size() << " CH Size: " << clustersHits.size() << " T Size: " << tracks.size() << " TC Size: " << tracksChi2.size() << std::endl;
 
         if(maxTracks_ > 0 && (int)tracks.size() > maxTracks_) continue;
 
@@ -224,7 +213,6 @@ bool aligner::align(void)
         currentIteration_=ev;
     }
 
-    //std::cout << __PRETTY_FUNCTION__ << "Good tracks: " << goodTracks << std::endl;
     if(goodTracks == 0)
     {
         ss_.str("");
@@ -300,10 +288,9 @@ bool aligner::align(void)
                         if( det->first == exl->first ) continue;
 
                         double fxglo,fyglo,fzglo;
-                        fxglo = rxprime[det->first]*fRInv[det->first][0][0]+ryprime[det->first]*fRInv[det->first][0][1];
-                        fyglo = rxprime[det->first]*fRInv[det->first][1][0]+ryprime[det->first]*fRInv[det->first][1][1];
-                        fzglo =     fTz[det->first]                        +rxprime[det->first]*
-                                  fRInv[det->first][2][0]                  +ryprime[det->first]*fRInv[det->first][2][1];
+                        fxglo =                 rxprime[det->first]*fRInv[det->first][0][0]+ryprime[det->first]*fRInv[det->first][0][1];
+                        fyglo =                 rxprime[det->first]*fRInv[det->first][1][0]+ryprime[det->first]*fRInv[det->first][1][1];
+                        fzglo = fTz[det->first]+rxprime[det->first]*fRInv[det->first][2][0]+ryprime[det->first]*fRInv[det->first][2][1];
 
                         // Errors
                         sigmaXY(0,0) = pow(fRInv[det->first][0][0]*    sigx[j][det->first],2)+
@@ -338,12 +325,6 @@ bool aligner::align(void)
                         STDLINE("Fit failed: investigate!",ACRed) ;
                     }
                     fitpar  = AtVAInv*AtVxy;
-
-                    for ( int i=0; i<4; i++ )
-                    {
-                        //std::cout << __PRETTY_FUNCTION__ << "Initial Track par " << i << ": " << fitpar[i] << std::endl;
-                        //std::cout << __PRETTY_FUNCTION__ << "Initial covMat line " << i << ": " << AtVAInv[i][0] << " "<< AtVAInv[i][1] << " "<< AtVAInv[i][2] << " "<< AtVAInv[i][3] <<std::endl;
-                    } /*  */
 
                     if ((alignmentFitMethod_ == "Simple") && (nIterations_ > 0))
                     {
@@ -581,7 +562,6 @@ bool aligner::align(void)
                     }
                     else if(phase == 1)//User defined
                     {
-                        // int dataType = dataTypeMeas[j][exl->first];
                         if(trial == maxtrial_)
                         {
                             Detector::xyPair predSigmas = theGeometry->getDetector(exl->first)->propagateTrackErrors(fitpar,AtVAInv,fRInv[exl->first],fTz[exl->first]);
@@ -598,19 +578,7 @@ bool aligner::align(void)
                                     rxprime[exl->first], ryprime[exl->first]);
                         }
                         else
-                           /*if (dataType==1)
-                            {
-                                int module = theGeometry->getDetectorModule(exl->first);
-                                if (module%2==0)//first module in pair
-                                {
-                                    makeAlignMatricesStripsX(AtVAAll[exl->first],AtVInvRAll[exl->first],fitpar,fRInv[exl->first],fTz[exl->first],predX,den,sigx[j][exl->first],resxprime);
-                                }
-                                else
-                                {
-                                    makeAlignMatricesStripsY(AtVAAll[exl->first],AtVInvRAll[exl->first],fitpar,fRInv[exl->first],fTz[exl->first],predY,den,sigy[j][exl->first],resyprime);
-                                }
-                            }
-                            else */makeAlignMatrices(AtVAAll[exl->first],AtVInvRAll[exl->first],fitpar,fRInv[exl->first],fTz[exl->first],predX,predY,den,sigx[j][exl->first],sigy[j][exl->first],resxprime,resyprime);
+                            makeAlignMatrices(AtVAAll[exl->first],AtVInvRAll[exl->first],fitpar,fRInv[exl->first],fTz[exl->first],predX,predY,den,sigx[j][exl->first],sigy[j][exl->first],resxprime,resyprime);
                     }
                 }   // End Loop to exclude plane from the track fit
             }  // End Loop on random Tracks
@@ -679,23 +647,12 @@ bool aligner::align(void)
                         alignmentResults_[det->first].deltaTx =  deltaTx[det->first];
                         alignmentResults_[det->first].deltaTy =  deltaTy[det->first];
                         alignmentResults_[det->first].deltaTz =  deltaTz[det->first];
-                        //char buffer[128];
-                        //sprintf (buffer, "Alpha (deg) -> Total correction = %7.3f", dalpha);STDLINE(buffer,ACCyan);
-                        //sprintf (buffer, "Beta  (deg) -> Total correction = %7.3f", dbeta );STDLINE(buffer,ACCyan);
-                        //sprintf (buffer, "Gamma (deg) -> Total correction = %7.3f", dgamma);STDLINE(buffer,ACCyan);
                     }
                 }
             }
             currentIteration_+= nEvents_;
         }
     }
-
-    //ss_.str("");
-    //ss_ << "Sumchi2: " << sumchi2;
-    //STDLINE(ss_.str(),ACGreen);
-    //ss_.str("");
-    //ss_ << "Mean Chi2 per Measure: " << sumchi2/(theGeometry->getDetectorsNumber(true)*xmeas.size()*2);
-    //STDLINE(ss_.str(),ACGreen);
 
     return  true;
 }
@@ -907,6 +864,220 @@ bool aligner::alignDUT()
     return true;
 }
 
+//=============================================================================================================
+bool aligner::alignStrips()
+{
+    Geometry * theGeometry = theFileEater_->getGeometry();
+    Detector * dut         = theGeometry->getDetector(DUT_);
+
+    double  alpha   = 0;
+    double  beta    = 0;
+    double  gamma   = 0;
+    double  deltaTx = 0;
+    double  deltaTy = 0;
+    double  deltaTz = 0;
+    double  fTz     = dut->getZPositionTotal();
+
+    std::vector<double>              parametersCorrection(nAlignPars,0);//0=alpha, 1=beta, 2=gamma, 3=deltaTx, 4=deltaTy, 5=deltaTz
+    std::vector<double>              rxprime, ryprime                  ;
+    std::vector<double>              sigx , sigy                       ;
+    std::vector<unsigned int>        xClusterSize                      ;
+    std::vector<unsigned int>        yClusterSize                      ;
+    unsigned int                     nPoints = 0                       ;
+    Event::fittedTracksDef           fitpar                            ;
+    Event::fittedTracksCovarianceDef covMat                            ;
+
+    //fake Inverse Rotation
+    Detector::matrix33Def fRInv = dut->getRotationMatrix();
+
+    //Resetting plots!
+    outputPlots_ = theHManager_->clearAlignmentResults(DUT_);
+
+    ss_.str(""); ss_ << "Initial Geometry for detector Id " <<  DUT_ ; STDLINE(ss_.str(),ACWhite);
+    dut->dump();
+
+    for(int ev=0; ev<nEvents_; ++ev)
+    {
+        if(ev%1000 == 0)
+        {
+            ss_.str("") ;
+            ss_ << "Reading event: " << ev ;
+            STDSNAP(ss_.str(),ACWhite);
+        }
+
+        Event *theEvent = theFileEater_->getEvent(ev);
+        if(theEvent->getKalmanTracks().size() == 0 ) continue;
+
+        Event::clustersMapDef            & clusters      = theEvent->getClusters()              ;
+        Event::clustersHitsMapDef        & clustersHits  = theEvent->getClustersHits()          ;
+        Event::trackCandidatesDef        & tracks        = theEvent->getTrackCandidates()       ;
+        Event::fittedTracksDef           & fittedTracks  = theEvent->getFittedTracks()          ;
+        Event::kalmanTracksDef           & kalmanTracks  = theEvent->getKalmanTracks()          ;
+        Event::fittedTracksCovarianceDef & covariance    = theEvent->getFittedTracksCovariance();
+        Event::chi2VectorDef             & tracksChi2    = theEvent->getFittedTracksChi2()      ;
+
+//        if(maxTracks_ > 0 && (int)tracks.size() > maxTracks_)
+        unsigned int numTracks = 0 ;
+        Event::kalmanTracksDef::iterator evIt = theEvent->getKalmanTracks().end()-1 ;
+        numTracks = (*evIt).trackN_ ;
+
+        if(maxTracks_ > 0 && numTracks > maxTracks_)
+            continue;
+
+        for(unsigned int tr=0; tr < tracks.size(); tr++)
+        {
+            if( tracks[tr].count(DUT_) == 0 ) continue;
+            int pass = 0;
+            unsigned int purePass = 0;
+
+            for(Geometry::iterator git=theGeometry->begin(); git!=theGeometry->end(); git++)
+            {
+                //Continue if this is not the DUT we are interested in!
+//                if( git->second->isDUT() && (*git).first != DUT_) continue;
+
+                if( tracks[tr].count( git->first ) != 0 )
+                    pass++  ;
+                if( maxClusterSize_ > 0 && tracks[tr][(*git).first]["size"] <= maxClusterSize_ )
+                    purePass++;
+            }
+            //minimum points per track (8 telscope + 1 of the DUT that has to be aligned)
+            if( minTrackPoints_ > 1 && pass < minTrackPoints_ + 1 ) continue;
+
+            //chi2 cut if present
+            if( chi2cut_        > 0 && tracksChi2[tr]    > chi2cut_ ) continue;
+
+            //There must 8+1 pure pass points where pure means that the cluster size is at most 2
+            if( maxClusterSize_ > 0 && purePass < theGeometry->getDetectorsNumber(true) + 1 ) continue;
+/*
+            std::list<unsigned int>  nRow;
+            std::list<unsigned int>  nCol;
+//            bool inWindow = false;
+            for(Event::hitsDef::iterator hIt=clustersHits[DUT_][(int)tracks[tr][DUT_]["cluster ID"]].begin(); hIt!=clustersHits[DUT_][(int)tracks[tr][DUT_]["cluster ID"]].end();hIt++)
+            {
+                nRow.push_back((*hIt)["row"]);
+                nCol.push_back((*hIt)["col"]);
+//                if(!inWindow && (*hIt)["row"]>=42 && (*hIt)["row"]<=77 && (*hIt)["col"]>=19 && (*hIt)["col"]<=33)
+//                    inWindow = true;
+            }
+//            if(!inWindow) continue;
+            nRow.sort();
+            nCol.sort();
+            nRow.unique();
+            nCol.unique();
+            if(noDiagonalClusters_ && nRow.size() != 1 && nCol.size() != 1) continue;
+
+            if(theGeometry->getDetector(DUT_)->switchXYFromLocaToGlobal())
+            {
+                xClusterSize.push_back(nRow.size());
+                yClusterSize.push_back(nCol.size());
+            }
+            else
+            {
+                xClusterSize.push_back(nCol.size());
+                yClusterSize.push_back(nRow.size());
+            }
+*/
+            rxprime.push_back( clusters[DUT_][(int)tracks[tr][DUT_]["cluster ID"]]["x"]    );
+            ryprime.push_back( clusters[DUT_][(int)tracks[tr][DUT_]["cluster ID"]]["y"]    );
+
+            sigx.push_back(    clusters[DUT_][(int)tracks[tr][DUT_]["cluster ID"]]["xErr"] );
+            sigy.push_back(    clusters[DUT_][(int)tracks[tr][DUT_]["cluster ID"]]["yErr"] );
+
+            dut->fromLocalToGlobalNoRotation(&rxprime[nPoints],&ryprime[nPoints],&sigx[nPoints],&sigy[nPoints]);
+            ++nPoints;
+
+            if(sigx.back()<=0 || sigy.back()<=0)
+            {
+                ss_.str("");
+                ss_ << "WARNING: hit associated error is <=0 for detector: " << DUT_ << " ; event: " << ev;
+                STDLINE(ss_.str(), ACPurple);
+            }
+
+            fitpar.push_back( fittedTracks[tr] );
+            covMat.push_back( covariance[tr]   );
+        }
+        currentIteration_=ev;
+    }
+
+    if(rxprime.size() == 0)
+    {
+        ss_.str("");
+        ss_ << "WARNING: There are no tracks satisfying your cuts...returning";
+        STDLINE(ss_.str(),ACRed) ;
+        return false;
+    }
+
+    ss_.str("");
+    ss_ << "Total tracks found: " << rxprime.size();
+    STDLINE(ss_.str(), ACYellow);
+
+    for(int ntrial=0; ntrial < maxtrial_; ntrial++)
+    {
+        ss_.str("");
+        ss_ << "Trial number " << ntrial+1 << "/" << maxtrial_;
+        STDLINE(ss_.str(), ACGreen);
+
+        ++currentIteration_;
+
+        ROOT::Math::SMatrix<double,nAlignPars,nAlignPars> AtVAAll   ;
+        ROOT::Math::SVector<double,nAlignPars>            AtVInvRAll;
+
+        // Loop on random tracks
+        for(unsigned int j=0; j < rxprime.size(); ++j)
+        {
+            double predX,predY;
+            double den = dut->getAlignmentPredictedGlobal(fitpar[j],fRInv,fTz,predX,predY);
+
+            double resxprime = rxprime[j] - deltaTx - predX;
+            double resyprime = ryprime[j] - deltaTy - predY;
+
+            makeAlignMatrices(AtVAAll,AtVInvRAll,fitpar[j],fRInv,fTz,predX,predY,den,sigx[j],sigy[j],resxprime,resyprime);
+
+            if(ntrial == maxtrial_-1)
+            {
+                Detector::xyPair predSigmas = dut->propagateTrackErrors(fitpar[j],covMat[j],fRInv,fTz);
+
+                predSigmas.first  += sigx[j]*sigx[j];
+                predSigmas.second += sigy[j]*sigy[j];
+
+                theHManager_->fillAlignmentResults(DUT_           ,
+                                                   xClusterSize[j], yClusterSize[j],
+                                                   resxprime      , predSigmas.first,
+                                                   resyprime      , predSigmas.second,
+                                                   rxprime[j]     , ryprime[j]      );
+            }
+        }
+
+        calculateCorrections(DUT_, parametersCorrection, AtVAAll, AtVInvRAll,fRInv);
+
+        alpha   += parametersCorrection[0];
+        beta    += parametersCorrection[1];
+        gamma   += parametersCorrection[2];
+        deltaTx += parametersCorrection[3];
+        deltaTy += parametersCorrection[4];
+        deltaTz += parametersCorrection[5];
+
+        fTz     += parametersCorrection[5];
+
+        ss_.str(""); ss_ << "Detector Id " << DUT_; STDLINE(ss_.str(),ACRed);
+        char buffer[128];
+        sprintf (buffer, "Alpha -> Total correction = %7.3f deg Trial correction =  %7.3f deg", alpha*180./M_PI, parametersCorrection[0]*180./M_PI);STDLINE(buffer,ACCyan);
+        sprintf (buffer, "Beta  -> Total correction = %7.3f deg Trial correction =  %7.3f deg", beta *180./M_PI, parametersCorrection[1]*180./M_PI);STDLINE(buffer,ACCyan);
+        sprintf (buffer, "Gamma -> Total correction = %7.3f deg Trial correction =  %7.3f deg", gamma*180./M_PI, parametersCorrection[2]*180./M_PI);STDLINE(buffer,ACCyan);
+        sprintf (buffer, "X     -> Total correction = %7.3f um  Trial correction =  %7.3f um" , 10*deltaTx, 10*parametersCorrection[3]);STDLINE(buffer,ACCyan);
+        sprintf (buffer, "Y     -> Total correction = %7.3f um  Trial correction =  %7.3f um" , 10*deltaTy, 10*parametersCorrection[4]);STDLINE(buffer,ACCyan);
+        sprintf (buffer, "Z     -> Total correction = %7.3f um  Trial correction =  %7.3f um" , 10*deltaTz, 10*parametersCorrection[5]);STDLINE(buffer,ACCyan);
+    }
+
+    alignmentResults_[DUT_].alpha   =  asin(fRInv(2,1)/sqrt(1-fRInv(2,0)*fRInv(2,0)))*180/M_PI - dut->getXRotation() - dut->getXRotationCorrection();
+    alignmentResults_[DUT_].beta    =  asin(-fRInv(2,0))*180/M_PI                              - dut->getYRotation() - dut->getYRotationCorrection();
+    alignmentResults_[DUT_].gamma   =  asin(fRInv(1,0)/sqrt(1-fRInv(2,0)*fRInv(2,0)))*180/M_PI - dut->getZRotationCorrection();
+    alignmentResults_[DUT_].deltaTx =  deltaTx          ;
+    alignmentResults_[DUT_].deltaTy =  deltaTy          ;
+    alignmentResults_[DUT_].deltaTz =  deltaTz          ;
+
+    return true;
+}
 //===================================================================
 void aligner::makeAlignMatrices   (ROOT::Math::SMatrix<double,nAlignPars,nAlignPars>& AtVA,
                                    ROOT::Math::SVector<double,nAlignPars>&            AtVAInvR,
