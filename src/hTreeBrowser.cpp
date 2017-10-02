@@ -66,6 +66,8 @@ hTreeBrowser::hTreeBrowser(QWidget *parent, MainWindow * mainWindow)
     existingWItems_.clear() ;
     cSw_.clear() ;
 
+    this->setGeometry(600,10,900,250);
+
     QStringList labels;
     labels << tr("Folder Name") << tr("Object Type") << tr("Entries");
     this->setHeaderLabels(labels);
@@ -168,11 +170,18 @@ hTreeBrowser::hTreeBrowser(QWidget *parent, MainWindow * mainWindow)
 //=========================================================================
 hTreeBrowser::~hTreeBrowser(void)
 {
-    ss_.str("") ; ss_ << "Window size: " << windowSize_.width() << " x " << windowSize_.height() ;
+//    ss_.str("") ; ss_ << "Geometry: "
+//                      << this->geometry().x()
+//                      << "+"
+//                      << this->geometry().y()
+//                      << " "
+//                      << this->geometry().width()
+//                      << " x "
+//                      << this->geometry().height() ;
+//    STDLINE(ss_.str(),ACWhite) ;
     QSettings settings("CMS", "hTreeBrowser");
     settings.setValue("windowWidth" , windowSize_.width()) ;
     settings.setValue("windowHeight", windowSize_.height());
-    STDLINE(ss_.str(),ACWhite) ;
     STDLINE("Dtor",ACRed) ;
 }
 
@@ -583,6 +592,15 @@ void hTreeBrowser::showContextMenu(const QPoint &)
 void hTreeBrowser::resizeEvent(QResizeEvent * ev)
 {
     windowSize_ = ev->size() ;
+//    ss_.str("") ; ss_ << "Geometry: "
+//                      << this->geometry().x()
+//                      << "+"
+//                      << this->geometry().y()
+//                      << " "
+//                      << this->geometry().width()
+//                      << " x "
+//                      << this->geometry().height() ;
+//    STDLINE(ss_.str(),ACWhite) ;
 }
 
 //===========================================================================

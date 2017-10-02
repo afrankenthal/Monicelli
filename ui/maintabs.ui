@@ -3991,8 +3991,8 @@ p, li { white-space: pre-wrap; }
        <property name="font">
         <font>
          <pointsize>9</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
+         <weight>75</weight>
+         <bold>true</bold>
         </font>
        </property>
        <property name="title">
@@ -5135,8 +5135,8 @@ p, li { white-space: pre-wrap; }
        <property name="font">
         <font>
          <pointsize>9</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
+         <weight>75</weight>
+         <bold>true</bold>
         </font>
        </property>
        <property name="title">
@@ -5376,8 +5376,8 @@ p, li { white-space: pre-wrap; }
          </property>
          <property name="geometry">
           <rect>
-           <x>18</x>
-           <y>44</y>
+           <x>12</x>
+           <y>46</y>
            <width>77</width>
            <height>18</height>
           </rect>
@@ -6649,7 +6649,7 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="geometry">
          <rect>
-          <x>60</x>
+          <x>88</x>
           <y>24</y>
           <width>37</width>
           <height>18</height>
@@ -8448,6 +8448,9 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
        <widget class="QGroupBox" name="residualsFiltersGB">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>235</x>
@@ -9113,6 +9116,9 @@ p, li { white-space: pre-wrap; }
          </property>
          <property name="text">
           <string>Plot Only Cluster Size:</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
          </property>
          <property name="checked">
           <bool>false</bool>

@@ -3338,7 +3338,7 @@ void mainTabs::on_trackFitterWriteAlignmentPB_clicked()
 
         Detector* det = theGeometry_->getDetector( it->first );
 
-        ss_.str("") ; ss_ << setw(18) << setprecision(14)
+        ss_.str("") ; ss_ << setw(18) << setprecision(10)
                           <<"Initial parameters for detector: "
                           << det->getID()
                           << " xPos = "

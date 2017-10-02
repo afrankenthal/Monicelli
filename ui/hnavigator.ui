@@ -303,7 +303,7 @@
       </palette>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="actionsTP">
       <attribute name="title">

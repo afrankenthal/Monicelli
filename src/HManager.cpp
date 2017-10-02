@@ -1850,9 +1850,9 @@ HManager::stringVDef HManager::makeResidualDistributions(Event* theEvent, bool& 
     }
     else if( residualsToPlot_ == "showKalmanResiduals")
     {
-        if(theEvent->getKalmanTracks().size() == 0 ) return fullPaths;
-        Event::kalmanTracksDef::iterator evIt = theEvent->getKalmanTracks().end()-1 ;
-        numTracks = (*evIt).trackN_ ;
+        //if(theEvent->getKalmanTracks().size() == 0 ) return fullPaths;
+        //Event::kalmanTracksDef::iterator evIt = theEvent->getKalmanTracks().end()-1 ;
+        numTracks = theEvent->getKalmanTracks().size() ;
     }
 
     if((maxTracksFilter_ > 0                       ) &&
@@ -2408,101 +2408,104 @@ HManager::stringVDef HManager::fillKalmanResiduals(Event* theEvent   ,
     }
     else
     {
-
-        Event::kalmanTracksDef &kalmanTracks = theEvent->getKalmanTracks();
-        Event::kalmanTracks     kalmanTrack                               ;
-        TH1D * theH ;
-
-
+        Event::kalmanTracksDef       & kalmanTracks = theEvent->getKalmanTracks();
+        Event::kalmanPlaneStructsDef   kalmanTrack;
+        TH1D                         * theH;
+        int                            trNum = 0 ;
         for(Event::kalmanTracksDef::iterator it  = kalmanTracks.begin();
                                              it != kalmanTracks.end()  ;
                                            ++it                         )
         {
             kalmanTrack = *it ;
-            //        cout << "plaqID   : " << kalmanTrack.plaqID    << endl ;
-            //        cout << "trackN   : " << kalmanTrack.trackN    << endl ;
-            //        cout << "resX     : " << kalmanTrack.resX      << endl ;
-            //        cout << "resY     : " << kalmanTrack.resY      << endl ;
-            //        cout << "pullX    : " << kalmanTrack.pullX     << endl ;
-            //        cout << "pullY    : " << kalmanTrack.pullY     << endl ;
-            //        cout << "chi2     : " << kalmanTrack.chi2      << endl ;
-            //        cout << "direction: " << kalmanTrack.direction << endl ;
-            //        cout << "----------------------------------" << endl ;
+            for(Event::kalmanPlaneStructsDef::iterator jt  = kalmanTrack.begin();
+                                                       jt != kalmanTrack.end();
+                                                     ++jt)
+            {
+                string plane = jt->first  ;
 
-            int    tr    = kalmanTrack.trackN_ ;
-            string plane = kalmanTrack.plane_  ;
+                if( clusterSize < 0 || clusterSize == theEvent->getTrackCandidates()[trNum++][plane]["size"])
+                {
+                    keepIt = true ;
+                }
 
-            if( clusterSize < 0 || clusterSize == theEvent->getTrackCandidates()[tr][plane]["size"])
-            {
-                keepIt = true ;
-            }
+                int offset = 0 ;
 
-            int offset = 0 ;
-            if( kalmanTrack.direction_ == "smoothing" ) offset = fullPaths.size() / 2;
+                for(std::map< std::string, Event::kalmanPlaneStruct>::iterator kt  = jt->second.begin();
+                    kt != jt->second.end()  ;
+                    ++kt)
+                {
+                    if( kt->first == "smoothing" ) offset    = fullPaths.size() / 2. ;
 
-            ss_.str(""); ss_ << fullPaths[offset]  << "/" << kalmanTrack.plane_;
-            if ( (theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str()) ) == 0 )
-            {
-                theH = new TH1D(kalmanTrack.plane_.c_str(),kalmanTrack.plane_.c_str(),200,-10,10);
-                theH->GetXaxis()->SetTitle("X Residual (10um)");
-                theH->SetDirectory(0);
-                this->addItem(fullPaths[offset], theH);
-            }
-            else
-            {
-                if( keepIt) theH->Fill(kalmanTrack.resX_) ;
-            }
+                    ss_.str(""); ss_ << fullPaths[offset]  << "/" << plane;
+                    if (!runSubFolder_->FindObject(ss_.str().c_str()))
+                    {
+                        theH = new TH1D(plane.c_str(),plane.c_str(),200,-10,10);
+                        theH->GetXaxis()->SetTitle("X Residual (10um)");
+                        theH->SetDirectory(0);
+                        this->addItem(fullPaths[offset], theH);
+                    }
+                    else
+                    {
+                        theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str());
+                    }
+                    if( keepIt) theH->Fill(kt->second.resX_) ;
 
-            ss_.str(""); ss_ << fullPaths[1+offset]  << "/" << kalmanTrack.plane_;
-            if ( (theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str()) ) == 0 )
-            {
-                theH = new TH1D(kalmanTrack.plane_.c_str(),kalmanTrack.plane_.c_str(),200,-10,10);
-                theH->GetXaxis()->SetTitle("Y Residual (10um)");
-                theH->SetDirectory(0);
-                this->addItem(fullPaths[1+offset], theH);
-            }
-            else
-            {
-               if( keepIt)  theH->Fill(kalmanTrack.resY_) ;
-            }
+                    ss_.str(""); ss_ << fullPaths[1+offset]  << "/" << plane;
+                    if (!runSubFolder_->FindObject(ss_.str().c_str()) )
+                    {
+                        theH = new TH1D(plane.c_str(),plane.c_str(),200,-10,10);
+                        theH->GetXaxis()->SetTitle("Y Residual (10um)");
+                        theH->SetDirectory(0);
+                        this->addItem(fullPaths[1+offset], theH);
+                    }
+                    else
+                    {
+                        theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str());
+                    }
+                    if( keepIt)  theH->Fill(kt->second.resY_) ;
 
-            ss_.str(""); ss_ << fullPaths[2+offset]  << "/" << kalmanTrack.plane_;
-            if ( (theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str()) ) == 0 )
-            {
-                theH = new TH1D(kalmanTrack.plane_.c_str(),kalmanTrack.plane_.c_str(),500,-10,10);
-                theH->GetXaxis()->SetTitle("X Pull");
-                theH->SetDirectory(0);
-                this->addItem(fullPaths[2+offset], theH);
-            }
-            else
-            {
-                if( keepIt) theH->Fill(kalmanTrack.pullX_) ;
-            }
+                    ss_.str(""); ss_ << fullPaths[2+offset]  << "/" << plane;
+                    if (!runSubFolder_->FindObject(ss_.str().c_str()))
+                    {
+                        theH = new TH1D(plane.c_str(),plane.c_str(),500,-10,10);
+                        theH->GetXaxis()->SetTitle("X Pull");
+                        theH->SetDirectory(0);
+                        this->addItem(fullPaths[2+offset], theH);
+                    }
+                    else
+                    {
+                        theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str());
+                    }
+                    if( keepIt) theH->Fill(kt->second.pullX_) ;
 
-            ss_.str(""); ss_ << fullPaths[3+offset]  << "/" << kalmanTrack.plane_;
-            if ( (theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str()) ) == 0 )
-            {
-                theH = new TH1D(kalmanTrack.plane_.c_str(),kalmanTrack.plane_.c_str(),500,-10,10);
-                theH->GetXaxis()->SetTitle("Y Pull");
-                theH->SetDirectory(0);
-                this->addItem(fullPaths[3+offset], theH);
-            }
-            else
-            {
-                if( keepIt) theH->Fill(kalmanTrack.pullY_) ;
-            }
+                    ss_.str(""); ss_ << fullPaths[3+offset]  << "/" << plane;
+                    if (!runSubFolder_->FindObject(ss_.str().c_str()))
+                    {
+                        theH = new TH1D(plane.c_str(),plane.c_str(),500,-10,10);
+                        theH->GetXaxis()->SetTitle("Y Pull");
+                        theH->SetDirectory(0);
+                        this->addItem(fullPaths[3+offset], theH);
+                    }
+                    else
+                    {
+                        theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str());
+                    }
+                    if( keepIt) theH->Fill(kt->second.pullY_) ;
 
-            ss_.str(""); ss_ << fullPaths[4+offset]  << "/" << kalmanTrack.plane_;
-            if ( (theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str()) ) == 0 )
-            {
-                theH = new TH1D(kalmanTrack.plane_.c_str(),kalmanTrack.plane_.c_str(),200,0,10);
-                theH->GetXaxis()->SetTitle("Chi2");
-                theH->SetDirectory(0);
-                this->addItem(fullPaths[4+offset], theH);
-            }
-            else
-            {
-                if( keepIt) theH->Fill(kalmanTrack.chi2_) ;
+                    ss_.str(""); ss_ << fullPaths[4+offset]  << "/" << plane;
+                    if (!runSubFolder_->FindObject(ss_.str().c_str()))
+                    {
+                        theH = new TH1D(plane.c_str(),plane.c_str(),200,0,10);
+                        theH->GetXaxis()->SetTitle("Chi2");
+                        theH->SetDirectory(0);
+                        this->addItem(fullPaths[4+offset], theH);
+                    }
+                    else
+                    {
+                        theH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str());
+                    }
+                    if( keepIt) theH->Fill(kt->second.chi2_) ;
+                }
             }
         }
     }
@@ -2536,7 +2539,7 @@ void HManager::fitKalmanResiduals(void)
             theH = (TH1D*)this->getHistogram(fullPaths[i],(*git).first);
             if(( theH->GetMean() != 0) && (fullPaths[i].find("Chi2") == string::npos ))
             {
-                theH->Fit("gaus") ;
+                theH->Fit("gaus","Q") ;
             }
         }
     }

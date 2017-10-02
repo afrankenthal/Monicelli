@@ -60,6 +60,13 @@ public:
    typedef std::pair<double, std::string>                    pairDef                 ;
    typedef std::vector<pairDef>::const_reverse_iterator      revIterDef              ;
    typedef std::map<std::string, std::pair<double, double> > resDef                  ;
+   struct aKalmanData
+   {
+         SV4Def                       trackPars  ;
+         Event::matrixDef             covMat     ;
+         double                       chi2       ;
+         Event::kalmanPlaneStructsDef kalmanTrack;
+   };
 
    void                                   clear                           (void                                                            );
    void                                   clearSelectedDetectorsList      (void                                                            ){selectedDetectors_.clear()          ;}
@@ -69,10 +76,9 @@ public:
    aFittedTrackDef                        fitSingleTrack                  (const Event::alignedHitsCandidateMapDef & alignedHits          ,
                                                                            Geometry                                * theGeometry          ,
                                                                            std::string                               excludedDetector = "" );
-   aFittedTrackDef                        kalmanFitSingleTrack            (const Event::alignedHitsCandidateMapDef & trackCandidate       ,
+   aKalmanData                            kalmanFitSingleTrack            (const Event::alignedHitsCandidateMapDef & trackCandidate       ,
                                                                            Event::vectorDef                        & track                ,
                                                                            Event::matrixDef                        & cov                  ,
-                                                                           Event::kalmanTracksDef                  & kalmanTracks         ,
                                                                            Event::clustersMapDef                   & clusters             ,
                                                                            Geometry                                * theGeometry           );
    void                                   makeDetectorTrackResiduals      (ROOT::Math::SVector<double,4>           & fittedTrack          ,
@@ -104,7 +110,6 @@ public:
    static ROOT::Math::SVector<double,4>   calculateParCorrections         (ROOT::Math::SVector<double,4>             pars                 ,
                                                                            Geometry                                * geo                  ,
                                                                            resDef                                    res                   );
-   void                                   resetNumberOfTracks             (void                                                            ){nTracks_            = 0              ;}
 private:
     
     void printMatrix(std::string sm, Event::matrixDef & matrix)  ;
@@ -126,7 +131,6 @@ private:
 
     std::string                      fitMethodName_              ;
     int                              nIterations_                ;
-    int                              nTracks_                    ;
     KalmanPlaneInfo                  theKalmanPlaneInfo_         ;
     bool                             includeResiduals_           ;
 };

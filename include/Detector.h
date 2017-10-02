@@ -92,15 +92,19 @@ public:
     void           fromGlobalToLocal             (double       * x                      ,
                                                   double       * y                      ,
                                                   double       * z                       );
+    void           fromLocalToGlobal             (double       * x                      ,
+                                                  double       * y                      ,
+                                                  double       * z                       );
     double         fromLocalToGlobal             (double       * x                      ,
                                                   double       * y                      ,
                                                   double       * z                      ,
                                                   double       * xErr                   ,
                                                   double       * yErr                   ,
                                                   double       * zErr                    );
-    void           fromLocalToGlobal             (double       * x                      ,
+    void           fromLocalToGlobalKalman       (double       * x                      ,
                                                   double       * y                      ,
-                                                  double       * z                       );
+                                                  double       * z                      ,
+                                                  matrix33Def    fRinv                  );
     void           fromLocalToGlobalNoRotation   (double       * x                      ,
                                                   double       * y                      ,
                                                   double       * xErr                   ,   
@@ -273,6 +277,11 @@ private:
     void           XYZRotation                   (double       * x                      ,
                                                   double       * y                      ,
                                                   double       * z                      ,               
+                                                  bool           backward = false        );
+    void           XYZRotationKalman             (double       * x                      ,
+                                                  double       * y                      ,
+                                                  double       * z                      ,
+                                                  Detector::matrix33Def fRinv           ,
                                                   bool           backward = false        );
     void           XRotation                     (double       * y                      ,
                                                   double       * z                      ,

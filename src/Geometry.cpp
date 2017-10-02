@@ -313,7 +313,7 @@ void Geometry::calculatePlaneMCS(void)
         detector->fromLocalToGlobal(&sensorOrigin[0],&sensorOrigin[1],&sensorOrigin[2]);
         detector->fromLocalToGlobal(&upVector    [0],&upVector    [1],&upVector    [2]);
         detector->fromLocalToGlobal(&rightVector [0],&rightVector [1],&rightVector [2]);
-        detector->fromLocalToGlobal(&beamVector  [0],&beamVector  [1],&beamVector   [2]);
+        detector->fromLocalToGlobal(&beamVector  [0],&beamVector  [1],&beamVector  [2]);
 
         //Normalize vectors
         upVector   [0] -= sensorOrigin[0]; upVector   [1] -= sensorOrigin[1]; upVector   [2] -= sensorOrigin[2];
@@ -351,8 +351,62 @@ void Geometry::calculatePlaneMCS(void)
         trackCov[2][2] =                mmbb;
 
 
-        theKalmanPlaneInfo_.setH        (h,plaqID         );
-        theKalmanPlaneInfo_.setTrackCov (trackCov,plaqID  );
-        theKalmanPlaneInfo_.setOffset   (offset,plaqID    );
+        theKalmanPlaneInfo_.setH       (h,plaqID       );
+        theKalmanPlaneInfo_.setTrackCov(trackCov,plaqID);
+        theKalmanPlaneInfo_.setOffset  (offset,plaqID  );
     }
+}
+
+//=======================================================================================
+void Geometry::calculatePlaneMCSKalman(std::string plaqID, Detector::matrix33Def fRinv)
+{
+    Detector* detector = getDetector(plaqID);
+
+    //Define variables
+    TVectorT   <double> sensorOrigin(4);
+    TVectorT   <double> upVector    (4);
+    TVectorT   <double> rightVector (4);
+    TVectorT   <double> beamVector  (4);
+    TVectorT   <double> h           (4);
+    double offset   = 0                ;
+
+    //Define local coordinates
+    sensorOrigin[0] = 0; sensorOrigin[1] = 0; sensorOrigin[2] = 0;
+    upVector    [0] = 0; upVector    [1] = 1; upVector    [2] = 0;
+    rightVector [0] = 1; rightVector [1] = 0; rightVector [2] = 0;
+    beamVector  [0] = 0; beamVector  [1] = 0; beamVector  [2] = 1;
+
+    //Change to global coordinates
+
+    detector->fromLocalToGlobalKalman(&sensorOrigin[0],&sensorOrigin[1],&sensorOrigin[2],fRinv);
+    detector->fromLocalToGlobalKalman(&upVector    [0],&upVector    [1],&upVector    [2],fRinv);
+    detector->fromLocalToGlobalKalman(&rightVector [0],&rightVector [1],&rightVector [2],fRinv);
+    detector->fromLocalToGlobalKalman(&beamVector  [0],&beamVector  [1],&beamVector  [2],fRinv);
+
+    //Normalize vectors
+    upVector   [0] -= sensorOrigin[0]; upVector   [1] -= sensorOrigin[1]; upVector   [2] -= sensorOrigin[2];
+    rightVector[0] -= sensorOrigin[0]; rightVector[1] -= sensorOrigin[1]; rightVector[2] -= sensorOrigin[2];
+    beamVector [0] -= sensorOrigin[0]; beamVector [1] -= sensorOrigin[1]; beamVector [2] -= sensorOrigin[2];
+
+    //Calculate h
+    double den = upVector[1]*rightVector[0] - upVector[0]    *rightVector[1];
+    offset= -sensorOrigin[0]*rightVector[0] - sensorOrigin[1]*rightVector[1]+
+            rightVector[2]*(-sensorOrigin[2]+(sensorOrigin[0]*(upVector[2]*rightVector[1]-upVector[1]*rightVector[2])+
+            sensorOrigin[1]*(upVector[0]*rightVector[2]-upVector[2]*rightVector[0])+
+            sensorOrigin[2]*(upVector[1]*rightVector[0]-upVector[0]*rightVector[1]))/den);
+    h[1] = rightVector[0]+rightVector[2]*(upVector[1]*rightVector[2]-upVector[2]*rightVector[1])/den;
+    h[3] = rightVector[1]+rightVector[2]*(upVector[2]*rightVector[0]-upVector[0]*rightVector[2])/den;
+    h[0] =(sensorOrigin[0]*(upVector[2]   *rightVector[1]-upVector[1]   *rightVector[2])+
+            sensorOrigin[1]*(upVector[0]   *rightVector[2]-rightVector[0]*upVector[2]   )+
+            sensorOrigin[2]*(upVector[1]   *rightVector[0]-upVector[0]   *rightVector[1]))*
+            (upVector[1]   *(rightVector[0]*rightVector[0]+rightVector[2]*rightVector[2])-
+            rightVector[1]*(upVector[0]   *rightVector[0]+upVector[2]   *rightVector[2]))/(den*den);
+    h[2] =(sensorOrigin[0]*(upVector[2]   *rightVector[1]-upVector[1]   *rightVector[2])+
+            sensorOrigin[1]*(upVector[0]   *rightVector[2]-upVector[2]   *rightVector[0])+
+            sensorOrigin[2]*(upVector[1]   *rightVector[0]-upVector[0]   *rightVector[1]))*
+            (rightVector[0]*(upVector[1]   *rightVector[1]+upVector[2]   *rightVector[2])-
+            upVector[0]   *(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
+
+    theKalmanPlaneInfo_.setH     (h,plaqID     );
+    theKalmanPlaneInfo_.setOffset(offset,plaqID);
 }

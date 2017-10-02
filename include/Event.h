@@ -181,14 +181,13 @@ public:
     typedef ROOT::Math::SMatrix<double                          , 4                   ,4 > matrixDef                              ;
     typedef ROOT::Math::SVector<double                          , 4                      > vectorDef                              ;
 
-    struct kalmanTracks
+    struct kalmanPlaneStruct
     {
-        std::string plane_     ;
-        std::string direction_ ;
         vectorDef   trackPars_ ;
         matrixDef   covMat_    ;
-        int         trackN_    ;
         double      chi2_      ;
+        double      predX_     ;
+        double      predY_     ;
         double      resX_      ;
         double      resY_      ;
         double      pullX_     ;
@@ -215,7 +214,8 @@ public:
     typedef std::vector        <std::map<std::string, vectorDef>                         > unconstrainedFittedTracksDef           ;
     typedef std::vector        <std::map<std::string, matrixDef>                         > unconstrainedFittedTracksCovarianceDef ;
     typedef std::vector        <std::map<std::string, double   >                         > unconstrainedChi2VectorDef             ;
-    typedef std::vector        <kalmanTracks                                             > kalmanTracksDef                        ;
+    typedef std::map           <std::string, std::map< std::string, kalmanPlaneStruct >  > kalmanPlaneStructsDef                  ;
+    typedef std::vector        <kalmanPlaneStructsDef                                    > kalmanTracksDef                        ;
 
                                             Event                                 (void                                     );
                                            ~Event                                 (void                                     );

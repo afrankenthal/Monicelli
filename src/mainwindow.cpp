@@ -491,6 +491,16 @@ void MainWindow::buildHNavigator()
 
         cSw_->setGeometry(1015,5,theHNavigator_->width()+8,theHNavigator_->height()+40) ;
 
+        ss_.str("") ; ss_ << "HNavigator geometry: "
+                          << cSw_->geometry().x()
+                          << ":"
+                          << cSw_->geometry().x()
+                          << " "
+                          << cSw_->geometry().width()
+                          << " x "
+                          << cSw_->geometry().height() ;
+        STDLINE(ss_.str(),ACCyan) ;
+
         cSw_->hide() ;
         return ;
     }
@@ -500,6 +510,16 @@ void MainWindow::buildHNavigator()
 //===========================================================================
 void MainWindow::showHNavigator()
 {
+    ss_.str("") ; ss_ << "HNavigator geometry: "
+                      << cSw_->geometry().x()
+                      << ":"
+                      << cSw_->geometry().x()
+                      << " "
+                      << cSw_->geometry().width()
+                      << " x "
+                      << cSw_->geometry().height() ;
+    STDLINE(ss_.str(),ACCyan) ;
+
     cSw_->show() ;
 }
 //===========================================================================
@@ -547,8 +567,8 @@ void MainWindow::readSettings()
 {
     QSettings settings("CMS", "Monicelli");
     QPoint pos  = settings.value("pos" , QPoint(200, 200)).toPoint();
-    QSize  size = settings.value("size", QSize (400, 400)).toSize();
-    this->move(pos);
+    QSize  size = settings.value("size", QSize (400, 400)).toSize ();
+    this->move  (pos );
     this->resize(size);
 }
 
@@ -558,24 +578,6 @@ void MainWindow::writeSettings()
     QSettings settings("CMS", "Monicelli");
     settings.setValue("pos" , pos ());
     settings.setValue("size", size());
-    if( theHNavigator_ )
-    {
-        hNavigatorSize_ = QSize (
-                                 theHNavigator_->geometry().width(),
-                                 theHNavigator_->geometry().height()
-                                ) ;
-        hNavigatorPos_  = QPoint(
-                                 theHNavigator_->pos().x(),
-                                 theHNavigator_->pos().y()
-                                ) ;
-        settings.setValue("posHnavigator" ,  hNavigatorSize_) ;
-        settings.setValue("sizeHnavigator" , hNavigatorPos_ ) ;
-    }
-    else
-    {
-        settings.setValue("posHnavigator" ,  hNavigatorSize_) ;
-        settings.setValue("sizeHnavigator" , hNavigatorPos_ ) ;
-    }
     STDLINE("Updating GUI geometry",ACCyan) ;
 }
 

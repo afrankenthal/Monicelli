@@ -38,6 +38,9 @@
 
 #include <QtWidgets/QFileDialog>
 #include <QtCore/QList>
+#include <QSettings>
+#include <QPoint>
+#include <QSize>
 
 //===========================================================================
 HNavigator::HNavigator(QWidget * parent) :
@@ -56,6 +59,24 @@ HNavigator::HNavigator(QWidget * parent) :
   displayMemoryLabel_ = "Display memory resident objects" ;
 
   counter_         = 0 ;
+
+  QSettings settings("CMS", "Monicelli");
+  QPoint pos  = settings.value("posHnavigator" , QPoint(10 , 10 )).toPoint();
+  QSize  size = settings.value("sizeHnavigator", QSize (400, 400)).toSize() ;
+  ss_.str(""); ss_ << "Geometry: "
+                   << pos.x()
+                   << " + "
+                   << pos.y()
+                   << "  "
+                   << size.width()
+                   << " x "
+                   << size.height() ;
+  STDLINE(ss_.str(),"") ;
+//  this->move  (pos ) ;
+//  this->resize(size) ;
+
+//  this->move  (pos ) ;
+//  this->resize(size) ;
 
   this->addItem(emptyFileLabel_.toStdString()) ;
 
@@ -93,8 +114,27 @@ HNavigator::HNavigator(QWidget * parent) :
 //===========================================================================
 HNavigator::~HNavigator()
 {
-  delete ui;
-  delete timer_ ;
+    ss_.str("") ;
+    ss_ << "Geometry: "
+        << this->geometry().x()
+        << " + "
+        << this->geometry().y()
+        << "  "
+        << this->geometry().width()
+        << " x "
+        << this->geometry().height() ;
+    STDLINE(ss_.str(),ACCyan) ;
+    QSettings settings("CMS", "Monicelli");
+    settings.setValue("sizeHnavigator" , QSize (
+                                                this->geometry().width(),
+                                                this->geometry().height()
+                                               )) ;
+    settings.setValue("posHnavigator"  , QPoint(
+                                                this->pos().x(),
+                                                this->pos().y()
+                                               )) ;
+    delete ui;
+    delete timer_ ;
 }
 
 //===========================================================================

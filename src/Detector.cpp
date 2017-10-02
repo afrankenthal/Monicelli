@@ -582,7 +582,7 @@ void Detector::flipPositionLocal(double *x, double *y, double *xErr, double *yEr
     // reflection through horizontal center of symmetry
     if( this->isYBackFlipped() )
         *y = yLength - *y ;
-    // rotation around z axis (only orizontal or vertical)
+    // rotation around z axis (only horizontal or vertical)
     double tmp;
     // vertical clockwise
     if(zRotation_ > 225 && zRotation_ < 315)
@@ -811,11 +811,21 @@ void Detector::fromLocalToGlobal(double* x, double* y, double* z)
 }
 
 //=======================================================================================
+void Detector::fromLocalToGlobalKalman(double* x, double* y, double* z, matrix33Def fRinv)
+{
+    this->flipPositionLocal  (x,y);
+    this->translateXY        (x,y);
+    this->translateCorrection(x,y);
+    this->XYZRotationKalman  (x,y,z,fRinv) ;
+    *z += this->getZPositionTotal();
+}
+
+//=======================================================================================
 void Detector::fromLocalToGlobalNoRotation(double* x, double* y,double* xErr, double* yErr)
 {
-    this->flipPositionLocal(x,y,xErr,yErr);
-    this->translateXY(x,y);
-    this->translateCorrection(x,y);
+    this->flipPositionLocal  (x,y,xErr,yErr);
+    this->translateXY        (x,y          );
+    this->translateCorrection(x,y          );
 }
 
 //=======================================================================================
@@ -875,6 +885,24 @@ void Detector::XYZRotation(double* x, double* y, double* z, bool backward)
             else
                 *(xPrimev[i]) += R(i,j)*xv[j];
     }
+}
+
+//=======================================================================================
+void Detector::XYZRotationKalman(double* x, double* y, double* z, Detector::matrix33Def fRinv, bool backward)
+{
+    double  xv[3]      = {*x,*y,*z};
+    double* xPrimev[3] = {x,y,z};
+
+    for(int i=0; i<3; i++)
+    {
+        *(xPrimev[i]) = 0;
+        for(int j=0; j<3; j++)
+            if(backward)
+                *(xPrimev[i]) += fRinv(j,i)*xv[j];
+            else
+                *(xPrimev[i]) += fRinv(i,j)*xv[j];
+    }
+    *z += this->getZPositionTotal();
 }
 
 //=======================================================================================
@@ -1036,12 +1064,19 @@ Detector::matrix33Def Detector::getRotationMatrix()
 }
 
 //================================================================
-double Detector::getAlignmentPredictedGlobal(ROOT::Math::SVector<double,4>& trackPars, matrix33Def& RInv, double z, double& predX, double& predY)
+double Detector::getAlignmentPredictedGlobal(ROOT::Math::SVector<double,4> & trackPars,
+                                             matrix33Def                   & RInv     ,
+                                             double                          z        ,
+                                             double                        & predX    ,
+                                             double                        & predY    )
 {
     double numX,numY,den;
-    numX=(trackPars[0]*z+trackPars[1])*(RInv[1][1]-trackPars[2]*RInv[2][1])-(trackPars[2]*z+trackPars[3])*(RInv[0][1]-trackPars[0]*RInv[2][1]);
-    numY=(trackPars[2]*z+trackPars[3])*(RInv[0][0]-trackPars[0]*RInv[2][0])-(trackPars[0]*z+trackPars[1])*(RInv[1][0]-trackPars[2]*RInv[2][0]);
-    den =(RInv[0][0]-trackPars[0]*RInv[2][0])*(RInv[1][1]-trackPars[2]*RInv[2][1])-(RInv[1][0]-trackPars[2]*RInv[2][0])*(RInv[0][1]-trackPars[0]*RInv[2][1]);
+    numX  = (trackPars[0]*z+trackPars[1])           *(RInv[1][1]-trackPars[2]*RInv[2][1])-
+            (trackPars[2]*z+trackPars[3])           *(RInv[0][1]-trackPars[0]*RInv[2][1]);
+    numY  = (trackPars[2]*z+trackPars[3])           *(RInv[0][0]-trackPars[0]*RInv[2][0])-
+            (trackPars[0]*z+trackPars[1])           *(RInv[1][0]-trackPars[2]*RInv[2][0]);
+    den   = (RInv[0][0]    -trackPars[0]*RInv[2][0])*(RInv[1][1]-trackPars[2]*RInv[2][1])-
+            (RInv[1][0]    -trackPars[2]*RInv[2][0])*(RInv[0][1]-trackPars[0]*RInv[2][1]);
     predX = numX / den;
     predY = numY / den;
     return den;

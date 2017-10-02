@@ -92,9 +92,11 @@ class Geometry : public TObject
   void                        setCalibrationDone      (bool	    done	      ) {calibrationDone_      = done	    ;}
   void                        setDataType             (int	    station,
                                                        int	    d		      ) {dataTypeMap_[station] = d	    ;}
-  void                        dump                    (void			      );
-  void                        orderPlanes             (void			      );
-  void                        calculatePlaneMCS       (void			      );
+  void                        dump                    (void			              );
+  void                        orderPlanes             (void			              );
+  void                        calculatePlaneMCS       (void			              );
+  void                        calculatePlaneMCSKalman (std::string plaqID         ,
+                                                       Detector::matrix33Def fRinv);
 
  private:
 
