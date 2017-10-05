@@ -161,7 +161,7 @@ if(${HOSTNAME} == "hal9000.mib.infn.it") then
   setenv FINDERHOME		   ${MonicelliDir}/finder
   setenv FINDER   		   ${FINDERHOME}/finder
   
-  #===== Location of the FINDER components
+  #===== Location of the LOUVRE components
   setenv LOUVREHOME		   ${MonicelliDir}/Louvre
   setenv LOUVRE 		   ${LOUVREHOME}/Louvre
 
@@ -218,6 +218,67 @@ if(${HOSTNAME} == "cip.mib.infn.it") then
   setenv FINDERHOME		   ${MonicelliDir}/finder
   setenv FINDER   		   ${FINDERHOME}/finder
   
+  #===== Location of the LOUVRE components
+  setenv LOUVREHOME		   ${MonicelliDir}/Louvre
+  setenv LOUVRE 		   ${LOUVREHOME}/Louvre
+
+  #===== C++ flags
+  setenv CPLUSPLUSFLAGS            "-std=c++11"
+
+  setenv LD_LIBRARY_PATH	   
+  
+  alias  qt                        qtcreator
+  alias  finder                    "${FINDER}"
+  alias  Louvre                    "${LOUVRE}"
+    
+endif
+#===============   Personalized configuration on this computer   ==============================================
+if(${HOSTNAME} == "focus.mib.infn.it") then
+
+  echo "Setting up for focus"
+  if(${USER} == "dzuolo") then
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamFBK_PlanarARadBatch02_3DBRadBatch01_PlanarBRadBatch03
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamData2015
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamFBKPlanarAfterRad_Batch01_02
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamFBKPlanarBeforeRad_Batch02
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamData_February_2017
+   setenv BASEDATADIR /user/gr1/e831/dzuolo/StripTelescopeAnalysis
+  endif
+  
+  setenv PATH /opt/rh/devtoolset-2/root/usr/bin:/bin:/usr/bin:/usr/local/bin:/usr/printmi/bin
+
+  #===== Local directories
+  setenv MonicelliDir		   `pwd`
+  setenv Monicelli_RawData_Dir     ${BASEDATADIR}/Merged
+  setenv Monicelli_DataSample_Dir  ${BASEDATADIR}/Merged
+  setenv Monicelli_CalSample_Dir   ${BASEDATADIR}/Calibrations
+  setenv MonicelliOutputDir	   ${BASEDATADIR}/MonicelliOutput
+  setenv Monicelli_XML_Dir	   ${BASEDATADIR}/Geometries
+  
+  #===== Location of the ROOT components
+  setenv ROOTVER                   SIX
+  setenv ROOTSYS		   /usr
+  setenv ROOTINC		   $ROOTSYS/include/root
+  setenv ROOTLIB		   $ROOTSYS/lib64/root
+
+  #===== Location of the Qt components
+  setenv QTDIR  		   /user/service/Qt-5.6.2/5.6/gcc_64/
+  setenv QTCREATORDIR		   /raid1/menasce/qt-creator-opensource-src-4.3.0
+  setenv QTLIB                     ${QTDIR}/lib 
+  setenv QTINC                     ${QTDIR}/include 
+
+  #===== Location of the BOOST components
+  setenv BOOSTINC		   /usr/include/boost
+  setenv BOOSTLIB		   /usr/lib64
+
+  #===== Location of the XERCES components
+  setenv XERCESCINC		   /opt/local/xerces/include
+  setenv XERCESCLIB		   /opt/local/xerces/lib
+  
+  #===== Location of the FINDER components
+  setenv FINDERHOME		   ${MonicelliDir}/finder
+  setenv FINDER   		   ${FINDERHOME}/finder
+  
   #===== Location of the FINDER components
   setenv LOUVREHOME		   ${MonicelliDir}/Louvre
   setenv LOUVRE 		   ${LOUVREHOME}/Louvre
@@ -232,7 +293,6 @@ if(${HOSTNAME} == "cip.mib.infn.it") then
   alias  Louvre                    "${LOUVRE}"
     
 endif
-
 #===== Final PATH definitions
 setenv PATH	       "${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}"
 setenv LD_LIBRARY_PATH "${ROOTLIB}:${BOOSTLIB}:${QTDIR}/lib64:${QTCREATORDIR}:${XERCESCLIB}/:${MonicelliDir}/plugins/libs/:${MonicelliDir}/test/customWidgets/libs:${LD_LIBRARY_PATH}"

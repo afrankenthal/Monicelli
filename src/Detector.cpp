@@ -811,13 +811,13 @@ void Detector::fromLocalToGlobal(double* x, double* y, double* z)
 }
 
 //=======================================================================================
-void Detector::fromLocalToGlobalKalman(double* x, double* y, double* z, matrix33Def fRinv)
+void Detector::fromLocalToGlobalKalman(double* x, double* y, double* z, matrix33Def fRinv, double fTz)
 {
     this->flipPositionLocal  (x,y);
     this->translateXY        (x,y);
     this->translateCorrection(x,y);
     this->XYZRotationKalman  (x,y,z,fRinv) ;
-    *z += this->getZPositionTotal();
+    *z += fTz;
 }
 
 //=======================================================================================
@@ -901,8 +901,7 @@ void Detector::XYZRotationKalman(double* x, double* y, double* z, Detector::matr
                 *(xPrimev[i]) += fRinv(j,i)*xv[j];
             else
                 *(xPrimev[i]) += fRinv(i,j)*xv[j];
-    }
-    *z += this->getZPositionTotal();
+    }    
 }
 
 //=======================================================================================

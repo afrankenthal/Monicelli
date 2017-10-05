@@ -358,7 +358,7 @@ void Geometry::calculatePlaneMCS(void)
 }
 
 //=======================================================================================
-void Geometry::calculatePlaneMCSKalman(std::string plaqID, Detector::matrix33Def fRinv)
+void Geometry::calculatePlaneMCSKalman(std::string plaqID, Detector::matrix33Def fRinv, double fTz )
 {
     Detector* detector = getDetector(plaqID);
 
@@ -368,7 +368,13 @@ void Geometry::calculatePlaneMCSKalman(std::string plaqID, Detector::matrix33Def
     TVectorT   <double> rightVector (4);
     TVectorT   <double> beamVector  (4);
     TVectorT   <double> h           (4);
+    TMatrixTSym<double> trackCov    (4);
     double offset   = 0                ;
+
+    double multipleScattering;
+    if     (detector->isStrip()) multipleScattering =  8.26e-6;
+    else if(detector->isDUT()  ) multipleScattering = 16.04e-6;
+    else                         multipleScattering = 12.35e-6;
 
     //Define local coordinates
     sensorOrigin[0] = 0; sensorOrigin[1] = 0; sensorOrigin[2] = 0;
@@ -378,10 +384,10 @@ void Geometry::calculatePlaneMCSKalman(std::string plaqID, Detector::matrix33Def
 
     //Change to global coordinates
 
-    detector->fromLocalToGlobalKalman(&sensorOrigin[0],&sensorOrigin[1],&sensorOrigin[2],fRinv);
-    detector->fromLocalToGlobalKalman(&upVector    [0],&upVector    [1],&upVector    [2],fRinv);
-    detector->fromLocalToGlobalKalman(&rightVector [0],&rightVector [1],&rightVector [2],fRinv);
-    detector->fromLocalToGlobalKalman(&beamVector  [0],&beamVector  [1],&beamVector  [2],fRinv);
+    detector->fromLocalToGlobalKalman(&sensorOrigin[0],&sensorOrigin[1],&sensorOrigin[2],fRinv, fTz);
+    detector->fromLocalToGlobalKalman(&upVector    [0],&upVector    [1],&upVector    [2],fRinv, fTz);
+    detector->fromLocalToGlobalKalman(&rightVector [0],&rightVector [1],&rightVector [2],fRinv, fTz);
+    detector->fromLocalToGlobalKalman(&beamVector  [0],&beamVector  [1],&beamVector  [2],fRinv, fTz);
 
     //Normalize vectors
     upVector   [0] -= sensorOrigin[0]; upVector   [1] -= sensorOrigin[1]; upVector   [2] -= sensorOrigin[2];
@@ -407,6 +413,19 @@ void Geometry::calculatePlaneMCSKalman(std::string plaqID, Detector::matrix33Def
             (rightVector[0]*(upVector[1]   *rightVector[1]+upVector[2]   *rightVector[2])-
             upVector[0]   *(rightVector[1]*rightVector[1]+rightVector[2]*rightVector[2]))/(den*den);
 
+
+    double mmbb = multipleScattering*multipleScattering/(beamVector[2]*beamVector[2]);
+
+    trackCov[1][1] =  fTz*fTz*mmbb;
+    trackCov[1][0] = -fTz    *mmbb;
+    trackCov[3][3] =  fTz*fTz*mmbb;
+    trackCov[3][2] = -fTz    *mmbb;
+    trackCov[0][1] = -fTz    *mmbb;
+    trackCov[0][0] =          mmbb;
+    trackCov[2][3] = -fTz    *mmbb;
+    trackCov[2][2] =          mmbb;
+
     theKalmanPlaneInfo_.setH     (h,plaqID     );
     theKalmanPlaneInfo_.setOffset(offset,plaqID);
+    theKalmanPlaneInfo_.setTrackCov(trackCov,plaqID);
 }

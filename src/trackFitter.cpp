@@ -547,8 +547,8 @@ trackFitter::aKalmanData trackFitter::kalmanFitSingleTrack(const Event::alignedH
                 theKalmanStruct.trackPars_          = trackTmp    ;
                 theKalmanStruct.covMat_             = covTmp      ;
                 theKalmanTrack[plaqID]["smoothing"] = theKalmanStruct ;
-                STDSNAP("","") ; std::cout << trackTmp[0] << " "  << trackTmp[1]  << " " << trackTmp[2]  << " " << trackTmp[3]  << std::endl ;
-                STDSNAP("","") ; std::cout << covTmp[0][0] << " " << covTmp[1][1] << " " << covTmp[2][2] << " " << covTmp[3][3] << std::endl ;
+//                STDSNAP("","") ; std::cout << trackTmp[0] << " "  << trackTmp[1]  << " " << trackTmp[2]  << " " << trackTmp[3]  << std::endl ;
+//                STDSNAP("","") ; std::cout << covTmp[0][0] << " " << covTmp[1][1] << " " << covTmp[2][2] << " " << covTmp[3][3] << std::endl ;
 
             }
 

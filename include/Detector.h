@@ -104,7 +104,8 @@ public:
     void           fromLocalToGlobalKalman       (double       * x                      ,
                                                   double       * y                      ,
                                                   double       * z                      ,
-                                                  matrix33Def    fRinv                  );
+                                                  matrix33Def    fRinv                  ,
+                                                  double fTz                             );
     void           fromLocalToGlobalNoRotation   (double       * x                      ,
                                                   double       * y                      ,
                                                   double       * xErr                   ,   

@@ -729,11 +729,11 @@ bool aligner::alignStrips()
 
     std::vector<double>  parametersCorrection(nAlignPars,0);//0=alpha, 1=beta, 2=gamma, 3=deltaTx, 4=deltaTy, 5=deltaTz
 
-    std::map< std::string, double > rxprime,ryprime;
+//    std::map< std::string, double > rxprime,ryprime;
 
-    std::map<int, std::map<std::string, double> > xmeas       , ymeas	  , zmeas;
-    std::map<int, std::map<std::string, int> >    xsizemeas   , ysizemeas	     ;
-    std::map<int, std::map<std::string, int> >    dataTypeMeas                   ;
+//    std::map<int, std::map<std::string, double> > xmeas       , ymeas	  , zmeas;
+//    std::map<int, std::map<std::string, int> >    xsizemeas   , ysizemeas	     ;
+//    std::map<int, std::map<std::string, int> >    dataTypeMeas                   ;
 
     // Control Parameters
     //int phase = strategy_;	// phase=0 does a preliminary XY Trans adjustment and then Trans&Rots for max trial iterations both
@@ -760,8 +760,10 @@ bool aligner::alignStrips()
 
     map<int,bool> tracksFilterMap ;
 
+    //Track Selection
+
     int goodTracks=0;
-    for(int ev=0; ev<nEvents_; ++ev) // Computes x/y/z/meas x/y/sig
+    for(int ev=0; ev<nEvents_; ++ev)
     {
         if(ev%1000 == 0)
         {
@@ -791,7 +793,6 @@ bool aligner::alignStrips()
             continue;
         }
 
-        //Tracks selection
         for(int tr=0; tr < numTracks; tr++)
         {
             unsigned int numberOfTelescopeHits     = 0;
@@ -800,12 +801,12 @@ bool aligner::alignStrips()
                                    git != theGeometry->end();
                                    git++)
             {
-                if(git->second->isDUT()                                                       ) continue                   ;
+                if(!git->second->isStrip()                                                    ) continue                   ;
                 if(tracks[tr].count( git->first ) != 0                                        ) numberOfTelescopeHits++    ;
                 if(maxClusterSize_ > 0 && tracks[tr][(*git).first]["size"] <= maxClusterSize_ ) numberOfGoodTelescopeHits++;
             }
-            if(( ( numberOfTelescopeHits  < theGeometry->getDetectorsNumber(true) )                               || // (all detectors must be hit)
-                (( maxClusterSize_ > 0 ) && (numberOfGoodTelescopeHits < theGeometry->getDetectorsNumber(true)))) ||
+            if(( ( numberOfTelescopeHits  < theGeometry->getDetectorsNumberByType("Strips") )                               || // (all detectors must be hit)
+                (( maxClusterSize_ > 0 ) && (numberOfGoodTelescopeHits <theGeometry->getDetectorsNumberByType("Strips") ))) ||
                 (( chi2cut_        > 0 ) && (tracksChi2[tr]            > chi2cut_                             )))    //chi2 cut
             {
                 tracksFilterMap[ev] = false ;
@@ -881,7 +882,7 @@ bool aligner::alignStrips()
         currentIteration_=ev;
     }
 
-    for(map<int,bool>::iterator exlIt  = tracksFilterMap.begin();
+    /*for(map<int,bool>::iterator exlIt  = tracksFilterMap.begin();
                                 exlIt != tracksFilterMap.end() ;
                               ++exlIt)
     {
@@ -897,7 +898,7 @@ bool aligner::alignStrips()
             ss_ << "Excluded: " << exlIt->first ;
             STDLINE(ss_.str(),ACRed  )          ;
         }
-    }
+    }*/
 
     if(goodTracks == 0)
     {
@@ -915,7 +916,7 @@ bool aligner::alignStrips()
                            det != theGeometry->end();
                            det++)
     {
-        if( det->second->isDUT() ) continue; //Should be impossible
+        if(!det->second->isStrip() ) continue; //Should be impossible
         // Reset Translations
         alpha  [det->first] = 0;
         beta   [det->first] = 0;
@@ -945,8 +946,8 @@ bool aligner::alignStrips()
             STDLINE(ss_.str(), ACGreen);
 
             // Align Matrices
-            std::map< std::string, ROOT::Math::SMatrix<double,2,2> >                   AtVAxy    ;
-            std::map< std::string, ROOT::Math::SVector<double,2>   >                   AtVInvRxy ;
+            std::map< std::string, ROOT::Math::SMatrix<double,1,1> >                   AtVAxy    ;
+            std::map< std::string, ROOT::Math::SVector<double,1>   >                   AtVInvRxy ;
             std::map< std::string, ROOT::Math::SMatrix<double,nAlignPars,nAlignPars> > AtVAAll   ;
             std::map< std::string, ROOT::Math::SVector<double,nAlignPars>   >          AtVInvRAll;
 
@@ -955,7 +956,7 @@ bool aligner::alignStrips()
                                    det++)
             {
                 string plaqID = det->first ;
-                theGeometry->calculatePlaneMCSKalman(plaqID, fRInv[plaqID]) ;
+                theGeometry->calculatePlaneMCSKalman(plaqID, fRInv[plaqID], fTz[plaqID]);
             }
 
             // Loop on selected events
@@ -982,7 +983,7 @@ bool aligner::alignStrips()
                                                         plIt != clustersNoTrasl.end()  ;
                                                       ++plIt)
                     {
-                        if(theGeometry->getDetector(plIt->first)->isDUT()) continue;
+                        if(!theGeometry->getDetector(plIt->first)->isStrip()) continue;
                         string plaqID = plIt->first ;
                         clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second -= deltaTx[plaqID] ;
                     }
@@ -994,25 +995,25 @@ bool aligner::alignStrips()
                                                                                                         theGeometry    );
 
                     double sigx      = 0 ;
-                    double sigy      = 0 ;
+//                    double sigy      = 0 ;
                     double predX     = 0 ;
                     double predY     = 0 ;
                     double den       = 0 ;
                     double resxprime = 0 ;
-                    double resyprime = 0 ;
+//                    double resyprime = 0 ;
 
                     for(Event::clustersMapDef::iterator plIt  = clustersNoTrasl.begin();
                                                         plIt != clustersNoTrasl.end()  ;
                                                       ++plIt)
                     {
-                        if(theGeometry->getDetector(plIt->first)->isDUT()) continue;
+                        if(!theGeometry->getDetector(plIt->first)->isStrip()) continue;
                         string plaqID = plIt->first ;
 
-                        ROOT::Math::SMatrix<double,4,4> AtVAInv   ; //cov
+//                        ROOT::Math::SMatrix<double,4,4> AtVAInv   ; //cov
                         ROOT::Math::SVector<double,4>   fitpar    ; //track parameters
 
                         fitpar  = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].trackPars_ ;
-                        AtVAInv = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].covMat_    ;
+//                        AtVAInv = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].covMat_    ;
 
                         // !!!!!!!!!!ALIGNMENT !!!!!!!!!
                         // Prepare plane ii alignment matrices for each random track
@@ -1024,78 +1025,63 @@ bool aligner::alignStrips()
                                                                                             predX        ,
                                                                                             predY        );
 
-                        resxprime = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resX_ ;
-                        resyprime = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resY_ ;
+//                        resxprime = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resX_ ;
+//                        resyprime = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resY_ ;
 
-                        sigx = clusters[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("xErr")->second ;
-                        sigy = clusters[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("yErr")->second ;
+//                        sigx = clusters[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("xErr")->second ;
+//                        sigy = clusters[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("yErr")->second ;
+
+
+                        resxprime = clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second - predX;
+
+                        if(theGeometry->getDetectorModule(plaqID)%2 == 0)
+                        {
+                            sigx = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resX_ / aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].pullX_;
+                        }
+                        else
+                        {
+                            sigx = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resY_ / aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].pullY_;
+                        }
 
                         if(phase == 0)//Only XY translations
                         {
-                            AtVAxy[plaqID][0][0] += 1        /pow(sigx,2);
-                            AtVAxy[plaqID][1][1] += 1        /pow(sigy,2);
-
-                            AtVInvRxy[plaqID][0] += resxprime/pow(sigx,2);
-                            AtVInvRxy[plaqID][1] += resyprime/pow(sigy,2);
+                            AtVAxy   [plaqID][0][0] += 1        /pow(sigx,2);
+                            AtVInvRxy[plaqID][0]    += resxprime/pow(sigx,2);
                         }
                         else if(phase == 1)//User defined
                         {
                             if(trial == maxtrial_)
                             {
-//                                Detector::xyPair predSigmas = theGeometry->getDetector(plaqID)->propagateTrackErrors(fitpar           ,
-//                                                                                                                     AtVAInv          ,
-//                                                                                                                     fRInv[plaqID]    ,
-//                                                                                                                     fTz  [plaqID]     );
+/*                                Detector::xyPair predSigmas = theGeometry->getDetector(plaqID)->propagateTrackErrors(fitpar           ,
+                                                                                                                     AtVAInv          ,
+                                                                                                                     fRInv[plaqID]    ,
+                                                                                                                     fTz  [plaqID]     );
 
-//                                predSigmas.first  += sigx[j][plaqID]*sigx[j][plaqID]; // Get from kalman tracks
-//                                predSigmas.second += sigy[j][plaqID]*sigy[j][plaqID];
+                                predSigmas.first  += sigx[j][plaqID]*sigx[j][plaqID]; // Get from kalman tracks
+                                predSigmas.second += sigy[j][plaqID]*sigy[j][plaqID];
                                 Detector::xyPair sigAll ;
                                 sigAll.first  = resxprime / aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].pullX_; // Get from kalman tracks
                                 sigAll.second = resyprime / aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].pullY_;
 
-//                                theHManager_->fillAlignmentResults(plaqID,
-//                                                                   xsizemeas[j][plaqID], ysizemeas[j][plaqID],
-//                                                                   resxprime           , sigAll.first        ,
-//                                                                   resyprime           , sigAll.second       ,
-//                                                                   rxprime[plaqID]     , ryprime[plaqID]      );
+                                theHManager_->fillAlignmentResults(plaqID,
+                                                                   xsizemeas[j][plaqID], ysizemeas[j][plaqID],
+                                                                   resxprime           , sigAll.first        ,
+                                                                   resyprime           , sigAll.second       ,
+                                                                   rxprime[plaqID]     , ryprime[plaqID]      );*/
                             }
                             else
-                            {
-                                double resprime, sig, pred;
+
+                                makeAlignMatricesStripsX(AtVAAll   [plaqID],
+                                                         AtVInvRAll[plaqID],
+                                                         fitpar            ,
+                                                         fRInv     [plaqID],
+                                                         fTz       [plaqID],
+                                                         predX             ,
+                                                         den               ,
+                                                         sigx              ,
+                                                         resxprime         );
 
 
-                                if(theGeometry->getDetectorModule(plaqID)%2 == 0)
-                                {
-                                    resprime = resxprime;
-                                    sig      = sigx;
-                                    pred     = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].predX_;
-                                    makeAlignMatricesStripsX(AtVAAll   [plaqID],
-                                                             AtVInvRAll[plaqID],
-                                                             fitpar            ,
-                                                             fRInv     [plaqID],
-                                                             fTz       [plaqID],
-                                                             pred              ,
-                                                             den               ,
-                                                             sig               ,
-                                                             resprime          );
-                                }
-                                else
-                                {
-                                    resprime = resyprime;
-                                    pred     = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].predY_;
-                                    sig      = sigy;
-                                    makeAlignMatricesStripsY(AtVAAll   [plaqID],
-                                                             AtVInvRAll[plaqID],
-                                                             fitpar            ,
-                                                             fRInv     [plaqID],
-                                                             fTz       [plaqID],
-                                                             pred              ,
-                                                             den               ,
-                                                             sig               ,
-                                                             resprime          );
-                                }
-
-                            }
                         }
                     }// End loop planes
                 } // End loop tracks
@@ -1108,19 +1094,19 @@ bool aligner::alignStrips()
                                    plIt != theGeometry->end();
                                    plIt++)
             {
-                if(plIt->second->isDUT()) continue;
+                if(!plIt->second->isStrip()) continue;
                 string plaqID = plIt->first ;
                 if(phase == 0)
                 {
                     int ifail = 0 ;
-                    ROOT::Math::SMatrix<double,2,2> xyaTvainv = AtVAxy[plaqID].Inverse(ifail) ;
-                    ROOT::Math::SVector<double,2>   xyalpar   = xyaTvainv*AtVInvRxy[plaqID];
+                    ROOT::Math::SMatrix<double,1,1> xyaTvainv = AtVAxy[plaqID].Inverse(ifail) ;
+                    ROOT::Math::SVector<double,1>   xyalpar   = xyaTvainv*AtVInvRxy[plaqID];
 
                     if(plaqID != firstDetector && plaqID != lastDetector)
                     {
                         // update Trans Offsets
                         deltaTx[plaqID] += xyalpar[0];
-                        deltaTy[plaqID] += xyalpar[1];
+                        //deltaTy[plaqID] += xyalpar[1];
                     }
                     char buffer[128];
                     ss_.str(""); ss_ << "Detector: " << plaqID; STDLINE(ss_.str(),ACRed);
@@ -1231,16 +1217,16 @@ void aligner::makeAlignMatrices   (ROOT::Math::SMatrix<double,nAlignPars,nAlignP
 }
 
 //===================================================================
-void aligner::makeAlignMatricesStripsX   (ROOT::Math::SMatrix<double,nAlignPars,nAlignPars>& AtVA,
-                                   ROOT::Math::SVector<double,nAlignPars>&            AtVAInvR,
-                                   ROOT::Math::SVector<double,4>&                     trackPars,
-                                   Detector::matrix33Def&                             fRInv,
-                                   double z,
-                                   double predX,
-                                   double den,
-                                   double sigmaX,
-                                   double residualX
-                                   )
+void aligner::makeAlignMatricesStripsX   (ROOT::Math::SMatrix<double,nAlignPars,nAlignPars>& AtVA     ,
+                                          ROOT::Math::SVector<double,nAlignPars>&            AtVAInvR ,
+                                          ROOT::Math::SVector<double,4>&                     trackPars,
+                                          Detector::matrix33Def&                             fRInv    ,
+                                          double                                             z        ,
+                                          double                                             predX    ,
+                                          double                                             den      ,
+                                          double                                             sigmaX   ,
+                                          double                                             residualX
+                                                                                                      )
 {
     ROOT::Math::SMatrix<double,1,nAlignPars> C;
     C(0,0) = 1/den*(((fRInv[1][2]-trackPars[2]*fRInv[2][2])*(trackPars[0]*z+trackPars[1])-(fRInv[0][2]-trackPars[0]*fRInv[2][2])*(trackPars[2]*z+trackPars[3]))

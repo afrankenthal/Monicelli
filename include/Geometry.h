@@ -95,8 +95,9 @@ class Geometry : public TObject
   void                        dump                    (void			              );
   void                        orderPlanes             (void			              );
   void                        calculatePlaneMCS       (void			              );
-  void                        calculatePlaneMCSKalman (std::string plaqID         ,
-                                                       Detector::matrix33Def fRinv);
+  void                        calculatePlaneMCSKalman (std::string           plaqID,
+                                                       Detector::matrix33Def fRinv ,
+                                                       double                fTz    );
 
  private:
 
