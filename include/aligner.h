@@ -64,7 +64,8 @@ class aligner : public multiProcess<aligner,bool>
 {
   public :
 
-    enum{nAlignPars=6};//0=alpha, 1=beta, 2=gamma, 3=deltaTx, 4=deltaTy, 5=deltaTz
+    enum{nAlignPars =6};//0=alpha, 1=beta, 2=gamma, 3=deltaTx, 4=deltaTy, 5=deltaTz
+    enum{nKAlignPars=5};//0=alpha, 1=beta, 2=gamma, 3=deltaTx, 4=deltaTz
 
     typedef struct detectorResults{
                                       double alpha   ;
@@ -76,9 +77,11 @@ class aligner : public multiProcess<aligner,bool>
                                   } detectorResults, detectorResultsDef ;
     
 
-    typedef std::map<std::string, detectorResultsDef>         alignmentResultsDef;
-    typedef ROOT::Math::SMatrix<double,nAlignPars,nAlignPars> sMatAlDef          ;
-    typedef ROOT::Math::SVector<double,nAlignPars>            sVetAlDef          ;
+    typedef std::map<std::string, detectorResultsDef>           alignmentResultsDef ;
+    typedef ROOT::Math::SMatrix<double,nAlignPars,nAlignPars  > sMatAlDef           ;
+    typedef ROOT::Math::SVector<double,nAlignPars >             sVetAlDef           ;
+    typedef ROOT::Math::SMatrix<double,nKAlignPars,nKAlignPars> sKMatAlDef          ;
+    typedef ROOT::Math::SVector<double,nKAlignPars>             sKVetAlDef          ;
 
                          aligner                 (fileEater * theFileEater, 
                                                   HManager  * theHManager  );
@@ -93,6 +96,11 @@ class aligner : public multiProcess<aligner,bool>
                                                   sMatAlDef                     & aTvaall                  ,
                                                   sVetAlDef                     & aTvinvrall               ,
                                                   Detector::matrix33Def         & fRinv                     );
+    bool                 calculateCorrectionsKalman(std::string                   detectorName             ,
+                                                  std::vector<double>           & deltaPars                ,
+                                                  sKMatAlDef                    & aTvaall                  ,
+                                                  sKVetAlDef                    & aTvinvrall               ,
+                                                  Detector::matrix33Def         & fRinv                     );
     void                 makeAlignMatrices       (sMatAlDef                     & aTvaall                  ,
                                                   sVetAlDef                     & aTvinvrall               ,
                                                   ROOT::Math::SVector<double,4> & trackPars                ,
@@ -105,8 +113,8 @@ class aligner : public multiProcess<aligner,bool>
                                                   double                          sigmaY                   ,
                                                   double                          residualX                ,
                                                   double                          residualY                 );
-    void                 makeAlignMatricesStripsX(sMatAlDef                     & AtVA,
-                                                  sVetAlDef                     & AtVAInvR                 ,
+    void                 makeAlignMatricesStripsX(sKMatAlDef                    & AtVA,
+                                                  sKVetAlDef                    & AtVAInvR                 ,
                                                   ROOT::Math::SVector<double,4> & trackPars                ,
                                                   Detector::matrix33Def         & fRInv                    ,
                                                   double                          z                        ,

@@ -36,8 +36,6 @@
 
 # To run Monicelli do the following:
 
-# scl enable devtoolset-2 tcsh
-# source ~/.tcshrc
 # source setup-6.csh
 # ./Monicelli
 
@@ -52,13 +50,7 @@ if(${HOSTNAME} == "MAC") then
 
   if(     ${USER} == "menasce") then
    setenv BASEDATADIR /Users/menasce/AnalysisTBF/data/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
-  else if(${USER} == "dinardo") then
-   setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
-  else if(${USER} == "dzuolo") then
-   setenv BASEDATADIR ../data/TestBeamFBKPlanarAfterRad_Batch01_02
   endif
-  
-#  setenv PATH /opt/rh/devtoolset-2/root/usr/bin:/bin:/usr/bin:/usr/local/bin:/usr/printmi/bin
 
   #===== Local directories
   setenv MonicelliDir		   `pwd`
@@ -71,14 +63,11 @@ if(${HOSTNAME} == "MAC") then
   #===== Location of the ROOT components
   setenv ROOTVER                   SIX
   setenv ROOTSYS		   /Applications/root_v6.04.02/
-#  setenv ROOTSYS		   /Users/menasce/AnalysisTBF/root-v6.10.00.build
   setenv ROOTINC		   $ROOTSYS/include
   setenv ROOTLIB		   $ROOTSYS/lib
 
   #===== Location of the Qt components
   setenv QTDIR  		   /Applications/Qt5.9/5.9/clang_64
-#  setenv QTDIR  		   /Users/menasce/AnalysisTBF/qt-v5.9.0
-
   setenv QTCREATORDIR		   '/Applications/Qt5.9/Qt\ Creator.app/Contents/MacOS/Qt\ Creator'
   setenv QTASSISTANTDIR            '/Applications/Qt5.9/5.9/clang_64/bin/Assistant.app/Contents/MacOS/'
   
@@ -178,12 +167,19 @@ endif
 #===============   Personalized configuration on this computer   ==============================================
 if(${HOSTNAME} == "cip.mib.infn.it") then
 
+  echo "Setting up for cip"
+
   if(     ${USER} == "menasce") then
    setenv BASEDATADIR /raid1/menasce/AnalysisTBF/data/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
   else if(${USER} == "dinardo") then
    setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
   else if(${USER} == "dzuolo") then
-   setenv BASEDATADIR ../data/TestBeamFBKPlanarAfterRad_Batch01_02
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamFBK_PlanarARadBatch02_3DBRadBatch01_PlanarBRadBatch03
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamData2015
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamFBKPlanarAfterRad_Batch01_02
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamFBKPlanarBeforeRad_Batch02
+   #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamData_February_2017
+   setenv BASEDATADIR /user/gr1/e831/dzuolo/StripTelescopeAnalysis
   endif
   
   setenv PATH /opt/rh/devtoolset-2/root/usr/bin:/bin:/usr/bin:/usr/local/bin:/usr/printmi/bin
@@ -198,13 +194,13 @@ if(${HOSTNAME} == "cip.mib.infn.it") then
   
   #===== Location of the ROOT components
   setenv ROOTVER                   SIX
-  setenv ROOTSYS		   /usr
+  setenv ROOTSYS		   /user/service/root-6.04.10/
   setenv ROOTINC		   $ROOTSYS/include/root
-  setenv ROOTLIB		   $ROOTSYS/lib64/root
+  setenv ROOTLIB		   $ROOTSYS/lib/root
 
   #===== Location of the Qt components
   setenv QTDIR  		   /user/service/Qt-5.6.2/5.6/gcc_64
-  setenv QTCREATORDIR		   /user/service/QtCreator-4.3.0/
+  setenv QTCREATORDIR		   /raid1/menasce/qt-creator-opensource-src-4.3.0
 
   #===== Location of the BOOST components
   setenv BOOSTINC		   /usr/local/include/boost
@@ -236,7 +232,11 @@ endif
 if(${HOSTNAME} == "focus.mib.infn.it") then
 
   echo "Setting up for focus"
-  if(${USER} == "dzuolo") then
+  if(     ${USER} == "menasce") then
+   setenv BASEDATADIR /raid1/menasce/AnalysisTBF/data/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
+  else if(${USER} == "dinardo") then
+   setenv BASEDATADIR /raid2/data1/vtx1/dinardo/TestBeamFBKPlanarBeforeRad_Batch01
+  else if(${USER} == "dzuolo") then
    #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamFBK_PlanarARadBatch02_3DBRadBatch01_PlanarBRadBatch03
    #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamData2015
    #setenv BASEDATADIR /user/gr1/e831/dzuolo/data/TestBeamFBKPlanarAfterRad_Batch01_02
@@ -257,19 +257,17 @@ if(${HOSTNAME} == "focus.mib.infn.it") then
   
   #===== Location of the ROOT components
   setenv ROOTVER                   SIX
-  setenv ROOTSYS		   /usr
+  setenv ROOTSYS		   /user/service/root-6.04.10/
   setenv ROOTINC		   $ROOTSYS/include/root
-  setenv ROOTLIB		   $ROOTSYS/lib64/root
-
+  setenv ROOTLIB		   $ROOTSYS/lib/root
+  
   #===== Location of the Qt components
-  setenv QTDIR  		   /user/service/Qt-5.6.2/5.6/gcc_64/
+  setenv QTDIR  		   /user/service/Qt-5.6.2/5.6/gcc_64
   setenv QTCREATORDIR		   /raid1/menasce/qt-creator-opensource-src-4.3.0
-  setenv QTLIB                     ${QTDIR}/lib 
-  setenv QTINC                     ${QTDIR}/include 
 
   #===== Location of the BOOST components
-  setenv BOOSTINC		   /usr/include/boost
-  setenv BOOSTLIB		   /usr/lib64
+  setenv BOOSTINC		   /usr/local/include/boost
+  setenv BOOSTLIB		   /usr/local/lib
 
   #===== Location of the XERCES components
   setenv XERCESCINC		   /opt/local/xerces/include
@@ -279,7 +277,7 @@ if(${HOSTNAME} == "focus.mib.infn.it") then
   setenv FINDERHOME		   ${MonicelliDir}/finder
   setenv FINDER   		   ${FINDERHOME}/finder
   
-  #===== Location of the FINDER components
+  #===== Location of the LOUVRE components
   setenv LOUVREHOME		   ${MonicelliDir}/Louvre
   setenv LOUVRE 		   ${LOUVREHOME}/Louvre
 
@@ -294,5 +292,6 @@ if(${HOSTNAME} == "focus.mib.infn.it") then
     
 endif
 #===== Final PATH definitions
-setenv PATH	       "${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}"
-setenv LD_LIBRARY_PATH "${ROOTLIB}:${BOOSTLIB}:${QTDIR}/lib64:${QTCREATORDIR}:${XERCESCLIB}/:${MonicelliDir}/plugins/libs/:${MonicelliDir}/test/customWidgets/libs:${LD_LIBRARY_PATH}"
+setenv PATH	       ${ROOTSYS}/bin:${QTDIR}/bin:${QTCREATORDIR}/bin:${PATH}
+setenv LD_LIBRARY_PATH ${ROOTLIB}:${BOOSTLIB}:${QTDIR}/lib:${XERCESCLIB}/:${MonicelliDir}/plugins/libs/:${MonicelliDir}/test/customWidgets/libs:${LD_LIBRARY_PATH}
+

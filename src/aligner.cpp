@@ -727,7 +727,7 @@ bool aligner::alignStrips()
     std::map< std::string, double > alpha,beta,gamma;
     std::map< std::string, double > fTz;
 
-    std::vector<double>  parametersCorrection(nAlignPars,0);//0=alpha, 1=beta, 2=gamma, 3=deltaTx, 4=deltaTy, 5=deltaTz
+    std::vector<double>  parametersCorrection(nKAlignPars,0);//0=alpha, 1=beta, 2=gamma, 3=deltaTx, 4=deltaTz
 
 //    std::map< std::string, double > rxprime,ryprime;
 
@@ -946,10 +946,10 @@ bool aligner::alignStrips()
             STDLINE(ss_.str(), ACGreen);
 
             // Align Matrices
-            std::map< std::string, ROOT::Math::SMatrix<double,1,1> >                   AtVAxy    ;
-            std::map< std::string, ROOT::Math::SVector<double,1>   >                   AtVInvRxy ;
-            std::map< std::string, ROOT::Math::SMatrix<double,nAlignPars,nAlignPars> > AtVAAll   ;
-            std::map< std::string, ROOT::Math::SVector<double,nAlignPars>   >          AtVInvRAll;
+            std::map< std::string, ROOT::Math::SMatrix<double,1,1> >                     AtVAxy    ;
+            std::map< std::string, ROOT::Math::SVector<double,1>   >                     AtVInvRxy ;
+            std::map< std::string, ROOT::Math::SMatrix<double,nKAlignPars,nKAlignPars> > AtVAAll   ;
+            std::map< std::string, ROOT::Math::SVector<double,nKAlignPars>   >           AtVInvRAll;
 
             for(Geometry::iterator det  = theGeometry->begin();
                                    det != theGeometry->end();
@@ -1111,25 +1111,25 @@ bool aligner::alignStrips()
                     char buffer[128];
                     ss_.str(""); ss_ << "Detector: " << plaqID; STDLINE(ss_.str(),ACRed);
                     sprintf (buffer, "X     -> Total correction = %7.3f um  Trial correction =  %7.3f um", 10*deltaTx[plaqID], 10*xyalpar[0]);STDLINE(buffer,ACCyan);
-                    sprintf (buffer, "Y     -> Total correction = %7.3f um  Trial correction =  %7.3f um", 10*deltaTy[plaqID], 10*xyalpar[1]);STDLINE(buffer,ACCyan);
+//                    sprintf (buffer, "Y     -> Total correction = %7.3f um  Trial correction =  %7.3f um", 10*deltaTy[plaqID], 10*xyalpar[1]);STDLINE(buffer,ACCyan);
                 }
 
                 else if(phase == 1)
                 {
 
-                    calculateCorrections(plaqID              ,
-                                         parametersCorrection,
-                                         AtVAAll   [plaqID]  ,
-                                         AtVInvRAll[plaqID]  ,
-                                         fRInv     [plaqID]) ;
+                    calculateCorrectionsKalman(plaqID              ,
+                                               parametersCorrection,
+                                               AtVAAll   [plaqID]  ,
+                                               AtVInvRAll[plaqID]  ,
+                                               fRInv     [plaqID]) ;
 
                     alpha  [plaqID] += parametersCorrection[0];
                     beta   [plaqID] += parametersCorrection[1];
                     gamma  [plaqID] += parametersCorrection[2];
                     deltaTx[plaqID] += parametersCorrection[3];
-                    deltaTy[plaqID] += parametersCorrection[4];
-                    deltaTz[plaqID] += parametersCorrection[5];
-                    fTz    [plaqID] += parametersCorrection[5];
+                    //deltaTy[plaqID] += parametersCorrection[4];
+                    deltaTz[plaqID] += parametersCorrection[4];
+                    fTz    [plaqID] += parametersCorrection[4];
 
                     ss_.str(""); ss_ << "Detector: " << plaqID; STDLINE(ss_.str(),ACRed);
                     char buffer[128];
@@ -1137,8 +1137,8 @@ bool aligner::alignStrips()
                     sprintf (buffer, "Beta  -> Total correction = %7.3f deg Trial correction =  %7.3f deg", beta      [plaqID]*180./M_PI, parametersCorrection[1]*180./M_PI);STDLINE(buffer,ACCyan);
                     sprintf (buffer, "Gamma -> Total correction = %7.3f deg Trial correction =  %7.3f deg", gamma     [plaqID]*180./M_PI, parametersCorrection[2]*180./M_PI);STDLINE(buffer,ACCyan);
                     sprintf (buffer, "X     -> Total correction = %7.3f um  Trial correction =  %7.3f um" , 10*deltaTx[plaqID],        10*parametersCorrection[3])          ;STDLINE(buffer,ACCyan);
-                    sprintf (buffer, "Y     -> Total correction = %7.3f um  Trial correction =  %7.3f um" , 10*deltaTy[plaqID],        10*parametersCorrection[4])          ;STDLINE(buffer,ACCyan);
-                    sprintf (buffer, "Z     -> Total correction = %7.3f um  Trial correction =  %7.3f um" , 10*deltaTz[plaqID],        10*parametersCorrection[5])          ;STDLINE(buffer,ACCyan);
+                    //sprintf (buffer, "Y     -> Total correction = %7.3f um  Trial correction =  %7.3f um" , 10*deltaTy[plaqID],        10*parametersCorrection[4])          ;STDLINE(buffer,ACCyan);
+                    sprintf (buffer, "Z     -> Total correction = %7.3f um  Trial correction =  %7.3f um" , 10*deltaTz[plaqID],        10*parametersCorrection[4])          ;STDLINE(buffer,ACCyan);
 
                     if(trial == maxtrial_-1)
                     {
@@ -1217,29 +1217,30 @@ void aligner::makeAlignMatrices   (ROOT::Math::SMatrix<double,nAlignPars,nAlignP
 }
 
 //===================================================================
-void aligner::makeAlignMatricesStripsX   (ROOT::Math::SMatrix<double,nAlignPars,nAlignPars>& AtVA     ,
-                                          ROOT::Math::SVector<double,nAlignPars>&            AtVAInvR ,
-                                          ROOT::Math::SVector<double,4>&                     trackPars,
-                                          Detector::matrix33Def&                             fRInv    ,
-                                          double                                             z        ,
-                                          double                                             predX    ,
-                                          double                                             den      ,
-                                          double                                             sigmaX   ,
-                                          double                                             residualX
-                                                                                                      )
+void aligner::makeAlignMatricesStripsX   (ROOT::Math::SMatrix<double,nKAlignPars,nKAlignPars>& AtVA     ,
+                                          ROOT::Math::SVector<double,nKAlignPars>&             AtVAInvR ,
+                                          ROOT::Math::SVector<double,4>&                       trackPars,
+                                          Detector::matrix33Def&                               fRInv    ,
+                                          double                                               z        ,
+                                          double                                               predX    ,
+                                          double                                               den      ,
+                                          double                                               sigmaX   ,
+                                          double                                               residualX
+                                                                                                        )
 {
-    ROOT::Math::SMatrix<double,1,nAlignPars> C;
+    ROOT::Math::SMatrix<double,1,nKAlignPars> C;
     C(0,0) = 1/den*(((fRInv[1][2]-trackPars[2]*fRInv[2][2])*(trackPars[0]*z+trackPars[1])-(fRInv[0][2]-trackPars[0]*fRInv[2][2])*(trackPars[2]*z+trackPars[3]))
                     -predX*((fRInv[1][2]-trackPars[2]*fRInv[2][2])*(fRInv[0][0]-trackPars[0]*fRInv[2][0])-(fRInv[0][2]-trackPars[0]*fRInv[2][2])*(fRInv[1][0]-trackPars[2]*fRInv[2][0])));
     C(0,1) = 1/den*predX*((fRInv[0][2]-trackPars[0]*fRInv[2][2])*(fRInv[1][1]-trackPars[2]*fRInv[2][1])-(fRInv[1][2]-trackPars[2]*fRInv[2][2])*(fRInv[0][1]-trackPars[0]*fRInv[2][1]));
     C(0,2) = 1/den*((fRInv[0][0]-trackPars[0]*fRInv[2][0])*(trackPars[2]*z+trackPars[3])-(fRInv[1][0]-trackPars[2]*fRInv[2][0])*(trackPars[0]*z+trackPars[1]));
     C(0,3) = 1;
-    C(0,4) = 0;
-    C(0,5) = 1/den*((fRInv[0][2]-trackPars[0]*fRInv[2][2])*(fRInv[1][1]-trackPars[2]*fRInv[2][1])-(fRInv[1][2]-trackPars[2]*fRInv[2][2])*(fRInv[0][1]-trackPars[0]*fRInv[2][1]));
+    C(0,4) = 1/den*((fRInv[0][2]-trackPars[0]*fRInv[2][2])*(fRInv[1][1]-trackPars[2]*fRInv[2][1])-(fRInv[1][2]-trackPars[2]*fRInv[2][2])*(fRInv[0][1]-trackPars[0]*fRInv[2][1]));
+//    C(0,4) = 0;
+//    C(0,5) = 1/den*((fRInv[0][2]-trackPars[0]*fRInv[2][2])*(fRInv[1][1]-trackPars[2]*fRInv[2][1])-(fRInv[1][2]-trackPars[2]*fRInv[2][2])*(fRInv[0][1]-trackPars[0]*fRInv[2][1]));
 
-    for(int r=0; r<nAlignPars; r++)
+    for(int r=0; r<nKAlignPars; r++)
     {
-        for(int c=0; c<nAlignPars; c++)
+        for(int c=0; c<nKAlignPars; c++)
         {
             if(c<r)//To gain time AtVA(r,c) = AtVA(c,r)
                 AtVA[r][c] = AtVA[c][r];
@@ -1248,7 +1249,7 @@ void aligner::makeAlignMatricesStripsX   (ROOT::Math::SMatrix<double,nAlignPars,
         }
     }
 
-    for(int c=0; c<nAlignPars; c++)
+    for(int c=0; c<nKAlignPars; c++)
     {
         AtVAInvR[c] += C(0,c)*residualX/pow(sigmaX,2);
     }
@@ -1291,11 +1292,11 @@ void aligner::makeAlignMatricesStripsY   (ROOT::Math::SMatrix<double,nAlignPars,
     }
 }
 //===================================================================
-bool aligner::calculateCorrections(std::string detectorName,
-                                   std::vector<double>&                               deltaPars,
-                                   ROOT::Math::SMatrix<double,nAlignPars,nAlignPars>& AtVAAll,
-                                   ROOT::Math::SVector<double,nAlignPars>&            AtVInvRAll,
-                                   Detector::matrix33Def&                             fRInv)
+bool aligner::calculateCorrections(std::string                                        detectorName,
+                                   std::vector<double>&                               deltaPars   ,
+                                   ROOT::Math::SMatrix<double,nAlignPars,nAlignPars>& AtVAAll     ,
+                                   ROOT::Math::SVector<double,nAlignPars>&            AtVInvRAll  ,
+                                   Detector::matrix33Def&                             fRInv       )
 {
     unsigned int nAlignPars = deltaPars.size();
     deltaPars.assign(nAlignPars,0);
@@ -1368,7 +1369,84 @@ bool aligner::calculateCorrections(std::string detectorName,
 
     return true;
 }
+//===================================================================
+bool aligner::calculateCorrectionsKalman(std::string                                          detectorName,
+                                         std::vector<double>&                                 deltaPars   ,
+                                         ROOT::Math::SMatrix<double,nKAlignPars,nKAlignPars>& AtVAAll     ,
+                                         ROOT::Math::SVector<double,nKAlignPars>&             AtVInvRAll  ,
+                                         Detector::matrix33Def&                               fRInv       )
+{
+    unsigned int nAlignPars = deltaPars.size();
+    deltaPars.assign(nAlignPars,0);
 
+    if( parMap_[detectorName] == 111111 ) return true;//Lock its geometry. //No free parameters!
+
+    bool zLocked = true;
+    std::vector<bool>   parStatus(nAlignPars,false);
+    int parVal = parMap_[detectorName];
+    unsigned int freePars = 0;
+    for(unsigned int p=0; p<nAlignPars; p++)
+    {
+        parStatus[p] = parVal%10;
+        parVal /= 10;
+        if(parStatus[p] == 0) ++freePars;
+    }
+    if(parStatus[nAlignPars-1] == 0) zLocked = false;
+
+    TMatrixD aTva(freePars,freePars), aTvainv(freePars,freePars);
+    TVectorD aTvinvr(freePars), alpar(freePars);
+
+    int r = 0;
+    int c = 0;
+    for(unsigned int p=0; p<nAlignPars; p++)
+    {
+        if(parStatus[p] == 0)
+        {
+            aTvinvr[r] = AtVInvRAll[p];
+            c=0;
+            for(unsigned int pp=0; pp<nAlignPars; pp++)
+            {
+                if(parStatus[pp] == 0)
+                {
+                    aTva[r][c] = AtVAAll[p][pp];
+                    ++c;
+                }
+            }
+            ++r;
+        }
+    }
+
+    double determinant;
+    aTvainv = aTva.Invert(&determinant) ;
+    alpar   = aTvainv*aTvinvr;
+
+    int zeroPars = 0;
+    for(unsigned int p=0; p<nAlignPars; p++)
+    {
+        if(p == 3 && (deltaPars[0] != 0 || deltaPars[1] != 0 || deltaPars[2] != 0))
+        {
+            // update Rot Offsets
+            fRInv *= Detector::rotationMatrix(deltaPars[0],deltaPars[1],deltaPars[2]);
+        }
+        if(parStatus[p] == 0)
+        {
+            if(p < 3 || zLocked)//Angles || All parameters when z is locked
+                deltaPars[p] = alpar[p-zeroPars];
+            else if(p == 3 ||p == 4)   //X Y Translations
+                deltaPars[p] = alpar[p-zeroPars]-fRInv[2][p-3]/fRInv[2][2]*alpar[nAlignPars-zeroPars-1];
+            else if(p == 5) //Z Translations
+                deltaPars[5] = -alpar[nAlignPars-zeroPars-1]/fRInv[2][2];
+
+        }
+        else
+        {
+            deltaPars[p] = 0;
+            ++zeroPars;
+        }
+    }
+
+    return true;
+}
 //===================================================================
 bool aligner::execute()
 {
@@ -1422,7 +1500,8 @@ int aligner::getMaxIterations (void)
 //=======================================================================
 std::string  aligner::getLabel(void  )
 {
-    if(processOperation_ == &aligner::alignDUT) return "DUT alignment";
-    if(processOperation_ == &aligner::align   ) return "Telescope alignment";
+    if(processOperation_ == &aligner::alignDUT   ) return "DUT alignment"            ;
+    if(processOperation_ == &aligner::align      ) return "Pixel telescope alignment";
+    if(processOperation_ == &aligner::alignStrips) return "Strip telescope alignment";
     else                                        return NO_PROCESS_LABEL_;
 }
