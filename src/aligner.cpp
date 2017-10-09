@@ -798,21 +798,21 @@ bool aligner::alignStrips()
             unsigned int numberOfTelescopeHits     = 0;
             unsigned int numberOfGoodTelescopeHits = 0;
             for(Geometry::iterator git  = theGeometry->begin();
-                                   git != theGeometry->end();
-                                   git++)
+                git != theGeometry->end();
+                git++)
             {
                 if(!git->second->isStrip()                                                    ) continue                   ;
                 if(tracks[tr].count( git->first ) != 0                                        ) numberOfTelescopeHits++    ;
                 if(maxClusterSize_ > 0 && tracks[tr][(*git).first]["size"] <= maxClusterSize_ ) numberOfGoodTelescopeHits++;
             }
             if(( ( numberOfTelescopeHits  < theGeometry->getDetectorsNumberByType("Strips") )                               || // (all detectors must be hit)
-                (( maxClusterSize_ > 0 ) && (numberOfGoodTelescopeHits <theGeometry->getDetectorsNumberByType("Strips") ))) ||
-                (( chi2cut_        > 0 ) && (tracksChi2[tr]            > chi2cut_                             )))    //chi2 cut
+                 (( maxClusterSize_ > 0 ) && (numberOfGoodTelescopeHits <theGeometry->getDetectorsNumberByType("Strips")))) ||
+                 (( chi2cut_        > 0 ) && (tracksChi2[tr]            > chi2cut_                             ))             )//chi2 cut
             {
                 tracksFilterMap[ev] = false ;
                 continue;
             }
-/*
+            /*
             for(Event::alignedHitsCandidateMapDef::iterator det  = tracks[tr].begin();
                                                             det != tracks[tr].end()  ;
                                                           ++det)
@@ -878,7 +878,7 @@ bool aligner::alignStrips()
             goodTracks++;
             tracksFilterMap[ev]=true;
 
-    }
+        }
         currentIteration_=ev;
     }
 
@@ -976,6 +976,9 @@ bool aligner::alignStrips()
                 std::vector<Event::vectorDef>                 ::iterator track          = tracksFitted   .begin();
                 std::vector<Event::matrixDef>                 ::iterator cov            = covMat         .begin();
 
+                bool firstTime = false ;
+                if(phase == strategy_ && trial == 0) firstTime = true ;
+
                 //Use kalman filter to fit tracks starting from trackPars and covMat on the DUT evalueted in the track fit
                 for (; trackCandidate!=trackCandidates.end(); trackCandidate++, track++, cov++)
                 {
@@ -986,6 +989,16 @@ bool aligner::alignStrips()
                         if(!theGeometry->getDetector(plIt->first)->isStrip()) continue;
                         string plaqID = plIt->first ;
                         clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second -= deltaTx[plaqID] ;
+//                        if( firstTime )
+//                        {
+//                            if(( trackCandidate == --trackCandidates.end()  ) &&
+//                               ( plIt           == --clustersNoTrasl.end()  )) firstTime = false ;
+//                            STDLINE(plaqID,"") ;
+//                            theGeometry->getDetector(plIt->first)->fromLocalToGlobalNoRotation(&clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second   ,
+//                                                                                               &clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("y")->second   ,
+//                                                                                               &clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("xErr")->second,
+//                                                                                               &clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("yErr")->second);
+//                        }
                     }
 
                     trackFitter::aKalmanData aKalmanFittedTrack = theTrackFitter_->kalmanFitSingleTrack(*trackCandidate,
@@ -994,13 +1007,12 @@ bool aligner::alignStrips()
                                                                                                         clustersNoTrasl,
                                                                                                         theGeometry    );
 
-                    double sigx      = 0 ;
-//                    double sigy      = 0 ;
-                    double predX     = 0 ;
-                    double predY     = 0 ;
-                    double den       = 0 ;
-                    double resxprime = 0 ;
-//                    double resyprime = 0 ;
+                    double sigx       = 0;
+                    double predX      = 0;
+                    double predY      = 0;
+                    double den        = 0;
+                    double resxprime  = 0;
+                    double kalmanPred = 0;
 
                     for(Event::clustersMapDef::iterator plIt  = clustersNoTrasl.begin();
                                                         plIt != clustersNoTrasl.end()  ;
@@ -1025,22 +1037,37 @@ bool aligner::alignStrips()
                                                                                             predX        ,
                                                                                             predY        );
 
-//                        resxprime = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resX_ ;
-//                        resyprime = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resY_ ;
 
-//                        sigx = clusters[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("xErr")->second ;
-//                        sigy = clusters[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("yErr")->second ;
+//                        resxprime = clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second - predX;
+                        if(theGeometry->getDetectorModule(plaqID)%2 == 0)
+                        {
+                            kalmanPred = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].predX_;
+                            sigx       = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resX_ / aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].pullX_;
+                        }
+                        else
+                        {
+                            kalmanPred = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].predY_;
+                            sigx       = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resY_ / aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].pullY_;
+                        }
 
 
                         resxprime = clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second - predX;
 
-                        if(theGeometry->getDetectorModule(plaqID)%2 == 0)
+                        if( plaqID == "Station: 5 - Plaq: 2")
                         {
-                            sigx = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resX_ / aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].pullX_;
-                        }
-                        else
-                        {
-                            sigx = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resY_ / aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].pullY_;
+                            //static bool first = true ;
+                            //if( first )
+                            //{
+                            //    first = false ;
+                                cout << " sx: "    << fitpar[0]
+                                     << " qx: "    << fitpar[1]
+                                     << " sy: "    << fitpar[2]
+                                     << " qy: "    << fitpar[3]
+                                     << " meas: "  << clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second
+                                     << " predXK: "<< kalmanPred
+                                     << " predXL: "<< predX
+                                     << endl ;
+                            //}
                         }
 
                         if(phase == 0)//Only XY translations
@@ -1370,6 +1397,7 @@ bool aligner::calculateCorrections(std::string                                  
     return true;
 }
 //===================================================================
+//Needs to updated: y coordinate is not treated!!!
 bool aligner::calculateCorrectionsKalman(std::string                                          detectorName,
                                          std::vector<double>&                                 deltaPars   ,
                                          ROOT::Math::SMatrix<double,nKAlignPars,nKAlignPars>& AtVAAll     ,
