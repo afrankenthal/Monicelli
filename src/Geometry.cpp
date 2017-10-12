@@ -305,9 +305,9 @@ void Geometry::calculatePlaneMCS(void)
 
         //Define local coordinates
         sensorOrigin[0] = 0; sensorOrigin[1] = 0; sensorOrigin[2] = 0;
-        upVector[0]     = 0; upVector[1]     = 1; upVector[2]     = 0;
-        rightVector[0]  = 1; rightVector[1]  = 0; rightVector[2]  = 0;
-        beamVector[0]   = 0; beamVector[1]   = 0; beamVector[2]   = 1;
+        upVector    [0] = 0; upVector    [1] = 1; upVector    [2] = 0;
+        rightVector [0] = 1; rightVector [1] = 0; rightVector [2] = 0;
+        beamVector  [0] = 0; beamVector  [1] = 0; beamVector  [2] = 1;
 
         //Change to global coordinates
         detector->fromLocalToGlobal(&sensorOrigin[0],&sensorOrigin[1],&sensorOrigin[2]);
@@ -319,7 +319,6 @@ void Geometry::calculatePlaneMCS(void)
         upVector   [0] -= sensorOrigin[0]; upVector   [1] -= sensorOrigin[1]; upVector   [2] -= sensorOrigin[2];
         rightVector[0] -= sensorOrigin[0]; rightVector[1] -= sensorOrigin[1]; rightVector[2] -= sensorOrigin[2];
         beamVector [0] -= sensorOrigin[0]; beamVector [1] -= sensorOrigin[1]; beamVector [2] -= sensorOrigin[2];
-
 
         double den = upVector[1]*rightVector[0] - upVector[0]    *rightVector[1];
         offset= -sensorOrigin[0]*rightVector[0] - sensorOrigin[1]*rightVector[1]+
