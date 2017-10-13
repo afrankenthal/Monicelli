@@ -347,10 +347,11 @@ trackFitter::aKalmanData trackFitter::kalmanFitSingleTrack(const Event::alignedH
     TMatrixT<double> At  (4,4);
     TMatrixT<double> temp(4,4);
 
-    double resX = 0, resY = 0, predsigxx = 0, predsigyy = 0, pullX = 0, pullY = 0, predX = 0 , predY = 0 ;
 
     for (unsigned int plane = 0; plane < theKalmanPlaneInfo_.getKalmanFilterOrder().size(); plane++)
     {
+        double resX = 0, resY = 0, predsigxx = 0, predsigyy = 0, pullX = 0, pullY = 0, predX = 0 , predY = 0 ;
+
         std::string plaqID = theKalmanPlaneInfo_.getKalmanFilterOrder().at(plane).second;
 
         trackParsMap[plaqID].ResizeTo(4  );
@@ -467,6 +468,7 @@ trackFitter::aKalmanData trackFitter::kalmanFitSingleTrack(const Event::alignedH
                     rit!= theKalmanPlaneInfo_.getKalmanFilterOrder().crend();
                   ++rit)
     {
+            double resX = 0, resY = 0, predsigxx = 0, predsigyy = 0, pullX = 0, pullY = 0, predX = 0 , predY = 0 ;
             std::string plaqID = (*rit).second ;
 
             TVectorT<double> h = theKalmanPlaneInfo_.getH     (plaqID);
@@ -549,6 +551,21 @@ trackFitter::aKalmanData trackFitter::kalmanFitSingleTrack(const Event::alignedH
                 theKalmanTrack[plaqID]["smoothing"] = theKalmanStruct ;
 //                STDSNAP("","") ; std::cout << trackTmp[0] << " "  << trackTmp[1]  << " " << trackTmp[2]  << " " << trackTmp[3]  << std::endl ;
 //                STDSNAP("","") ; std::cout << covTmp[0][0] << " " << covTmp[1][1] << " " << covTmp[2][2] << " " << covTmp[3][3] << std::endl ;
+//                double tempX=0, tempY=0, tempZ=0;
+//                theGeometry->getDetector(plaqID)->getPredictedGlobal(trackTmp,tempX,tempY,tempZ);
+
+//                ss_.str("") ;
+//                ss_  << " Plane: " << plaqID
+//                     << " sx: "    << trackTmp[0]
+//                     << " qx: "    << trackTmp[1]
+//                     << " sy: "    << trackTmp[2]
+//                     << " qy: "    << trackTmp[3]
+//                     << " meas: "  << clusters[plaqID][(trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second
+//                     << " predXLocal: "<< theKalmanStruct.predX_
+//                     << " predYLocal: "<< theKalmanStruct.predY_
+//                     << " predXGlobal: "<< tempX
+//                     << " predYGlobal: "<<tempY;
+//                STDLINE(ss_.str(),"") ;
 
             }
 

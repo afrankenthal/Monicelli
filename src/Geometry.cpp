@@ -349,7 +349,6 @@ void Geometry::calculatePlaneMCS(void)
         trackCov[2][3] = -zValue       *mmbb;
         trackCov[2][2] =                mmbb;
 
-
         theKalmanPlaneInfo_.setH       (h,plaqID       );
         theKalmanPlaneInfo_.setTrackCov(trackCov,plaqID);
         theKalmanPlaneInfo_.setOffset  (offset,plaqID  );

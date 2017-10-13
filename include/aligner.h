@@ -113,8 +113,8 @@ class aligner : public multiProcess<aligner,bool>
                                                   double                          sigmaY                   ,
                                                   double                          residualX                ,
                                                   double                          residualY                 );
-    void                 makeAlignMatricesStripsX(sMatAlDef                    & AtVA,
-                                                  sVetAlDef                    & AtVAInvR                 ,
+    void                 makeAlignMatricesStripsX(sMatAlDef                     & AtVA,
+                                                  sVetAlDef                     & AtVAInvR                 ,
                                                   ROOT::Math::SVector<double,4> & trackPars                ,
                                                   Detector::matrix33Def         & fRInv                    ,
                                                   double                          z                        ,
