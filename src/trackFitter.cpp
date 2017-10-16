@@ -515,17 +515,6 @@ trackFitter::aKalmanData trackFitter::kalmanFitSingleTrack(const Event::alignedH
                     pullY       = resY/sqrt(predsigyy);
                 }
 
-//                residuals_.plaqID    = plaqID      ;
-//                residuals_.trackN    = 0           ;
-//                residuals_.resX      = resX        ;
-//                residuals_.resY      = resY        ;
-//                residuals_.pullX     = pullX       ;
-//                residuals_.pullY     = pullY       ;
-//                residuals_.chi2      = chi2        ;
-//                residuals_.direction = "smoothing" ;
-//                residualsV_.push_back(residuals_)  ;
-
-
                 theKalmanStruct.chi2_  = chi2  ;
                 theKalmanStruct.predX_ = predX ;
                 theKalmanStruct.predY_ = predY ;
@@ -549,24 +538,6 @@ trackFitter::aKalmanData trackFitter::kalmanFitSingleTrack(const Event::alignedH
                 theKalmanStruct.trackPars_          = trackTmp    ;
                 theKalmanStruct.covMat_             = covTmp      ;
                 theKalmanTrack[plaqID]["smoothing"] = theKalmanStruct ;
-//                STDSNAP("","") ; std::cout << trackTmp[0] << " "  << trackTmp[1]  << " " << trackTmp[2]  << " " << trackTmp[3]  << std::endl ;
-//                STDSNAP("","") ; std::cout << covTmp[0][0] << " " << covTmp[1][1] << " " << covTmp[2][2] << " " << covTmp[3][3] << std::endl ;
-//                double tempX=0, tempY=0, tempZ=0;
-//                theGeometry->getDetector(plaqID)->getPredictedGlobal(trackTmp,tempX,tempY,tempZ);
-
-//                ss_.str("") ;
-//                ss_  << " Plane: " << plaqID
-//                     << " sx: "    << trackTmp[0]
-//                     << " qx: "    << trackTmp[1]
-//                     << " sy: "    << trackTmp[2]
-//                     << " qy: "    << trackTmp[3]
-//                     << " meas: "  << clusters[plaqID][(trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second
-//                     << " predXLocal: "<< theKalmanStruct.predX_
-//                     << " predYLocal: "<< theKalmanStruct.predY_
-//                     << " predXGlobal: "<< tempX
-//                     << " predYGlobal: "<<tempY;
-//                STDLINE(ss_.str(),"") ;
-
             }
 
             if( theGeometry->getDetector(plaqID)->isDUT() )

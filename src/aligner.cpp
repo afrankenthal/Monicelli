@@ -900,7 +900,7 @@ bool aligner::alignStrips()
                         if(theGeometry->getDetectorModule(plaqID)%2 == 0)
                         {
                             clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second =
-                             clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second
+                            clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second
                             -theGeometry->getDetector(plaqID)->getDetectorLengthX()
                             +theGeometry->getDetector(plaqID)->getXPositionTotal()
                             -deltaTx[plaqID];
@@ -914,17 +914,11 @@ bool aligner::alignStrips()
                     }
 
                    trackFitter::aKalmanData aKalmanFittedTrack = theTrackFitter_->kalmanFitSingleTrack(*trackCandidate,
-                                                                                                        *track         ,
-                                                                                                        *cov           ,
-                                                                                                        clustersNoTrasl,
-                                                                                                        theGeometry    );
+                                                                                                       *track         ,
+                                                                                                       *cov           ,
+                                                                                                       clustersNoTrasl,
+                                                                                                       theGeometry    );
 
-                    double sigx       = 0;
-                    double predX      = 0;
-                    double predY      = 0;
-                    double den        = 0;
-                    double resxprime  = 0;
-                    double kalmanPred = 0;
 
                     for(Event::clustersMapDef::iterator plIt  = clustersNoTrasl.begin();
                                                         plIt != clustersNoTrasl.end()  ;
@@ -933,6 +927,18 @@ bool aligner::alignStrips()
                         if(!theGeometry->getDetector(plIt->first)->isStrip()) continue;
                         string plaqID = plIt->first ;
                         ROOT::Math::SVector<double,4>   fitpar    ; //track parameters
+                        double sigx         = 0;
+                        double sigy         = 0;
+                        double predX        = 0;
+                        double predY        = 0;
+                        double resxprime    = 0;
+                        double resyprime    = 0;
+                        double measX        = 0;
+                        double measY        = 0;
+                        double clusterSizeX = 0;
+                        double clusterSizeY = 0;
+                        double kalmanPred   = 0;
+                        double den          = 0;
 
                         fitpar  = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].trackPars_ ;
 
@@ -948,32 +954,58 @@ bool aligner::alignStrips()
 
                         if(theGeometry->getDetectorModule(plaqID)%2 == 0)
                         {
-                            kalmanPred = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].predX_;
-                            sigx       = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resX_ / aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].pullX_;
+                            kalmanPred   = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].predX_                                                            ;
+                            sigx         = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resX_ / aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].pullX_;
+                            measX        = clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second          ;
+                            clusterSizeX = clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("size")->second       ;
+//                          Using predicted point determined from Kalman filter for signs consistence
+                            resxprime    = measX - kalmanPred                                                                                                    ;
                         }
                         else
                         {
-                            kalmanPred = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].predY_;
-                            sigx       = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resY_ / aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].pullY_;
+                            kalmanPred   = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].predY_                                                            ;
+                            sigy         = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resY_ / aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].pullY_;
+                            measY        = clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second          ;
+                            clusterSizeY = clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("size")->second       ;
+                            resyprime    = measY - kalmanPred                                                                                                    ;
                         }
 
-                        resxprime = clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second - kalmanPred;
+//                        ss_.str("") ;
+//                        ss_  << " Plane: " << plaqID
+//                             << " sx: "    << fitpar[0]
+//                             << " qx: "    << fitpar[1]
+//                             << " sy: "    << fitpar[2]
+//                             << " qy: "    << fitpar[3]
+//                             << " meas: "  << clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second
+//                             << " predXL: "<< predX
+//                             << " predYL: "<< predY
+//                             << " predK: "<< kalmanPred;
+//                        STDLINE(ss_.str(),"") ;
 
                         if(phase == 0)//Only XY translations
                         {
-                            AtVAxy   [plaqID][0][0] += 1        /pow(sigx,2);
-                            AtVInvRxy[plaqID][0]    += resxprime/pow(sigx,2);
+                            if(theGeometry->getDetectorModule(plaqID)%2 == 0)
+                            {
+                                AtVAxy   [plaqID][0][0] += 1        /pow(sigx,2);
+                                AtVInvRxy[plaqID][0]    += resxprime/pow(sigx,2);
+                            }
+                            else
+                            {
+                                AtVAxy   [plaqID][0][0] += 1        /pow(sigy,2);
+                                AtVInvRxy[plaqID][0]    += resyprime/pow(sigy,2);
+                            }
+
                             if(trial == maxtrial_-1)
                             {
-                                theHManager_->fillAlignmentResults(plaqID                                                                                                      ,
-                                                                   1                                                                                                           ,
-                                                                   1                                                                                                           ,
-                                                                   resxprime                                                                                                   ,
-                                                                   sigx                                                                                                        ,
-                                                                   resxprime                                                                                                   ,
-                                                                   sigx                                                                                                        ,
-                                                                   clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second,
-                                                                   clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second );
+                                theHManager_->fillAlignmentResults(plaqID      ,
+                                                                   clusterSizeX,
+                                                                   clusterSizeY,
+                                                                   resxprime   ,
+                                                                   pow(sigx,2) ,
+                                                                   resyprime   ,
+                                                                   pow(sigy,2) ,
+                                                                   measX       ,
+                                                                   measY        );
                             }
 
                         }
@@ -981,15 +1013,15 @@ bool aligner::alignStrips()
                         {
                             if(trial == maxtrial_)
                             {
-//                                theHManager_->fillAlignmentResults(plaqID                                                                                                      ,
-//                                                                   1                                                                                                           ,
-//                                                                   1                                                                                                           ,
-//                                                                   resxprime                                                                                                   ,
-//                                                                   sigx                                                                                                        ,
-//                                                                   resxprime                                                                                                   ,
-//                                                                   sigx                                                                                                        ,
-//                                                                   clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second,
-//                                                                   clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second );
+//                                theHManager_->fillAlignmentResults(plaqID      ,
+//                                                                   clusterSizeX,
+//                                                                   clusterSizeY,
+//                                                                   resxprime   ,
+//                                                                   pow(sigx,2) ,
+//                                                                   resyprime   ,
+//                                                                   pow(sigy,2) ,
+//                                                                   measX       ,
+//                                                                   measY        );
                             }
                             else
                             {
@@ -1009,10 +1041,10 @@ bool aligner::alignStrips()
                                                              fitpar            ,
                                                              fRInv     [plaqID],
                                                              fTz       [plaqID],
-                                                             predX             ,
+                                                             predY             ,
                                                              den               ,
-                                                             sigx              ,
-                                                             resxprime         );
+                                                             sigy              ,
+                                                             resyprime         );
                             }
                         }
                     }// End loop planes
@@ -1059,12 +1091,11 @@ bool aligner::alignStrips()
 
                 else if(phase == 1)
                 {
-
                     calculateCorrections(plaqID              ,
                                          parametersCorrection,
                                          AtVAAll   [plaqID]  ,
                                          AtVInvRAll[plaqID]  ,
-                                         fRInv     [plaqID]) ;
+                                         fRInv     [plaqID]   ) ;
 
                     alpha  [plaqID] += parametersCorrection[0];
                     beta   [plaqID] += parametersCorrection[1];
@@ -1176,7 +1207,6 @@ void aligner::makeAlignMatricesStripsX   (ROOT::Math::SMatrix<double,nAlignPars,
     C(0,1) = 1/den*predX*((fRInv[0][2]-trackPars[0]*fRInv[2][2])*(fRInv[1][1]-trackPars[2]*fRInv[2][1])-(fRInv[1][2]-trackPars[2]*fRInv[2][2])*(fRInv[0][1]-trackPars[0]*fRInv[2][1]));
     C(0,2) = 1/den*((fRInv[0][0]-trackPars[0]*fRInv[2][0])*(trackPars[2]*z+trackPars[3])-(fRInv[1][0]-trackPars[2]*fRInv[2][0])*(trackPars[0]*z+trackPars[1]));
     C(0,3) = 1;
-//    C(0,4) = 1/den*((fRInv[0][2]-trackPars[0]*fRInv[2][2])*(fRInv[1][1]-trackPars[2]*fRInv[2][1])-(fRInv[1][2]-trackPars[2]*fRInv[2][2])*(fRInv[0][1]-trackPars[0]*fRInv[2][1]));
     C(0,4) = 0;
     C(0,5) = 1/den*((fRInv[0][2]-trackPars[0]*fRInv[2][2])*(fRInv[1][1]-trackPars[2]*fRInv[2][1])-(fRInv[1][2]-trackPars[2]*fRInv[2][2])*(fRInv[0][1]-trackPars[0]*fRInv[2][1]));
 
