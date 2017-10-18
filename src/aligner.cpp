@@ -719,7 +719,6 @@ bool aligner::alignDUT()
 //=============================================================================================================
 bool aligner::alignStrips()
 {
-
     // Real&Fake Rotation Angles and Shifts
     std::map< std::string, Detector::matrix33Def > fRInv;
 
@@ -861,6 +860,11 @@ bool aligner::alignStrips()
             std::map< std::string, ROOT::Math::SMatrix<double,nAlignPars,nAlignPars> > AtVAAll   ;
             std::map< std::string, ROOT::Math::SVector<double,nAlignPars>   >          AtVInvRAll;
 
+            // H matrix used by Kalman filter must be calculated at the beginning of each iteration
+            // using the new rotation matrix (fRInv) and z position (fTz). Since Luigi's algorithm
+            // works in a reference system where planes translations are 0 a customized fromLocalToGlobal
+            // function has been implented in order to assign a 0 offset to the predicted coordinate
+
             for(Geometry::iterator det  = theGeometry->begin();
                                    det != theGeometry->end();
                                    det++)
@@ -895,21 +899,27 @@ bool aligner::alignStrips()
                                                         plIt != clustersNoTrasl.end()  ;
                                                       ++plIt)
                     {
+                        // Removing translations
+
                         if(!theGeometry->getDetector(plIt->first)->isStrip()) continue;
-                        string plaqID = plIt->first ;
+                        string plaqID = plIt->first ;                        
+
                         if(theGeometry->getDetectorModule(plaqID)%2 == 0)
                         {
+                            // Since x axis in the reference frame of the Kalman filter points to the opposite direction w.r.t the one in
+                            // the global system for planes measuring x all signs are reversed, included the one of deltaTx
+
                             clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second =
                             clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second
                             -theGeometry->getDetector(plaqID)->getDetectorLengthX()
                             +theGeometry->getDetector(plaqID)->getXPositionTotal()
-                            -deltaTx[plaqID];
+                            +deltaTx[plaqID];
                         }
                         else
                         {
                             clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second -=
-                                     theGeometry->getDetector(plaqID)->getYPositionTotal() +
-                                     deltaTy[plaqID];
+                              theGeometry->getDetector(plaqID)->getYPositionTotal() +
+                              deltaTy[plaqID];
                         }
                     }
 
@@ -951,6 +961,9 @@ bool aligner::alignStrips()
                                                                                             predX        ,
                                                                                             predY        );
 
+                        // Residuals to be minimized can be calculated using the predicted impact point of the track on the plane calculated
+                        // by the Kalman filter. This residual must be passed to Luigi's algorithm with opposite sign when aligning planes
+                        // that measure x (see below)
 
                         if(theGeometry->getDetectorModule(plaqID)%2 == 0)
                         {
@@ -958,7 +971,6 @@ bool aligner::alignStrips()
                             sigx         = aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].resX_ / aKalmanFittedTrack.kalmanTrack[plaqID]["smoothing"].pullX_;
                             measX        = clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second          ;
                             clusterSizeX = clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("size")->second       ;
-//                          Using predicted point determined from Kalman filter for signs consistence
                             resxprime    = measX - kalmanPred                                                                                                    ;
                         }
                         else
@@ -970,24 +982,14 @@ bool aligner::alignStrips()
                             resyprime    = measY - kalmanPred                                                                                                    ;
                         }
 
-//                        ss_.str("") ;
-//                        ss_  << " Plane: " << plaqID
-//                             << " sx: "    << fitpar[0]
-//                             << " qx: "    << fitpar[1]
-//                             << " sy: "    << fitpar[2]
-//                             << " qy: "    << fitpar[3]
-//                             << " meas: "  << clustersNoTrasl[plaqID][(*trackCandidate).find(plaqID)->second.find("cluster ID")->second].find("x")->second
-//                             << " predXL: "<< predX
-//                             << " predYL: "<< predY
-//                             << " predK: "<< kalmanPred;
-//                        STDLINE(ss_.str(),"") ;
-
                         if(phase == 0)//Only XY translations
                         {
                             if(theGeometry->getDetectorModule(plaqID)%2 == 0)
                             {
-                                AtVAxy   [plaqID][0][0] += 1        /pow(sigx,2);
-                                AtVInvRxy[plaqID][0]    += resxprime/pow(sigx,2);
+                                // Residual passed with opposite sign
+
+                                AtVAxy   [plaqID][0][0] +=  1        /pow(sigx,2);
+                                AtVInvRxy[plaqID][0]    += -resxprime/pow(sigx,2);
                             }
                             else
                             {
@@ -1025,6 +1027,9 @@ bool aligner::alignStrips()
                             }
                             else
                             {
+                                // Residual passed with opposite sign
+                                // Here it's more correct to use the impact point predicted by Luigi's algorithm for reasons of consistence
+
                                 if(theGeometry->getDetectorModule(plaqID)%2 == 0)
                                     makeAlignMatricesStripsX(AtVAAll   [plaqID],
                                                              AtVInvRAll[plaqID],
@@ -1034,7 +1039,7 @@ bool aligner::alignStrips()
                                                              predX             ,
                                                              den               ,
                                                              sigx              ,
-                                                             resxprime         );
+                                                             -resxprime        );
                                 else
                                     makeAlignMatricesStripsY(AtVAAll   [plaqID],
                                                              AtVInvRAll[plaqID],
@@ -1268,85 +1273,6 @@ bool aligner::calculateCorrections(std::string                                  
                                    ROOT::Math::SMatrix<double,nAlignPars,nAlignPars>& AtVAAll     ,
                                    ROOT::Math::SVector<double,nAlignPars>&            AtVInvRAll  ,
                                    Detector::matrix33Def&                             fRInv       )
-{
-    unsigned int nAlignPars = deltaPars.size();
-    deltaPars.assign(nAlignPars,0);
-
-    if( parMap_[detectorName] == 111111 ) return true;//Lock its geometry. //No free parameters!
-
-    bool zLocked = true;
-    std::vector<bool>   parStatus(nAlignPars,false);
-    int parVal = parMap_[detectorName];
-    unsigned int freePars = 0;
-    for(unsigned int p=0; p<nAlignPars; p++)
-    {
-        parStatus[p] = parVal%10;
-        parVal /= 10;
-        if(parStatus[p] == 0) ++freePars;
-    }
-    if(parStatus[nAlignPars-1] == 0) zLocked = false;
-
-    TMatrixD aTva(freePars,freePars), aTvainv(freePars,freePars);
-    TVectorD aTvinvr(freePars), alpar(freePars);
-
-    int r = 0;
-    int c = 0;
-    for(unsigned int p=0; p<nAlignPars; p++)
-    {
-        if(parStatus[p] == 0)
-        {
-            aTvinvr[r] = AtVInvRAll[p];
-            c=0;
-            for(unsigned int pp=0; pp<nAlignPars; pp++)
-            {
-                if(parStatus[pp] == 0)
-                {
-                    aTva[r][c] = AtVAAll[p][pp];
-                    ++c;
-                }
-            }
-            ++r;
-        }
-    }
-
-    double determinant;
-    aTvainv = aTva.Invert(&determinant) ;
-    alpar   = aTvainv*aTvinvr;
-
-    int zeroPars = 0;
-    for(unsigned int p=0; p<nAlignPars; p++)
-    {
-        if(p == 3 && (deltaPars[0] != 0 || deltaPars[1] != 0 || deltaPars[2] != 0))
-        {
-            // update Rot Offsets
-            fRInv *= Detector::rotationMatrix(deltaPars[0],deltaPars[1],deltaPars[2]);
-        }
-        if(parStatus[p] == 0)
-        {
-            if(p < 3 || zLocked)//Angles || All parameters when z is locked
-                deltaPars[p] = alpar[p-zeroPars];
-            else if(p == 3 ||p == 4)   //X Y Translations
-                deltaPars[p] = alpar[p-zeroPars]-fRInv[2][p-3]/fRInv[2][2]*alpar[nAlignPars-zeroPars-1];
-            else if(p == 5) //Z Translations
-                deltaPars[5] = -alpar[nAlignPars-zeroPars-1]/fRInv[2][2];
-
-        }
-        else
-        {
-            deltaPars[p] = 0;
-            ++zeroPars;
-        }
-    }
-
-    return true;
-}
-//===================================================================
-//Needs to updated: y coordinate is not treated!!!
-bool aligner::calculateCorrectionsKalman(std::string                                          detectorName,
-                                         std::vector<double>&                                 deltaPars   ,
-                                         ROOT::Math::SMatrix<double,nKAlignPars,nKAlignPars>& AtVAAll     ,
-                                         ROOT::Math::SVector<double,nKAlignPars>&             AtVInvRAll  ,
-                                         Detector::matrix33Def&                               fRInv       )
 {
     unsigned int nAlignPars = deltaPars.size();
     deltaPars.assign(nAlignPars,0);

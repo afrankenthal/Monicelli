@@ -65,7 +65,6 @@ class aligner : public multiProcess<aligner,bool>
   public :
 
     enum{nAlignPars =6};//0=alpha, 1=beta, 2=gamma, 3=deltaTx, 4=deltaTy, 5=deltaTz
-    enum{nKAlignPars=5};//0=alpha, 1=beta, 2=gamma, 3=deltaTx, 4=deltaTz
 
     typedef struct detectorResults{
                                       double alpha   ;
@@ -80,8 +79,6 @@ class aligner : public multiProcess<aligner,bool>
     typedef std::map<std::string, detectorResultsDef>           alignmentResultsDef ;
     typedef ROOT::Math::SMatrix<double,nAlignPars,nAlignPars  > sMatAlDef           ;
     typedef ROOT::Math::SVector<double,nAlignPars >             sVetAlDef           ;
-    typedef ROOT::Math::SMatrix<double,nKAlignPars,nKAlignPars> sKMatAlDef          ;
-    typedef ROOT::Math::SVector<double,nKAlignPars>             sKVetAlDef          ;
 
                          aligner                 (fileEater * theFileEater, 
                                                   HManager  * theHManager  );
@@ -95,11 +92,6 @@ class aligner : public multiProcess<aligner,bool>
                                                   std::vector<double>           & deltaPars                ,
                                                   sMatAlDef                     & aTvaall                  ,
                                                   sVetAlDef                     & aTvinvrall               ,
-                                                  Detector::matrix33Def         & fRinv                     );
-    bool                 calculateCorrectionsKalman(std::string                   detectorName             ,
-                                                  std::vector<double>           & deltaPars                ,
-                                                  sKMatAlDef                    & aTvaall                  ,
-                                                  sKVetAlDef                    & aTvinvrall               ,
                                                   Detector::matrix33Def         & fRinv                     );
     void                 makeAlignMatrices       (sMatAlDef                     & aTvaall                  ,
                                                   sVetAlDef                     & aTvinvrall               ,
@@ -155,7 +147,6 @@ class aligner : public multiProcess<aligner,bool>
     void                 setAlignmentFitMethodName(std::string                    alignmentFitMethod        ){alignmentFitMethod_ = alignmentFitMethod;}
     void                 setNumberOfIterations    (int                            iterations                ){nIterations_        = iterations        ;}
     void                 setKalmanPlaneInfo       (KalmanPlaneInfo                kalmanInfo                ){theKalmanPlaneInfo_ = kalmanInfo        ;}
-    //std::string          getAlignmentFitMethodName   (void                                        ){return fitMethodName_                  ;}
 
 private :
      fileEater                             * theFileEater_      ;
