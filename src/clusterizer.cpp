@@ -593,8 +593,6 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
             }
             else if(dataType==1) //Strip Data -> Still to be improved: Errors, cluster of size > 2
             {
-//                chargeSharing       = 0;
-//                tiltedChargeSharing = (60*tan(fabs(detector->getYRotation(false))*(pi/180)))/10; //charge sharing at 15 deg for strip
 
                 // Strip planes are coupled:
                 // even planes measure x coordinate and are tilted by -15 deg around Y
@@ -606,21 +604,11 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                 // ####################
                 if (pixels.size() == 1)
                 {
-
                     x = pixels[0].x;
                     y = pixels[0].y;
 
-//                    if (fabs(detector->getYRotation(false)) > 10) xErr = tiltedChargeSharing / sqrt(12.);
-//                    else                                          xErr = (pixels[0].xPitch - 2*chargeSharing) / sqrt(12.);
-
-//                    if (fabs(detector->getXRotation(false)) > 10) yErr = tiltedChargeSharing / sqrt(12.);
-//                    else                                          yErr = (pixels[0].yPitch - 2*chargeSharing) / sqrt(12.);
-
                     xErr = pixels[0].xPitch / (2. * sqrt(12.));
                     yErr = 3800             / sqrt(12.); //length of the overlap area of two strip plane in tens of microns
-                    //yErr = pixels[0].yPitch /(2 * sqrt(12.));
-
-                    //cout<<__PRETTY_FUNCTION__<<"x: "<<x<<" y: "<<y<<" xErr: "<<xErr<<" yErr: "<<yErr<<endl;
                 }
                 // #################################################################
                 // # Cluster size = 2 ---> Using strip only double cluster along x #
@@ -628,8 +616,6 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                 else if (pixels.size() == 2)
                 {
                     y = pixels[0].y;
-
-                    //yErr = pixels[0].yPitch /(2 * sqrt(12.));
                     yErr = 3800 / sqrt(12.); //length of the overlap area of two strip plane in tens of microns
 
                     // ##############################################
@@ -659,26 +645,16 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                     }
                     else
                     {
-                        //double center;
 
                         xErr = pixels[0].xPitch / (2. * sqrt(12.));
+//                          xErr = 1.3*(pixels[0].xPitch / (2. * sqrt(12.)));
 
                         if (pixels[0].x < pixels[1].x)
-                        {
-                            //center = (pixels[0].x + pixels[0].xPitch/2.);
-                            //x = (pixels[0].charge*(center-tiltedChargeSharing) + pixels[1].charge*(center+tiltedChargeSharing))/charge;
                             x = pixels[0].x + ((pixels[1].charge)/(pixels[1].charge + pixels[0].charge))*pixels[0].xPitch;
-                        }
                         else
-                        {
-                            //center = (pixels[1].x + pixels[1].xPitch/2.);
-                            //x = (pixels[1].charge*(center-tiltedChargeSharing) + pixels[0].charge*(center+tiltedChargeSharing))/charge;
                             x = pixels[1].x + ((pixels[0].charge)/(pixels[1].charge + pixels[0].charge))*pixels[1].xPitch;
-                        }
 
                     }
-
-                    //cout<<__PRETTY_FUNCTION__<<"x: "<<x<<" y: "<<y<<" xErr: "<<xErr<<" yErr: "<<yErr<<endl;
                 }
                 // ####################
                 // # Cluster size > 2 #

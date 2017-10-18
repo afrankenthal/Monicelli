@@ -996,8 +996,10 @@ bool aligner::alignStrips()
                                 AtVAxy   [plaqID][0][0] += 1        /pow(sigy,2);
                                 AtVInvRxy[plaqID][0]    += resyprime/pow(sigy,2);
                             }
-
-                            if(trial == maxtrial_-1)
+                        }
+                        else if(phase == 1)//User defined
+                        {
+                            if(trial == maxtrial_)
                             {
                                 theHManager_->fillAlignmentResults(plaqID      ,
                                                                    clusterSizeX,
@@ -1008,22 +1010,6 @@ bool aligner::alignStrips()
                                                                    pow(sigy,2) ,
                                                                    measX       ,
                                                                    measY        );
-                            }
-
-                        }
-                        else if(phase == 1)//User defined
-                        {
-                            if(trial == maxtrial_)
-                            {
-//                                theHManager_->fillAlignmentResults(plaqID      ,
-//                                                                   clusterSizeX,
-//                                                                   clusterSizeY,
-//                                                                   resxprime   ,
-//                                                                   pow(sigx,2) ,
-//                                                                   resyprime   ,
-//                                                                   pow(sigy,2) ,
-//                                                                   measX       ,
-//                                                                   measY        );
                             }
                             else
                             {

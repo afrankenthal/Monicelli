@@ -488,19 +488,19 @@ HManager::stringVDef HManager::fillAlignmentResults(std::string detector,
         {
             /////////////////////////////////////X Residuals//////////////////////////////
 
-            histoResXAll =  new TH1D(detector.c_str(),(detector + ": X Residual").c_str(), 125, -50, 50);
+            histoResXAll =  new TH1D(detector.c_str(),(detector + ": X Residual").c_str(), 400, -10, 10);
             histoResXAll->GetXaxis()->SetTitle("X Residual");
             histoResXAll->GetYaxis()->SetTitle("tracks");
             histoResXAll->SetDirectory(0);
             this->addItem(fullPaths[0],histoResXAll);
 
-            histoResXSize1 =  new TH1D(detector.c_str(),(detector + ": X Residual clusters size 1").c_str(), 125, -50, 50);
+            histoResXSize1 =  new TH1D(detector.c_str(),(detector + ": X Residual clusters size 1").c_str(), 400, -10, 10);
             histoResXSize1->GetXaxis()->SetTitle("X Residual");
             histoResXSize1->GetYaxis()->SetTitle("tracks");
             histoResXSize1->SetDirectory(0);
             this->addItem(fullPaths[1],histoResXSize1);
 
-            histoResXSize2 =  new TH1D(detector.c_str(),(detector + ": X Residual clusters size 2").c_str(), 125, -50, 50);
+            histoResXSize2 =  new TH1D(detector.c_str(),(detector + ": X Residual clusters size 2").c_str(), 400, -10, 10);
             histoResXSize2->GetXaxis()->SetTitle("X Residual");
             histoResXSize2->GetYaxis()->SetTitle("tracks");
             histoResXSize2->SetDirectory(0);
@@ -508,19 +508,19 @@ HManager::stringVDef HManager::fillAlignmentResults(std::string detector,
 
             /////////////////////////////////////Y Residuals//////////////////////////////
 
-            histoResYAll =  new TH1D(detector.c_str(),(detector + ": Y Residual").c_str(), 125, -50, 50);
+            histoResYAll =  new TH1D(detector.c_str(),(detector + ": Y Residual").c_str(), 400, -10, 10);
             histoResYAll->GetXaxis()->SetTitle("Y Residual");
             histoResYAll->GetYaxis()->SetTitle("tracks");
             histoResYAll->SetDirectory(0);
             this->addItem(fullPaths[3],histoResYAll);
 
-            histoResYSize1 =  new TH1D(detector.c_str(),(detector + ": Y Residual clusters size 1").c_str(), 125, -50, 50);
+            histoResYSize1 =  new TH1D(detector.c_str(),(detector + ": Y Residual clusters size 1").c_str(), 400, -10, 10);
             histoResYSize1->GetXaxis()->SetTitle("Y Residual");
             histoResYSize1->GetYaxis()->SetTitle("tracks");
             histoResYSize1->SetDirectory(0);
             this->addItem(fullPaths[4],histoResYSize1);
 
-            histoResYSize2 =  new TH1D(detector.c_str(),(detector + ": Y Residual clusters size 2").c_str(), 125, -50, 50);
+            histoResYSize2 =  new TH1D(detector.c_str(),(detector + ": Y Residual clusters size 2").c_str(), 400, -10, 10);
             histoResYSize2->GetXaxis()->SetTitle("Y Residual");
             histoResYSize2->GetYaxis()->SetTitle("tracks");
             histoResYSize2->SetDirectory(0);
