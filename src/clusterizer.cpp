@@ -647,7 +647,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                     {
 
                         xErr = pixels[0].xPitch / (2. * sqrt(12.));
-//                          xErr = 1.3*(pixels[0].xPitch / (2. * sqrt(12.)));
+//                          xErr = 10.*(pixels[0].xPitch / (2. * sqrt(12.)));
 
                         if (pixels[0].x < pixels[1].x)
                             x = pixels[0].x + ((pixels[1].charge)/(pixels[1].charge + pixels[0].charge))*pixels[0].xPitch;

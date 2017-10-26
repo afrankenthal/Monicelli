@@ -706,7 +706,7 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
   double currentADC;
   int    lastBin   ;
   int    firstBin  ;
-  int	 precBin   ;
+//  int	 precBin   ;
   for (calibrationLoader::pixelDataMapDef::iterator r=pixels_.begin(); r!=pixels_.end(); ++r)
   {
     int row = (*r).first ;
@@ -720,19 +720,18 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
       precADC  = calib[row][col]->GetBinContent(lastBin);
       for(int b=lastBin-1; b>=firstBin; b--)
       {
-        currentADC = calib[row][col]->GetBinContent(b);
-        if (std::abs(precADC-currentADC)>30*(precBin-b)) 
-	{
-	  continue; // This line was inserted to delete spikes that occurred using the old ROC
-        }
-        else
-        {
+          currentADC = calib[row][col]->GetBinContent(b);
+//        Commented lines should be uncommented only when measured calibration curves reach saturation
+//        if (std::abs(precADC-currentADC)>30*(precBin-b))
+//            continue;
+//        else
+//        {
           if (precADC == 0) continue;
           calibNew[(*r).first][(*c).first]->SetBinContent(b,precADC);
           calibNew[(*r).first][(*c).first]->SetBinError(b,2.5);
           precADC = currentADC;
-          precBin = b;
-        }
+//          precBin = b;
+//        }
       }
     }
   }
@@ -927,10 +926,7 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
           calib[r][c]->Delete();
       }
   }
-  
-//  firstBinHisto->Delete();
-//  lastBinHisto ->Delete();
-  
+
   for (int p = 0; p < 4; p++) hPars[p]->Delete();
   
   return true;

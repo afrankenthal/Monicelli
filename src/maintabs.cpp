@@ -1214,7 +1214,6 @@ bool mainTabs::loadGeometry(bool fromGUI, QString type)
     theGeometry_   ->orderPlanes();
     theGeometry_   ->calculatePlaneMCS();
     theTrackFitter_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
-    theAligner_    ->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
     showGeometry();
     theGeometry_->dump();
 
@@ -2150,7 +2149,6 @@ void mainTabs::on_geometryDisableEnableAllPB_clicked()
 //=================================================================================================
 void mainTabs::on_geometrySetPB_clicked()
 {
-    STDLINE("They never call me!",ACWhite);
     if(theGeometry_ == NULL) return;
 
     for(std::map<std::string,GeometryParameters*>::iterator it=geometryParameters_.begin(); it!=geometryParameters_.end(); it++ )
@@ -2183,11 +2181,9 @@ void mainTabs::on_geometrySetPB_clicked()
     }
 
     theFileEater_->updateGeometry("geometry");
-    //    theGeometry_->orderPlanes();
-    //    theGeometry_->calculatePlaneMCS();
-    //    theTrackFitter_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
-    //    theAligner_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
-
+    theGeometry_->orderPlanes();
+    theGeometry_->calculatePlaneMCS();
+    theTrackFitter_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
 }
 
 //=================================================================================================
@@ -3501,6 +3497,9 @@ void mainTabs::on_writeFineAlignmentResultsPB_clicked()
 
     theFileEater_->updateGeometry("geometry");
     theGeometry_ = theFileEater_->getGeometry();
+    theGeometry_   ->orderPlanes();
+    theGeometry_   ->calculatePlaneMCS();
+    theTrackFitter_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
     showGeometry();
     theGeometry_->dump();
 }
@@ -3522,7 +3521,6 @@ void mainTabs::openRootFile(QString fileName)
     theGeometry_->orderPlanes();
     theGeometry_->calculatePlaneMCS();
     theTrackFitter_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
-    theAligner_->setKalmanPlaneInfo(theGeometry_->getKalmanPlaneInfo());
     showGeometry();
 
     ui->loadedRootFileLE         ->setText(fileName);
@@ -4320,7 +4318,7 @@ void mainTabs::writeAlignment_end(HManager::stringVDef histoType)
 
         Detector* det = theGeometry_->getDetector( it->first );
 
-        ss_.str("") ; ss_ << setw(18) << setprecision(14)
+        ss_.str("") ; ss_ << setw(18) << setprecision(10)
                           <<"Initial parameters for detector: "
                           << det->getID()
                           << " xPos = "
