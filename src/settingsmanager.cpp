@@ -25,7 +25,7 @@ void settingsManager::read(QString configuration)
     QList<QDoubleSpinBox *> spinDBoxs = mainTabs_ ->findChildren<QDoubleSpinBox *>();
 
     bool restore = false ;
-    bool dump    = true ;
+    bool dump    = false ;
     if( settings.value("Initialized") == "true") restore = true ;
 
     if(dump) {ss_.str(""); ss_ << "Restoring settings from " << configuration.toStdString() ; STDLINE(ss_.str(),ACGreen) ;}
@@ -214,5 +214,10 @@ void settingsManager::save(QString configuration)
             << ".conf";
         STDLINE("A copy of the current GUI values has been saved in $HOME/.config/CMS",ACYellow) ;
         system(ss_.str().c_str()) ;
+        string mDir = getenv("MonicelliDir")   ;
+        ss_.str("") ;
+        ss_ << "perl " << mDir << "/perlScripts/purgeConfigs.pl" ;
+        STDLINE(ss_.str(),ACCyan ) ;
+        system (ss_.str().c_str()) ;
     }
 }
