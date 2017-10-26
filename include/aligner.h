@@ -146,7 +146,6 @@ class aligner : public multiProcess<aligner,bool>
     void                 clearFixParMap           (void                                                     ){parMap_.clear()                         ;}
     void                 setAlignmentFitMethodName(std::string                    alignmentFitMethod        ){alignmentFitMethod_ = alignmentFitMethod;}
     void                 setNumberOfIterations    (int                            iterations                ){nIterations_        = iterations        ;}
-    void                 setKalmanPlaneInfo       (KalmanPlaneInfo                kalmanInfo                ){theKalmanPlaneInfo_ = kalmanInfo        ;}
 
 private :
      fileEater                             * theFileEater_      ;
@@ -154,7 +153,6 @@ private :
      alignmentResultsDef                     alignmentResults_  ;
      HManager::stringVDef                    outputPlots_       ;
      std::map< std::string, unsigned int >   parMap_            ;
-     KalmanPlaneInfo                         theKalmanPlaneInfo_;
      trackFitter                           * theTrackFitter_    ;
 
      int                                     maxtrial_          ;

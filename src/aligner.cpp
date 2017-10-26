@@ -1312,15 +1312,17 @@ bool aligner::calculateCorrections(std::string                                  
             // update Rot Offsets
             fRInv *= Detector::rotationMatrix(deltaPars[0],deltaPars[1],deltaPars[2]);
         }
+
         if(parStatus[p] == 0)
         {
             if(p < 3 || zLocked)//Angles || All parameters when z is locked
                 deltaPars[p] = alpar[p-zeroPars];
+
             else if(p == 3 ||p == 4)   //X Y Translations
                 deltaPars[p] = alpar[p-zeroPars]-fRInv[2][p-3]/fRInv[2][2]*alpar[nAlignPars-zeroPars-1];
+
             else if(p == 5) //Z Translations
                 deltaPars[5] = -alpar[nAlignPars-zeroPars-1]/fRInv[2][2];
-
         }
         else
         {
