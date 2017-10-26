@@ -31,80 +31,79 @@ void settingsManager::read(QString configuration)
     if(dump) {ss_.str(""); ss_ << "Restoring settings from " << configuration.toStdString() ; STDLINE(ss_.str(),ACGreen) ;}
 
     if(dump) {ss_.str(""); ss_ << "Number of lineEdits: " << lineEdits.size() ; STDLINE(ss_.str(),ACCyan) ;{
-    for (int i = 0; i < lineEdits.size(); ++i)
-    {
-        if( lineEdits.at(i)->objectName().toStdString() == "qt_spinbox_lineedit") continue ; // A probable Qt bug...
-        if( restore ) lineEdits.at(i)->setText       (settings.value(lineEdits.at(i)->objectName()).toString()) ;
-        if( dump    )
+            for (int i = 0; i < lineEdits.size(); ++i)
+            {
+                if( lineEdits.at(i)->objectName().toStdString() == "qt_spinbox_lineedit") continue ; // A probable Qt bug...
+                if( restore ) lineEdits.at(i)->setText       (settings.value(lineEdits.at(i)->objectName()).toString()) ;
+                if( dump    )
+                {
+                    ss_.str("") ; ss_ << "lineEdits: "
+                                      << setw(30)
+                                      << lineEdits.at(i)->objectName().toStdString()
+                                      << "\t--> "
+                                      << settings.value(lineEdits.at(i)->objectName()).toString().toStdString()
+                                      << " |";
+                    STDLINE(ss_.str(),ACWhite) ;
+                }
+            }
+            if(dump) {ss_.str(""); ss_ << "Number of checkBoxes: " << checkBoxs.size() ; STDLINE(ss_.str(),ACCyan) ;}
+            for (int i = 0; i < checkBoxs.size(); ++i)
+            {
+                if( restore ) checkBoxs.at(i)->setChecked    (settings.value(checkBoxs.at(i)->objectName()).toBool()  ) ;
+                if( dump    )
+                {
+                    ss_.str("") ; ss_ << "checkBox: "
+                                      << setw(30)
+                                      << checkBoxs.at(i)->objectName().toStdString()
+                                      << "\t--> "
+                                      << settings.value(checkBoxs.at(i)->objectName()).toString().toStdString()
+                                      << " |" ;
+                    STDLINE(ss_.str(),ACWhite) ;
+                }
+            }
+            if(dump) {ss_.str(""); ss_ << "Number of comboBoxes: " << comboBoxs.size() ; STDLINE(ss_.str(),ACCyan) ;}
+            for (int i = 0; i < comboBoxs.size(); ++i)
+            {
+                if( restore ) comboBoxs.at(i)->setCurrentText(settings.value(comboBoxs.at(i)->objectName()).toString()) ;
+                if( dump    )
+                {
+                    ss_.str("") ; ss_ << "comboBox: "
+                                      << setw(30)
+                                      << comboBoxs.at(i)->objectName().toStdString()
+                                      << "\t--> "
+                                      << settings.value(comboBoxs.at(i)->objectName()).toString().toStdString()
+                                      << " |" ;
+                    STDLINE(ss_.str(),ACWhite) ;
+                }
+            }
+            if(dump) ss_.str(""); ss_ << "Number of spinBoxes: " << spinBoxes.size() ; STDLINE(ss_.str(),ACCyan) ;}
+        for (int i = 0; i < spinBoxes.size(); ++i)
         {
-            ss_.str("") ; ss_ << "lineEdits: "
-                              << setw(30)
-                              << lineEdits.at(i)->objectName().toStdString()
-                              << "\t--> "
-                              << settings.value(lineEdits.at(i)->objectName()).toString().toStdString()
-                              << " |";
-            STDLINE(ss_.str(),ACWhite) ;
+            if( restore ) spinBoxes.at(i)->setValue      (settings.value(spinBoxes.at(i)->objectName()).toInt()   ) ;
+            if( dump    )
+            {
+                ss_.str("") ; ss_ << "spinBoxes: "
+                                  << setw(30)
+                                  << spinBoxes.at(i)->objectName().toStdString()
+                                  << "\t--> "
+                                  << settings.value(spinBoxes.at(i)->objectName()).toString().toStdString()
+                                  << " |" ;
+                STDLINE(ss_.str(),ACWhite) ;
+            }
         }
-        lineEdits.at(i)->dumpObjectTree();
-    }
-    if(dump) {ss_.str(""); ss_ << "Number of checkBoxs: " << checkBoxs.size() ; STDLINE(ss_.str(),ACCyan) ;}
-    for (int i = 0; i < checkBoxs.size(); ++i)
-    {
-        if( restore ) checkBoxs.at(i)->setChecked    (settings.value(checkBoxs.at(i)->objectName()).toBool()  ) ;
-        if( dump    )
-        {
-        ss_.str("") ; ss_ << "checkBoxs: "
-                          << setw(30)
-                          << checkBoxs.at(i)->objectName().toStdString()
-                          << "\t--> "
-                          << settings.value(checkBoxs.at(i)->objectName()).toString().toStdString()
-                          << " |" ;
-        STDLINE(ss_.str(),ACWhite) ;
-        }
-    }
-    if(dump) {ss_.str(""); ss_ << "Number of comboBoxs: " << comboBoxs.size() ; STDLINE(ss_.str(),ACCyan) ;}
-    for (int i = 0; i < comboBoxs.size(); ++i)
-    {
-        if( restore ) comboBoxs.at(i)->setCurrentText(settings.value(comboBoxs.at(i)->objectName()).toString()) ;
-        if( dump    )
-        {
-        ss_.str("") ; ss_ << "comboBoxs: "
-                          << setw(30)
-                          << comboBoxs.at(i)->objectName().toStdString()
-                          << "\t--> "
-                          << settings.value(comboBoxs.at(i)->objectName()).toString().toStdString()
-                          << " |" ;
-        STDLINE(ss_.str(),ACWhite) ;
-        }
-    }
-    if(dump) ss_.str(""); ss_ << "Number of spinBoxes: " << spinBoxes.size() ; STDLINE(ss_.str(),ACCyan) ;}
-    for (int i = 0; i < spinBoxes.size(); ++i)
-    {
-        if( restore ) spinBoxes.at(i)->setValue      (settings.value(spinBoxes.at(i)->objectName()).toInt()   ) ;
-        if( dump    )
-        {
-        ss_.str("") ; ss_ << "spinBoxes: "
-                          << setw(30)
-                          << spinBoxes.at(i)->objectName().toStdString()
-                          << "\t--> "
-                          << settings.value(spinBoxes.at(i)->objectName()).toString().toStdString()
-                          << " |" ;
-        STDLINE(ss_.str(),ACWhite) ;
-        }
-    }
-    if(dump) ss_.str(""); ss_ << "Number of spinDBoxs: " << spinDBoxs.size() ; STDLINE(ss_.str(),ACCyan) ;}
+        if(dump) ss_.str(""); ss_ << "Number of spinDBoxes: " << spinDBoxs.size() ; STDLINE(ss_.str(),ACCyan) ;}
     for (int i = 0; i < spinDBoxs.size(); ++i)
     {
         if( restore ) spinDBoxs.at(i)->setValue      (settings.value(spinDBoxs.at(i)->objectName()).toInt()   ) ;
         if( dump    )
         {
-        ss_.str("") ; ss_ << "spinBoxes: "
-                          << setw(30)
-                          << spinDBoxs.at(i)->objectName().toStdString()
-                          << "\t--> "
-                          << settings.value(spinDBoxs.at(i)->objectName()).toString().toStdString()
-                          << " |" ;
-        STDLINE(ss_.str(),ACWhite) ;
+            ss_.str("") ; ss_ << "spinBox: "
+                              << setw(30)
+                              << spinDBoxs.at(i)->objectName().toStdString()
+                              << "\t--> "
+                              << settings.value(spinDBoxs.at(i)->objectName()).toString().toStdString()
+                              << " |" ;
+            STDLINE(ss_.str(),ACWhite) ;
         }
     }
 

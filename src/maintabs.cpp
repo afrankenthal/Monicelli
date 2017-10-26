@@ -3672,7 +3672,17 @@ void mainTabs::openRootFile(QString fileName)
         }
         // Post the table
         ui->detectorsTableView->post();
-        ui->fixAllZCB->setChecked(true);
+        if( ui->fixAllZCB     ->isChecked()) {STDLINE("ui->fixAllZCB     ->isChecked",ACGreen);ui->detectorsTableView->fixAllZ     (true);}
+        if( ui->fixExtremesCB ->isChecked()) {STDLINE("ui->fixExtremesCB ->isChecked",ACGreen);ui->detectorsTableView->fixExtremes (true);}
+        if( ui->fixAllCB      ->isChecked()) {STDLINE("ui->fixAllCB	 ->isChecked",ACGreen);ui->detectorsTableView->enableAll   (true);}
+        if( ui->fixAllAnglesCB->isChecked()) {STDLINE("ui->fixAllAnglesCB->isChecked",ACGreen);ui->detectorsTableView->fixAllAngles(true);}
+        if( ui->fixAllAlphaCB ->isChecked()) {STDLINE("ui->fixAllAlphaCB ->isChecked",ACGreen);ui->detectorsTableView->fixAllAlpha (true);}
+        if( ui->fixAllBetaCB  ->isChecked()) {STDLINE("ui->fixAllBetaCB  ->isChecked",ACGreen);ui->detectorsTableView->fixAllBeta  (true);}
+        if( ui->fixAllXCB     ->isChecked()) {STDLINE("ui->fixAllXCB	 ->isChecked",ACGreen);ui->detectorsTableView->fixAllX     (true);}
+        if( ui->fixAllYCB     ->isChecked()) {STDLINE("ui->fixAllYCB	 ->isChecked",ACGreen);ui->detectorsTableView->fixAllY     (true);}
+        if( ui->fixAllTransCB ->isChecked()) {STDLINE("ui->fixAllTransCB ->isChecked",ACGreen);ui->detectorsTableView->fixAllTrans (true);}
+        if( ui->fixAllGammaCB ->isChecked()) {STDLINE("ui->fixAllGammaCB ->isChecked",ACGreen);ui->detectorsTableView->fixAllGamma (true);}
+        // ui->fixAllZCB->setChecked(true);
         //fixStrips(1);
 
         // set geometry dependent widgets

@@ -93,7 +93,7 @@ void customTableView::addDetector(std::string detector, double zPosition)
 //================================================================================
 void customTableView::fixAll(int state)
 {
-    if(model_ == 0) std::cout << __PRETTY_FUNCTION__ << "model_ is NULL!" << std::endl;
+    if(model_ == 0) {STDLINE("model_ is NULL!",ACRed); return;}
     for(int r=0; r<model_->rowCount(); ++r )
     {
         for( int c=1; c<model_->columnCount()-1; ++c )
@@ -114,7 +114,7 @@ void customTableView::fixAll(int state)
 //================================================================================
 void customTableView::fixExtremes(int state)
 {
-    if(model_ == 0) std::cout << __PRETTY_FUNCTION__ << "model_ is NULL!" << std::endl;
+    if(model_ == 0) {STDLINE("model_ is NULL!",ACRed); return;}
     for(int c=1; c<model_->columnCount()-1; ++c )
     {
         QStandardItem * first = model_->item(0,                    c) ;
@@ -141,7 +141,7 @@ void customTableView::fixExtremes(int state)
 //================================================================================
 void customTableView::fixAllX(int state)
 {
-    if(model_ == 0) std::cout << __PRETTY_FUNCTION__ << "model_ is NULL!" << std::endl;
+    if(model_ == 0) {STDLINE("model_ is NULL!",ACRed); return;}
     for(int r=0; r<model_->rowCount(); r++ )
     {
         QStandardItem * item = model_->item(r, 4) ;
@@ -158,7 +158,7 @@ void customTableView::fixAllX(int state)
 //================================================================================
 void customTableView::fixAllY(int state)
 {
-    if(model_ == 0) std::cout << __PRETTY_FUNCTION__ << "model_ is NULL!" << std::endl;
+    if(model_ == 0) {STDLINE("model_ is NULL!",ACRed); return;}
     for(int r=0; r<model_->rowCount(); r++ )
     {
         QStandardItem * item = model_->item(r, 5) ;
@@ -175,7 +175,7 @@ void customTableView::fixAllY(int state)
 //================================================================================
 void customTableView::fixAllZ(int state)
 {
-    if(model_ == 0) std::cout << __PRETTY_FUNCTION__ << "model_ is NULL!" << std::endl;
+    if(model_ == 0) {STDLINE("model_ is NULL!",ACRed); return;}
     for(int r=0; r<model_->rowCount(); r++ )
     {
         QStandardItem * item = model_->item(r, 6) ;
@@ -192,7 +192,7 @@ void customTableView::fixAllZ(int state)
 //================================================================================
 void customTableView::fixAllTrans(int state)
 {
-    if(model_ == 0) std::cout << __PRETTY_FUNCTION__ << "model_ is NULL!" << std::endl;
+    if(model_ == 0) {STDLINE("model_ is NULL!",ACRed); return;}
     for(int r=0; r<model_->rowCount(); ++r )
     {
         for( int c=4; c<=6; c++ )
@@ -212,7 +212,7 @@ void customTableView::fixAllTrans(int state)
 //================================================================================
 void customTableView::fixAllAngles(int state)
 {
-    if(model_ == 0) std::cout << __PRETTY_FUNCTION__ << "model_ is NULL!" << std::endl;
+    if(model_ == 0) {STDLINE("model_ is NULL!",ACRed); return;}
     for(int r=0; r<model_->rowCount(); ++r )
     {
         for( int c=1; c<=3; c++ )
@@ -233,7 +233,7 @@ void customTableView::fixAllAngles(int state)
 //================================================================================
 void customTableView::fixAllAlpha(int state)
 {
-    if(model_ == 0) std::cout << __PRETTY_FUNCTION__ << "model_ is NULL!" << std::endl;
+    if(model_ == 0) {STDLINE("model_ is NULL!",ACRed); return;}
     for(int r=0; r<model_->rowCount(); ++r )
     {
         QStandardItem * item = model_->item(r, 1) ;
@@ -251,7 +251,7 @@ void customTableView::fixAllAlpha(int state)
 //================================================================================
 void customTableView::fixAllBeta(int state)
 {
-    if(model_ == 0) std::cout << __PRETTY_FUNCTION__ << "model_ is NULL!" << std::endl;
+    if(model_ == 0) {STDLINE("model_ is NULL!",ACRed); return;}
     for(int r=0; r<model_->rowCount(); ++r )
     {
         QStandardItem * item = model_->item(r, 2) ;
@@ -268,7 +268,7 @@ void customTableView::fixAllBeta(int state)
 //================================================================================
 void customTableView::fixAllGamma(int state)
 {
-    if(model_ == 0) std::cout << __PRETTY_FUNCTION__ << "model_ is NULL!" << std::endl;
+    if(model_ == 0) {STDLINE("model_ is NULL!",ACRed); return;}
     for(int r=0; r<model_->rowCount(); ++r )
     {
         QStandardItem * item = model_->item(r, 3) ;
@@ -286,7 +286,7 @@ void customTableView::fixAllGamma(int state)
 //================================================================================
 void customTableView::enableAll(int state)
 {
-    if(model_ == 0) std::cout << __PRETTY_FUNCTION__ << "model_ is NULL!" << std::endl;
+    if(model_ == 0) {STDLINE("model_ is NULL!",ACRed); return;}
     for(int r=0; r<model_->rowCount(); ++r )
     {
         for( int c=1; c<=3; c++ )
@@ -304,7 +304,7 @@ void customTableView::enableAll(int state)
 //================================================================================
 void customTableView::fixXStrip(int state, int row)
 {
-    if(model_ == 0) std::cout << __PRETTY_FUNCTION__ << "model_ is NULL!" << std::endl;
+    if(model_ == 0) {STDLINE("model_ is NULL!",ACRed); return;}
     QStandardItem * trans = model_->item(row, 5) ;//set checked alt Y
     QStandardItem * angle = model_->item(row, 1) ;//set checked alt alpha
     //std::cout << "Found!!" << endl;
@@ -328,7 +328,7 @@ void customTableView::fixXStrip(int state, int row)
 //================================================================================
 void customTableView::fixYStrip(int state, int row)
 {
-    if(model_ == 0) std::cout << __PRETTY_FUNCTION__ << "model_ is NULL!" << std::endl;
+    if(model_ == 0) {STDLINE("model_ is NULL!",ACRed); return;}
     QStandardItem * trans = model_->item(row, 4) ;//set checked alt X
     QStandardItem * angle = model_->item(row, 2) ;//set checked alt beta
 
@@ -371,7 +371,7 @@ void customTableView::dump(void)
 //================================================================================
 bool customTableView::isFixed(std::string detector, std::string parameter)
 {
-    if(model_ == 0) std::cout << __PRETTY_FUNCTION__ << "model_ is NULL!" << std::endl;
+    if(model_ == 0) {STDLINE("model_ is NULL!",ACRed); return false;}
     for(int r=0; r<model_->rowCount(); ++r )
     {
         std::string d = model_->data(model_->index(r, 0, QModelIndex()))  .toString().toStdString() ;
@@ -398,7 +398,11 @@ void customTableView::post(void)
     maxCols_ = (int)columnHeaderText_.size() ;
     maxRows_ = (int)detectors_.size()       ;
 
-    model_ = new QStandardItemModel(maxRows_, maxCols_, parent_);
+    if( !model_ )
+    {
+        STDLINE("Singleton for model_: this should not happen!...",ACYellow) ;
+        model_ = new QStandardItemModel(maxRows_, maxCols_, parent_);
+    }
 
     for(int c=0; c<maxCols_; ++c)
     {

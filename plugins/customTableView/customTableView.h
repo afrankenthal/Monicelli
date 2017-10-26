@@ -62,24 +62,25 @@ class customTableView : public QTableView
     void       post        (void                     );
     bool       isFixed     (std::string   detector,
                             std::string   parameter  );
-    vStringDef getHeaders  (void                     ){return columnHeaderText_;}
-    int        rowCount    (void                     ){return model_->rowCount();}
+    vStringDef getHeaders  (void                     ) {return columnHeaderText_ ;}
+    int        rowCount    (void                     ) {return model_->rowCount();}
 
   public slots:
-    void       fixAll           (int           state          );
-    void       fixExtremes      (int           state          );
-    void       fixAllX          (int           state          );
-    void       fixAllY          (int           state          );
-    void       fixAllZ          (int           state          );
-    void       fixAllTrans      (int           state          );
-    void       fixAllAngles     (int           state          );
-    void       fixAllAlpha      (int           state          );
-    void       fixAllBeta       (int           state          );
-    void       fixAllGamma      (int           state          );
-    void       enableAll        (int           state          );
-
-    void       fixXStrip   (int state, int           row        );
-    void       fixYStrip   (int state, int           row        );
+    void       fixAll      (int           state      );
+    void       fixExtremes (int           state      );
+    void       fixAllX     (int           state      );
+    void       fixAllY     (int           state      );
+    void       fixAllZ     (int           state      );
+    void       fixAllTrans (int           state      );
+    void       fixAllAngles(int           state      );
+    void       fixAllAlpha (int           state      );
+    void       fixAllBeta  (int           state      );
+    void       fixAllGamma (int           state      );
+    void       enableAll   (int           state      );
+    void       fixXStrip   (int           state,
+                            int           row        );
+    void       fixYStrip   (int           state,
+                            int           row        );
 
   private slots:
     void       clicked     (QModelIndex   mIndex     );
