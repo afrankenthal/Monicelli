@@ -322,17 +322,20 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                 if ((*hit0)["col"] != (*hit1)["col"] && (*hit0)["row"] != (*hit1)["row"]) continue;
             }
 
+            unsigned int row = 0;
+            unsigned int col = 0;
             double& x        = clustersMap_[det->first][cluster->first]["x"];
             double& y        = clustersMap_[det->first][cluster->first]["y"];
             double& xErr     = clustersMap_[det->first][cluster->first]["xErr"];
             double& yErr     = clustersMap_[det->first][cluster->first]["yErr"];
             double& charge   = clustersMap_[det->first][cluster->first]["charge"];
             double& dataType = clustersMap_[det->first][cluster->first]["dataType"];
-            unsigned int row = 0;
-            unsigned int col = 0;
+            double& size     = clustersMap_[det->first][cluster->first]["size"];
+            double& stub     = clustersMap_[det->first][cluster->first]["stub"];
+
             charge = 0;
-            double& size = clustersMap_[det->first][cluster->first]["size"];
-            size = cluster->second.size();
+            stub   = 0;
+            size   = cluster->second.size();
 
             std::vector<pixelInfos> pixels(cluster->second.size());
             int p = 0;
@@ -345,6 +348,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                 pixels[p].xPitch    = detector->getPixelPitchLocalX ( (*hit)["col"] );
                 pixels[p].yPitch    = detector->getPixelPitchLocalY ( (*hit)["row"] );
                 pixels[p].dataType  = (*hit)["dataType"];
+                stub                = (*hit)["stub"];
 
                 row = (*hit)["row"];
                 col = (*hit)["col"];
@@ -352,14 +356,18 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
 
                 bool isDut = false;
 
-                if (det->first == "Station: 4 - Plaq: 0" || det->first == "Station: 4 - Plaq: 1" || det->first == "Station: 4 - Plaq: 2") isDut = true;
-                bool isCalibrated = roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"],isDut);
+                if (
+                        det->first == "Station: 4 - Plaq: 0"
+                        || det->first == "Station: 4 - Plaq: 1"
+                        || det->first == "Station: 4 - Plaq: 2"
+                        || det->first == "Station: 4 - Plaq: 3"
+                        || det->first == "Station: 1 - Plaq: 0"
+                        || det->first == "Station: 1 - Plaq: 1"
+                        )
+                    isDut = true;
+                roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"], isDut);
 
-
-                if (isCalibrated == true)
-                    pixels[p].charge = abs( (*hit)["charge"] );
-                else
-                    pixels[p].charge = abs( (*hit)["charge"] );
+                pixels[p].charge = abs( (*hit)["charge"] );
 
                 charge += pixels[p].charge;
                 dataType = pixels[p].dataType;

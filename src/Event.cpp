@@ -65,7 +65,7 @@ void Event::clear (void )
     clustersHits_.clear()                      ;
     trackCandidates_.clear()                   ;
     fittedTracksChi2_.clear()                  ;
-    fittedTrackResiduals_.clear()               ;
+    fittedTrackResiduals_.clear()              ;
     fittedTracks_.clear()                      ;
     fittedTracksCovariance_.clear()            ;
 }

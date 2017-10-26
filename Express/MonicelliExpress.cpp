@@ -457,9 +457,9 @@ int main (int argc, char** argv)
 		  else                        theTelescopeAligner.setFixParMap((*it).first, 111111);
 		}
 	      if ((DORAWALIGNMENT == true) && (i == 0))
-		theTelescopeAligner.setAlignmentPreferences(5, 0, CHI2RAWALIGN, 2, trackPoints, 1, true, "", numberOfEvents);
+		theTelescopeAligner.setAlignmentPreferences(5, 0, &theTrackFitter, CHI2RAWALIGN, 2, trackPoints, 1, true, "", numberOfEvents);
 	      else
-		theTelescopeAligner.setAlignmentPreferences(5, 0, chi2Cut, 2, trackPoints, 1, true, "", numberOfEvents);
+		theTelescopeAligner.setAlignmentPreferences(5, 0, &theTrackFitter, chi2Cut, 2, trackPoints, 1, true, "", numberOfEvents);
 	      // #############################
 	      // # Parameter meaning:        #
 	      // #############################
@@ -553,7 +553,7 @@ int main (int argc, char** argv)
 		  string dut = it->first;
 		  
 		  theDUTAligner.setFixParMap(dut,100111); // Here is where I choose which parameters must be kept constant
-		  theDUTAligner.setAlignmentPreferences(5, 0, CHI2RAWALIGN, 2, trackPoints, 1, true, dut, numberOfEvents);
+		  theDUTAligner.setAlignmentPreferences(5, 0, &theTrackFitter, CHI2RAWALIGN, 2, trackPoints, 1, true, dut, numberOfEvents);
 		  theDUTAligner.setOperation(&aligner::alignDUT);
 	          theDUTAligner.alignDUT();
 
@@ -611,7 +611,7 @@ int main (int argc, char** argv)
 	      string dut = it->first;
 
 	      theDUTAligner.setFixParMap(dut,DUTfreePLANES); // Here is where I choose which parameters must be kept constant
-	      theDUTAligner.setAlignmentPreferences(5, 0, chi2Cut, 2, trackPoints, 1, true, dut, numberOfEvents);
+	      theDUTAligner.setAlignmentPreferences(5, 0, &theTrackFitter, chi2Cut, 2, trackPoints, 1, true, dut, numberOfEvents);
 	      theDUTAligner.setOperation(&aligner::alignDUT);
 	      theDUTAligner.alignDUT();
 
@@ -677,8 +677,7 @@ int main (int argc, char** argv)
 	  STDLINE("Copy Geometry File",ACBlue);
 	  
 	  string outputFilePath = filesPath;
-	  outputFilePath.erase(outputFilePath.length()-8,outputFilePath.length()).append("/MonicelliOutput/");
-	  
+          outputFilePath = outputFilePath.substr(0, outputFilePath.substr(0,outputFilePath.size()-1).find_last_of('/')).append("/MonicelliOutput/");	  
 	  string newGeoName = theXmlParser.getFileList()[f]->fileName_;
 	  newGeoName.erase(newGeoName.length()-4,newGeoName.length()).append(".geo");
 	  

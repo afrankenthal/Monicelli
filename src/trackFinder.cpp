@@ -53,7 +53,7 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
     Event::trackCandidatesDef                        &alignedHitsCandidates = theEvent->getAlignedHitsCandidates() ;
     //std::vector<Event::alignedHitsCandidateMapDef> &alignedHitsCandidates = theEvent->getAlignedHitsCandidates() ;
 
-//    ss_.str(""); ss_ << "Number of aligned clusters: " << alignedClusters.size() ; STDLINE(ss_.str(),ACYellow) ;
+    //    ss_.str(""); ss_ << "Number of aligned clusters: " << alignedClusters.size() ; STDLINE(ss_.str(),ACYellow) ;
     //trackCandidates_.clear();
     //tracksFitted_   .clear();
     //covMat_         .clear();
@@ -89,16 +89,16 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
     for(unsigned int i = 0; i<clusterCorrectionIterations; i++)
     {
         for(Event::clustersMapDef::const_iterator clustersIt =clusters.begin();
-                                                  clustersIt!=clusters.end();
-                                                  clustersIt++)
+            clustersIt!=clusters.end();
+            clustersIt++)
         {
             if ( theGeometry->getDetector(clustersIt->first)->isDUT() ) continue;
             for (Event::aClusterMapDef::const_iterator clusterIt =clustersIt->second.begin();
-                                                       clusterIt!=clustersIt->second.end();
-                                                       clusterIt++)
+                 clusterIt!=clustersIt->second.end();
+                 clusterIt++)
             {
-//                ss_.str(""); ss_ << clustersIt->first << " " << clusterIt->first ;
-//                STDLINE(ss_.str(),ACWhite) ;
+                //                ss_.str(""); ss_ << clustersIt->first << " " << clusterIt->first ;
+                //                STDLINE(ss_.str(),ACWhite) ;
                 Event::aClusterDef& alignedCluster = (alignedClusters[ clustersIt->first ])[clusterIt->first];
                 //cluster is a copy of the real clusters so I just change them to global coordinates
                 alignedCluster["x"]          = clusterIt->second.find("x"       )->second;
@@ -112,28 +112,28 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
                 alignedCluster["dataType"]   = clusterIt->second.find("dataType")->second;
                 alignedCluster["cluster ID"] = clusterIt->first;
                 alignedCluster["xyErr"]      = theGeometry->getDetector( clustersIt->first )->fromLocalToGlobal( &alignedCluster["x"   ],
-                                                                                                                 &alignedCluster["y"   ],
-                                                                                                                 &alignedCluster["z"   ],
-                                                                                                                 &alignedCluster["xErr"],
-                                                                                                                 &alignedCluster["yErr"],
-                                                                                                                 &alignedCluster["zErr"]) ;
-//                cout << "   x:" << setw(10) << alignedCluster["x"   ]
-//                     <<   " y:" << setw(10) << alignedCluster["y"   ]
-//                     <<   " z:" << setw(10) << alignedCluster["z"   ]
-//                     << endl ;
+                        &alignedCluster["y"   ],
+                        &alignedCluster["z"   ],
+                        &alignedCluster["xErr"],
+                        &alignedCluster["yErr"],
+                        &alignedCluster["zErr"]) ;
+                //                cout << "   x:" << setw(10) << alignedCluster["x"   ]
+                //                     <<   " y:" << setw(10) << alignedCluster["y"   ]
+                //                     <<   " z:" << setw(10) << alignedCluster["z"   ]
+                //                     << endl ;
             }
         }
 
         for (Event::clustersMapDef::iterator alignedClustersIt =alignedClusters.begin();
-                                             alignedClustersIt!=alignedClusters.end();
-                                             alignedClustersIt++)
+             alignedClustersIt!=alignedClusters.end();
+             alignedClustersIt++)
         {
             int station = theGeometry->getDetectorStation(alignedClustersIt->first);
             int module  = theGeometry->getDetectorModule (alignedClustersIt->first);
 
             for (Event::aClusterMapDef::iterator clusterIt =alignedClustersIt->second.begin();
-                                                 clusterIt!=alignedClustersIt->second.end();
-                                                 clusterIt++)
+                 clusterIt!=alignedClustersIt->second.end();
+                 clusterIt++)
             {
                 int dataType = clusterIt->second["dataType"];
                 if (dataType==1) //Strip data
@@ -143,8 +143,8 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
                         if (alignedClusters[getPlaneID(station, module+1)].size() != 0 )
                         {
                             for (Event::aClusterMapDef::iterator nextClusterIt =alignedClusters[getPlaneID(station, module+1)].begin();
-                                                                 nextClusterIt!=alignedClusters[getPlaneID(station, module+1)].end();
-                                                                 nextClusterIt++)
+                                 nextClusterIt!=alignedClusters[getPlaneID(station, module+1)].end();
+                                 nextClusterIt++)
                             {
                                 //cout << "  " << endl;
                                 //cout << "First" << endl;
@@ -192,8 +192,8 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
                         if (alignedClusters[getPlaneID(station, module-1)].size() != 0 )
                         {
                             for (Event::aClusterMapDef::iterator nextClusterIt =alignedClusters[getPlaneID(station, module-1)].begin();
-                                                                 nextClusterIt!=alignedClusters[getPlaneID(station, module-1)].end();
-                                                                 nextClusterIt++)
+                                 nextClusterIt!=alignedClusters[getPlaneID(station, module-1)].end();
+                                 nextClusterIt++)
                             {
                                 //cout << "  " << endl;
                                 //cout << "Second" << endl;
@@ -241,8 +241,8 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
         }
 
         for (Event::clustersMapDef::iterator alignedClustersIt =alignedClusters.begin();
-                                             alignedClustersIt!=alignedClusters.end();
-                                             alignedClustersIt++)
+             alignedClustersIt!=alignedClusters.end();
+             alignedClustersIt++)
         {
             if(alignedClustersIt->second.size() == 0)
                 alignedClusters.erase(alignedClustersIt--);
@@ -251,15 +251,15 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
         double xLoc, yLoc, zLoc;
         //int print = 0;
         for (Event::clustersMapDef::iterator alignedClustersIt =alignedClusters.begin();
-                                             alignedClustersIt!=alignedClusters.end();
-                                             alignedClustersIt++)
+             alignedClustersIt!=alignedClusters.end();
+             alignedClustersIt++)
         {
             int station = theGeometry->getDetectorStation(alignedClustersIt->first);
             int module  = theGeometry->getDetectorModule (alignedClustersIt->first);
 
             for (Event::aClusterMapDef::iterator clusterIt =alignedClustersIt->second.begin();
-                                                 clusterIt!=alignedClustersIt->second.end();
-                                                 clusterIt++)
+                 clusterIt!=alignedClustersIt->second.end();
+                 clusterIt++)
             {
                 int dataType = clusterIt->second["dataType"];
                 if (dataType==1) //strip data
@@ -287,7 +287,7 @@ void trackFinder::findFirstAndLastTrackCandidates(Event* theEvent, Geometry* the
                     //cout<<__PRETTY_FUNCTION__<< " x Before:" << clusters[getPlaneID(station, module)][clusterIt->first]["x"] << " x After: " << xLoc << endl;
                     //cout<<__PRETTY_FUNCTION__<< " y Before:" << clusters[getPlaneID(station, module)][clusterIt->first]["y"] << " y After: " << yLoc << endl;
 
-// Dario e Luigi: verify whether changing only Y is correct (is the Kalman filter directly using the cluster hits wich are modified here?)
+                    // Dario e Luigi: verify whether changing only Y is correct (is the Kalman filter directly using the cluster hits wich are modified here?)
                     clusters[getPlaneID(station, module)][clusterIt->first]["y"] = yLoc;
 
                     //                    clusters[getPlaneID(station, module)][clusterIt->first]["x"] = xLoc;
@@ -513,11 +513,11 @@ void trackFinder::findRoadSearchTrackCandidates(Event* theEvent, Geometry* theGe
             alignedCluster["cluster ID"] = cluster->first             ;
             alignedCluster["dataType"]   = cluster->second["dataType"];
             alignedCluster["xyErr"]      = theGeometry->getDetector( dIt->first )->fromLocalToGlobal( &alignedCluster["x"],
-                                                                                                      &alignedCluster["y"],
-                                                                                                      &alignedCluster["z"],
-                                                                                                      &alignedCluster["xErr"],
-                                                                                                      &alignedCluster["yErr"],
-                                                                                                      &alignedCluster["zErr"] ) ;
+                    &alignedCluster["y"],
+                    &alignedCluster["z"],
+                    &alignedCluster["xErr"],
+                    &alignedCluster["yErr"],
+                    &alignedCluster["zErr"] ) ;
             zSortedDetectorNames[theGeometry->getDetector( dIt->first )->getZPositionTotal()] = dIt->first;
             //std::cout << __PRETTY_FUNCTION__ << "Cluster " <<  alignedCluster["cluster ID"] << " on station " << dIt->first << std::endl;
         }
@@ -615,16 +615,16 @@ void trackFinder::fitKalmanTrackCandidates(Event* theEvent, Geometry* theGeometr
         trackFitter::aKalmanData aKalmanFittedTrack = theTrackFitter_->kalmanFitSingleTrack(*trackCandidate,
                                                                                             *track         ,
                                                                                             *cov           ,
-                                                                                             clusters      ,
-                                                                                             theGeometry    );
-       if ( aKalmanFittedTrack.chi2 < chi2cut_ || (chi2cut_ < 0 && aKalmanFittedTrack.chi2 < CHI2DOF_CUT) )
-       {
+                                                                                            clusters      ,
+                                                                                            theGeometry    );
+        if ( aKalmanFittedTrack.chi2 < chi2cut_ || (chi2cut_ < 0 && aKalmanFittedTrack.chi2 < CHI2DOF_CUT) )
+        {
             (*track)       = aKalmanFittedTrack.trackPars  ;
             (*cov)         = aKalmanFittedTrack.covMat     ;
             (*itChi2)      = aKalmanFittedTrack.chi2       ;
             kalmanTracks.push_back(aKalmanFittedTrack.kalmanTrack);
             numberOfKTracks_++ ;
-       }
+        }
     }
 }
 
@@ -804,19 +804,19 @@ void trackFinder::cleanUpTracks(std::vector<Event::alignedHitsCandidateMapDef> &
         {
             unsigned int maxHits = 0;
             for(std::vector<Event::alignedHitsCandidateMapDef>::iterator tracksIt =alignedHitsCandidatesCopy.begin();
-                                                                         tracksIt!=alignedHitsCandidatesCopy.end();
-                                                                         tracksIt++)
+                tracksIt!=alignedHitsCandidatesCopy.end();
+                tracksIt++)
             {
                 //std::cout << __PRETTY_FUNCTION__ << "Track size: " << tracksIt->size() << std::endl;
                 if(maxHits < tracksIt->size())
-                   maxHits = tracksIt->size();
+                    maxHits = tracksIt->size();
             }
             //                std::cout << __PRETTY_FUNCTION__ << "maxHits: " <<  maxHits << std::endl;
             std::map<double, unsigned int> maxHitsCandidates;
             unsigned int position = 0;
             for(std::vector<Event::alignedHitsCandidateMapDef>::iterator tracksIt =alignedHitsCandidatesCopy.begin();
-                                                                         tracksIt!=alignedHitsCandidatesCopy.end();
-                                                                         tracksIt++)
+                tracksIt!=alignedHitsCandidatesCopy.end();
+                tracksIt++)
             {
                 if(maxHits == tracksIt->size())
                 {
@@ -837,16 +837,16 @@ void trackFinder::cleanUpTracks(std::vector<Event::alignedHitsCandidateMapDef> &
             unsigned int numberOfErasedHits;
             std::vector<bool> trackEraser(trackCandidates.size(),false);
             for(std::map<double, unsigned int>::iterator tracksIt =maxHitsCandidates.begin();
-                                                         tracksIt!=maxHitsCandidates.end();
-                                                         tracksIt++)
+                tracksIt!=maxHitsCandidates.end();
+                tracksIt++)
             {
                 numberOfErasedHits = 0;
                 for(Event::alignedHitsCandidateMapDef::iterator it =trackCandidates[tracksIt->second].begin();
-                                                                it!=trackCandidates[tracksIt->second].end();)
+                    it!=trackCandidates[tracksIt->second].end();)
                 {
                     Event::aClusterMapDef::iterator cluster;
                     if(alignedClustersCopy.find(it->first) != alignedClustersCopy.end() &&
-                       (cluster = alignedClustersCopy[it->first].find((int)it->second["cluster ID"])) != alignedClustersCopy[it->first].end())
+                            (cluster = alignedClustersCopy[it->first].find((int)it->second["cluster ID"])) != alignedClustersCopy[it->first].end())
                     {
                         alignedClustersCopy[it->first].erase(cluster);
                         //                            std::cout << __PRETTY_FUNCTION__ << "Track hits on plane " << it->first
@@ -894,8 +894,8 @@ void trackFinder::cleanUpTracks(std::vector<Event::alignedHitsCandidateMapDef> &
                 }
             }
             for(std::vector<Event::alignedHitsCandidateMapDef>::iterator tracksIt =alignedHitsCandidatesCopy.begin();
-                                                                         tracksIt!=alignedHitsCandidatesCopy.end();
-                                                                         tracksIt++)
+                tracksIt!=alignedHitsCandidatesCopy.end();
+                tracksIt++)
             {
                 for(Event::alignedHitsCandidateMapDef::iterator it=tracksIt->begin(); it!=tracksIt->end();)
                 {
@@ -916,7 +916,7 @@ void trackFinder::cleanUpTracks(std::vector<Event::alignedHitsCandidateMapDef> &
                 }
                 //                std::cout << __PRETTY_FUNCTION__ << "Track size: " << tracksIt->size() << std::endl;
                 if(tracksIt->size() < minPoints_)
-                   tracksIt = alignedHitsCandidatesCopy.erase(tracksIt)-1;
+                    tracksIt = alignedHitsCandidatesCopy.erase(tracksIt)-1;
             }
         }
     }
@@ -957,9 +957,10 @@ void trackFinder::findDUTCandidates(Event* theEvent, Geometry* theGeometry)
     {
         for(Event::clustersMapDef::iterator dIt=clusters.begin(); dIt!=clusters.end(); ++dIt)
         {
+            bool hitFound = false;
             if ( !theGeometry->getDetector( dIt->first )->isDUT() ) continue;
 
-            bool   hitFound = false       ;
+            hitFound = false;
             double bestDist2 = 0xffffffff;
             trackCandidates[tr].erase( (*dIt).first );
 
@@ -975,19 +976,27 @@ void trackFinder::findDUTCandidates(Event* theEvent, Geometry* theGeometry)
                 double       charge  = (*cluster).second["charge"];
                 int          clusNum = (*cluster).first;
 
-                double xyErr = theGeometry->getDetector( (*dIt).first )->fromLocalToGlobal( &x, &y, &z, &xErr, &yErr, &zErr ) ;
-                double predX, predY, predZ;
-                theGeometry->getDetector((*dIt).first)->getPredictedGlobal(tracks[tr],predX,predY,predZ);
+                double predX, predY;
+                theGeometry->getDetector(dIt->first)->getPredictedLocal(tracks[tr],predX,predY);
+                //double xyErr = theGeometry->getDetector( (*dIt).first )->fromLocalToGlobal( &x, &y, &z, &xErr, &yErr, &zErr ) ;
+                //theGeometry->getDetector((*dIt).first)->getPredictedGlobal(tracks[tr],predX,predY,predZ);
                 //double resX  = x - (z*tracks[tr][0] + tracks[tr][1]);
                 //double resY  = y - (z*tracks[tr][2] + tracks[tr][3]);
                 double resX  = x - predX;
                 double resY  = y - predY;
                 double dist2 = resX*resX + resY*resY;
 
-                if ( ( xTol_ <= 0 || yTol_ <= 0 ) || ( fabs( resX ) < xTol_  && fabs( resY ) < yTol_ ) )
+                double yTol = yTol_; //overriding yTol
+                if((*cluster).second["dataType"] == 1)//1 is strip 0 is pixels
+                {
+                    yTol = 10000000;// local y (no resolution, in y on a strip detector)
+                    dist2 = resX*resX;
+                }
+                if ( ( xTol_ <= 0 || yTol_ <= 0 ) || ( fabs( resX ) < xTol_  && fabs( resY ) < yTol ) )
                 {
                     if( !hitFound || (dist2 < bestDist2) )
                     {
+                        double xyErr = theGeometry->getDetector( (*dIt).first )->fromLocalToGlobal( &x, &y, &z, &xErr, &yErr, &zErr );
                         trackCandidates[tr][ (*dIt).first ]["x"]          = x      ;
                         trackCandidates[tr][ (*dIt).first ]["y"]          = y      ;
                         trackCandidates[tr][ (*dIt).first ]["z"]          = z      ;
@@ -1038,10 +1047,10 @@ std::string  trackFinder::getLabel (void )
 {
     string msg ;
     msg = string("Reconstructing ") +
-          fitMethod_                +
-          string(" tracks (")       +
-          findMethod_               +
-          string(")")               ;
+            fitMethod_                +
+            string(" tracks (")       +
+            findMethod_               +
+            string(")")               ;
     return msg ;
 }
 

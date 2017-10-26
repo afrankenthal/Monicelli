@@ -299,19 +299,6 @@ bool fileEater::openGeometryFile(std::string geometryFileName)
 
     inputTreesMap_[geometryFileName] = new TFile( geometryFileName.c_str(), "read" );
 
-// The following lines are useless: the error has apparantly no meaning!...
-//    if( inputTreesMap_[geometryFileName]->GetErrno() != 0 )
-//    {
-//        ss_.str("");
-//        ss_ << "File "
-//            << geometryFileName
-//            << " generates errors ("
-//            << inputTreesMap_[geometryFileName]->GetErrno()
-//            << "): see STDOUT";
-//        STDLINE(ss_.str(),ACRed) ;
-//        return false;
-//    }
-
     if( !inputTreesMap_[geometryFileName]->IsOpen() )
     {
         STDLINE(std::string("Could not open file ") + geometryFileName, ACRed) ;
@@ -529,6 +516,7 @@ bool fileEater::parseBinary3(TTree* tree)
     int          trig        = 0;
     int          station     = 0;
     int          dataType    = 0;
+    int          stub        = 0;
     Event::aHitDef aHit;
 
     while( inputFile_->good() )
@@ -622,30 +610,44 @@ bool fileEater::parseBinary3(TTree* tree)
                 //}
             }
             else if (dataType==1) //strips
-            //else if(station == 5 || station == 6 || station == 7)//Strip data
             {
-                dataDebug    = 0;
-                trig         = (orderedData >> 32) & 0xfffff;
-                module       = (orderedData >> 27) & 0x7;
-                chip         = (orderedData >> 24) & 0x7;
-                row          = 320;
-                int strip    = (orderedData >> 17) & 0x0f;
-                int set      = (orderedData >> 12) & 0x1f;
-                col          = computeSensorStrip(chip, set, strip);
-                adc          = (orderedData >> 1) & 0x7;
-                chip         = 0;
+                if(station == 5 || station == 6 || station == 7)//Strip data
+                {
+                    dataDebug    = 0;
+                    trig         = (orderedData >> 32) & 0xfffff;
+                    module       = (orderedData >> 27) & 0x7;
+                    chip         = (orderedData >> 24) & 0x7;
+                    row          = 320;
+                    int strip    = (orderedData >> 17) & 0x0f;
+                    int set      = (orderedData >> 12) & 0x1f;
+                    col          = computeSensorStrip(chip, set, strip);
+                    adc          = (orderedData >> 1) & 0x7;
+                    chip         = 0;
 
-//                std::cout << __PRETTY_FUNCTION__
-//                          << "Adc: " << adc
-//                          << " Set: " << set
-//                          << " Strip: " << strip
-//                          << " Module: " << module
-//                          << " Chip: " << chip
-//                          << " Col: " << col
-//                          << std::endl;
+                    //                std::cout << __PRETTY_FUNCTION__
+                    //                          << "Adc: " << adc
+                    //                          << " Set: " << set
+                    //                          << " Strip: " << strip
+                    //                          << " Module: " << module
+                    //                          << " Chip: " << chip
+                    //                          << " Col: " << col
+                    //                          << std::endl;
+                }
+                else if (station==1) //CMS Outer Tracker
+                {
+                    dataDebug    = 0;
+                    trig         = (orderedData >> 32) & 0xfffff;
+                    module       = (orderedData >> 8 ) & 0x3;
+                    chip         = (orderedData >> 10) & 0xf;
+                    row          = 500; //need to change
+                    col          = (chip%8)*254/2 + ((orderedData) & 0xff);
+                    chip         = 0;
+                    stub         = (orderedData >> 14) & 0xf;
+                    adc          = 0;
+                    //std::cout << __PRETTY_FUNCTION__ << "OT row: " << row << " col: " << col << std::endl;
+                }
             }
             else if (dataType==2) //vipic
-            //else if(station == 5 || station == 6 || station == 7)//Strip data
             {
                 dataDebug    = 0;
                 trig         = (orderedData >> 32) & 0xfffff;
@@ -727,10 +729,11 @@ bool fileEater::parseBinary3(TTree* tree)
             theGeometry_->getDetector(station, module)->convertPixelFromROC(theGeometry_->getDetector(station, module)->getROC(chip), &row, &col);
 
             //push back values
-            aHit["row"] = row  ;
-            aHit["col"] = col  ;
-            aHit["adc"] = adc  ;
+            aHit["row"]      = row  ;
+            aHit["col"]      = col  ;
+            aHit["adc"]      = adc  ;
             aHit["dataType"] = dataType;
+            aHit["stub"]     = stub;
             //std::cout << __PRETTY_FUNCTION__ << "Data Type: " << dataType << " Size: " << aHit.size() << std::endl;
             plaqMap_[ss_.str()].push_back( aHit ) ;
 

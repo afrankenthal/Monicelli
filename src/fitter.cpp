@@ -44,8 +44,8 @@ fitter::fitter(void) :
     mean_                      (0)
   , sigma_                     (0)
   , calibrationFitFunctionName_("calibrationFitFunction")
+  , calibrationFitFunction_    (0)
 {
- calibrationFitFunction_ = NULL ;
 }
 
 //================================================================================
@@ -68,21 +68,13 @@ void fitter::setFitFunctionType(std::string type)
     STDLINE(ss_.str(),string(ACBlue)+string(ACReverse)) ;
 
     if(     fitFunctionType_ == "linear" )
-    {
         calibrationFitFunction_ = new TF1(calibrationFitFunctionName_, ROC::linearFitFunctionROOT,    0, 800000,2) ;
-    }
     else if(fitFunctionType_ == "parabolic")
-    {
         calibrationFitFunction_ = new TF1(calibrationFitFunctionName_, ROC::parabolicFitFunctionROOT, 0, 800000,3) ;
-    }
     else if(fitFunctionType_ == "none")
-    {
-        calibrationFitFunction_ = new TF1(calibrationFitFunctionName_, ROC::noneFitFunctionROOT, 0, 800000,3) ;
-    }
+        calibrationFitFunction_ = new TF1(calibrationFitFunctionName_, ROC::noneFitFunctionROOT,      0, 800000,3) ;
      else
-    {
         calibrationFitFunction_ = new TF1(calibrationFitFunctionName_, ROC::tanhFitFunctionROOT,      0, 800000,4) ;
-    }
 }
 
 //================================================================================
