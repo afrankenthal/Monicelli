@@ -136,7 +136,6 @@ class HManager : public multiProcess< HManager,std::vector<std::string> >
     std::string            makeRawEvent	    	        (Event                  * theEvent                       ) ;
     stringVDef             makeTrackEvent               (Event                  * theEvent                       ) ;
     std::string            makeClusterEvent    	        (Event                  * theEvent                       ) ;
-//    stringVDef             fitKalmanResidualPlots       (trackFitter::allKalmanResidualsDef & theResiduals       ) ;
     stringVDef             makeResidualDistributions    (Event                  * theEvent                      ,
                                                          bool                   & redo                           ) ;
     stringVDef             makeAdcDistributions2        (Event                  * theEvent                      ,

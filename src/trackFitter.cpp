@@ -320,8 +320,8 @@ trackFitter::aKalmanData trackFitter::kalmanFitSingleTrack(const Event::alignedH
 
 //    kalmanTracks.clear() ;
 
-    Event::vectorDef    trackTmp ;
-    Event::matrixDef    covTmp   ;
+    Event::vectorDef    trackTmp, trackOnDUT ;
+    Event::matrixDef    covTmp  , covOnDUT   ;
 
     for ( int i=0; i<4; i++ )
     {
@@ -544,10 +544,10 @@ trackFitter::aKalmanData trackFitter::kalmanFitSingleTrack(const Event::alignedH
             {
                 for ( int i=0; i<4; i++ )
                 {
-                    trackTmp[i] = trackPars[i] ;
+                    trackOnDUT[i] = trackPars[i] ;
                     for ( int j=0; j<4; j++ )
                     {
-                        covTmp[i][j] = estCov[i][j];
+                        covOnDUT[i][j] = estCov[i][j];
                     }
                 }
             }
@@ -555,16 +555,16 @@ trackFitter::aKalmanData trackFitter::kalmanFitSingleTrack(const Event::alignedH
 
     for ( int i=0; i<4; i++ )
     {
-        track[i] = trackTmp[i];
+        track[i] = trackOnDUT[i];
         for ( int j=0; j<4; j++ )
         {
-            cov[i][j] = covTmp[i][j];
+            cov[i][j] = covOnDUT[i][j];
         }
     }
 
     trackFitter::aKalmanData  aKalmanFittedTrack;
-    aKalmanFittedTrack.trackPars   = trackTmp      ;
-    aKalmanFittedTrack.covMat      = covTmp        ;
+    aKalmanFittedTrack.trackPars   = trackOnDUT    ;
+    aKalmanFittedTrack.covMat      = covOnDUT      ;
     aKalmanFittedTrack.chi2        = chi2          ;
     aKalmanFittedTrack.kalmanTrack = theKalmanTrack;
 

@@ -483,24 +483,38 @@ HManager::stringVDef HManager::fillAlignmentResults(std::string detector,
         TH2D    *XresXcoHistoAll, *XresXcoHistoSize1, *XresXcoHistoSize2 ;
         TH2D    *YresYcoHistoAll, *YresYcoHistoSize1, *YresYcoHistoSize2 ;
 
+        double  xMin, xMax;
+
+        if(theGeometry_->getDetector(detector)->isStrip())
+        {
+            xMin = - 10;
+            xMax =   10;
+        }
+
+        else
+        {
+            xMin = - 25;
+            xMax =   25;
+        }
+
         ss_.str(""); ss_ << fullPaths[0]  << "/" << detector;
         if ( !runSubFolder_->FindObject(ss_.str().c_str()) )//if he doesn't find the plaq histogram
         {
             /////////////////////////////////////X Residuals//////////////////////////////
 
-            histoResXAll =  new TH1D(detector.c_str(),(detector + ": X Residual").c_str(), 400, -10, 10);
+            histoResXAll =  new TH1D(detector.c_str(),(detector + ": X Residual").c_str(), 400, xMin, xMax);
             histoResXAll->GetXaxis()->SetTitle("X Residual");
             histoResXAll->GetYaxis()->SetTitle("tracks");
             histoResXAll->SetDirectory(0);
             this->addItem(fullPaths[0],histoResXAll);
 
-            histoResXSize1 =  new TH1D(detector.c_str(),(detector + ": X Residual clusters size 1").c_str(), 400, -10, 10);
+            histoResXSize1 =  new TH1D(detector.c_str(),(detector + ": X Residual clusters size 1").c_str(), 400, xMin, xMax);
             histoResXSize1->GetXaxis()->SetTitle("X Residual");
             histoResXSize1->GetYaxis()->SetTitle("tracks");
             histoResXSize1->SetDirectory(0);
             this->addItem(fullPaths[1],histoResXSize1);
 
-            histoResXSize2 =  new TH1D(detector.c_str(),(detector + ": X Residual clusters size 2").c_str(), 400, -10, 10);
+            histoResXSize2 =  new TH1D(detector.c_str(),(detector + ": X Residual clusters size 2").c_str(), 400, xMin, xMax);
             histoResXSize2->GetXaxis()->SetTitle("X Residual");
             histoResXSize2->GetYaxis()->SetTitle("tracks");
             histoResXSize2->SetDirectory(0);
@@ -508,19 +522,19 @@ HManager::stringVDef HManager::fillAlignmentResults(std::string detector,
 
             /////////////////////////////////////Y Residuals//////////////////////////////
 
-            histoResYAll =  new TH1D(detector.c_str(),(detector + ": Y Residual").c_str(), 400, -10, 10);
+            histoResYAll =  new TH1D(detector.c_str(),(detector + ": Y Residual").c_str(), 400, xMin, xMax);
             histoResYAll->GetXaxis()->SetTitle("Y Residual");
             histoResYAll->GetYaxis()->SetTitle("tracks");
             histoResYAll->SetDirectory(0);
             this->addItem(fullPaths[3],histoResYAll);
 
-            histoResYSize1 =  new TH1D(detector.c_str(),(detector + ": Y Residual clusters size 1").c_str(), 400, -10, 10);
+            histoResYSize1 =  new TH1D(detector.c_str(),(detector + ": Y Residual clusters size 1").c_str(), 400, xMin, xMax);
             histoResYSize1->GetXaxis()->SetTitle("Y Residual");
             histoResYSize1->GetYaxis()->SetTitle("tracks");
             histoResYSize1->SetDirectory(0);
             this->addItem(fullPaths[4],histoResYSize1);
 
-            histoResYSize2 =  new TH1D(detector.c_str(),(detector + ": Y Residual clusters size 2").c_str(), 400, -10, 10);
+            histoResYSize2 =  new TH1D(detector.c_str(),(detector + ": Y Residual clusters size 2").c_str(), 400, xMin, xMax);
             histoResYSize2->GetXaxis()->SetTitle("Y Residual");
             histoResYSize2->GetYaxis()->SetTitle("tracks");
             histoResYSize2->SetDirectory(0);
@@ -2212,16 +2226,9 @@ HManager::stringVDef HManager::makeTrackErrorsOnDUTs2 (Event * theEvent, bool &a
             else if(redo_) vetHy->Reset();
 
             Detector::xyPair xyPair = duts->second->getTrackErrorsOnPlane(fittedTracks[tr], covMat[tr]);
-            if(duts->first.c_str() == std::string("Station: 4 - Plaq: 1"))
-            {
-                vetHx->Fill( 10*sqrt(covMat[tr](1,1)) );
-                vetHy->Fill( 10*sqrt(covMat[tr](3,3)) );
-            }
-            else
-            {
-                vetHx->Fill( 10*sqrt(xyPair.first ) );
-                vetHy->Fill( 10*sqrt(xyPair.second) );
-            }
+
+            vetHx->Fill( 10*sqrt(xyPair.first ) );
+            vetHy->Fill( 10*sqrt(xyPair.second) );
         }
     }
 
