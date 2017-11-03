@@ -458,7 +458,14 @@ void MainWindow::on_saveAsImagePB_clicked()
         }
     }
 
-    c->Print(ui->imageNameLE->text().toStdString().c_str(),"pdf");
+    ss_.str("");
+    ss_<<ui->imageNameLE->text().toStdString().c_str()<<".pdf";
+
+    c->Print(ss_.str().c_str(),"pdf");
+
+    ss_.str("");
+    ss_<<"convert -trim "<<ui->imageNameLE->text().toStdString().c_str()<<".pdf "<<ui->imageNameLE->text().toStdString().c_str()<<".png";
+    system(ss_.str().c_str());
 }
 //===========================================================================
 void MainWindow::on_fitPlotPB_clicked()

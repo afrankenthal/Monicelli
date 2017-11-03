@@ -346,7 +346,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Save as Image</string>
+      <string>Save as PDF</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="imageNameLE">
@@ -359,7 +359,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>prova.pdf</string>
+      <string>prova</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_3">

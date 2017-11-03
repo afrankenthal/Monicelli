@@ -89,6 +89,7 @@ private:
     Extractor               * extract_      ;
     Ui::MainWindow          * ui            ;
     stringstream              ssPath_       ;
+    stringstream              ss_           ;
     QString                   qStringPath_  ;
     QStringList               pathList_     ;
     TFile                   * inputFile_    ;
