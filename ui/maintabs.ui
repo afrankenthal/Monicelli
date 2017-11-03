@@ -594,7 +594,7 @@ p, li { white-space: pre-wrap; }
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>7</number>
      </property>
      <widget class="QWidget" name="rawDataProcessingTabPage">
       <attribute name="title">
@@ -14272,9 +14272,6 @@ p, li { white-space: pre-wrap; }
          </property>
         </widget>
         <widget class="QCheckBox" name="dutAlignmentMinPointsSelectionCB">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
          <property name="geometry">
           <rect>
            <x>10</x>

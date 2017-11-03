@@ -407,6 +407,9 @@ void MainWindow::on_saveAsImagePB_clicked()
     TObject *obj;
     TIter nextPlot(c_->GetPad(1)->GetListOfPrimitives());
 
+    gStyle->SetOptStat(0);
+    gStyle->SetOptTitle(0);
+
     if(ui->imageCB->currentText() == "Landau")
     {
         TH1F *plot;
@@ -455,8 +458,7 @@ void MainWindow::on_saveAsImagePB_clicked()
         }
     }
 
-    c->SaveAs(ui->imageNameLE->text().toStdString().c_str());
-
+    c->Print(ui->imageNameLE->text().toStdString().c_str(),"pdf");
 }
 //===========================================================================
 void MainWindow::on_fitPlotPB_clicked()
@@ -473,8 +475,6 @@ void MainWindow::on_fitPlotPB_clicked()
     gStyle->SetStatH(0.1);
     gStyle->SetOptTitle(0);
     gStyle->SetOptFit(1);
-
-
 
     if(ui->fitFunctionCB->currentText() == "Langaus")
     {
@@ -556,8 +556,6 @@ void MainWindow::langausFit(TH1* histo)
         for(int p=0; p<3; p++)
             landauPar[p] = landau->GetParameter(p);
 
-
-
         startValues[0]=landauPar[2];
         startValues[1]=landauPar[1];
         startValues[2]=histo->Integral("width");
@@ -575,7 +573,8 @@ void MainWindow::langausFit(TH1* histo)
         langaus_->SetRange(fitRange[0],fitRange[1]);
         langaus_->SetParameters(startValues);
 
-        for (int p=0; p<4; p++) {
+        for (int p=0; p<4; p++)
+        {
             langaus_->SetParLimits(p, parsLowLimit[p], parsHighLimit[p]);
         }
 

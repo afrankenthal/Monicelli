@@ -32,7 +32,7 @@ HEADERS               += inc/mainwindow.h     \
                          inc/treemodel.h      \
                          inc/indent.h         \
                          inc/ANSIColors.h     \
-                         inc/utilities.h \
+                         inc/utilities.h      \
 
 INCLUDEPATH	      += ./inc                \
                          uiFiles              \
