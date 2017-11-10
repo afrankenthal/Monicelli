@@ -18,8 +18,9 @@
                                                     description                                           CDATA #IMPLIED  
                                                     sCalibrationFitFunction (linear|parabolic|tanh|none) "tanh"           >
       <!ELEMENT detectors                          (detector+                                          )                  >
-      <!ATTLIST detectors                           inUse                                                 CDATA #REQUIRED >
-        <!ELEMENT detector                         (largeGranularity        ,                           
+      <!ATTLIST detectors                           inUse                                                 CDATA #REQUIRED 
+        					    daCalibrationFitFunction (linear|parabolic|tanh|none) "tanh"           >	
+	<!ELEMENT detector                         (largeGranularity        ,                           
                                                     fineGranularity?        ,                           
                                                     ROCs                                               )                  >
         <!ATTLIST detector                          id                                                    CDATA #REQUIRED
@@ -74,8 +75,9 @@
           <!ELEMENT ROCs                           (ROC+                                               )                  >
           <!ATTLIST ROCs                            inUse                                                 CDATA #IMPLIED 
                                                     xChipsNumber                                          CDATA #REQUIRED
-                                                    yChipsNumber                                          CDATA #REQUIRED >
-            <!ELEMENT ROC                          (calibrationFilePath*    ,
+                                                    yChipsNumber                                          CDATA #REQUIRED 
+            					    raCalibrationFitFunction (linear|parabolic|tanh|none) "tanh"           >	
+	    <!ELEMENT ROC                          (calibrationFilePath*    ,
                                                     rCalibrationFitFunction*,
 	                                            standardRowPitch        ,
                                                     standardColPitch        ,
