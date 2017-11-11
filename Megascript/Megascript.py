@@ -1,71 +1,245 @@
 #!/usr/bin/env python
-import sys,os,commands,subprocess,time,datetime,string, threading
+import argparse
+from argparse import RawTextHelpFormatter
+import xml.etree.ElementTree as ET
+import sys,os,commands,subprocess,time,datetime,string, threading, re
+import distutils
+from distutils import util
 from email.mime.text import MIMEText
 
-maxThreads          = 8;
-copyRawFiles        = False;
-merge               = False;
-runChewie           = False;
-monicelliDir        = "/home/cmstestbeam/Programming/Monicelli/";
-chewieDir           = "/home/cmstestbeam/Programming/Chewie/";
-geometryFile        = "Run512_Merged.geo";
-testBeamYear        = "2016";
-testBeamMonth       = "12";
-testBeamMonthName   = "December";
-baseDataDir         = "/data/TestBeam/" + testBeamYear + "_" + testBeamMonth + "_" + testBeamMonthName + '/';
-mergedDataDir       = baseDataDir + "Merged/";
-geometriesDataDir   = baseDataDir + "Geometries/"
-monicelliOutDataDir = baseDataDir + "MonicelliOutput/"
-testBeamYearMonth   = testBeamYear + testBeamMonthName;
-remoteComputer      = "testbeam01linux.dhcp.fnal.gov"
-remoteDir           = "/media/sf_C_DRIVE/T992_" + testBeamMonthName + "_" + testBeamYear + '/';
-#fileNameToProcess   = "Run{no}.dat";
-fileNameToProcess   = "Run{no}_Merged.dat";
-#mailList            = "mauro.dinardo@cern.ch,uplegger@fnal.gov,luigi.moroni@mib.infn.it,marco.meschini@cern.ch,irene.zoi@stud.unifi.it,caterina.vernieri@gmail.com,dzuolo@fnal.gov";
-#mailList            = "uplegger@fnal.gov,cvernier@fnal.gov,obertino@to.infn.it,fabio.ravera@cern.ch";
-#mailList	     = "cvernier@fnal.gov"#uplegger@fnal.gov,marco.meschini@cern.ch,giacomo.sguazzoni@cern.ch,mauro.dinardo@cern.ch,luigi.moroni@mib.infn.it,cvernier@fnal.gov";
-mailList            = "uplegger@fnal.gov";
-templateFilesDir    = "./templates/";
-monicelliExpressTemplateName = "MonicelliExpress_TestBeamConfiguration_template.xml";
-chewieExpressTemplateName    = "ChewieExpress_TestBeamConfiguration_template.xml";
-chewieTemplateName           = "Chewie_TestBeamConfiguration_template.xml";
- 
+class Parameters:
+    #################################################################################################
+    #General parameters
+    #################################################################################################
+    MaxThreads  	= 8;
+    CopyRawFiles	= False;
+    MergeRawFiles	= False;
+    RunMonicelli	= True;
+    RunChewie		= True;
+    TestBeamYear	= "2017";
+    TestBeamMonth	= "11";
+    TestBeamMonthName	= "November";
+    TestBeamYearMonth	= TestBeamYear + TestBeamMonthName;
+    BaseDataDir 	= "/data/TestBeam/" + TestBeamYear + "_" + TestBeamMonth + "_" + TestBeamMonthName + '/';
+    MergedDataDir	= BaseDataDir + "Merged/";
+    GeometriesDataDir	= BaseDataDir + "Geometries/"
+    FileNameToProcess	= "Run{no}_Merged.dat";
+    #mailList		 = "uplegger@fnal.gov,irene.zoi@desy.de,lorenzo.viliani@cern.ch,caterina.vernieri@gmail.com,mauro.dinardo@cern.ch,marco.meschini@cern.ch,dzuolo@fnal.gov";
+    #mailList		 = "uplegger@fnal.gov,awalsh22@illinois.edu,shoh@fnal.gov,cvernier@fnal.gov,petra@fnal.gov,acanepa@fnal.gov,bschneid@fnal.gov";
+    #mailList		 = "uplegger@fnal.gov,awalsh22@illinois.edu,shoh@fnal.gov";
+    #mailList		 = "cms.pixel.testbeam@gmail.com";
+    #mailList		 = "shoh@fnal.gov,uplegger@fnal.gov";
+    MailList		= "uplegger@fnal.gov,dzuolo@fnal.gov";
+    TemplateFilesDir	= "./templates/";
 
-###########################################################################################
-def makeMonicelliTemplate(fileOut):
-    FilesPath             = mergedDataDir; 
-    GeometriesPath        = geometriesDataDir; 
+    #################################################################################################
+    #CopyRawFiles parameters
+    #################################################################################################
+    RemoteComputer	= "testbeam01linux.dhcp.fnal.gov"
+    RemoteDir		= "/media/sf_C_DRIVE/T992_" + TestBeamMonthName + "_" + TestBeamYear + '/';
+
+    #################################################################################################
+    #Monicelli parameters
+    #################################################################################################
+    MonicelliDir	= "/home/cmstestbeam/Programming/Monicelli/";
+    MonicelliOutDataDir = BaseDataDir + "MonicelliOutput/"
+    GeometryFile	= "Run172_Merged.geo";
+    #File used as a template by the megascript to substitute the run numbers and geometry in order to create the xml file that MonicelliExpress uses to run 
+    MonicelliExpressTemplateFilePath	= MonicelliDir + "Express/xml/";
+    MonicelliExpressTemplateFileName	= TestBeamYearMonth + "_MonicelliExpress_template.xml";
+
+    #################################################################################################
+    #Chewie parameters
+    #################################################################################################
+    ChewieDir		= "/home/cmstestbeam/Programming/Chewie/";
+    #File used as a template by the megascript to substitute the run numbers and chewie configuration in order to create the xml file that ChewieExpress uses to run 
+    ChewieExpressTemplateFilePath	= ChewieDir + "Express/xml/";
+    ChewieExpressTemplateFileName	= TestBeamYearMonth + "_ChewieExpress_template.xml";
+
+    #Name of the configuration file for Chewie, written in the xml that ChewieExpress uses to run
+    ChewieConfigurationFilePath 	= ChewieDir + "xml/";
+    ChewieConfigurationFileName 	= TestBeamYearMonth + "_ChewieConfiguration.xml";
+
+    #File used as a template by the megascript in case NO chewieConfigurationFileName exists!
+    ChewieConfigurationTemplateFileName = "templates/Chewie_TestBeamConfiguration_template.xml";
+
+    #################################################################################################
+    #MonicelliExpressTemplate parameters
+    #################################################################################################
+    FilesPath		  = MergedDataDir; 
+    GeometriesPath	  = GeometriesDataDir; 
     TrackFindingAlgorithm = "FirstAndLast"; 
     TrackFittingAlgorithm = "Simple"; 
-    NumberOfEvents        = "1000";
-    TrackPoints           = "6"; 
-    MaxPlanePoints        = "5"; 
-    Chi2Cut               = "-1"; 
-    XTolerance            = "500"; 
-    YTolerance            = "500";
-    FindDut               = "false";
-    FineAlignment         = "false";
-    FineTelescopeAlignment= "false";
-    UseEtaFunction        = "false";
-    
+    NumberOfEvents	  = "1000";
+    TrackPoints 	  = "6"; 
+    MaxPlanePoints	  = "5"; 
+    Chi2Cut		  = "-1"; 
+    XTolerance  	  = "500"; 
+    YTolerance  	  = "500";
+    FindDut		  = "true";
+    FineAlignment	  = "true";
+    FineTelescopeAlignment= "true";
+    UseEtaFunction	  = "false";
+
+    #################################################################################################
+    #EnvironmentVariables parameters
+    #################################################################################################
+    #monicelliDir	     = MonicelliDir;									 
+    Monicelli_RawData_Dir    = MergedDataDir;									      
+    Monicelli_DataSample_Dir = MergedDataDir;									      
+    Monicelli_CalSample_Dir  = BaseDataDir + "Calibrations";							      
+    MonicelliOutputDir       = BaseDataDir + "MonicelliOutput";							      
+    Monicelli_XML_Dir        = BaseDataDir + "Geometries";
+    ROOTSYS		     = "/opt/local/root";
+    QTDIR		     = "/opt/local/qt";										
+    LD_LIBRARY_PATH	     = "/opt/local/root/lib:/opt/local/qt/lib:/opt/local/xerces/lib:" + MonicelliDir + "/plugins/libs/";
+    MERGER_INPUT_DIR	     = BaseDataDir;									      
+    MERGER_OUTPUT_DIR        = BaseDataDir + "Merged";								      
+    #CHEWIEDIR  	     = chewieDir;									      
+    CHEWIEDATADIR	     = BaseDataDir + "MonicelliOutput";							      
+    CHEWIEINPUTDIR	     = BaseDataDir + "ChewieInput";  							      
+    CHEWIEOUTPUTDIR	     = BaseDataDir + "ChewieOutput"; 							      
+    CHEWIEXMLDIR	     = ChewieDir + "xml"									      
+	
+
+###########################################################################################
+def convertEnvVariables(name, parameters):
+    #All Env variables preceded by $ will be substitute
+    expression = "(\$(\(|\{)*(\w+)(\)|\})*)";
+    regExp = re.search(expression,name);
+    while( regExp ):
+    	variable = getattr(parameters, regExp.group(3));
+	#print "VARIABLE:"
+	#print variable;
+        shortName = name[name.find(regExp.group(1))+len(regExp.group(1)):len(name)]
+	#if(varList == [] or regExp.group(3) in varList): 
+	#  if( not variable ):
+	#    exit("You must set " + regExp.group(3) + " if you want to use it!");
+	name = name.replace(regExp.group(1),variable);
+	regExp = re.search(expression,shortName);
+    return name
+
+#################################################################################################
+def parseMegascriptConfigurationFile(configurationFile):
+    pars = Parameters();
+    tree = ET.parse(configurationFile)
+    root = tree.getroot()
+    #root = ET.fromstring(country_data_as_string)
+    for child in root:
+        print child.tag
+	if(child.tag == "General"):
+	    pars.MaxThreads	   = int(child.find("MaxThreads").text);
+	    pars.CopyRawFiles	   = bool(distutils.util.strtobool((child.find("CopyRawFiles").text).replace(" ","").replace('\t',"")));
+	    pars.MergeRawFiles     = bool(distutils.util.strtobool((child.find("MergeRawFiles").text).replace(" ","").replace('\t',"")));
+	    pars.RunMonicelli	   = bool(distutils.util.strtobool((child.find("RunMonicelli").text).replace(" ","").replace('\t',"")));
+	    pars.RunChewie	   = bool(distutils.util.strtobool((child.find("RunChewie").text).replace(" ","").replace('\t',"")));
+	   
+	    pars.TestBeamYear	   = (child.find("TestBeamYear").text).replace(" ","").replace('\t',"");
+	    pars.TestBeamMonth     = (child.find("TestBeamMonth").text).replace(" ","").replace('\t',"");
+	    pars.TestBeamMonthName = (child.find("TestBeamMonthName").text).replace(" ","").replace('\t',"");
+	    pars.TestBeamYearMonth = convertEnvVariables((child.find("TestBeamYearMonth").text).replace(" ","").replace('\t',""), pars);
+	    pars.BaseDataDir	   = convertEnvVariables((child.find("BaseDataDir").text).replace(" ","").replace('\t',""), pars);
+	    pars.MergedDataDir     = convertEnvVariables((child.find("MergedDataDir").text).replace(" ","").replace('\t',""), pars);
+	    pars.GeometriesDataDir = convertEnvVariables((child.find("GeometriesDataDir").text).replace(" ","").replace('\t',""), pars);
+	    pars.FileNameToProcess = (child.find("FileNameToProcess").text).replace(" ","").replace('\t',"");
+	    pars.MailList	   = (child.find("MailList").text).replace(" ","").replace('\t',"");
+	    pars.TemplateFilesDir  = (child.find("TemplateFilesDir").text).replace(" ","").replace('\t',"");
+
+        elif(child.tag == "CopyRawFiles"):
+	    pars.RemoteComputer      = (child.find("RemoteComputer").text).replace(" ","").replace('\t',"");
+	    pars.RemoteDir	     = convertEnvVariables((child.find("RemoteDir").text).replace(" ","").replace('\t',""), pars);
+
+        elif(child.tag == "Monicelli"):
+	    pars.MonicelliDir			  = convertEnvVariables((child.find("MonicelliDir").text).replace(" ","").replace('\t',""), pars);
+	    pars.MonicelliOutDataDir		  = convertEnvVariables((child.find("MonicelliOutDataDir").text).replace(" ","").replace('\t',""), pars);
+	    pars.GeometryFile			  = (child.find("GeometryFile").text).replace(" ","").replace('\t',"");
+	    pars.MonicelliExpressTemplateFilePath = convertEnvVariables((child.find("MonicelliExpressTemplateFilePath").text).replace(" ","").replace('\t',""), pars);
+	    pars.MonicelliExpressTemplateFileName = convertEnvVariables((child.find("MonicelliExpressTemplateFileName").text).replace(" ","").replace('\t',""), pars);
+
+        elif(child.tag == "Chewie"):
+	    pars.ChewieDir			     = convertEnvVariables((child.find("ChewieDir").text).replace(" ","").replace('\t',""), pars);
+	    pars.ChewieExpressTemplateFilePath       = convertEnvVariables((child.find("ChewieExpressTemplateFilePath").text).replace(" ","").replace('\t',""), pars);
+	    pars.ChewieExpressTemplateFileName       = convertEnvVariables((child.find("ChewieExpressTemplateFileName").text).replace(" ","").replace('\t',""), pars);
+	    pars.ChewieConfigurationFilePath	     = convertEnvVariables((child.find("ChewieConfigurationFilePath").text).replace(" ","").replace('\t',""), pars);
+	    pars.ChewieConfigurationFileName	     = convertEnvVariables((child.find("ChewieConfigurationFileName").text).replace(" ","").replace('\t',""), pars);
+            pars.ChewieConfigurationTemplateFileName = convertEnvVariables((child.find("ChewieConfigurationTemplateFileName").text).replace(" ","").replace('\t',""), pars);
+
+        elif(child.tag == "MonicelliExpressTemplate"):
+    	    pars.FilesPath	       = convertEnvVariables((child.find("FilesPath").text).replace(" ","").replace('\t',""), pars);
+    	    pars.GeometriesPath        = convertEnvVariables((child.find("GeometriesPath").text).replace(" ","").replace('\t',""), pars);
+    	    pars.TrackFindingAlgorithm = (child.find("TrackFindingAlgorithm").text).replace(" ","").replace('\t',"");
+    	    pars.TrackFittingAlgorithm = (child.find("TrackFittingAlgorithm").text).replace(" ","").replace('\t',"");
+    	    pars.NumberOfEvents        = (child.find("NumberOfEvents").text).replace(" ","").replace('\t',"");
+    	    pars.TrackPoints	       = (child.find("TrackPoints").text).replace(" ","").replace('\t',"");
+    	    pars.MaxPlanePoints        = (child.find("MaxPlanePoints").text).replace(" ","").replace('\t',"");
+    	    pars.Chi2Cut	       = (child.find("Chi2Cut").text).replace(" ","").replace('\t',"");
+    	    pars.XTolerance	       = (child.find("XTolerance").text).replace(" ","").replace('\t',"");
+    	    pars.YTolerance	       = (child.find("YTolerance").text).replace(" ","").replace('\t',"");
+    	    pars.FindDut	       = (child.find("FindDut").text).replace(" ","").replace('\t',"");
+    	    pars.FineAlignment         = (child.find("FineAlignment").text).replace(" ","").replace('\t',"");
+	    #print "-" + pars.FineAlignment + "-"
+	    #exit();
+    	    pars.FineTelescopeAlignment= (child.find("FineTelescopeAlignment").text).replace(" ","").replace('\t',"");
+    	    pars.UseEtaFunction        = (child.find("UseEtaFunction").text).replace(" ","").replace('\t',"");
+
+        elif(child.tag == "EnvironmentVariables"):
+    	    #pars.monicelliDir  	  = convertEnvVariables((child.find("MonicelliDir").text);  	 
+    	    pars.Monicelli_RawData_Dir   = convertEnvVariables((child.find("Monicelli_RawData_Dir").text).replace(" ","").replace('\t',""), pars);   
+    	    pars.Monicelli_DataSample_Dir= convertEnvVariables((child.find("Monicelli_DataSample_Dir").text).replace(" ","").replace('\t',""), pars);
+    	    pars.Monicelli_CalSample_Dir = convertEnvVariables((child.find("Monicelli_CalSample_Dir").text).replace(" ","").replace('\t',""), pars); 
+    	    pars.MonicelliOutputDir	 = convertEnvVariables((child.find("MonicelliOutputDir").text).replace(" ","").replace('\t',""), pars);	 
+    	    pars.Monicelli_XML_Dir	 = convertEnvVariables((child.find("Monicelli_XML_Dir").text).replace(" ","").replace('\t',""), pars);	 
+    	    pars.ROOTSYS		 = convertEnvVariables((child.find("ROOTSYS").text).replace(" ","").replace('\t',""), pars);		  
+    	    pars.QTDIR  		 = convertEnvVariables((child.find("QTDIR").text).replace(" ","").replace('\t',""), pars);  		  
+    	    pars.LD_LIBRARY_PATH	 = convertEnvVariables((child.find("LD_LIBRARY_PATH").text).replace(" ","").replace('\t',""), pars);	  
+    	    pars.MERGER_INPUT_DIR	 = convertEnvVariables((child.find("MERGER_INPUT_DIR").text).replace(" ","").replace('\t',""), pars);	  
+    	    pars.MERGER_OUTPUT_DIR	 = convertEnvVariables((child.find("MERGER_OUTPUT_DIR").text).replace(" ","").replace('\t',""), pars);	 
+    	    #pars.CHEWIEDIR		  = convertEnvVariables((child.find("CHEWIEDIR").text).replace(" ","").replace('\t',""), pars);		  
+    	    pars.CHEWIEDATADIR  	 = convertEnvVariables((child.find("CHEWIEDATADIR").text).replace(" ","").replace('\t',""), pars);  	  
+    	    pars.CHEWIEINPUTDIR 	 = convertEnvVariables((child.find("CHEWIEINPUTDIR").text).replace(" ","").replace('\t',""), pars); 	  
+    	    pars.CHEWIEOUTPUTDIR	 = convertEnvVariables((child.find("CHEWIEOUTPUTDIR").text).replace(" ","").replace('\t',""), pars);	  
+    	    pars.CHEWIEXMLDIR		 = convertEnvVariables((child.find("CHEWIEXMLDIR").text).replace(" ","").replace('\t',""), pars);
+    return pars;
+	    	     
+###########################################################################################
+def exportVars(parameters):
+    os.environ['MonicelliDir'            ] = parameters.MonicelliDir;           
+    os.environ['Monicelli_RawData_Dir'   ] = parameters.Monicelli_RawData_Dir;   
+    os.environ['Monicelli_DataSample_Dir'] = parameters.Monicelli_DataSample_Dir;
+    os.environ['Monicelli_CalSample_Dir' ] = parameters.Monicelli_CalSample_Dir; 
+    os.environ['MonicelliOutputDir'      ] = parameters.MonicelliOutputDir;      
+    os.environ['Monicelli_XML_Dir'       ] = parameters.Monicelli_XML_Dir;       
+    os.environ['ROOTSYS'                 ] = parameters.ROOTSYS;                 
+    os.environ['QTDIR'                   ] = parameters.QTDIR;                   
+    os.environ['LD_LIBRARY_PATH'         ] = parameters.LD_LIBRARY_PATH;         
+    os.environ['MERGER_INPUT_DIR'        ] = parameters.MERGER_INPUT_DIR;        
+    os.environ['MERGER_OUTPUT_DIR'       ] = parameters.MERGER_OUTPUT_DIR;       
+    os.environ['CHEWIEDIR'               ] = parameters.ChewieDir;               
+    os.environ['CHEWIEDATADIR'           ] = parameters.CHEWIEDATADIR;           
+    os.environ['CHEWIEINPUTDIR'          ] = parameters.CHEWIEINPUTDIR;          
+    os.environ['CHEWIEOUTPUTDIR'         ] = parameters.CHEWIEOUTPUTDIR;         
+    os.environ['CHEWIEXMLDIR'            ] = parameters.CHEWIEXMLDIR;            
+
+###########################################################################################
+def makeMonicelliExpressTemplate(fileOut, parameters):
     outFile = open(fileOut,"w")
     outFile.write("<?xml version='1.0' encoding='iso-8859-1'?>\n");
     outFile.write("<!DOCTYPE MonicelliExpressConfiguration SYSTEM \"./dtd/ExpressConfiguration.dtd\">\n");
     outFile.write("<MonicelliExpressConfiguration>\n");
-    outFile.write("  <Defaults FilesPath=\"" + FilesPath + "\"\n");
-    outFile.write("	       GeometriesPath=\"" + GeometriesPath + "\"\n");
-    outFile.write("	       TrackFindingAlgorithm=\"" + TrackFindingAlgorithm + "\"\n");
-    outFile.write("	       TrackFittingAlgorithm=\"" + TrackFittingAlgorithm + "\"\n");
-    outFile.write("	       NumberOfEvents=\"" + NumberOfEvents + "\"\n");
-    outFile.write("	       TrackPoints=\"" + TrackPoints + "\"\n");
-    outFile.write("	       MaxPlanePoints=\"" + MaxPlanePoints + "\"\n");
-    outFile.write("	       Chi2Cut=\"" + Chi2Cut + "\"\n");
-    outFile.write("	       XTolerance=\"" + XTolerance + "\"\n");
-    outFile.write("	       YTolerance=\"" + YTolerance + "\"\n");
-    outFile.write("	       FindDut=\"" + FindDut + "\"\n");
-    outFile.write("	       FineAlignment=\"" + FineAlignment + "\"\n");
-    outFile.write("	       FineTelescopeAlignment=\"" + FineTelescopeAlignment + "\"\n");
-    outFile.write("	       UseEtaFunction=\"" + UseEtaFunction + "\"/>\n");
+    outFile.write("  <Defaults FilesPath=\"" + parameters.FilesPath + "\"\n");
+    outFile.write("	       GeometriesPath=\"" + parameters.GeometriesPath + "\"\n");
+    outFile.write("	       TrackFindingAlgorithm=\"" + parameters.TrackFindingAlgorithm + "\"\n");
+    outFile.write("	       TrackFittingAlgorithm=\"" + parameters.TrackFittingAlgorithm + "\"\n");
+    outFile.write("	       NumberOfEvents=\"" + parameters.NumberOfEvents + "\"\n");
+    outFile.write("	       TrackPoints=\"" + parameters.TrackPoints + "\"\n");
+    outFile.write("	       MaxPlanePoints=\"" + parameters.MaxPlanePoints + "\"\n");
+    outFile.write("	       Chi2Cut=\"" + parameters.Chi2Cut + "\"\n");
+    outFile.write("	       XTolerance=\"" + parameters.XTolerance + "\"\n");
+    outFile.write("	       YTolerance=\"" + parameters.YTolerance + "\"\n");
+    outFile.write("	       FindDut=\"" + parameters.FindDut + "\"\n");
+    outFile.write("	       FineAlignment=\"" + parameters.FineAlignment + "\"\n");
+    outFile.write("	       FineTelescopeAlignment=\"" + parameters.FineTelescopeAlignment + "\"\n");
+    outFile.write("	       UseEtaFunction=\"" + parameters.UseEtaFunction + "\"/>\n");
     outFile.write("</MonicelliExpressConfiguration>\n");
     outFile.close();
     f = open(fileOut, 'r')
@@ -73,13 +247,12 @@ def makeMonicelliTemplate(fileOut):
     f.close()
 
 ###########################################################################################
-def makeChewieTemplate(fileOut):
-    FilesPath = monicelliOutDataDir; 
+def makeChewieExpressTemplate(fileOut, parameters):
     outFile = open(fileOut,"w")
     outFile.write("<?xml version='1.0' encoding='iso-8859-1'?>\n");
     outFile.write("<!DOCTYPE ChewieExpressConfiguration SYSTEM \"./dtd/ExpressConfiguration.dtd\">\n");
     outFile.write("<ChewieExpressConfiguration>\n");
-    outFile.write("  <Defaults FilesPath=\"" + FilesPath + "\"\n");
+    outFile.write("  <Defaults FilesPath=\"" + parameters.MonicelliOutDataDir + "\"\n");
     outFile.write("	      Convert=\"yes\"\n");
     outFile.write("	      RunAnalysis=\"yes\"\n");
     outFile.write("	      NumberOfEvents=\"-1\"/>\n");
@@ -88,6 +261,7 @@ def makeChewieTemplate(fileOut):
     f = open(fileOut, 'r')
     print f.read()
     f.close()
+
 
 ###########################################################################################
 def sshName(name):
@@ -248,7 +422,7 @@ def replaceInFile(fileIn, fileOut, replaceWhat, replaceWith):
     outFile.close()
 
 ###########################################################################################
-def monicelliReplace(fileIn, fileOut, runList, geometry):
+def monicelliExpressTemplateReplace(fileIn, fileOut, runList, geometry):
     testFile = open(fileIn,"r")
     testFileContent = testFile.readlines()
     testFile.close()
@@ -263,7 +437,7 @@ def monicelliReplace(fileIn, fileOut, runList, geometry):
     outFile.close()
 
 ###########################################################################################
-def chewieReplace(fileIn, fileOut, runList):
+def chewieExpressTemplateReplace(parameters, fileIn, fileOut, runList):
     testFile = open(fileIn,"r")
     testFileContent = testFile.readlines()
     testFile.close()
@@ -272,22 +446,23 @@ def chewieReplace(fileIn, fileOut, runList):
     for line in testFileContent:
        if(line.find("</ChewieExpressConfiguration>") != -1):
          for run in runList:
-	     outFile.write("    <Files Configuration=\"" + testBeamYearMonth + "_ChewieConfiguration.xml\" OutFileName=\"" + run.replace(".dat","") + "_Chewie.root\">\n      <File Name=\"" + run.replace(".dat",".root")  + "\"/>\n    </Files>\n");
+	     outFile.write("    <Files Configuration=\"" + parameters.ChewieConfigurationFileName + "\" OutFileName=\"" + run.replace(".dat","") + "_Chewie.root\">\n      <File Name=\"" + run.replace(".dat",".root")  + "\"/>\n    </Files>\n");
        outFile.write(line)
     outFile.close()
 
 ###########################################################################################
-def makeFileListToProcess(Min, Max):
+def makeFileListToProcess(parameters, Min, Max):
     runList = []
     i=Min
     for i in range(Min,Max+1):
-       s = fileNameToProcess.format(no=i)
+       s = parameters.FileNameToProcess.format(no=i)
        runList.append(s)
-       print "files to process: " + s
+       print "Files to process: " + s
     return runList
 
 ###########################################################################################
 def sendEmail(mailList, title, body):
+    if(mailList == ""): return;
     print "Sending email to " + mailList + " with body:\n" + body
     list = mailList.split(',')
     for email in list:
@@ -295,24 +470,6 @@ def sendEmail(mailList, title, body):
         p.write(body)
         status = p.close() 
 
-###########################################################################################
-def exportVars():
-    os.environ['MonicelliDir'            ] = monicelliDir;
-    os.environ['Monicelli_RawData_Dir'   ] = baseDataDir + "Merged";
-    os.environ['Monicelli_DataSample_Dir'] = baseDataDir + "Merged";
-    os.environ['Monicelli_CalSample_Dir' ] = baseDataDir + "Calibrations";
-    os.environ['MonicelliOutputDir'      ] = baseDataDir + "MonicelliOutput";
-    os.environ['Monicelli_XML_Dir'       ] = baseDataDir + "Geometries";
-    os.environ['ROOTSYS'                 ] = "/opt/local/root";
-    os.environ['QTDIR'                   ] = "/opt/local/qt";
-    os.environ['LD_LIBRARY_PATH'         ] = "/opt/local/root/lib:/opt/local/qt/lib:/opt/local/xerces/lib:"+monicelliDir+"/plugins/libs/"
-    os.environ['MERGER_INPUT_DIR'        ] = baseDataDir;
-    os.environ['MERGER_OUTPUT_DIR'       ] = baseDataDir + "Merged";
-    os.environ['CHEWIEDIR'               ] = chewieDir;
-    os.environ['CHEWIEDATADIR'           ] = baseDataDir + "MonicelliOutput"
-    os.environ['CHEWIEINPUTDIR'          ] = baseDataDir + "ChewieInput"
-    os.environ['CHEWIEOUTPUTDIR'         ] = baseDataDir + "ChewieOutput"
-    os.environ['CHEWIEXMLDIR'            ] = chewieDir   + "xml"
 
 ###########################################################################################
 def rawCopy(runBegin, runEnd):
@@ -341,20 +498,39 @@ def is_ascii(s):
         return True;
     return False;
 
-###########################################################################################
-def main():
-    if(len(sys.argv) != 2):
-        print "Usage: Megascript.py RunList"
-	print "Example of Runlist:"
-	print "1 -> only Run1"
-	print "1-10 -> from Run1 to Run10"
-	print "1-10,20,30-35 -> from Run1 to Run10, Run20, from Run30 to Run35"
-        sys.exit();
-    option = '';
-    exportVars();
 
-    rangedFileList = sys.argv[1].split(',');
-    print rangedFileList;
+############################################################################################
+def main():
+
+    ###########################################################################################
+    #Parsing Arguments 
+    ###########################################################################################
+    parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter)
+    parser.add_argument("-r", "--runlist", required=True, type=str, help="Run list.\n"
+    "Examples of run list:\n"
+    "1 -> only Run1\n"
+    "1-10 -> from Run1 to Run10\n"
+    "1-10,20,30-35 -> from Run1 to Run10, Run20, from Run30 to Run35"
+    )
+    parser.add_argument("-c", "--configuration", help="Megascript xml configuration file")
+    parser.add_argument("-d", "--delete",        help="Removes all the template files", action='store_true')
+    parser.add_argument("-e", "--events",        type=int, help="Number of events to process.(-1 means all)")
+    parser.add_argument("-f", "--fit",           type=str, help="Monicelli track fit (Simple, Kalman)")
+    parser.add_argument("-g", "--geometry",      type=str, help="Geometry file name.")
+    parser.add_argument("--runmonicelli",        default=True, type=lambda x:bool(distutils.util.strtobool(x)), help="Run Monicelli (default True).")
+    parser.add_argument("--runchewie",           default=True, type=lambda x:bool(distutils.util.strtobool(x)), help="Run Chewie (default True).")
+    parser.add_argument("--chewietemplate",      type=str, help="Chewie template file name for ChewieExpress.")
+    parser.add_argument("--chewieconfiguration", type=str, help="Chewie analysis configuration file.")
+
+    parser.parse_args()
+    args = parser.parse_args()
+    
+    ###########################################################################################
+    #Creating run list
+    ###########################################################################################
+    rangedFileList = args.runlist.split(',');
+    runList = [];
+    print "Printing Runs"
     for runs in rangedFileList:
         #print runs;
 	if(runs.find('-') != -1):
@@ -365,33 +541,64 @@ def main():
 	if(int(begin) > int(end)):
 	    print "Range " + runs + " is not valid since the starting run is greater than the end run!";
 	    sys.exit();
+	print runs;
+	for run in range(int(begin),int(end)+1):
+	    runList.append(str(run));
+
+    parameters = Parameters();
+    if(args.configuration):
+	parameters = parseMegascriptConfigurationFile(args.configuration);
+
+    if(args.events):
+	parameters.NumberOfEvents = str(args.events);
+
+    if(args.fit):
+	if(args.fit != "Simple" and args.fit != "Kalman"):
+	    print "fit parameter can only be Simple or Kalman, not " + args.fit;
+	    exit();
+	parameters.TrackFittingAlgorithm = args.fit;
+
+    if(args.geometry):
+	parameters.GeometryFile = args.geometry;
+
+    if(args.chewietemplate):
+	parameters.ChewieExpressTemplateName = args.chewietemplate;
+
+    if(not args.runmonicelli): #The default must be True so only when we don't want to run it then we get in here
+        print "I change running"
+	parameters.RunMonicelli = args.runmonicelli;
+
+    if(not args.runchewie): #The default must be True so only when we don't want to run it then we get in here
+	parameters.RunChewie = args.runchewie;
     
-    #Making source files list
-    sourceHost, sourceDir = splitHostDir(remoteComputer + ':' + remoteDir + "Analysis/Merged/");
-    print "Reading data from host: " + sourceHost
-    print "Stored in directory: " + sourceDir
-#    sourceList = makeFileList(sourceHost, sourceDir, ".dat");
+    if(args.chewieconfiguration):
+	parameters.ChewieConfigurationFileName = args.chewieconfiguration;
 
-    #Making destination files list
-    destination = os.environ['Monicelli_RawData_Dir'];
-    destinationHost, destinationDir = splitHostDir(destination);
-    print baseDataDir
+    if(args.delete):
+ 	cmd = "rm " + parameters.MonicelliExpressTemplateFilePath + parameters.MonicelliExpressTemplateFileName + " " + parameters.ChewieExpressTemplateFilePath + parameters.ChewieExpressTemplateFileName;
+ 	print "Running command: " + cmd;
+ 	cleanProcess = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE);
+	out,err = cleanProcess.communicate();
 
-    if(copyRawFiles):
-    	for runs in rangedFileList:
-	    if(runs.find('-') != -1):
-		begin,end = runs.split('-');
-    	    else:
-		begin = end = runs;
-            rawCopy(int(begin), int(end));
+    #Done parsing arguments
+    exportVars(parameters);
+
+    destinationHost, destinationDir = splitHostDir(os.environ['Monicelli_RawData_Dir']);
+
+    if(parameters.CopyRawFiles):
+    	#Making source files list
+    	sourceHost, sourceDir = splitHostDir(parameters.RemoteComputer + ':' + parameters.RemoteDir + "Analysis/Merged/");
+    	print "Reading data from host: " + sourceHost
+    	print "Stored in directory: " + sourceDir
+#   	 sourceList = makeFileList(sourceHost, sourceDir, ".dat");
+
+    	#Making destination files list
+    	for run in runList:
+           rawCopy(int(run), int(run));
    
-    if(merge):
-    	for runs in rangedFileList:
-	    if(runs.find('-') != -1):
-		begin,end = runs.split('-');
-    	    else:
-		begin = end = runs;
-            cmd = baseDataDir + "../Exes/Merger/Merger " + begin + ' ' + end;
+    if(parameters.MergeRawFiles):
+    	for run in runList:
+            cmd = baseDataDir + "../Exes/Merger/Merger " + run;
             print "Running command: " + cmd;
 
             proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE);
@@ -420,13 +627,12 @@ def main():
 #    if(len(copiedFiles) == 0):
 #    	exit(0);
     fileList = [];
-    for runs in rangedFileList:
-    	if(runs.find('-') != -1):
-    	    begin,end = runs.split('-');
-    	else:
-    	    begin = end = runs;
-        fileList += makeFileListToProcess(int(begin), int(end));
-    print fileList;
+    print runList
+    for run in runList:
+        fileList += makeFileListToProcess(parameters, int(run), int(run));
+
+    #print fileList;
+
 
     tmpFileList = fileList;
 
@@ -451,67 +657,71 @@ def main():
 
     ################################################################################################################
     #If Monicelli Express template does not exist then create it...
-    templateName = testBeamYearMonth+"_TestBeamConfiguration_template.xml";
-    monicelliTemplateFileName = monicelliDir + "Express/xml/" + templateName;
-    if not os.path.isfile(monicelliTemplateFileName):
-        print "WARNING: I couldn't find the MonicelliExpress template file " + monicelliTemplateFileName + ", so I am creating one using the template at the top of the megascript!"
-        makeMonicelliTemplate(monicelliTemplateFileName);
-    print monicelliTemplateFileName;
+    monicelliTemplateFile = parameters.MonicelliExpressTemplateFilePath + parameters.MonicelliExpressTemplateFileName;
+    if not os.path.isfile(monicelliTemplateFile):
+        print "WARNING: I couldn't find the MonicelliExpress template file " + monicelliTemplateFile + ", so I am creating one using the template at the top of the megascript!"
+        makeMonicelliExpressTemplate(monicelliTemplateFile, parameters);
+    print monicelliTemplateFile;
     
     ################################################################################################################
     #If Chewie Express template does not exist then create it...
-    chewieTemplateFileName = chewieDir + "Express/xml/" + templateName;
-    if not os.path.isfile(chewieTemplateFileName):
-        print "WARNING: I couldn't find the ChewieExpress template file " + chewieTemplateFileName + ", so I am creating one using the template at the top of the megascript!"
-        makeChewieTemplate(chewieTemplateFileName);
-    print chewieTemplateFileName;
+    chewieTemplateFile = parameters.ChewieExpressTemplateFilePath + parameters.ChewieExpressTemplateFileName;
+    if not os.path.isfile(chewieTemplateFile):
+        print "WARNING: I couldn't find the ChewieExpress template file " + chewieTemplateFile + ", so I am creating one using the template at the top of the megascript!"
+        makeChewieExpressTemplate(chewieTemplateFile, parameters);
+    print chewieTemplateFile;
 
     ################################################################################################################
     #If Chewie Configuration template does not exist then create it...
-    chewieConfigurationName = testBeamYearMonth+"_ChewieConfiguration.xml";
-    chewieConfigurationFileName = chewieDir + "xml/" + chewieConfigurationName;
-    if not os.path.isfile(chewieConfigurationFileName):
-        print "WARNING: I couldn't find the Chewie Configuration file " + chewieConfigurationFileName + ", so I am creating one using the template at the top of the megascript!"
- 	cmd = "cp templates/Chewie_TestBeamConfiguration_template.xml " + chewieConfigurationFileName;
+    chewieConfigurationFile = parameters.ChewieConfigurationFilePath + parameters.ChewieConfigurationFileName;
+    if not os.path.isfile(chewieConfigurationFile):
+        print "WARNING: I couldn't find the Chewie Configuration file " + chewieConfigurationFile + ", so I am creating one using the template at the top of the megascript!"
+ 	cmd = "cp " + parameters.ChewieConfigurationTemplateFileName + " " + chewieConfigurationFile;
  	print "Running command: " + cmd;
- 	processes[p] = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE);
+ 	copyProcess = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE);
+	out,err = copyProcess.communicate();
         
-    print templateName;
 
-    global maxThreads;
+    maxThreads = parameters.MaxThreads;
     if (maxThreads > len(fileList)):
         maxThreads = len(fileList);
     
-    processes        = [None] * len(fileList);
-    output           = [""]   * len(fileList);
-    error            = [""]   * len(fileList);
-    status           = [0]    * len(fileList);#0 ready, 1 running Monicelli, 2, done a, 3 running Chewie, 4 done
-    nOfIncorrectData = [0]    * len(fileList);
-    runName          = [""]   * len(fileList);
-    outFiles         = [None] * len(fileList);
+    firstState = 0;
+    if(not parameters.RunMonicelli):
+    	firstState = 2;
+    
+    
+    processes        = [None]       * len(fileList);
+    output           = [""]         * len(fileList);
+    error            = [""]         * len(fileList);
+    status           = [firstState] * len(fileList);#0=ready, 1=Running Monicelli, 2=Done running Monicelli, 3=Running Chewie, 4=Done running Chewie
+    nOfIncorrectData = [0]          * len(fileList);
+    runName          = [""]         * len(fileList);
+    outFiles         = [None]       * len(fileList);
+    
     done = False;
     runningProcesses = 0;
     lastState = 4;#run Monicelli and Chewie
-    if(not runChewie):
+    if(not parameters.RunChewie):
 	lastState = 2;#Only Monicelli
     while(not done):
     	for p in range (0, len(processes)):
 	    #print "Process: " +str(p) + " status: " + str(status[p]);
+       	    runName[p] = fileList[p].replace(".dat","");
 	    if(status[p] == 0 and runningProcesses < maxThreads):
 		status[p] = 1;
 		################################################################################################################
  	    	#Run Monicelli
- 	    	runName[p] = fileList[p].replace(".dat","");
  	    	print "Running Monicelli for " + runName[p];
  
  	    	#Create Express xml files from template
- 	    	templateOutName = templateName.replace("template",runName[p]);
+ 	    	templateOutName = parameters.MonicelliExpressTemplateFileName.replace("template", runName[p]);
  	    	#print templateOutName;
 
- 	    	monicelliReplace(monicelliTemplateFileName, monicelliDir + "Express/xml/" + templateOutName, [fileList[p]], geometryFile);
+ 	    	monicelliExpressTemplateReplace(monicelliTemplateFile, parameters.MonicelliExpressTemplateFilePath + templateOutName, [fileList[p]], parameters.GeometryFile);
  
  	    	#Run Monicelli express
-		cmd = "cd " + monicelliDir + "Express; ./MonicelliExpress " + templateOutName;
+		cmd = "cd " + parameters.MonicelliDir + "Express; ./MonicelliExpress " + templateOutName;
  	    	print "Running command: " + cmd;
                 outFiles[p] = open("Monicelli_stdout_" + fileList[p], 'w');
  	    	processes[p] = subprocess.Popen(cmd, shell=True, stdout=outFiles[p], stderr=subprocess.PIPE);
@@ -534,16 +744,16 @@ def main():
 		    cmd = "rm Monicelli_stdout_" + fileList[p];
  	    	    subprocess.Popen(cmd, shell=True);
 		    
- 		    if(error != ''):
+ 		    if((error != '') and ('Error in <TCling' not in error)):
  		       print error
  		       error = "FATAL: There was an error executing Monicelli!"
- 		       sendEmail(mailList, runName[p], error);
+ 		       sendEmail(parameters.MailList, runName[p], error);
  
  		    for line in out.split('\n'):
  		    	#print line;
 		    	if(line.find("Incorrect data at block") != -1):
 		    	    nOfIncorrectData[p] += 1;	    
-                    if(not runChewie):
+                    if(not parameters.RunChewie):
 		    	runningProcesses -= 1;
 		    	print "Number of process running " + str(runningProcesses);
 #	    	    else:
@@ -554,13 +764,13 @@ def main():
 #		    	for line in processes[p].stderr:
 #		    	    error[p]  += line;
 		    
- 	    elif(runChewie and status[p] == 2):
+ 	    elif(parameters.RunChewie and status[p] == 2):
  		status[p] = 3;
  		#Run Chewie
- 		print "Running Chewie..." ;
- 		templateOutName = templateName.replace("template",runName[p]);
- 		chewieReplace(chewieTemplateFileName, chewieDir + "/Express/xml/" + templateOutName, [fileList[p]]);
- 		cmd = "cd " + chewieDir + "Express; ./ChewieExpress " + templateOutName;
+ 		print "Running Chewie for " + runName[p];
+ 		templateOutName = parameters.ChewieExpressTemplateFileName.replace("template",runName[p]);
+ 		chewieExpressTemplateReplace(parameters, chewieTemplateFile, parameters.ChewieExpressTemplateFilePath + templateOutName, [fileList[p]]);
+ 		cmd = "cd " + parameters.ChewieDir + "Express; ./ChewieExpress " + templateOutName;
  		print "Running command: " + cmd;
                 outFiles[p] = open("Chewie_stdout_" + fileList[p], 'w');
  		processes[p] = subprocess.Popen(cmd, shell=True, stdout=outFiles[p], stderr=subprocess.PIPE);
@@ -595,7 +805,7 @@ def main():
 		    	      realError += line + '\n';
  		      if(realError != '') and ("created default TCanvas with name" not in realError):
  		    	  realError = "FATAL: There was an error executing Chewie! " + realError;
- 		    	  sendEmail(mailList, runName[p], realError);
+ 		    	  sendEmail(parameters.MailList, runName[p], realError);
  		    #print out;
 		    #print error;
  
@@ -617,7 +827,7 @@ def main():
  		    	    emailBody += "There are " + str(nOfIncorrectData[p]) + " incorrect data while decoding the Merged file.\n\n";
  		    emailBody += "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
  		    print emailBody;
- 		    sendEmail(mailList, runName[p], emailBody);
+ 		    sendEmail(parameters.MailList, runName[p], emailBody);
 
             done = True;
             for p in range (0, len(processes)):
@@ -626,7 +836,7 @@ def main():
 	    	    break;
             if(not done):
 	        time.sleep(1)
-    sendEmail(mailList, "Megascript Done!", "");
+    #sendEmail(parameters.MailList, "Megascript Done!", "");
 ############################################################################################
 if __name__ == "__main__":
     main()

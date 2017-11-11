@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE MonicelliExpressConfiguration SYSTEM "./dtd/ExpressConfiguration.dtd">
 <MonicelliExpressConfiguration>
-  <Defaults FilesPath="/raid1/menasce/AnalysisTBF/data/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01/Merged/"
-            GeometriesPath="/raid1/menasce/AnalysisTBF/data/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01/Geometries/"
+  <Defaults FilesPath="/data/TestBeam/2017_11_November/Merged/"
+            GeometriesPath="/data/TestBeam/2017_11_November/Geometries/"
             TrackFindingAlgorithm="FirstAndLast"
             TrackFittingAlgorithm="Simple"
-	    NumberOfEvents="10000"
+	    NumberOfEvents="40000"
 	    TrackPoints="8"
 	    MaxPlanePoints="5"
 	    Chi2Cut="-1"
@@ -15,5 +15,5 @@
 	    FineAlignment="true"
 	    FineTelescopeAlignment="true"
             UseEtaFunction="true"/>
-  <File Name="Run173_Merged.dat" Geometry="Run173_Merged.geo" />
+  <File Name="Run172_Merged.dat" Geometry="Run172_Merged.geo" />
 </MonicelliExpressConfiguration>

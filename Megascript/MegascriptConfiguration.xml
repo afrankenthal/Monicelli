@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<Configuration>
+
+  <General>
+    <MaxThreads>	8								      </MaxThreads>			     
+    <CopyRawFiles>	False								      </CopyRawFiles>		     
+    <MergeRawFiles>	False								      </MergeRawFiles>  			     
+    <RunMonicelli>	False								      </RunMonicelli>		     
+    <RunChewie> 	True								      </RunChewie>			     
+    <TestBeamYear>	2017    							      </TestBeamYear>		     
+    <TestBeamMonth>	04								      </TestBeamMonth>  	     
+    <TestBeamMonthName> April							              </TestBeamMonthName>    
+    <TestBeamYearMonth> ${TestBeamYear}${TestBeamMonthName}				      </TestBeamYearMonth>					      
+    <BaseDataDir>	/data/TestBeam/${TestBeamYear}_${TestBeamMonth}_${TestBeamMonthName}/ </BaseDataDir> 
+    <MergedDataDir>	${BaseDataDir}MergedPixelStrip/				              </MergedDataDir> 	      
+    <GeometriesDataDir> ${BaseDataDir}Geometries/					      </GeometriesDataDir>	     
+    <FileNameToProcess> Run{no}_Merged.dat						      </FileNameToProcess>		     
+    <MailList>  									      </MailList>											
+    <TemplateFilesDir>  ./templates/  						              </TemplateFilesDir>								      
+  </General>													      
+
+  <CopyRawFiles>
+    <RemoteComputer>testbeam01linux.dhcp.fnal.gov				</RemoteComputer>						      
+    <RemoteDir>     /media/sf_C_DRIVE/T992_${TestBeamMonthName}_${TestBeamYear}/</RemoteDir> 	      
+  </CopyRawFiles>
+
+  <Monicelli>												      
+    <MonicelliDir>	  /home/cmstestbeam/Programming/Monicelli/</MonicelliDir>					      
+    <MonicelliOutDataDir> ${BaseDataDir}MonicelliOutput/	  </MonicelliOutDataDir>					      
+    <GeometryFile>	  Run984_Merged.geo			  </GeometryFile>						      
+    <!--File used as a template by the megascript to substitute the run numbers 
+     and chewie configuration in order to create the xml file that ChewieExpress uses to run -->
+    <MonicelliExpressTemplateFilePath>${MonicelliDir}Express/xml/			 </MonicelliExpressTemplateFilePath>
+    <MonicelliExpressTemplateFileName>${TestBeamYearMonth}_MonicelliExpress_template.xml</MonicelliExpressTemplateFileName>
+  </Monicelli>
+
+  <Chewie>													      
+    <ChewieDir>                          /home/cmstestbeam/Programming/Chewie/                                      </ChewieDir>						      
+    <!--Name of the configuration file for Chewie, written in the xml that ChewieExpress uses to run -->
+    <ChewieExpressTemplateFilePath>	 ${ChewieDir}Express/xml/				                    </ChewieExpressTemplateFilePath>
+    <ChewieExpressTemplateFileName>	 ${TestBeamYearMonth}_ChewieExpress_template.xml	                    </ChewieExpressTemplateFileName>
+    <!--File used as a template by the megascript in case NO chewieConfigurationFileName exists! -->
+    <ChewieConfigurationFilePath>	 ${ChewieDir}xml/					                    </ChewieConfigurationFilePath>
+    <ChewieConfigurationFileName>	 chewiexml_dependent_2017April/2017April_ChewieConfiguration_Period_984.xml </ChewieConfigurationFileName>
+    <ChewieConfigurationTemplateFileName>./templates/Chewie_TestBeamConfiguration_template.xml                      </ChewieConfigurationTemplateFileName>
+  </Chewie>													      
+
+  <MonicelliExpressTemplate>
+      <FilesPath>	      ${MergedDataDir}    </FilesPath>		 
+      <GeometriesPath>        ${GeometriesDataDir}</GeometriesPath>	 
+      <TrackFindingAlgorithm> FirstAndLast	  </TrackFindingAlgorithm> 
+      <TrackFittingAlgorithm> Simple		  </TrackFittingAlgorithm> 
+      <NumberOfEvents>        1000		  </NumberOfEvents>	  
+      <TrackPoints>	      18		  </TrackPoints>	  
+      <MaxPlanePoints>        5		          </MaxPlanePoints>	  
+      <Chi2Cut> 	      -1		  </Chi2Cut>		  
+      <XTolerance>	      250		  </XTolerance> 	  
+      <YTolerance>	      250		  </YTolerance> 	  
+      <FindDut> 	      true		  </FindDut>		  
+      <FineAlignment>	      false		  </FineAlignment>	  
+      <FineTelescopeAlignment>false		  </FineTelescopeAlignment>
+      <UseEtaFunction>        false		  </UseEtaFunction>	  
+  </MonicelliExpressTemplate>
+  
+  <EnvironmentVariables>
+    <!--MonicelliDir>	       ${MonicelliDir} 									        </MonicelliDir-->	    
+    <Monicelli_RawData_Dir>    ${MergedDataDir}									        </Monicelli_RawData_Dir>   
+    <Monicelli_DataSample_Dir> ${MergedDataDir}									        </Monicelli_DataSample_Dir>
+    <Monicelli_CalSample_Dir>  ${BaseDataDir}Calibrations								</Monicelli_CalSample_Dir> 
+    <MonicelliOutputDir>       ${BaseDataDir}MonicelliOutput								</MonicelliOutputDir>      
+    <Monicelli_XML_Dir>        ${BaseDataDir}Geometries								        </Monicelli_XML_Dir>       
+    <ROOTSYS>		       /opt/local/root									        </ROOTSYS>		    
+    <QTDIR>		       /opt/local/qt										</QTDIR>		    
+    <LD_LIBRARY_PATH>	       /opt/local/root/lib:/opt/local/qt/lib:/opt/local/xerces/lib:${MonicelliDir}/plugins/libs/</LD_LIBRARY_PATH>	    
+    <MERGER_INPUT_DIR>	       ${BaseDataDir} 									        </MERGER_INPUT_DIR>	    
+    <MERGER_OUTPUT_DIR>        ${BaseDataDir}Merged									</MERGER_OUTPUT_DIR>       
+    <!--CHEWIEDIR>  	       ${ChewieDir}										</CHEWIEDIR-->	    
+    <CHEWIEDATADIR>	       ${BaseDataDir}MonicelliOutput								</CHEWIEDATADIR>	    
+    <CHEWIEINPUTDIR>	       ${BaseDataDir}ChewieInput								</CHEWIEINPUTDIR>	    
+    <CHEWIEOUTPUTDIR>	       ${BaseDataDir}ChewieOutput								</CHEWIEOUTPUTDIR>	    
+    <CHEWIEXMLDIR>	       ${ChewieDir}xml 									        </CHEWIEXMLDIR>	    
+  </EnvironmentVariables>
+</Configuration>
