@@ -684,7 +684,7 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
             nBins = calib[row][col]->GetNbinsX();
             while(bin<=nBins && calib[row][col]->GetBinContent(bin)==0)
                 bin++;
-            firstBinHisto_->Fill(row,col);
+            firstBinHisto_->Fill(row,col,bin);
 
         }
     }
@@ -727,9 +727,11 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
                 //}
                 //else
                 {
-                    if (precADC == 0) continue;
-                    calibNew[(*r).first][(*c).first]->SetBinContent(b,precADC);
-                    calibNew[(*r).first][(*c).first]->SetBinError(b,2.5);
+                    if (precADC != 0)
+                    {
+                        calibNew[(*r).first][(*c).first]->SetBinContent(b,precADC);
+                        calibNew[(*r).first][(*c).first]->SetBinError(b,2.5);
+                    }
                     precADC = currentADC;
                     //precBin = b;
                 }
@@ -764,9 +766,10 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
                         (maxBin-minBin > DYNAMICRANGE))
                 {
                     fitR = theFitter_->calibrationFit(calibNew[row][col],
-                                                      // 10000,
                                                       calibNew[row][col]->GetBinCenter(firstBin),
-                                                      22000,
+                                                      calibNew[row][col]->GetBinCenter(lastBin),
+                                                      //1000,
+                                                      //15000,
                                                       NULL);
                     pars = fitR.first;
                 }
@@ -838,7 +841,9 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
                     fitR = theFitter_->calibrationFit(
                                 calibNew[row][col],
                                 calibNew[row][col]->GetBinCenter(firstBin),
-                                22000,
+//                                1000,
+//                                15000,
+                                calibNew[row][col]->GetBinCenter(lastBin),
                                 rightPars
                                 );
                 }
