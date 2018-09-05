@@ -337,10 +337,142 @@ double ROC::getLengthLocalY (void)
 }
 
 //=============================================================================
-bool ROC::calibratePixel(int row, int col, int adc, int& charge, bool isDut)
+bool ROC::calibratePixel(int row, int col, int adc, int& charge, bool isDut, bool verbose)
 {
     double newAdc[1];
     double maxVCal[1] = {pow(2,ADCBITS) * ELECTRONS_NUMBER};
+
+    //>> wsi Revert COL HERE TO GET THE RIGHT CALIBRATION
+    if (this->getNumberOfCols() == 312)
+    {
+        if (col%4 == 3)
+            col = (col+1)/6-1;
+        else if (col%4 == 0)
+            col = col/6;
+        else if (col%4 == 2)
+            col = (col+2)/6-2;
+        else if (col%4 == 1)
+            col = (col-1)/6+1;
+    }
+    //<< 19/12/17
+
+    
+    //>> wsi SENSOR -> ROC (50x50)
+    if (this->getNumberOfCols() == 156 && this->getNumberOfRows() == 160)
+    {
+
+
+      if (col<9 || row>155) return false;
+      if ((col-9)%18==8 || (col-9)%18==9)
+      {
+//          std::cout << "ANDRE: before ROC: [" << col << ", " << row << "]" << std::endl;
+        if      ((col-9)%18==8) col = 3+(col-9)/18*6+2;
+        else if ((col-9)%18==9) col = 3+(col-9)/18*6+3;
+
+        if      (row%12 == 4) row = row/12*6+1;
+        else if (row%12 == 5) row = row/12*6+2;
+        else if (row%12 == 6) row = row/12*6+3;
+        else if (row%12 == 7) row = row/12*6+4;
+        else {
+//            std::cout << "ANDRE: after ROC: [" << col << ", " << row << "]" << std::endl;
+            return false;}
+//        std::cout << "ANDRE: after ROC: [" << col << ", " << row << "]" << std::endl;
+      }
+      else if ((col-9)%18==7 || (col-9)%18==10)
+      {
+//          std::cout << "ANDRE: before ROC: [" << col << ", " << row << "]" << std::endl;
+        if      ((col-9)%18==7) col = 3+(col-9)/18*6+1;
+        else if ((col-9)%18==10) col = 3+(col-9)/18*6+4;
+
+        if      (row%12 == 4) row = row/12*6+0;
+        else if (row%12 == 5) row = row/12*6+2;
+        else if (row%12 == 6) row = row/12*6+3;
+        else if (row%12 == 7) row = row/12*6+5;
+        else {
+//            std::cout << "ANDRE: after ROC: [" << col << ", " << row << "]" << std::endl;
+            return false;}
+//        std::cout << "ANDRE: after ROC: [" << col << ", " << row << "]" << std::endl;
+      }
+
+      else {return false;}
+
+      /* seems not be working... make some changes below
+      if (col%6 == 4 || col%6 == 1)
+      {
+        // COL
+        if (col%6 == 4) col = (col+2)/3-2;
+        if (col%6 == 1) col = (col+8)/3-2;
+
+        // ROW
+        if      (row%6 == 4) row = row/2-2;
+        else if (row%6 == 5) row = (row+3)/2-2;
+        else if (row%6 == 0) row = (row+4)/2-2;
+        else if (row%6 == 1) row = (row+7)/2-2;
+        else  {return false;}
+
+      }
+
+      else if (col%6 == 5 || col%6 == 0)
+      {
+        // COL
+        if (col%6 == 5) col = (col+4)/3-2;
+        if (col%6 == 0) col = (col+6)/3-2;
+
+        // ROW
+        if      (row%6 == 4) row = (row+2)/2-2;
+        else if (row%6 == 5) row = (row+3)/2-2;
+        else if (row%6 == 0) row = (row+4)/2-2;
+        else if (row%6 == 1) row = (row+5)/2-2;
+        else  {return false;}
+
+      }
+
+      else {return false;}
+
+      // No more valid short pitch pixels beyond column 50
+      if (col >= 50) {return false;}
+      */
+      
+
+////      col -= 6; /*row -=4;*/
+////      /*if (col%6 == 4 || col%6 == 1)
+////      {
+////        // COL
+////        if (col%6 == 4) col = (col+2)/3;
+////        if (col%6 == 1) col = (col+8)/3;
+////
+////        // ROW
+////        if      (row%6 == 4) row = row/2-2;
+////        else if (row%6 == 5) row = (row+3)/2-2;
+////        else if (row%6 == 0) row = (row+4)/2-2;
+////        else if (row%6 == 1) row = (row+7)/2-2;
+////        else  {return false;}
+////
+////      }
+////
+////      else*/ if (col%6 == 5 || col%6 == 0)
+////      {
+////        // COL
+////        if (col%6 == 5) col = (col+4)/3;
+////        if (col%6 == 0) col = (col+6)/3;
+////
+////        // ROW
+////        /*if      (row%6 == 4) row = (row+2)/2-2;
+////        else*/ if (row%6 == 5) row = (row+3)/2-2;
+////        else if (row%6 == 0) row = (row+4)/2-2;
+//////        else if (row%6 == 1) row = (row+5)/2-2;
+////        else  {return false;}
+////
+////      }
+////
+////      else {return false;}
+////
+////      // No more valid short pitch pixels within column 4
+////      if (col < 4) {return false;}
+
+
+    }
+    //<< 14/1/18
 
     newAdc[0] = adc;
     double *par = this->getCalibrationFunction(row, col);
@@ -351,6 +483,9 @@ bool ROC::calibratePixel(int row, int col, int adc, int& charge, bool isDut)
             newAdc[0] = (int)ROC::calibrationFitFunction(maxVCal, par, isDut);
 
         charge = (int)ROC::calibrationFitFunctionInv(newAdc , par, isDut);
+        if (verbose) {
+            std::cout<<"\nWSI newAdc: "<<newAdc[0]<<" par[0]"<<par[0]<<" par[1]: "<<par[1]<<" => charge: "<<charge<<" Col#:"<<this->getNumberOfCols()<<std::endl;
+        }
         //cout<<__LINE__<<__PRETTY_FUNCTION__<<" isDut: "<<isDut<<" charge: "<<charge<<endl;
         return true;
     }
@@ -366,6 +501,130 @@ bool ROC::calibratePixel(int row, int col, int adc, int& charge, bool isDut)
 //=============================================================================
 bool ROC::isPixelCalibrated(int row, int col)
 {
+    //>> wsi 21/12/17
+    if (this->getNumberOfCols()==312)
+    {
+        //std::cout<<"{'pos': ("<<col<<","<<row<<"), 'isCalibrated':"<<(pixelCalibrationFunctionTmp_.count(row) && pixelCalibrationFunctionTmp_[row].count(col))<<"}"<<std::endl;
+        if (col%4 == 3)
+            col = (col+1)/6-1;
+        else if (col%4 == 0)
+            col = col/6;
+        else if (col%4 == 2)
+            col = (col+2)/6-2;
+        else if (col%4 == 1)
+            col = (col-1)/6+1;
+    }
+    //<< wsi 21/12/17
+
+    //>> wsi SENSOR -> ROC (50x50)
+    if (this->getNumberOfCols() == 156 && this->getNumberOfRows() == 160)
+    {
+      if (col<9 || row>155) return false;
+      if ((col-9)%18==8 || (col-9)%18==9)
+      {
+        if      ((col-9)%18==8) col = 3+(col-9)/18*6+2;
+        else if ((col-9)%18==9) col = 3+(col-9)/18*6+3;
+
+        if      (row%12 == 4) row = row/12*6+1;
+        else if (row%12 == 5) row = row/12*6+2;
+        else if (row%12 == 6) row = row/12*6+3;
+        else if (row%12 == 7) row = row/12*6+4;
+        else {return false;}
+      }
+      else if ((col-9)%18==7 || (col-9)%18==10)
+      {
+        if      ((col-9)%18==7) col = 3+(col-9)/18*6+1;
+        else if ((col-9)%18==10) col = 3+(col-9)/18*6+4;
+
+        if      (row%12 == 4) row = row/12*6+0;
+        else if (row%12 == 5) row = row/12*6+2;
+        else if (row%12 == 6) row = row/12*6+3;
+        else if (row%12 == 7) row = row/12*6+5;
+        else {return false;}
+      }
+
+      else {return false;}
+
+      /*  see above.
+      if (col%6 == 4 || col%6 == 1)
+      {
+        // COL
+        if (col%6 == 4) col = (col+2)/3-2;
+        if (col%6 == 1) col = (col+8)/3-2;
+
+        // ROW
+        if      (row%6 == 4) row = row/2-2;
+        else if (row%6 == 5) row = (row+3)/2-2;
+        else if (row%6 == 0) row = (row+4)/2-2;
+        else if (row%6 == 1) row = (row+7)/2-2;
+        else  {return false;}
+
+      }
+
+      else if (col%6 == 5 || col%6 == 0)
+      {
+        // COL
+        if (col%6 == 5) col = (col+4)/3-2;
+        if (col%6 == 0) col = (col+6)/3-2;
+
+        // ROW
+        if      (row%6 == 4) row = (row+2)/2-2;
+        else if (row%6 == 5) row = (row+3)/2-2;
+        else if (row%6 == 0) row = (row+4)/2-2;
+        else if (row%6 == 1) row = (row+5)/2-2;
+        else  {return false;}
+
+      }
+
+      else {return false;}
+
+      // No more valid short pitch pixels beyond column 50
+      if (col >= 50) {return false;}
+      */
+
+
+////      col -= 6; /*row -=4;*/
+////      /*if (col%6 == 4 || col%6 == 1)
+////      {
+////        // COL
+////        if (col%6 == 4) col = (col+2)/3;
+////        if (col%6 == 1) col = (col+8)/3;
+////
+////        // ROW
+////        if      (row%6 == 4) row = row/2-2;
+////        else if (row%6 == 5) row = (row+3)/2-2;
+////        else if (row%6 == 0) row = (row+4)/2-2;
+////        else if (row%6 == 1) row = (row+7)/2-2;
+////        else  {return false;}
+////
+////      }
+////
+////      else*/ if (col%6 == 5 || col%6 == 0)
+////      {
+////        // COL
+////        if (col%6 == 5) col = (col+4)/3;
+////        if (col%6 == 0) col = (col+6)/3;
+////
+////        // ROW
+////        /*if      (row%6 == 4) row = (row+2)/2-2;
+////        else*/ if (row%6 == 5) row = (row+3)/2-2;
+////        else if (row%6 == 0) row = (row+4)/2-2;
+//////        else if (row%6 == 1) row = (row+5)/2-2;
+////        else  {return false;}
+////
+////      }
+////
+////      else {return false;}
+////
+////      // No more valid short pitch pixels within column 4
+////      if (col < 4) {return false;}
+
+
+
+    }
+    //<< 14/1/18
+
+
     if (pixelCalibrationFunctionTmp_.count(row) && pixelCalibrationFunctionTmp_[row].count(col))
         return true;
     else

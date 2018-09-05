@@ -92,7 +92,10 @@ HEADERS              = include/aligner.h                         	      		   \
                        plugins/customComboBox/customComboBox.h   	      		   \
                        plugins/customLineEdit/customLineEdit.h   	      		   \
                        plugins/customSpinBox/customSpinBox.h     	      		   \
-                       plugins/customTableView/customTableView.h
+                       plugins/customTableView/customTableView.h \
+    include/smallPitchTranslation50x50.h \
+    include/smallPitchTranslationBase.h \
+    include/smallPitchTranslation25x100.h
 
 SOURCES              = main.cpp                                  	      		   \
                        src/aligner.cpp                           	      		   \
@@ -142,7 +145,10 @@ SOURCES              = main.cpp                                  	      		   \
                        plugins/customComboBox/customComboBox.cpp                           \
                        plugins/customLineEdit/customLineEdit.cpp                           \
                        plugins/customSpinBox/customSpinBox.cpp                             \
-                       plugins/customTableView/customTableView.cpp
+                       plugins/customTableView/customTableView.cpp \
+    src/smallPitchTranslation50x50.cpp \
+    src/smallPitchTranslationBase.cpp \
+    src/smallPitchTranslation25x100.cpp
 
 
 RESOURCES            = Monicelli.qrc

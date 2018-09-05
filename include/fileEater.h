@@ -63,6 +63,9 @@
 //#include "trackFitter.h"
 #include "verbosity.h"
 
+#include "smallPitchTranslation25x100.h"
+#include "smallPitchTranslation50x50.h"
+
 using namespace std; // ToROOT6
 
 class trackFinder;
@@ -223,6 +226,9 @@ private:
     std::string                   currentAction_            ;
     subProcessVDef                currentSubProcess_        ;
     int                           currentProcessingStep_    ;
+
+    SmallPitchTranslation25x100       * thePitchTranslation25x100_      ;
+    SmallPitchTranslation50x50        * thePitchTranslation50x50_       ;
 };
 
 #endif // FILEEATER_H

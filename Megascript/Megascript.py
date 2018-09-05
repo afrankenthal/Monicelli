@@ -11,7 +11,7 @@ class Parameters:
     #################################################################################################
     #General parameters
     #################################################################################################
-    MaxThreads  	= 8;
+    MaxThreads  	= 6;
     CopyRawFiles	= False;
     MergeRawFiles	= False;
     RunMonicelli	= True;
@@ -20,16 +20,14 @@ class Parameters:
     TestBeamMonth	= "11";
     TestBeamMonthName	= "November";
     TestBeamYearMonth	= TestBeamYear + TestBeamMonthName;
-    BaseDataDir 	= "/data/TestBeam/" + TestBeamYear + "_" + TestBeamMonth + "_" + TestBeamMonthName + '/';
+    BaseDataDir 	= "/nfs/cms/mc1/as2872/TB_Data/"; # + TestBeamYear + "_" + TestBeamMonth + "_" + TestBeamMonthName + '/';
     MergedDataDir	= BaseDataDir + "Merged/";
     GeometriesDataDir	= BaseDataDir + "Geometries/"
     FileNameToProcess	= "Run{no}_Merged.dat";
-    #mailList		 = "uplegger@fnal.gov,irene.zoi@desy.de,lorenzo.viliani@cern.ch,caterina.vernieri@gmail.com,mauro.dinardo@cern.ch,marco.meschini@cern.ch,dzuolo@fnal.gov";
-    #mailList		 = "uplegger@fnal.gov,awalsh22@illinois.edu,shoh@fnal.gov,cvernier@fnal.gov,petra@fnal.gov,acanepa@fnal.gov,bschneid@fnal.gov";
-    #mailList		 = "uplegger@fnal.gov,awalsh22@illinois.edu,shoh@fnal.gov";
-    #mailList		 = "cms.pixel.testbeam@gmail.com";
-    #mailList		 = "shoh@fnal.gov,uplegger@fnal.gov";
-    MailList		= "uplegger@fnal.gov,dzuolo@fnal.gov";
+#    MailList		= "irene.zoi@desy.de,lorenzo.viliani@cern.ch,mauro.dinardo@cern.ch,marco.meschini@cern.ch,dzuolo@fnal.gov, andrea.fiaschi@cern.ch, rudy.ceccarelli@cern.ch";
+#    MailList		= "cristina.ana.mantilla.suarez@cern.ch,across19@utk.edu,sheila.silva.do.amaral@cern.ch,tongguang.cheng@cern.ch,weinan.si@cern.ch,as2872@cornell.edu";
+#    MailList		= "michael.krohn@colorado.edu,cristina.ana.mantilla.suarez@cern.ch,weinan.si@cern.ch,as2872@cornell.edu";
+    MailList		= "as2872@cornell.edu";
     TemplateFilesDir	= "./templates/";
 
     #################################################################################################
@@ -41,9 +39,9 @@ class Parameters:
     #################################################################################################
     #Monicelli parameters
     #################################################################################################
-    MonicelliDir	= "/home/cmstestbeam/Programming/Monicelli/";
+    MonicelliDir	= "/nfs/cms/mc1/as2872/TB_Software/Monicelli_Feb/";
     MonicelliOutDataDir = BaseDataDir + "MonicelliOutput/"
-    GeometryFile	= "Run172_Merged.geo";
+    GeometryFile	= "Run10408.geo";
     #File used as a template by the megascript to substitute the run numbers and geometry in order to create the xml file that MonicelliExpress uses to run 
     MonicelliExpressTemplateFilePath	= MonicelliDir + "Express/xml/";
     MonicelliExpressTemplateFileName	= TestBeamYearMonth + "_MonicelliExpress_template.xml";
@@ -51,14 +49,14 @@ class Parameters:
     #################################################################################################
     #Chewie parameters
     #################################################################################################
-    ChewieDir		= "/home/cmstestbeam/Programming/Chewie/";
+    ChewieDir		= "/nfs/cms/mc1/as2872/TB_Software/Chewie_Feb/";
     #File used as a template by the megascript to substitute the run numbers and chewie configuration in order to create the xml file that ChewieExpress uses to run 
     ChewieExpressTemplateFilePath	= ChewieDir + "Express/xml/";
     ChewieExpressTemplateFileName	= TestBeamYearMonth + "_ChewieExpress_template.xml";
 
     #Name of the configuration file for Chewie, written in the xml that ChewieExpress uses to run
     ChewieConfigurationFilePath 	= ChewieDir + "xml/";
-    ChewieConfigurationFileName 	= TestBeamYearMonth + "_ChewieConfiguration.xml";
+    ChewieConfigurationFileName 	= TestBeamYearMonth + "_ChewieConfiguration_Americans_Andre.xml";
 
     #File used as a template by the megascript in case NO chewieConfigurationFileName exists!
     ChewieConfigurationTemplateFileName = "templates/Chewie_TestBeamConfiguration_template.xml";
@@ -70,14 +68,14 @@ class Parameters:
     GeometriesPath	  = GeometriesDataDir; 
     TrackFindingAlgorithm = "FirstAndLast"; 
     TrackFittingAlgorithm = "Simple"; 
-    NumberOfEvents	  = "1000";
-    TrackPoints 	  = "6"; 
+    NumberOfEvents	  = "-1";
+    TrackPoints 	  = "7"; # was 8 
     MaxPlanePoints	  = "5"; 
     Chi2Cut		  = "-1"; 
     XTolerance  	  = "500"; 
     YTolerance  	  = "500";
     FindDut		  = "true";
-    FineAlignment	  = "true";
+    FineAlignment	  = "false";
     FineTelescopeAlignment= "true";
     UseEtaFunction	  = "false";
 
@@ -90,9 +88,14 @@ class Parameters:
     Monicelli_CalSample_Dir  = BaseDataDir + "Calibrations";							      
     MonicelliOutputDir       = BaseDataDir + "MonicelliOutput";							      
     Monicelli_XML_Dir        = BaseDataDir + "Geometries";
-    ROOTSYS		     = "/opt/local/root";
-    QTDIR		     = "/opt/local/qt";										
-    LD_LIBRARY_PATH	     = "/opt/local/root/lib:/opt/local/qt/lib:/opt/local/xerces/lib:" + MonicelliDir + "/plugins/libs/";
+    #ROOTSYS		     = "/opt/local/root";
+    #QTDIR		     = "/opt/local/qt";								
+    ROOTSYS = "/nfs/cms/mc1/as2872/TB_Software/root-6.06.06-build";
+    QTDIR = "/nfs/opt/qt-5.7.1/5.7/gcc_64";
+
+    #LD_LIBRARY_PATH	     = "/opt/local/root/lib:/opt/local/qt/lib:/opt/local/xerces/lib:" + MonicelliDir + "/plugins/libs/";
+    LD_LIBRARY_PATH = "/nfs/cms/mc1/as2872/TB_Software/root-6.06.06-build/lib:/nfs/opt/qt-5.7.1/5.7/gcc_64/lib:/nfs/cms/mc1/as2872/local/lib:" + MonicelliDir + "/plugins/libs/";
+
     MERGER_INPUT_DIR	     = BaseDataDir;									      
     MERGER_OUTPUT_DIR        = BaseDataDir + "Merged";								      
     #CHEWIEDIR  	     = chewieDir;									      
@@ -744,7 +747,7 @@ def main():
 		    cmd = "rm Monicelli_stdout_" + fileList[p];
  	    	    subprocess.Popen(cmd, shell=True);
 		    
- 		    if((error != '') and ('Error in <TCling' not in error)):
+ 		    if((error != '') and ('Error in cling' not in error)):
  		       print error
  		       error = "FATAL: There was an error executing Monicelli!"
  		       sendEmail(parameters.MailList, runName[p], error);
@@ -840,6 +843,10 @@ def main():
 ############################################################################################
 if __name__ == "__main__":
     main()
+    emailBodyFinal = "Megascript finished all runs!";
+    print emailBodyFinal;
+    sendEmail("as2872@cornell.edu", "Megascript finished", emailBodyFinal);
+
 
 
 

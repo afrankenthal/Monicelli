@@ -19,6 +19,6 @@
         <file alias="Description of cluster sizes">images/ClusterSize.png</file>
         <file alias="Example of good chi2 distribution">images/chi2.png</file>
         <file alias="Example of expected resolution on DUT(s)">images/resolution.png</file>
-        <file>images/treeIcon.png</file>
+        <file>images/TreeIcon.png</file>
     </qresource>
 </RCC>

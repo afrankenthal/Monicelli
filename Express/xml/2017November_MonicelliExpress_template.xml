@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='iso-8859-1'?>
+<!DOCTYPE MonicelliExpressConfiguration SYSTEM "./dtd/ExpressConfiguration.dtd">
+<MonicelliExpressConfiguration>
+  <Defaults FilesPath="/nfs/cms/mc1/as2872/TB_Data/Merged/"
+	       GeometriesPath="/nfs/cms/mc1/as2872/TB_Data/Geometries/"
+	       TrackFindingAlgorithm="FirstAndLast"
+	       TrackFittingAlgorithm="Simple"
+	       NumberOfEvents="-1"
+	       TrackPoints="7"
+	       MaxPlanePoints="5"
+	       Chi2Cut="-1"
+	       XTolerance="500"
+	       YTolerance="500"
+	       FindDut="true"
+	       FineAlignment="false"
+	       FineTelescopeAlignment="true"
+	       UseEtaFunction="false"/>
+</MonicelliExpressConfiguration>

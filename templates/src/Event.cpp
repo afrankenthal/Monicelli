@@ -65,7 +65,7 @@ void Event::clear (void )
     clustersHits_.clear()                      ;
     trackCandidates_.clear()                   ;
     fittedTracksChi2_.clear()                  ;
-    fittedTrackResiduals_.clear()               ;
+    fittedTrackResiduals_.clear()              ;
     fittedTracks_.clear()                      ;
     fittedTracksCovariance_.clear()            ;
 }
@@ -121,13 +121,17 @@ void Event::setClusters(const clustersMapDef& clusters)
 }
 
 //================================================================
-void Event::addUnconstrainedFittedTrack(unsigned int trackN, std::string detector, const vectorDef& fittedTrack, const matrixDef& covarianceMatrix, double fittedTrackChi2)
+void Event::addUnconstrainedFittedTrack(unsigned int           trackN          ,
+                                                 std::string   detector        ,
+                                        const    vectorDef   & fittedTrack     ,
+                                        const    matrixDef   & covarianceMatrix,
+                                                 double        fittedTrackChi2 )
 {
     while(unconstrainedFittedTracks_.size() <= trackN)
     {
         unconstrainedFittedTracks_          .push_back(std::map<std::string,vectorDef>());
         unconstrainedFittedTracksCovariance_.push_back(std::map<std::string,matrixDef>());
-        unconstrainedFittedTracksChi2_      .push_back(std::map<std::string,double>());
+        unconstrainedFittedTracksChi2_      .push_back(std::map<std::string,double   >());
     }
     unconstrainedFittedTracks_          [trackN][detector] = fittedTrack;
     unconstrainedFittedTracksCovariance_[trackN][detector] = covarianceMatrix;

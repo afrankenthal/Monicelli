@@ -568,6 +568,8 @@ bool aligner::alignDUT()
         for(unsigned int tr=0; tr < tracks.size(); tr++)
         {
             if( tracks[tr].count(DUT_) == 0 ) continue;
+            //small pitch - dzuolo
+            //if(tracks[tr][DUT_]["size"]!=1) continue;
             int pass = 0;
             unsigned int purePass = 0;
 
@@ -581,6 +583,25 @@ bool aligner::alignDUT()
                 if( maxClusterSize_ > 0 && tracks[tr][(*git).first]["size"] <= maxClusterSize_ )
                     purePass++;
             }
+
+            Event::alignedHitsCandidateMapDef::const_iterator trackIt1;
+            trackIt1 = tracks[tr].find(DUT_);
+            if (trackIt1 == tracks[tr].end()) continue;
+            Event::clusterCoordinateDef::const_iterator trackIt2;
+            trackIt2 = trackIt1->second.find("cluster ID");
+            if (trackIt2 == trackIt1->second.end()) continue;
+            int clusterNumber = (int)trackIt2->second;
+            Event::clustersMapDef::const_iterator clustersIt;
+            clustersIt = clusters.find(DUT_);
+            if (clustersIt == clusters.end()) continue;
+            Event::aClusterMapDef::const_iterator clusterIt;
+            clusterIt = clustersIt->second.find(clusterNumber);
+            if (clusterIt == clustersIt->second.end()) continue;
+            Event::aClusterDef cluster;
+            cluster = clusterIt->second;
+
+            if (cluster["charge"] < 8000) continue;
+
             //minimum points per track (8 telscope + 1 of the DUT that has to be aligned)
             if( minTrackPoints_ > 1 && pass < minTrackPoints_ + 1 ) continue;
 

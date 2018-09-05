@@ -28,49 +28,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ================================================================================*/
  
-#ifndef __AdamParaConverter_H__
-#define __AdamParaConverter_H__
+#ifndef _EventHeader_h_
+#define _EventHeader_h_
 
-#include "TTree.h"
-#include <fstream>
+#include <TObject.h>
 
-class EventReader;
-class Event;
-class EventHeader;
-class Geometry;
-
-
-typedef struct 
-{
-  double    xIntercept;
-  double    yIntercept;
-  double    xSlope;
-  double    ySlope;
-  double    x[8];
-  double    y[8];
-  double    z[8];  
-  double    xError[8];
-  double    yError[8];
-  double    zError[8];  
-} AdamParaEvent;
-
-class AdamParaConverter
+class EventHeader : public TObject
 {
 public:
-   AdamParaConverter(EventReader* reader);
-  ~AdamParaConverter(void);
-  
-  void analyzeEvent(unsigned int event) ;
+    EventHeader(void);
+    ~EventHeader(void);
 
-private: 
-  Event*        theEvent_    ;
-  EventHeader*  theHeader_   ;
-  Geometry*     theGeometry_ ;
-   
-  std::ofstream theFile_;
-  AdamParaEvent theAdamParaEvent_;
-   
-  int           runNumber_;
-};
+    void setClustersDone(bool done) ;
+    void setTracksFound (bool done) ;
 
-#endif
+    bool clustersDone   (void     ) ;
+    bool tracksFound    (void     ) ;
+
+private:
+    bool clustersDone_    ;
+    bool tracksFound_     ;
+
+    ClassDef(EventHeader,1);
+} ;
+
+#endif // EVENTHEADER_H

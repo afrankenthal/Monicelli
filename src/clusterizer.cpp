@@ -30,6 +30,7 @@
  
 #include "clusterizer.h"
 #include <iostream>
+#include <fstream>
 #include <TFile.h>
 #include <TF1.h>
 #include <TH1.h>
@@ -341,6 +342,90 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
             int p = 0;
             ROC* roc = 0;
 
+
+//            bool hasSmallCenterPixelHit = false;
+//            if (det->first == "Station: 4 - Plaq: 1") {
+//                for (Event::hitsDef::iterator hit = cluster->second.begin(); hit != cluster->second.end(); hit++) {
+//                    //std::cout << "[ANDRE] DUT1 COL " << ((*hit)["col"]-9)%18 << ", ROW " << (*hit)["row"]%12 << std::endl;
+//                    if ((((*hit)["col"]-9)%18 == 8 || ((*hit)["col"]-9)%18 == 9) && ((*hit)["row"]%12 == 5 || (*hit)["row"]%12 == 6)) {
+//                        hasSmallCenterPixelHit = true;
+//                        break;
+//                    }
+////                    if  (((*hit)["col"]-9)%18 != 8 && ((*hit)["col"]-9)%18 != 9 && ((*hit)["col"]-9)%18 !=7 && ((*hit)["col"]-9)%18 !=10)
+////                        isSmallPixel = true;
+////                    else
+////                       if ((*hit)["row"]%12 != 4 && (*hit)["row"]%12 != 5 && (*hit)["row"]%12 != 6 && (*hit)["row"]%12 != 7)
+////                           isSmallPixel = true;
+//                }
+//            }
+//            if (!hasSmallCenterPixelHit && det->first == "Station: 4 - Plaq: 1" && size > 1)
+//            {
+//                std::cout << "DUT 1: event doesn't have any small center pixel hits in size-2 clusters or larger, continuing..." << std::endl;
+//                continue;
+//            }
+//            // removing all size 2 clusters or higher for now
+//            if (size > 1 && det->first == "Station: 4 - Plaq: 1") continue;
+
+//            // removing all but one pixel
+//            if (size == 1 && det->first == "Station: 4 - Plaq: 1") {
+//                Event::hitsDef::iterator hit = cluster->second.begin();
+//                if (((*hit)["col"]-9)%18 == 8 && (*hit)["row"]%12 == 5) {
+//                    // ok
+//                }
+//                else
+//                    continue;
+//            }
+
+//            // removing 12 non-central pixels in 50x50
+//            if (size == 1 && det->first == "Station: 4 - Plaq: 1") {
+//                Event::hitsDef::iterator hit = cluster->second.begin();
+//                if ((((*hit)["col"]-9)%18 == 7 && (*hit)["row"]%12 == 4) ||
+//                    (((*hit)["col"]-9)%18 == 7 && (*hit)["row"]%12 == 7) ||
+//                    (((*hit)["col"]-9)%18 == 10 && (*hit)["row"]%12 == 4) ||
+//                    (((*hit)["col"]-9)%18 == 10 && (*hit)["row"]%12 == 7)) {
+//                    //std::cout << "DUT 1: eliminating 4 diagonal small pixels..." << std::endl;
+//                    continue;
+//                }
+//                else if ((((*hit)["col"]-9)%18 == 8 && (*hit)["row"]%12 == 7) ||
+//                         (((*hit)["col"]-9)%18 == 9 && (*hit)["row"]%12 == 7) ||
+//                         (((*hit)["col"]-9)%18 == 8 && (*hit)["row"]%12 == 4) ||
+//                         (((*hit)["col"]-9)%18 == 9 && (*hit)["row"]%12 == 4)) {
+//                         //std::cout << "DUT 1: eliminating 4 vertical small pixels..." << std::endl;
+//                         continue;
+//                }
+//                else if ((((*hit)["col"]-9)%18 == 7 && (*hit)["row"]%12 == 5) ||
+//                         (((*hit)["col"]-9)%18 == 7 && (*hit)["row"]%12 == 6) ||
+//                         (((*hit)["col"]-9)%18 == 9 && (*hit)["row"]%12 == 5) ||
+//                         (((*hit)["col"]-9)%18 == 9 && (*hit)["row"]%12 == 6)) {
+//                         //std::cout << "DUT 1: eliminating 4 lateral small pixels..." << std::endl;
+//                         continue;
+//                }
+//            }
+
+            //>> wsi ONLY make clusters if it has hits in short-pitch pixels
+//            if( det->first=="Station: 4 - Plaq: 1" && size>1)
+//            {
+//                //std::ofstream myfile;
+//                //myfile.open("mypos.txt",ios::app);
+//                //myfile<<"wsi\t";
+//                bool inShortPixel = false;
+//                for (Event::hitsDef::iterator hit = cluster->second.begin(); hit != cluster->second.end(); hit++)
+//                {
+//                    col = (*hit)["col"];
+//                    //row = (*hit)["row"];
+//                    if (col%4==0 || col%4==3)
+//                    {
+//                        inShortPixel = true;
+//                        break;
+//                    }
+//                    //myfile<<"("<<col<<","<<row<<") ";
+//                }
+//                //myfile<<"\n";
+//                //myfile.close();
+//                if (!inShortPixel) continue;
+//            }
+            //<< wsi 20/12/17
+
             for (Event::hitsDef::iterator hit = cluster->second.begin(); hit != cluster->second.end(); hit++, p++)
             {
                 pixels[p].x         = detector->getPixelCenterLocalX( (*hit)["col"] );
@@ -350,9 +435,23 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                 pixels[p].dataType  = (*hit)["dataType"];
                 stub                = (*hit)["stub"];
 
+                if (det->first=="Station: 4 - Plaq: 1") {
+//                    std::cout << "[ANDRE BEFORE] row: " << (*hit)["row"] << ", "
+//                              << " detector->getPixelPitchLocalY " << pixels[p].yPitch << std::endl;
+//                    std::cout << "[ANDRE BEFORE] row: " << (*hit)["row"] << ", "
+//                              << " detector->getPixelCenterLocalY " << pixels[p].y << std::endl;
+                }
+
                 row = (*hit)["row"];
                 col = (*hit)["col"];
                 roc = detector->convertPixelToROC(&row, &col);
+
+                if (det->first=="Station: 4 - Plaq: 1") {
+//                    std::cout << "[ANDRE AFTER] row: " << row << ", "
+//                              << " detector->getPixelPitchLocalY " << pixels[p].yPitch << std::endl;
+//                    std::cout << "[ANDRE AFTER] col: " << col << ", "
+//                              << " detector->getPixelCenterLocalY " << pixels[p].y << std::endl;
+                }
 
                 bool isDut = false;
 
@@ -365,6 +464,7 @@ Event::clustersMapDef clusterizer::makeClusters(Event* theEvent, Geometry* theGe
                         || det->first == "Station: 1 - Plaq: 1"
                         )
                     isDut = true;
+
                 roc->calibratePixel(row, col, (*hit)["adc"], (*hit)["charge"], isDut);
 
                 pixels[p].charge = abs( (*hit)["charge"] );

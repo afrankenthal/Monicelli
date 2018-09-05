@@ -5,7 +5,7 @@
             GeometriesPath="/data/TestBeam/2017_11_November/Geometries/"
             TrackFindingAlgorithm="FirstAndLast"
             TrackFittingAlgorithm="Simple"
-	    NumberOfEvents="40000"
+	    NumberOfEvents="-1"
 	    TrackPoints="8"
 	    MaxPlanePoints="5"
 	    Chi2Cut="-1"
@@ -15,5 +15,5 @@
 	    FineAlignment="true"
 	    FineTelescopeAlignment="true"
             UseEtaFunction="true"/>
-  <File Name="Run172_Merged.dat" Geometry="Run172_Merged.geo" />
+  <File Name="Run287.dat" Geometry="Run287.geo" />
 </MonicelliExpressConfiguration>

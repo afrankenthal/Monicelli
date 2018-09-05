@@ -276,7 +276,7 @@ fitter::fitResultDef fitter::calibrationFit(TH1    * histo,
         {
             if (     fitFunctionType_ == "linear"   )
             {
-//                STDLINE(fitFunctionType_,string(ACPurple)+string(ACReverse)) ;
+                STDLINE(fitFunctionType_,string(ACPurple)+string(ACReverse)) ;
                 calibrationFitFunction_->SetParNames  ("intercept", "slope"     );
                 calibrationFitFunction_->FixParameter (3   , 0                  );
                 calibrationFitFunction_->FixParameter (4   , 0                  );
@@ -284,7 +284,7 @@ fitter::fitResultDef fitter::calibrationFit(TH1    * histo,
             }
             else if (fitFunctionType_ == "parabolic")
             {
-//                STDLINE(fitFunctionType_,string(ACGreen)+string(ACReverse)) ;
+                STDLINE(fitFunctionType_,string(ACGreen)+string(ACReverse)) ;
                 calibrationFitFunction_->SetParNames  ("p0", "p1", "p2"         );
                 calibrationFitFunction_->FixParameter (4   , 0                  );
                 calibrationFitFunction_->SetParameters(1e-5, 1e-2, 200          );
@@ -308,9 +308,14 @@ fitter::fitResultDef fitter::calibrationFit(TH1    * histo,
                histo->GetBinContent(bin) > 0) entries++ ;
         }
 
-        if( entries > 10 )
+//        std::cout<<"WSIWSI Entries in range(min, 18k): "<<entries<<", "<<xmin<<", "<<xmax<<std::endl;
+
+//        if( entries > 10 )
+        if ( entries > 3 ) // wsi: (min, 18k) only contains ~10entries
         {
-            TFitResultPtr fitResult = histo->Fit(calibrationFitFunction_,"SQR","",xmin,xmax);
+            TFitResultPtr fitResult = histo->Fit(calibrationFitFunction_,"QR","",xmin,xmax);
+
+//            std::cout<<"WSIWSI Entries >5 >> fitResult : "<<float(fitResult)<<std::endl;
 
             if ((int)fitResult == 0 || (int)fitResult == 4)
             {

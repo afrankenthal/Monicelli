@@ -760,17 +760,29 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
                 minBin = calibNew[row][col]->GetMinimum(1);
                 maxBin = calibNew[row][col]->GetBinContent(calibNew[row][col]->GetMaximumBin());
 
+                //std::cout<<"XXXXXXX  "<<"ROW["<<row<<"] "<<"COL["<<col<<"] (firstBin, lastBin) - ("<<firstBin<<", "<<lastBin<<") => ("
+                //        <<calibNew[row][col]->GetBinCenter(firstBin)<<", "<<calibNew[row][col]->GetBinCenter(lastBin)<<")"<<std::endl;
+
                 if ((calibNew[row][col]->GetEntries() >= FITMINPOINTS)                                                                            &&
                         (calibNew[row][col]->GetBinCenter((int)firstBinHisto_->GetBinContent(firstBinHisto_->GetXaxis()->FindBin(row),
                                                                                              firstBinHisto_->GetYaxis()->FindBin(col))) < MAXTHRESHOLD) &&
                         (maxBin-minBin > DYNAMICRANGE))
                 {
-                    fitR = theFitter_->calibrationFit(calibNew[row][col],
-                                                      calibNew[row][col]->GetBinCenter(firstBin),
-                                                      calibNew[row][col]->GetBinCenter(lastBin),
-                                                      //1000,
-                                                      //15000,
-                                                      NULL);
+                    if (calibNew[row][col]->GetBinCenter(firstBin) < 18000) {
+                        fitR = theFitter_->calibrationFit(calibNew[row][col],
+                                                          calibNew[row][col]->GetBinCenter(firstBin),
+//                                                          calibNew[row][col]->GetBinCenter(lastBin),
+//                                                          1000,
+                                                          30000,
+                                                          NULL);
+                    }
+                    else
+                    {
+                        fitR = theFitter_->calibrationFit(calibNew[row][col],
+                                                          calibNew[row][col]->GetBinCenter(firstBin),
+                                                          calibNew[row][col]->GetBinCenter(lastBin),
+                                                          NULL);
+                    }
                     pars = fitR.first;
                 }
                 else
@@ -826,6 +838,9 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
                 minBin   = calibNew[row][col]->GetMinimum(1);
                 maxBin   = calibNew[row][col]->GetBinContent(calibNew[row][col]->GetMaximumBin());
 
+                //std::cout<<"WWWWWW  "<<"ROW["<<row<<"] "<<"COL["<<col<<"] (firstBin, lastBin) - ("<<firstBin<<", "<<lastBin<<") => ("
+                //        <<calibNew[row][col]->GetBinCenter(firstBin)<<", "<<calibNew[row][col]->GetBinCenter(lastBin)<<")"<<std::endl;
+
                 if ((calibNew[row][col]->GetEntries() >= FITMINPOINTS) &&
                         (
                             calibNew[row][col]->GetBinCenter(
@@ -838,14 +853,28 @@ bool calibrationLoader::makeDUTHistograms(std::string detector, ROC *roc, bool f
                         (maxBin-minBin > DYNAMICRANGE)
                         )
                 {
-                    fitR = theFitter_->calibrationFit(
-                                calibNew[row][col],
-                                calibNew[row][col]->GetBinCenter(firstBin),
-//                                1000,
-//                                15000,
-                                calibNew[row][col]->GetBinCenter(lastBin),
-                                rightPars
-                                );
+                    if (calibNew[row][col]->GetBinCenter(firstBin) < 18000) {
+                        fitR = theFitter_->calibrationFit(
+                                    calibNew[row][col],
+                                    calibNew[row][col]->GetBinCenter(firstBin),
+    //                                1000,
+                                    18000,
+//                                    calibNew[row][col]->GetBinCenter(lastBin),
+                                    rightPars
+                                    );
+                    }
+                    else
+                    {
+                        fitR = theFitter_->calibrationFit(
+                                    calibNew[row][col],
+                                    calibNew[row][col]->GetBinCenter(firstBin),
+    //                                1000,
+    //                                18000,
+                                    calibNew[row][col]->GetBinCenter(lastBin),
+                                    rightPars
+                                    );
+                    }
+
                 }
                 else
                 {

@@ -112,7 +112,11 @@ bool EventReader::openEventsFile(std::string inputFileName)
   
   std::string fullPath = path_ + inputFileName ;
   
-  unsigned int runNumberLength = 3;
+  unsigned int endRunNumber = inputFileName.find(".dat");
+  
+  if(inputFileName.find("_") != std::string::npos) endRunNumber = inputFileName.find("_"); 
+  
+  unsigned int runNumberLength = endRunNumber-3;
   STDLINE("WARNING: I am searching for a run number that is only " 
           << runNumberLength 
           << " digit long in a file name that is RunXXX_Merged.dat. If the file name is different you have to fix the line after this one!", ACRed) ;

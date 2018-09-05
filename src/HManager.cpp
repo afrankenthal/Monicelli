@@ -105,13 +105,13 @@ HManager::stringVDef HManager::fillResiduals (Event* theEvent   ,
                 ss_.str(""); ss_ << fullPaths[0]  << "/" << (*res).first;
                 if ( !runSubFolder_->FindObject(ss_.str().c_str()) )
                 {
-                    histoDevX =  new TH1D((*res).first.c_str(),(*res).first.c_str(),1602,-400,400);
+                    histoDevX =  new TH1D((*res).first.c_str(),(*res).first.c_str(),3*1602,-400,400);
                     histoDevX->GetXaxis()->SetTitle("X Residual (10um)");
                     histoDevX->GetYaxis()->SetTitle("Counts")           ;
                     histoDevX->SetDirectory(0);
                     this->addItem(fullPaths[0],histoDevX);
 
-                    histoDevY =  new TH1D((*res).first.c_str(),(*res).first.c_str(),1602,-400,400);
+                    histoDevY =  new TH1D((*res).first.c_str(),(*res).first.c_str(),3*1602,-400,400);
                     histoDevY->GetXaxis()->SetTitle("Y Residual (10um)");
                     histoDevY->GetYaxis()->SetTitle("Counts")           ;
                     histoDevY->SetDirectory(0);
@@ -1765,17 +1765,25 @@ HManager::stringVDef HManager::makeClusterPlots2(Event * theEvent, bool &add)
     TH1D* vetXH            = 0;
     TH1D* vetYH            = 0;
 
-    double length = theGeometry_->getMaxDetectorsLength();
+    double lengthX;
+    double lengthY;
+    double nCols;
+    double nRows;
 
     Event::clustersMapDef     &clusters    = theEvent->getClusters()     ;
     for(Event::clustersMapDef::iterator det=clusters.begin(); det!=clusters.end(); ++det)
     {
+        lengthX = theGeometry_->getDetector(det->first)->getDetectorLengthX(true);
+        lengthY = theGeometry_->getDetector(det->first)->getDetectorLengthY(true);
+        nCols   = theGeometry_->getDetector(det->first)->getNumberOfCols(true);
+        nRows   = theGeometry_->getDetector(det->first)->getNumberOfRows(true);
         ss_.str(""); ss_ << fullPaths[1]  << "/" << det->first;
         if ( (vetXH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str())) == 0 )
         {
             vetXH = new TH1D((*det).first.c_str(), det->first.c_str(),
-                             theGeometry_->getDetector(det->first)->getNumberOfCols(true),
-                             0,theGeometry_->getDetector(det->first)->getDetectorLengthX(true));
+                             nCols,
+                             0,
+                             lengthX);
             vetXH->GetXaxis()->SetTitle("X (10um)");
             vetXH->SetDirectory(0);
             this->addItem( fullPaths[1], vetXH );
@@ -1786,8 +1794,9 @@ HManager::stringVDef HManager::makeClusterPlots2(Event * theEvent, bool &add)
         if ( (vetYH = (TH1D*)runSubFolder_->FindObject(ss_.str().c_str())) == 0 )
         {
             vetYH = new TH1D((*det).first.c_str(),(*det).first.c_str(),
-                             theGeometry_->getDetector(det->first)->getNumberOfRows(true),
-                             0,theGeometry_->getDetector(det->first)->getDetectorLengthY(true));
+                             nRows,
+                             0,
+                             lengthY);
             vetYH->GetXaxis()->SetTitle("Y (10um)");
             vetYH->SetDirectory(0);
             this->addItem( fullPaths[2], vetYH );
@@ -1797,7 +1806,7 @@ HManager::stringVDef HManager::makeClusterPlots2(Event * theEvent, bool &add)
         ss_.str(""); ss_ << fullPaths[3]  << "/" << det->first;
         if ( (vet2H = (TH2D*)runSubFolder_->FindObject(ss_.str().c_str())) == 0 )
         {
-            vet2H = new TH2D((*det).first.c_str(),(*det).first.c_str(),100,0,length,100,0,length);
+            vet2H = new TH2D((*det).first.c_str(),(*det).first.c_str(),nCols,0,lengthX,nRows,0,lengthY);
             vet2H->GetYaxis()->SetTitle("Y (10um)");
             vet2H->GetXaxis()->SetTitle("X (10um)");
             vet2H->SetDirectory(0);
@@ -1817,8 +1826,8 @@ HManager::stringVDef HManager::makeClusterPlots2(Event * theEvent, bool &add)
 
         for (Event::aClusterMapDef::iterator cluster=(*det).second.begin(); cluster!=(*det).second.end(); cluster++)
         {
-            double y    = (*cluster).second["y"]   ;
             double x    = (*cluster).second["x"]   ;
+            double y    = (*cluster).second["y"]   ;
             vet2H->Fill(x,y);
             vetXH->Fill(x);
             vetYH->Fill(y);
@@ -2006,7 +2015,32 @@ HManager::stringVDef HManager::makeAdcDistributions2(Event * theEvent, bool &add
                 if(isCalibrated)
                     totADC += charge;
             }
-            electronDistribution->Fill( totADC );
+            if ((*aClusterHit).second.size() == 1 && (*det).first == "Station: 4 - Plaq: 1") {
+                for(unsigned int i=0; i < (*aClusterHit).second.size(); i++)
+                {
+                    unsigned int row = (*aClusterHit).second[i]["row"];
+                    unsigned int col = (*aClusterHit).second[i]["col"];
+                    ROC *roc = theGeometry_->getDetector((*det).first)->convertPixelToROC(&row, &col);
+                    if ((((col-3)%6) == 2 && (row % 6) == 2)|| (((col-3)%6) == 2 && (row % 6) == 3) ||
+                        (((col-3)%6) == 3 && (row % 6) == 2) || (((col-3)%6) == 3 && (row % 6) == 3)) {
+                    electronDistribution->Fill( totADC );
+                    }
+                }
+            }
+            else {
+                electronDistribution->Fill( totADC );
+            }
+
+//            std::cout << (*det).first << std::endl;
+            if ((*det).first == "Station: 4 - Plaq: 1" && totADC < 7000 && (*aClusterHit).second.size() == 1) {
+                for(unsigned int i=0; i < (*aClusterHit).second.size(); i++)
+                {
+                    unsigned int row = (*aClusterHit).second[i]["row"];
+                    unsigned int col = (*aClusterHit).second[i]["col"];
+                    ROC *roc = theGeometry_->getDetector((*det).first)->convertPixelToROC(&row, &col);
+//                    std::cout << "ANDRE: low charge: [" << row << ", " << col << "]" << std::endl;
+                }
+            }
         }
     }
 

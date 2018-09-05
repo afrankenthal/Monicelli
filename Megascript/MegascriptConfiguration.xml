@@ -11,7 +11,7 @@
     <TestBeamMonth>	04								      </TestBeamMonth>  	     
     <TestBeamMonthName> April							              </TestBeamMonthName>    
     <TestBeamYearMonth> ${TestBeamYear}${TestBeamMonthName}				      </TestBeamYearMonth>					      
-    <BaseDataDir>	/data/TestBeam/${TestBeamYear}_${TestBeamMonth}_${TestBeamMonthName}/ </BaseDataDir> 
+    <BaseDataDir>	/home/tbeam/TB_Data/ </BaseDataDir> 
     <MergedDataDir>	${BaseDataDir}MergedPixelStrip/				              </MergedDataDir> 	      
     <GeometriesDataDir> ${BaseDataDir}Geometries/					      </GeometriesDataDir>	     
     <FileNameToProcess> Run{no}_Merged.dat						      </FileNameToProcess>		     
@@ -25,9 +25,9 @@
   </CopyRawFiles>
 
   <Monicelli>												      
-    <MonicelliDir>	  /home/cmstestbeam/Programming/Monicelli/</MonicelliDir>					      
+    <MonicelliDir>	  /home/tbeam/TB_Software/Monicelli_Feb/</MonicelliDir>					      
     <MonicelliOutDataDir> ${BaseDataDir}MonicelliOutput/	  </MonicelliOutDataDir>					      
-    <GeometryFile>	  Run984_Merged.geo			  </GeometryFile>						      
+    <GeometryFile>	  Run10408_Merged.geo			  </GeometryFile>						      
     <!--File used as a template by the megascript to substitute the run numbers 
      and chewie configuration in order to create the xml file that ChewieExpress uses to run -->
     <MonicelliExpressTemplateFilePath>${MonicelliDir}Express/xml/			 </MonicelliExpressTemplateFilePath>
@@ -35,7 +35,7 @@
   </Monicelli>
 
   <Chewie>													      
-    <ChewieDir>                          /home/cmstestbeam/Programming/Chewie/                                      </ChewieDir>						      
+    <ChewieDir>                          /home/tbeam/TB_Software/Chewie/                                      </ChewieDir>						      
     <!--Name of the configuration file for Chewie, written in the xml that ChewieExpress uses to run -->
     <ChewieExpressTemplateFilePath>	 ${ChewieDir}Express/xml/				                    </ChewieExpressTemplateFilePath>
     <ChewieExpressTemplateFileName>	 ${TestBeamYearMonth}_ChewieExpress_template.xml	                    </ChewieExpressTemplateFileName>

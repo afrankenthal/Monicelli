@@ -40,109 +40,48 @@
 # source setup-6.sh
 # ./Monicelli
 
-alias do='make -f MakefileAll'
-alias cleanAll='make -f MakefileAll clean'
-alias distCleanAll='make -f MakefileAll distclean'
+#alias do='make -f MakefileAll'
+#alias cleanAll='make -f MakefileAll clean'
+#alias distCleanAll='make -f MakefileAll distclean'
 
-#===============   Personalized configuration on this computer   ==============================================
-if [ $HOSTNAME == "hal9000.mib.infn.it" ]; then
+export BASEDATADIR=/nfs/cms/mc1/as2872/TB_Data
 
-    if [ $USER == "menasce" ]; then
-	export BASEDATADIR=/raid1/menasce/AnalysisFTB/data/2015_10_October/
-    elif [ $USER == "dinardo" ]; then
-	export BASEDATADIR=/user/gr1/e831/dinardo/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
-    elif [ $USER == "dzuolo" ]; then
-	export BASEDATADIR=../data/TestBeamData2015
-    fi
+#===== Local directories
+export MonicelliDir=`pwd`
+export Monicelli_RawData_Dir=$BASEDATADIR/Merged
+export Monicelli_DataSample_Dir=$BASEDATADIR/Merged
+export Monicelli_CalSample_Dir=$BASEDATADIR/Calibrations
+export MonicelliOutputDir=$BASEDATADIR/MonicelliOutput
+export Monicelli_XML_Dir=$BASEDATADIR/Geometries
 
-    export PATH=/opt/rh/devtoolset-2/root/usr/bin:/bin:/usr/bin:/usr/local/bin:/usr/printmi/bin
+#===== Location of the ROOT components
+export ROOTVER=SIX
+export ROOTSYS=/nfs/cms/mc1/as2872/TB_Software/root-6.06.06-build
+export ROOTINC=$ROOTSYS/include
+export ROOTLIB=$ROOTSYS/lib
 
-    #===== Local directories
-    export MonicelliDir=`pwd`
-    export Monicelli_RawData_Dir=$BASEDATADIR/Merged
-    export Monicelli_DataSample_Dir=$BASEDATADIR/Merged
-    export Monicelli_CalSample_Dir=$BASEDATADIR/Calibrations
-    export MonicelliOutputDir=$BASEDATADIR/MonicelliOutput
-    export Monicelli_XML_Dir=$BASEDATADIR/Geometries
-    
-    #===== Location of the ROOT components
-    export ROOTVER=SIX
-    export ROOTSYS=/user/service/root-6.04.10/
-    export ROOTINC=$ROOTSYS/include/root
-    export ROOTLIB=$ROOTSYS/lib/root
-    
-    #===== Location of the Qt components
-    export QTDIR=/user/service/Qt-5.6.2/5.6/gcc_64/
-    export QTCREATORDIR=/raid1/menasce/qt-creator-opensource-src-4.3.0
-    export QTLIB=$QTDIR/lib
-    export QTINC=$QTDIR/include
+#===== Location of the Qt components
+export QTDIR=/nfs/opt/qt-5.7.1/5.7/gcc_64
+export QTCREATORDIR=/nfs/opt/qt-5.7.1/Tools/QtCreator
+export QTLIB=$QTDIR/lib
+export QTINC=$QTDIR/include
 
-    #===== Location of the BOOST components
-    export BOOSTINC=/usr/local/include/boost
-    export BOOSTLIB=/usr/local/lib
+#===== Location of the BOOST components
+export BOOSTINC=/usr/include/boost
+export BOOSTLIB=/usr/lib
     
-    #===== Location of the XERCES components
-    export XERCESCINC=/opt/local/xerces/include
-    export XERCESCLIB=/opt/local/xerces/lib
+#===== Location of the XERCES components
+export XERCESCINC=/nfs/cms/mc1/as2872/local/include
+export XERCESCLIB=/nfs/cms/mc1/as2872/local/lib
     
-    #===== C++ flags
-    export CPLUSPLUSFLAGS=-std=c++11
-   
-    export LD_LIBRARY_PATH=/usr/lib64
-    
-    alias qtcreator=$QTCREATORDIR/qtcreator
-    
-fi
-#===============   Personalized configuration on this computer   ==============================================
-if [ $HOSTNAME == "cip.mib.infn.it" ]; then
+#===== C++ flags
+export CPLUSPLUSFLAGS=-std=c++11
 
-    if [ $USER == "menasce" ]; then
-	export BASEDATADIR=/raid1/menasce/AnalysisFTB/data/2015_10_October/
-    elif [ $USER == "dinardo" ]; then
-	export BASEDATADIR=/user/gr1/e831/dinardo/TestBeamData_PlanarRadBatch01_PlanarRadBatch02_3DBatch01
-    elif [ $USER == "dzuolo" ]; then
-	export BASEDATADIR=../data/TestBeamData2015
-    fi
+export LD_LIBRARY_PATH=/usr/lib64
+    
+#alias qtcreator=$QTCREATORDIR/qtcreator
 
-    export PATH=/opt/rh/devtoolset-2/root/usr/bin:/bin:/usr/bin:/usr/local/bin:/usr/printmi/bin
-
-    #===== Local directories
-    export MonicelliDir=`pwd`
-    export Monicelli_RawData_Dir=$BASEDATADIR/Merged
-    export Monicelli_DataSample_Dir=$BASEDATADIR/Merged
-    export Monicelli_CalSample_Dir=$BASEDATADIR/Calibrations
-    export MonicelliOutputDir=$BASEDATADIR/MonicelliOutput
-    export Monicelli_XML_Dir=$BASEDATADIR/Geometries
     
-    #===== Location of the ROOT components
-    export ROOTVER=SIX
-    export ROOTSYS=/user/service/root-6.04.10/
-    export ROOTINC=$ROOTSYS/include/root
-    export ROOTLIB=$ROOTSYS/lib/root
-    
-    #===== Location of the Qt components
-    export QTDIR=/user/service/Qt-5.6.2/5.6/gcc_64
-    export QTCREATORDIR=/user/service/QtCreator-4.3.0/
-    export QTLIB=$QTDIR/lib
-    export QTINC=$QTDIR/include
-    
-    #===== Location of the BOOST components
-    export BOOSTINC=/usr/local/include/boost
-    export BOOSTLIB=/usr/local/lib
-    
-    #===== Location of the XERCES components
-    export XERCESCINC=/opt/local/xerces/include
-    export XERCESCLIB=/opt/local/xerces/lib
-    
-    #===== C++ flags
-    export CPLUSPLUSFLAGS=-std=c++11
-   
-    export LD_LIBRARY_PATH=/usr/lib64
-     
-    alias qtcreator=$QTCREATORDIR/qtcreator
-    
-fi
-	
 #===== Final PATH definitions
 export PATH=$ROOTSYS/bin:$QTDIR/bin:$QTCREATORDIR/bin:$PATH
 export LD_LIBRARY_PATH=$ROOTLIB:$BOOSTLIB:$QTDIR/lib:$XERCESCLIB/:$MonicelliDir/plugins/libs/:$MonicelliDir/test/customWidgets/libs:$LD_LIBRARY_PATH

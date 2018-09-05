@@ -632,6 +632,11 @@ void trackFitter::makeDetectorTrackResiduals ( ROOT::Math::SVector<double,4>   &
 
     Event::aClusterDef cluster = clusterIt->second;
 
+//    if (cluster["size"] != 1) return;
+
+    if (cluster["charge"] < 8000 &&
+            (detector == "Station: 4 - Plaq: 1" || detector == "Station: 4 - Plaq: 0")) return;
+
     double xm    = cluster["x"];
     double ym    = cluster["y"];
     double xmErr = cluster["xErr"];

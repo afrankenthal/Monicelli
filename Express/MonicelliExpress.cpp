@@ -23,8 +23,8 @@
 
 // @@@ Hard coded parameters @@@
 #define DUTfreePLANES 100011 // Define the fix [1] and free [0] parameters [z,y,x,gamma,beta,alpha]
-#define DORAWALIGNMENT true  // Find the transverse position of the beamspot
-#define CHI2RAWALIGN 60.0    // Track Chi2 for raw alignment
+#define DORAWALIGNMENT false  // Find the transverse position of the beamspot
+#define CHI2RAWALIGN 60.0   // Track Chi2 for raw alignment
 #define NTELEALIGN 2         // Maximum telescope fine alignments
 #define DUT2STEPS true       // Do DUT alignment in 2 steps: (1) only translations, (2) translations + angles
 #define LARGEROD 100000.     // DUT larger rod search
