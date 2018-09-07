@@ -600,11 +600,15 @@ bool fileEater::parseBinary3(TTree* tree)
                 else
                 {
                     adc          =  ((orderedData        & 0xf) + ((orderedData>>5  & 0xf)<<4))*4;
+
+                    ///////////////////////////////////////////////////////////////
                     //Regular PSI46
 //                    row          =  ((orderedData >> 9)  & 0x7) + (orderedData>>12 & 0x7)*6 + (orderedData>>15 & 0x7)*36;
 //                    col          =  ((orderedData >> 18) & 0x7) + (orderedData>>21 & 0x7)*6;
 //                    col = col*2 + row%2;
 //                    row = 80 - (row/2);
+                    ///////////////////////////////////////////////////////////////////////
+
                     chip         =  ((orderedData >> 24) & 0xf);
 
                     ///////////////////////////////////////////////////////////////
@@ -612,40 +616,16 @@ bool fileEater::parseBinary3(TTree* tree)
                     col          =  ((orderedData>>17    & 0x7) + ((orderedData>>21  & 0x7)<<3));
                     row          =  ((orderedData>>9     & 0x7) + ((orderedData>>13  & 0xf)<<3));
                     ///////////////////////////////////////////////////////////////////////
-                    //-- wsi 14/1/18
+
                     if(station == 4 && module == 0)
                     {
-
-                        //Mapping the 100X150 ROC with 100X25P1 sensor configuration
-                        // wsi
-//                        if (col % 4 == 1)
-//                            col = 6*(col+1)-1;
-//                        else if (col%4 == 2 )
-//                            col = 6*col;
-//                        //else continue;
-//                        //>> wsi 15/12/17
-//                        else if (col%4 == 0)
-//                            col = 6*(col+2)-2;
-//                        else if (col%4 == 3)
-//                            col = 6*(col-1)+1;
-//                        //<< wsi 15/12/17
-
-//                        if (!thePitchTranslation25x100_->isRegularSizedPixel(col, row))
-//                            continue;
+//                        Mapping the 100X150 ROC with 100X25P1 sensor configuration
 //                        if (!thePitchTranslation25x100_->isSmallPixel(col, row))
 //                            continue;
 //                        else
-                            thePitchTranslation25x100_->fromROCToSensorCoords(&col, &row);
-
+                          thePitchTranslation25x100_->fromROCToSensorCoords(&col, &row);
                     }
-                    //
 
-
-                    ///////////////////////////////////////////////////////////////
-                    //PROC600
-                    //col          =  ((orderedData>>17    & 0x7) + ((orderedData>>21  & 0x7)<<3));
-                    //row          =  ((orderedData>>9     & 0x7) + ((orderedData>>13  & 0xf)<<3));
-                    ///////////////////////////////////////////////////////////////////////
                     //std::stringstream ss;
                     //ss.str("");
                     //ss << "Station: " << station << " chip: " << chip << " row: " << row << " col: " << col << " adc: " << adc;
@@ -653,89 +633,22 @@ bool fileEater::parseBinary3(TTree* tree)
 
                     if (station == 4 && module == 1) // DUT
                     {
-
                       //unsigned int extra = 2;
                       ///col          =  ((orderedData>>17    & 0x7) + (orderedData>>18  & 0x38));
                       ///row          =  ((orderedData>>9     & 0x7) + (orderedData>>10  & 0x78));
 
-//                      if(col <= 3) continue;
-//                      if( (col-3)%6 == 2 || (col-3)%6 == 3)
-//                      {
-//                          //std::cout << "ANDRE: before file eater: [" << col << ", " << row << "]" << std::endl;
-
-//                        if      ((col-3)%6 == 2) col = 3*3+(col-3)/6*18+8;
-//                        else if ((col-3)%6 == 3) col = 3*3+(col-3)/6*18+9;
-                        
-//                        if (row>=78) continue;
-
-//                        if      (row%6 == 1) row = (row/6)*12+4;
-//                        else if (row%6 == 2) row = (row/6)*12+5;
-//                        else if (row%6 == 3) row = (row/6)*12+6;
-//                        else if (row%6 == 4) row = (row/6)*12+7;
-//                        else {
-////                            std::cout << "ANDRE: after file eater: [" << col << ", " << row << "]" << std::endl;
-//                            continue;}
-
-////                        std::cout << "ANDRE: after file eater: [" << col << ", " << row << "]" << std::endl;
- 
-//                      }
-//                      else if ((col-3)%6 == 1 || (col-3)%6 == 4)
-//                      {
-////                          std::cout << "ANDRE: before file eater: [" << col << ", " << row << "]" << std::endl;
-
-//                        if      ((col-3)%6 == 1) col = 3*3+(col-3)/6*18+7;
-//                        else if ((col-3)%6 == 4) col = 3*3+(col-3)/6*18+10;
-                        
-//                        if (row>=78) continue;
-
-//                        if      (row%6 == 0) row = (row/6)*12+4;
-//                        else if (row%6 == 2) row = (row/6)*12+5;
-//                        else if (row%6 == 3) row = (row/6)*12+6;
-//                        else if (row%6 == 5) row = (row/6)*12+7;
-//                        else {
-////                            std::cout << "ANDRE: after file eater: [" << col << ", " << row << "]" << std::endl;
-//                            continue;}
-
-////                        std::cout << "ANDRE: after file eater: [" << col << ", " << row << "]" << std::endl;
-
-//                      }
-//                      else {continue;}
-
-//                        if (((col-3) % 6 == 1) && col >= 3) {
-//                                        if (row % 6 == 0)
-//                                            thePitchTranslation_->fromROCToSensorCoords(&col, &row);
-//                                        else
-//                                            continue;
-//                        }
-//                        else
-//                            continue;
-
-//                        if (!thePitchTranslation50x50_->isRegularSizedPixel(col, row))
-//                            continue;
                         if (!thePitchTranslation50x50_->isSmallPixel(col, row))
                             continue;
                         else
                             thePitchTranslation50x50_->fromROCToSensorCoords(&col, &row);
 
-//                        if (thePitchTranslation_->isCornerSmallPixel50x50(col, row))
-//                            thePitchTranslation_->fromROCToSensorCoords(&col, &row);
+//                        if (thePitchTranslation50x50_->isCornerSmallPixel(col, row))
+//                        if (!thePitchTranslation50x50_->isRegularSizedPixel(col, row))
+//                        if (!thePitchTranslation50x50_->isBeginningRegularSizedPixel(col, row))
+//                        if (thePitchTranslation50x50_->isSmallPixel(col, row) && !thePitchTranslation50x50_->isCentralSmallPixel(col,row))
+//                            thePitchTranslation50x50_->fromROCToSensorCoords(&col, &row);
 //                        else
 //                            continue;
-
-//                        if (thePitchTranslation_->isSmallPixel50x50(col, row) && !thePitchTranslation_->isCentralSmallPixel50x50(col,row)) {
-//                            thePitchTranslation_->fromROCToSensorCoords(&col, &row);
-//                        }
-//                        else
-//                            continue;
-
-//                        if (!thePitchTranslation_->isBeginningRegularSizedPixel50x50(col, row))
-//                            continue;
-//                        int val = 0;
-//                        if (((col-3) % 6 == 0 || (col-3) % 6 == 5) && col >= 3) {
-//                                        if (row % 6 == 0 || row % 6 == 1 || row % 6 == 4 || row % 6 == 5) { val = 1; } }
-//                        else if (col < 3) val = 1;
-//                        if (val != 1) continue;
-
                       
                     }
                 }

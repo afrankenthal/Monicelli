@@ -6,3 +6,7 @@ Monicelli
 ui_*
 *.pcm
 qrc_*
+Express/xml/2017November_MonicelliExpress_Run*.xml
+*.qmake.stash
+*.pro.user.*
+*.pro.user

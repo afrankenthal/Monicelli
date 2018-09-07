@@ -25,9 +25,9 @@ public:
     void fromSensorToRocCoords(unsigned int *col, unsigned int *row);
 
 private:
-    vector<vector<int>> classGrid; //= vector<vector<int>>(80, vector<int>(52, 1));
-    vector<vector<int>> sensorToRocRowGrid; //= vector<vector<int>>(80, vector<int>(312));
-    vector<vector<int>> sensorToRocColGrid; // = vector<vector<int>>(80, vector<int>(312));
+    vector<vector<int>> classGrid;
+    vector<vector<int>> sensorToRocRowGrid;
+    vector<vector<int>> sensorToRocColGrid;
     void buildClassGrid();
     void buildSensorToRocTranslationGrid();
     void buildRocToSensorTranslationGrid();

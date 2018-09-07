@@ -1,11 +1,5 @@
 #include "smallPitchTranslation25x100.h"
 
-//SmallPitchTranslation25x100::SmallPitchTranslation()
-//{
-//    buildClassGrid50x50();
-//    buildTranslationGrid50x50();
-//}
-
 void SmallPitchTranslation25x100::buildRocToSensorTranslationGrid() {
     int newRow, newCol;
 
@@ -29,8 +23,8 @@ void SmallPitchTranslation25x100::buildRocToSensorTranslationGrid() {
             else if (col % 4 == 3)
                 newCol = 6*(col-1)+1;
 
-         rocToSensorColGrid[row][col] = newCol;
-         rocToSensorRowGrid[row][col] = newRow;
+            rocToSensorColGrid[row][col] = newCol;
+            rocToSensorRowGrid[row][col] = newRow;
         }
     }
 }
@@ -62,9 +56,8 @@ void SmallPitchTranslation25x100::buildSensorToRocTranslationGrid() {
                 newRow = -1;
             }
 
-
-         sensorToRocColGrid[row][col] = newCol;
-         sensorToRocRowGrid[row][col] = newRow;
+            sensorToRocColGrid[row][col] = newCol;
+            sensorToRocRowGrid[row][col] = newRow;
         }
     }
 }
@@ -95,23 +88,19 @@ void SmallPitchTranslation25x100::buildClassGrid() {
 }
 
 bool SmallPitchTranslation25x100::isRegularSizedPixel(int col, int row) {
-    return (classGrid[row][col] == 1);
+    return (classGrid.at(row).at(col) == 1);
 }
 
 bool SmallPitchTranslation25x100::isSmallPixel(int col, int row) {
-//    if (row < 0 || row > 79 || col < 0 || col > 311) {
-//        std::cout << "[ANDRE] DUT0 (25x100) out of bounds! Returning..." << std::endl;
-//        return false;
-//    }
     return (classGrid.at(row).at(col) == 10 || classGrid.at(row).at(col) == 9);
 }
 
 bool SmallPitchTranslation25x100::isCenteredSmallPixel(int col, int row) {
-    return (classGrid[row][col] == 10);
+    return (classGrid.at(row).at(col) == 10);
 }
 
 bool SmallPitchTranslation25x100::isOffsetSmallPixel(int col, int row) {
-    return (classGrid[row][col] == 9);
+    return (classGrid.at(row).at(col) == 9);
 }
 
 void SmallPitchTranslation25x100::fromROCToSensorCoords(unsigned int * col, unsigned int * row) {
@@ -123,10 +112,6 @@ void SmallPitchTranslation25x100::fromROCToSensorCoords(unsigned int * col, unsi
 }
 
 void SmallPitchTranslation25x100::fromSensorToRocCoords(unsigned int * col, unsigned int * row) {
-//    if (*row < 0 || *row > 79 || *col < 0 || *col > 311) {
-//        std::cout << "[ANDRE] DUT0 (25x100) out of bounds! Returning..." << std::endl;
-//        return;
-//    }
     unsigned int newCol, newRow;
     newCol = sensorToRocColGrid.at(*row).at(*col);
     newRow = sensorToRocRowGrid.at(*row).at(*col);

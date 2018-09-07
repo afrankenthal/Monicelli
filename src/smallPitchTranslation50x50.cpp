@@ -1,11 +1,5 @@
 #include "smallPitchTranslation50x50.h"
 
-//SmallPitchTranslation50x50::SmallPitchTranslation()
-//{
-//    buildClassGrid50x50();
-//    buildTranslationGrid50x50();
-//}
-
 void SmallPitchTranslation50x50::buildRocToSensorTranslationGrid() {
     int newRow, newCol;
 
