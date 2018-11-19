@@ -106,6 +106,8 @@ bool SmallPitchTranslation50x50::isCornerSmallPixel(int col, int row) {
 }
 
 bool SmallPitchTranslation50x50::isSmallPixel(int col, int row) {
+    if (row > 79 || col > 51) return false;
+
     return (classGrid[row][col] == 10 ||
             classGrid[row][col] == 9  ||
             classGrid[row][col] == 8  ||

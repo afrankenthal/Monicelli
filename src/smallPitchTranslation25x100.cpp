@@ -1,4 +1,6 @@
 #include "smallPitchTranslation25x100.h"
+#include <stdexcept>
+#include <iostream>
 
 void SmallPitchTranslation25x100::buildRocToSensorTranslationGrid() {
     int newRow, newCol;
@@ -92,7 +94,12 @@ bool SmallPitchTranslation25x100::isRegularSizedPixel(int col, int row) {
 }
 
 bool SmallPitchTranslation25x100::isSmallPixel(int col, int row) {
-    return (classGrid.at(row).at(col) == 10 || classGrid.at(row).at(col) == 9);
+    try {
+        return (classGrid.at(row).at(col) == 10 || classGrid.at(row).at(col) == 9);
+    }
+    catch (const std::out_of_range & error) {
+        std::cout << "[SmallPitchTranslation25x100] Out of range, col: " << col << ", row: " << row << std::endl;
+    }
 }
 
 bool SmallPitchTranslation25x100::isCenteredSmallPixel(int col, int row) {

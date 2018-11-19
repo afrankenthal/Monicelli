@@ -11,7 +11,7 @@ MAKEFILE      = Makefile
 ####### Compiler, tools and options
 
 CC            = gcc
-CXX           = echo ' ' && g++
+CXX           = g++
 DEFINES       = -DUSE_QT -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe $(CPLUSPLUSFLAGS) -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe $(CPLUSPLUSFLAGS) -std=gnu++11 -Wall -W -D_REENTRANT -fPIC $(DEFINES)

@@ -620,9 +620,9 @@ bool fileEater::parseBinary3(TTree* tree)
                     if(station == 4 && module == 0)
                     {
 //                        Mapping the 100X150 ROC with 100X25P1 sensor configuration
-//                        if (!thePitchTranslation25x100_->isSmallPixel(col, row))
-//                            continue;
-//                        else
+                        if (!thePitchTranslation25x100_->isSmallPixel(col, row))
+                            continue;
+                        else
                           thePitchTranslation25x100_->fromROCToSensorCoords(&col, &row);
                     }
 
